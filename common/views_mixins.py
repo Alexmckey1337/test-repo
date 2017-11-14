@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.http import HttpResponse
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import list_route
@@ -62,16 +61,6 @@ class BaseExportViewSetMixin(object):
             self.request.user.id, queryset.model, list(queryset.values_list('id', flat=True)),
             fields, resource_class, self.file_format, file_name])
 
-        # data = resource_class().export(queryset, custom_export_fields=fields)
-        # export_data = self.file_format.export_data(data, delimiter=';')
-        # content_type = self.file_format.get_content_type()
-        # response = HttpResponse(export_data, content_type=content_type)
-        #
-        # response['Content-Disposition'] = 'attachment; filename=%s' % (
-        #     self.get_export_filename(self.file_format),
-        # )
-        # response['Content-Encoding'] = 'UTF-8'
-        # return response
         return Response({'message': 'Successful task creating for generate export'})
 
 

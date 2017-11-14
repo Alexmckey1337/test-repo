@@ -1,8 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import pickle
-
 from edem.settings.celery import app
 from django.conf import settings
 from datetime import datetime

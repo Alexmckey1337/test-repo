@@ -5,7 +5,6 @@ import collections
 import logging
 from collections import defaultdict
 from datetime import datetime, time
-
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
@@ -29,6 +28,7 @@ from analytics.utils import model_to_dict
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
+from notification.backend import RedisBackend
 from payment.serializers import PaymentShowWithUrlSerializer
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
@@ -146,6 +146,7 @@ class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
 
     def get_queryset(self):
         return super().get_queryset().exclude(status__active=False)
+        # return super().get_queryset().annotate_full_name().exclude(status__active=False)
 
 
 class ToChar(Func):
@@ -610,7 +611,13 @@ def send_code(request, profile_id):
             return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
         if not profile.user.email:
             return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
-        send_email_with_code.apply_async(args=[profile_id, request.user.id])
+        task = send_email_with_code.apply_async(args=[profile_id, request.user.id])
+        try:
+            r = RedisBackend()
+            r.sadd('summit:email:wait:{}:{}'.format(profile.summit_id, profile_id), task.id)
+            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
+        except Exception as err:
+            print(err)
 
     if send_method == 'sms':
         send_sms_with_code.applay_async(args=[profile_id, request.user.id])
@@ -618,9 +625,18 @@ def send_code(request, profile_id):
     return Response(data={'profile_id': profile_id})
 
 
+def get_status_ids(summit_id):
+    r = RedisBackend()
+    ids = set()
+    for profile_id in r.scan_iter('summit:email:wait:{}:*'.format(summit_id)):
+        ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
+    return ids
+
+
 @api_view(['GET'])
 def send_unsent_codes(request, summit_id):
-    limit = 500
+    delay = 5
+    limit = -1
     summit = get_object_or_404(Summit, pk=summit_id)
     current_user = request.user
     if not current_user.is_summit_supervisor_or_high(summit):
@@ -628,15 +644,32 @@ def send_unsent_codes(request, summit_id):
 
     sent_count = 0
     unsent_count = 0
+    tasks = dict()
     if not summit.mail_template:
         return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-    for profile in summit.ankets.filter(emails__isnull=True).exclude(user__email='').select_related('user')[:limit]:
+
+    exist_ids = get_status_ids(summit_id)
+    countdown = 0
+    profiles = summit.ankets.filter(emails__isnull=True).exclude(
+        Q(user__email='') | Q(pk__in=exist_ids)).select_related('user')
+    if limit > 0:
+        profiles = profiles[:limit]
+    for profile in profiles:
         if not profile.user.email:
             unsent_count += 1
             continue
-        send_email_with_code.apply_async(args=[profile.id, current_user.id])
+        task = send_email_with_code.apply_async(args=[profile.id, current_user.id, countdown])
+        countdown += delay
+        tasks[profile.id] = task.id
         sent_count += 1
 
+    try:
+        r = RedisBackend()
+        for profile, task_id in tasks.items():
+            r.sadd('summit:email:wait:{}:{}'.format(summit_id, profile), task_id)
+            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
+    except Exception as err:
+        print(err)
     users_without_emails = summit.ankets.filter(user__email='').annotate(full_name=Concat(
                 'user__last_name', V(' '),
                 'user__first_name', V(' '),
