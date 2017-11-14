@@ -175,6 +175,12 @@ def privacy_policy(request):
     ctx = {}
     return render(request, 'privacy_policy.html', context=ctx)
 
+
+@login_required(login_url='entry')
+def ticket_scanner(request):
+    ctx = {}
+    return render(request, 'ticket_scanner.html', context=ctx)
+
 # partner
 
 

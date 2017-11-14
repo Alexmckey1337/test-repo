@@ -37,7 +37,6 @@ from .serializers import (DealSerializer, PartnershipUpdateSerializer, DealCreat
                           PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
                           PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
 from django.db import connection
-from collections import deque
 
 
 class PartnershipViewSet(
