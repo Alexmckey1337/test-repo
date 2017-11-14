@@ -20,7 +20,8 @@ class HardAuthenticationMiddleware(MiddlewareMixin):
 class ManagerAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         skin_id = request.COOKIES.get('skin_id', None)
-        if request.user and skin_id and request.user.skins.filter(pk=skin_id).exists():
+        user = request.user
+        if user and user.is_authenticated and skin_id and user.skins.filter(pk=skin_id).exists():
             try:
                 request.real_user = request.user
                 request.user = CustomUser.objects.get(id=skin_id)

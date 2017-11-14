@@ -24,6 +24,12 @@
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
+                {% is_summit_supervisor_or_high user summit as is_supervisor %}
+                {% if is_supervisor %}
+                <li>
+                    <button id="send_codes">Отправить коды</button>
+                </li>
+                {% endif %}
                 <li>
                     <button id="add">Добавить пользователя</button>
                 </li>
@@ -375,6 +381,19 @@
                         <% } else { %>
                         <td><%= results[index].reg_code %></td>
                         <% } %>
+                    <% } else if (key == 'has_email') { %>
+                        <td>
+                            <% if (results[index][key] === true) { %>
+                                <p class="text__center">✔</p>
+                            <% } else { %>
+                            {% if is_supervisor %}
+                                <button class="send_email inline__button"
+                                        data-id="<%= results[index].id%>">
+                                    Отправить код
+                                </button>
+                            {% endif %}
+                            <% } %>
+                        </td>
                     <% } else if (key == 'hierarchy' || key == 'church' ) { %>
                         <% if (results[index][key] != null ) { %>
                             <td><%= results[index][key].title %></td>

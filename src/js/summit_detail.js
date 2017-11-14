@@ -426,6 +426,18 @@ $(document).ready(function () {
 
     },300));
 
-
+    $('#send_codes').on('click', function () {
+        $(this).attr('disabled', true);
+        getData(URLS.summit.send_codes(SUMMIT_ID)).then(data => {
+            $('#send_codes').attr('disabled', false);
+            let msg = `<p class="text_row">Количество поставленых в очередь писем: <strong>${data.sent_count}</strong></p>
+                       <p class="text_row">Количество пользователей без email: <strong>${data.users_without_emails_count}</strong></p>`;
+            showAlert(msg);
+        }).catch(err => {
+            $('#send_codes').attr('disabled', false);
+            showAlert('При запросе на сервер произошла ошибка. Попробуйте позже');
+            console.log(err);
+        });
+    })
 
 });

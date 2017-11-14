@@ -1,5 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
+
+import pickle
+
 from edem.settings.celery import app
 from django.conf import settings
 from datetime import datetime
@@ -9,11 +12,15 @@ import os
 import shutil
 
 from notification.backend import RedisBackend
+from summit.models import SummitAnket
 
 
 @app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
 def generate_export(user, model, ids, fields, resource_class, file_format, file_name):
-    data = resource_class().export(model.objects.filter(id__in=ids), custom_export_fields=fields)
+    qs = model.objects.filter(id__in=ids)
+    if model == SummitAnket:
+        qs = qs.annotate_full_name()
+    data = resource_class().export(qs, custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
     file_name = file_name.replace(' ', '_') + '_export_at_' + datetime.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()

@@ -17,7 +17,7 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm
+from reportlab.lib.units import mm, cm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -257,9 +257,9 @@ def generate_ticket(code):
 
     buffer = BytesIO()
 
-    w = 90 * mm
-    h = 58 * mm
-    c = canvas.Canvas(buffer, pagesize=(w, h))
+    w = .035 * A4[0] * cm
+    h = w * 941 / 2241
+    c = canvas.Canvas(buffer, pagesize=A4)
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
@@ -349,45 +349,46 @@ def to_circle(im):
 
 
 def create_ticket_page(c, logo, w, h, u):
+    v = .035 * A4[1] * cm - h
     try:
-        c.drawImage(logo, (w - 51 * mm) / 2, (h - 51 * mm) / 2, width=51 * mm, height=51 * mm, mask='auto')
+        c.drawImage(logo, 0, v, width=w, height=h, mask='auto')
     except OSError:
         pass
-    try:
-        if u['image']:
-            im = Image.open(os.path.join(settings.MEDIA_ROOT, u['image']))
-            im = to_circle(im)
-            ir = ImageReader(im)
-            c.drawImage(ir, 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
-    except ValueError:
-        pass
-    except OSError:
-        pass
+    # try:
+    #     if u['image']:
+    #         im = Image.open(os.path.join(settings.MEDIA_ROOT, u['image']))
+    #         im = to_circle(im)
+    #         ir = ImageReader(im)
+    #         c.drawImage(ir, 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
+    # except ValueError:
+    #     pass
+    # except OSError:
+    #     pass
     c.setFillColor(HexColor('0x3f4e55'))
-    c.setFont('FreeSansBold', 126 * w / 2241)
-    c.drawString(750 * w / 2241, 925 * w / 2241, u['last_name'])
-    c.drawString(750 * w / 2241, 775 * w / 2241, u['first_name'])
-    c.setFillColor(HexColor('0x66787f'))
+    c.setFont('FreeSansBold', 46 * w / 2241)
+    c.drawString(80 * w / 2241, 165 * w / 2241 + v, u['last_name'])
+    c.drawString(970 * w / 2241, 165 * w / 2241 + v, u['first_name'])
+    # c.setFillColor(HexColor('0x66787f'))
 
-    c.setFont('FreeSansIt', 51 * w / 2241)
-    if u.get('pastor'):
-        c.drawString(450 * w / 2241, 485 * w / 2241, '(пастор)')
-    if u.get('bishop'):
-        c.drawString(450 * w / 2241, 335 * w / 2241, '(епископ)')
-
-    c.setFont('FreeSansIt', 76 * w / 2241)
-    if u.get('pastor'):
-        c.drawString(750 * w / 2241, 485 * w / 2241, u['pastor'])
-    if u.get('bishop'):
-        c.drawString(750 * w / 2241, 335 * w / 2241, u['bishop'])
+    # c.setFont('FreeSansIt', 51 * w / 2241)
+    # if u.get('pastor'):
+    #     c.drawString(450 * w / 2241, 485 * w / 2241, '(пастор)')
+    # if u.get('bishop'):
+    #     c.drawString(450 * w / 2241, 335 * w / 2241, '(епископ)')
+    #
+    # c.setFont('FreeSansIt', 76 * w / 2241)
+    # if u.get('pastor'):
+    #     c.drawString(750 * w / 2241, 485 * w / 2241, u['pastor'])
+    # if u.get('bishop'):
+    #     c.drawString(750 * w / 2241, 335 * w / 2241, u['bishop'])
 
     c.setFillColorRGB(1, 1, 1)
-    barcode_font_size = 140 * w / 2241
+    barcode_font_size = 70 * w / 2241
     barcode = createBarcodeDrawing('Code128', value=u['code'], lquiet=0,
-                                   barWidth=1.25, barHeight=665 / 2 * w / 2241,
+                                   barWidth=1.65, barHeight=465 / 2 * w / 2241,
                                    humanReadable=True,
                                    fontSize=barcode_font_size, fontName='FreeSans')
-    drawing_width = 1688 / 2 * w / 2241
+    drawing_width = 988 / 2 * w / 2241
     barcode_scale = drawing_width / barcode.width
     drawing_height = barcode.height * barcode_scale
     drawing = Drawing(drawing_width, drawing_height)
@@ -397,5 +398,5 @@ def create_ticket_page(c, logo, w, h, u):
     drawing_rotated.rotate(90)
     drawing_rotated.translate(0, -drawing_height)
     drawing_rotated.add(drawing, name='drawing')
-    renderPDF.draw(drawing_rotated, c, 1774 * w / 2241, 380 * w / 2241)
+    renderPDF.draw(drawing_rotated, c, 1974 * w / 2241, 200 * w / 2241 + v)
     c.showPage()

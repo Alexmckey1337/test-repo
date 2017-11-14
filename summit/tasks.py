@@ -73,19 +73,27 @@ def send_error(profile_id, sender_id):
 
 @app.task(max_retries=0)
 def send_email_with_code(profile_id, sender_id):
-    profile = SummitAnket.objects.get(pk=profile_id)
+    profile = SummitAnket.objects.select_related('summit__mail_template', 'user').get(pk=profile_id)
     template = profile.summit.mail_template
     email = profile.user.email
     if template and email:
         try:
-            result = send_db_mail(
+            pdf = generate_ticket(profile.code)
+            task = send_db_mail(
                 template.slug,
                 email,
                 {'profile': profile},
+                attachments=[('ticket.pdf', pdf, 'application/pdf')],
                 signals_kwargs={'anket': profile}
             )
-            if isinstance(result, AsyncResult):
-                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+            try:
+                r = RedisBackend()
+                r.sadd('summit:email:sending:{}:{}'.format(profile.summit_id, profile_id), task.id)
+                r.expire('summit:email:sending:{}'.format(profile), 30 * 24 * 60 * 60)
+            except Exception as err:
+                print(err)
+            # if isinstance(result, AsyncResult):
+            #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 
@@ -135,8 +143,8 @@ def send_sms_with_code(profile_id, sender_id):
                 slug=template.slug,
                 recipient=recipient,
             )
-            if isinstance(result, AsyncResult):
-                check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+            # if isinstance(result, AsyncResult):
+            #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 
