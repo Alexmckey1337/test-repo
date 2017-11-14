@@ -93,6 +93,15 @@ function makeSammitsDataTable(data, id) {
     $('.quick-edit').on('click', function () {
         makeQuickEditSammitCart(this);
     });
+    $('.send_email').on('click', function () {
+        let id = $(this).attr('data-id');
+        getData(URLS.summit.send_code(id)).then(() => {
+            showAlert('Код отправлен на почту');
+            createSummitUsersTable();
+        }).catch(err => {
+            showAlert(err.detail);
+        });
+    });
     fixedTableHead();
 }
 
