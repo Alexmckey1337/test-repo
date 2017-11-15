@@ -91,7 +91,7 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     objects = CustomUserManager()
 
     tracking_fields = (
-        'first_name', 'last_name', 'middle_name', 'search_name', 'phone_number', 'skype', 'image',
+        'first_name', 'last_name', 'middle_name', 'search_name', 'email', 'phone_number', 'skype', 'image',
         'country', 'region', 'city', 'district', 'address', 'born_name', 'facebook', 'vkontakte',
         'odnoklassniki', 'description', 'hierarchy', 'master', 'repentance_date',
         'coming_date', 'spiritual_level', 'extra_phone_numbers', 'cchurch', 'hhome_group',
