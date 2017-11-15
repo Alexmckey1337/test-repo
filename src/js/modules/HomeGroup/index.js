@@ -372,6 +372,7 @@ export function createHomeGroupsTable(config = {}) {
         $('#tableHomeGroup').html(rendered);
         $('.quick-edit').on('click', function () {
             let id = $(this).closest('.edit').find('a').attr('data-id');
+            $('.save-group').attr('disabled', false);
             ajaxRequest(URLS.home_group.detail(id), null, function (data) {
                 let quickEditCartTmpl, rendered;
                 quickEditCartTmpl = document.getElementById('quickEditCart').innerHTML;

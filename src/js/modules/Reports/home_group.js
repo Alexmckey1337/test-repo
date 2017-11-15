@@ -162,7 +162,7 @@ export function makeCaption(data) {
     let container = document.createElement('div');
     let title = document.createElement('h2');
     let dist = {
-        night: "О Ночной молитве",
+        night: "О Марафоне",
         home: "Домашней группы",
         service: "О Воскресном Служении"
     };
