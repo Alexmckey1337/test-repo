@@ -5,6 +5,8 @@ import collections
 import logging
 from collections import defaultdict
 from datetime import datetime, time
+
+from celery.result import AsyncResult
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (
@@ -118,7 +120,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
     }
 
     def get_queryset(self):
-        emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
+        emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
         qs = self.summit.ankets.annotate(has_email=Exists(emails)).select_related('status') \
             .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
@@ -633,6 +635,22 @@ def get_status_ids(summit_id):
     return ids
 
 
+def get_fail_ids(summit_id):
+    r = RedisBackend()
+    ids = set()
+    for profile_id in r.scan_iter('summit:email:sending:{}:*'.format(summit_id)):
+        tasks = r.smembers(profile_id)
+        fail = True
+        for task_id in tasks:
+            result = AsyncResult(task_id)
+            if result.successful() or not result.ready():
+                fail = False
+                break
+        if fail:
+            ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
+    return ids
+
+
 @api_view(['GET'])
 def send_unsent_codes(request, summit_id):
     delay = 5
@@ -649,9 +667,10 @@ def send_unsent_codes(request, summit_id):
         return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
 
     exist_ids = get_status_ids(summit_id)
+    fail_ids = get_fail_ids(summit_id)
     countdown = 0
     profiles = summit.ankets.filter(emails__isnull=True).exclude(
-        Q(user__email='') | Q(pk__in=exist_ids)).select_related('user')
+        Q(user__email='') | Q(pk__in=(exist_ids - fail_ids))).select_related('user')
     if limit > 0:
         profiles = profiles[:limit]
     for profile in profiles:

@@ -660,9 +660,7 @@ class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
                     (result.status, task_id.decode('utf8')))
         return statuses
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
+    def get_profiles(self):
         summit = get_object_or_404(Summit, pk=self.summit_id)
         profiles = summit.ankets.all()
         # emails = AnketEmail.objects.filter(is_success=False, anket_id=OuterRef('pk'))
@@ -675,6 +673,12 @@ class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
         statuses = self.get_statuses()
         for profile in profiles:
             profile['statuses'] = statuses[profile['id']]
+        return profiles
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        profiles = self.get_profiles()
 
         ctx['statuses'] = sorted(profiles, key=lambda p: len(p['statuses']), reverse=True)
 
