@@ -117,7 +117,8 @@ export function createNewUser(callback) {
     ajaxSendFormData(config).then(function (data) {
         $preloader.css('display', 'none');
         showPopupAddUser(data);
-        $('#addNewUserPopup').css('display', 'none');
+        // $('#addNewUserPopup').css('display', 'none');
+        $('#addNewUserPopup').removeClass('active');
         if (callback != null) {
             callback(data);
         }
@@ -138,6 +139,7 @@ function showPopupAddUser(data) {
         e.preventDefault();
         $('#addPopup').css('display', 'none').remove();
         $('#addNewUserPopup').find('form').removeClass('active');
+        $('.bg').removeClass('active');
         if ($(this).is('a')) {
             let url = $(this).attr('href');
             setTimeout(function () {

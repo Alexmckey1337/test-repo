@@ -57,6 +57,7 @@ $('document').ready(function () {
         $('#chooseDepartment').html(option).attr('required', false).attr('disabled', false);
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
     });
+
     $('#searchUserFromDatabase').on('keyup', _.debounce(function () {
         let search = $(this).val();
         if (search.length > 2) makeUsersFromDatabaseList();
