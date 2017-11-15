@@ -63,6 +63,7 @@
       }
       span {
         font-weight: bold;
+        font-weight: 300;
       }
     }
   }
@@ -88,6 +89,7 @@
       select, input {
         &[readonly], &[disabled="disabled"] {
           background: #f2f5fa;
+          font-weight: 600;
         }
       }
       input {
@@ -205,6 +207,7 @@
     margin-bottom: 20px;
     & > li {
       padding: 1.5em 1em;
+
       .right-info__block {
         position: relative;
         border: 1px solid transparent;
@@ -218,6 +221,8 @@
           margin-bottom: 15px;
           font-family: "UbuntuLight", sans-serif;
           font-size: 1.5em;
+          color: #cdd0d4;
+          transition: color .3s;
         }
         form ul {
           padding-top: 8px;
@@ -450,8 +455,13 @@
           color: #3caeda;
         }
       }
-      &:hover button {
-        opacity: 1;
+      &:hover{
+        button {
+          opacity: 1;
+        }
+        h4{
+          color: #656d78;
+        }
       }
     }
   }
