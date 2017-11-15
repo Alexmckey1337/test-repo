@@ -277,7 +277,7 @@ td {
       opacity: 0;
       &:disabled + label:before,&:checked:disabled + label:before{
         background: none;
-        content: '\f00c';
+        //content: '\f00c';
         font-family: FontAwesome;
         font-size: 15px;
         color: #656d78;
@@ -286,8 +286,8 @@ td {
         bottom: auto;
         right: auto;
         transform: translate(-50%,-50%);
-        width: auto;
-        height: auto;
+        width: 20px;
+        height: 20px;
       }
     }
   }
@@ -304,11 +304,16 @@ td {
       display: block;
       position: absolute;
       content: '';
-      top: -3px;
-      right: -20px;
+      font-family: FontAwesome;
+      border:1px solid rgb(238, 238, 238);
+      color: #3caeda;
+      border-radius: 3px;
       width: 20px;
       height: 20px;
-      background: url('../img/scheck-box.png') no-repeat 0 0;
+      text-align: center;
+      padding-top: 2px;
+      box-sizing: border-box;
+      //background: url('../img/scheck-box.png') no-repeat 0 0;
     }
   }
   a:hover{
@@ -317,9 +322,13 @@ td {
   }
   &[data-value="attended"]{
     label{
+      position: absolute;
+      right:0%;
+      top:0%;
       &::before{
         left: 50%;
-        transform: translateX(-50%);
+        top:50%;
+        transform: translate(-50%,-50%);
         right: auto;
       }
     }
