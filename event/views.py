@@ -236,7 +236,14 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                 output_field=IntegerField(), default=0))))
 
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
-        statistics['new_repentance'] = CustomUser.objects.filter(
+
+        master_id = request.query_params.get('master_tree')
+        if master_id:
+            query = CustomUser.objects.for_user(user=CustomUser.objects.get(id=master_id))
+        else:
+            query = CustomUser.objects.for_user(self.request.user)
+
+        statistics['new_repentance'] = query.filter(
             repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
@@ -390,7 +397,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
 
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
-        queryset = self.filter_queryset(self.queryset)
+        user = request.query_params.get('master_tree')
+        queryset = self.filter_queryset(self.queryset.for_user(user))
 
         statistics = queryset.aggregate(
             total_peoples=Sum('count_people'),
