@@ -669,7 +669,8 @@ def send_unsent_codes(request, summit_id):
     exist_ids = get_status_ids(summit_id)
     fail_ids = get_fail_ids(summit_id)
     countdown = 0
-    profiles = summit.ankets.filter(emails__isnull=True).exclude(
+    emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
+    profiles = summit.ankets.annotate(has_email=Exists(emails)).filter(has_email=False).exclude(
         Q(user__email='') | Q(pk__in=(exist_ids - fail_ids))).select_related('user')
     if limit > 0:
         profiles = profiles[:limit]
