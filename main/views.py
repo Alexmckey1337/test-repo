@@ -671,7 +671,7 @@ class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
             email_statuses=ArrayAgg('emails__is_success'),
             full_name=Concat(
                 'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
-        profiles = list(profiles.values('id', 'code', 'email_statuses', 'user_id', 'full_name'))
+        profiles = list(profiles.values('id', 'code', 'email_statuses', 'user_id', 'full_name', 'user__email'))
         statuses = self.get_statuses()
         for profile in profiles:
             profile['statuses'] = statuses[profile['id']]

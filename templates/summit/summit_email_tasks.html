@@ -20,13 +20,15 @@
     <table>
         <tr>
             <th>{% trans "User" %}</th>
+            <th>{% trans "Email" %}</th>
             <th>{% trans "Code" %}</th>
             <th>{% trans "Emails" %}</th>
             <th>{% trans "Statuses" %}</th>
         </tr>
         {% for s in statuses %}
-            <tr>
+            <tr{% if not s.user__email %} style="background-color:#ffdddd;"{% endif %}>
                 <td><a href="{% url "account:detail" s.user_id %}">{{ s.full_name }}</a></td>
+                <td>{{ s.user__email }}</td>
                 <td><a href="{% url "summit:profile-detail" pk=s.id %}">{{ s.code }}</a></td>
                 <td>
                     <a href="{% url "summit:profile-email-list" profile_id=s.id %}">

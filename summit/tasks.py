@@ -85,7 +85,8 @@ def send_email_with_code(profile_id, sender_id, countdown=0):
                 {'profile': profile},
                 attachments=[('ticket.pdf', pdf, 'application/pdf')],
                 signals_kwargs={'anket': profile},
-                send_after=countdown
+                send_after=countdown,
+                max_retries=0
             )
             try:
                 r = RedisBackend()
