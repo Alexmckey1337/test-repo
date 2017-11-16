@@ -53,7 +53,7 @@ def delete_expired_export():
         for user_exports in r.scan_iter('export:*'):
             r.delete(user_exports)
 
-        shutil.rmtree(settings.MEDIA_ROOT + '/export/')
+        shutil.rmtree(settings.MEDIA_ROOT + '/exports/')
 
     except Exception as err:
         print(err)
