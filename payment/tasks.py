@@ -1,8 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import pickle
-
 from edem.settings.celery import app
 from django.conf import settings
 from datetime import datetime
@@ -55,7 +53,7 @@ def delete_expired_export():
         for user_exports in r.scan_iter('export:*'):
             r.delete(user_exports)
 
-        shutil.rmtree(settings.MEDIA_ROOT + '/export/')
+        shutil.rmtree(settings.MEDIA_ROOT + '/exports/')
 
     except Exception as err:
         print(err)

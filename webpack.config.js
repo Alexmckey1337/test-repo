@@ -32,9 +32,6 @@ module.exports = {
         meetings_summary: ['babel-polyfill', './meetings_summary'],
         home_reports_detail: ['babel-polyfill', './home_reports_detail'],
         home_statistics: ['babel-polyfill', './home_statistics'],
-        // all_payment: ['babel-polyfill', './all_payment'],
-        // partner_payments: ['babel-polyfill', './partner_payments'],
-        // deal_payments: ['babel-polyfill', './deal_payments'],
         deals: ['babel-polyfill', './deals'],
         partner_list: ['babel-polyfill', './partner_list'],
         partnership_summary: ['babel-polyfill', './partnership_summary'],
@@ -44,6 +41,7 @@ module.exports = {
         summit_stats: ['babel-polyfill', './summit_stats'],
         summit_bishop: ['babel-polyfill', './summit_bishop'],
         summit_statistics: ['babel-polyfill', './summit_statistics'],
+        scanner: ['babel-polyfill', './scanner'],
     },
     output: {
         path: path.resolve(__dirname, './public/static/js'),

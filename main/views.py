@@ -1,12 +1,17 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.mixins import LoginRequiredMixin
+from collections import defaultdict
+
+from celery.result import AsyncResult
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Count, Case, When, BooleanField, Q
+from django.db.models import Count, Case, When, BooleanField, Q, Value, OuterRef, Exists
+from django.db.models.functions import Concat
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
@@ -24,7 +29,7 @@ from partnership.models import Partnership, Deal, PartnerGroup
 from payment.models import Currency
 from status.models import Division
 from summit.models import SummitType, SummitTicket, SummitAnket, Summit, AnketEmail
-from task.models import Task, TaskType
+from task.models import TaskType
 
 
 def entry(request):
@@ -629,6 +634,53 @@ class SummitHistoryStatisticsView(LoginRequiredMixin, CanSeeSummitHistoryStatsMi
 
         ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
         ctx['departments'] = Department.objects.all()
+
+        return ctx
+
+
+class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
+    template_name = 'summit/summit_email_tasks.html'
+    login_url = 'entry'
+    active_tab = 'home_groups'
+
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('summit_id')
+        return super().get(request, *args, **kwargs)
+
+    def get_statuses(self):
+        r = RedisBackend()
+        statuses = defaultdict(list)
+        for profile_id in r.scan_iter('summit:email:sending:{}:*'.format(self.summit_id)):
+            tasks = r.smembers(profile_id)
+            for task_id in tasks:
+                result = AsyncResult(task_id)
+                statuses[int(profile_id.decode('utf8').rsplit(':', 1)[-1])].append(
+                    (result.status, task_id.decode('utf8')))
+        return statuses
+
+    def get_profiles(self):
+        summit = get_object_or_404(Summit, pk=self.summit_id)
+        profiles = summit.ankets.all()
+        # emails = AnketEmail.objects.filter(is_success=False, anket_id=OuterRef('pk'))
+        # profiles = profiles.annotate(email_exist=Exists(emails)).filter(email_exist=True)
+        profiles = profiles.annotate(
+            email_statuses=ArrayAgg('emails__is_success'),
+            full_name=Concat(
+                'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
+        profiles = list(profiles.values('id', 'code', 'email_statuses', 'user_id', 'full_name', 'user__email'))
+        statuses = self.get_statuses()
+        for profile in profiles:
+            profile['statuses'] = statuses[profile['id']]
+        return profiles
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        profiles = self.get_profiles()
+
+        ctx['statuses'] = sorted(profiles, key=lambda p: len(p['statuses']), reverse=True)
 
         return ctx
 

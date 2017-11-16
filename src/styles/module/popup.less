@@ -54,6 +54,7 @@
   position: fixed;
   max-width: 940px;
   min-width: 535px;
+  min-width:0;
   height: 100%;
   top: 0;
   right: 0;
@@ -99,7 +100,13 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-
+  }
+  & > .container, &>form> .container{
+    button {
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+    }
   }
   .closeForm,.nextForm{
     display: block;
@@ -132,6 +139,7 @@
         width: 100%;
         display: flex;
         justify-content: space-between;
+        justify-content: flex-end;
         &.has-error{
           .select2-container{
             .select2-selection--single{
@@ -174,7 +182,7 @@
           background-image: radial-gradient(circle,#656d78 .6px,transparent 1px);
           background-repeat: repeat-x;
           background-size: 5px 2px;
-          content: '';
+          //content: '';
         }
         &:last-child{
           position: relative;

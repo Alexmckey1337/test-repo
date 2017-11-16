@@ -188,7 +188,11 @@ $(document).ready(function () {
     $('.bg').on('click', function () {
         $(this).removeClass('active');
         $('.popap_slide').removeClass('active');
-    })
+    });
+    $('.apply-filter').on('click',function () {
+        $('.bg').removeClass('active');
+        $('.popap_slide').removeClass('active');
+    });
 
 });
 
