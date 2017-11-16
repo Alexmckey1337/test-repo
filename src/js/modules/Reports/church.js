@@ -197,9 +197,9 @@ export function makeCaption(data) {
     let dateTitle = document.createElement('label');
     let dateData = document.createElement('input');
     $(dateTitle).text('Дата отчёта: ');
-    let dateReportsFormatted = new Date(data.date.split('.').reverse().join(','));
-    let thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(1).format();
-    let nextSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
+    let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
+        thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
+        thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
     $(dateData).val(data.date).attr({
         'size': data.date.length,
         'name': 'date',
@@ -207,7 +207,7 @@ export function makeCaption(data) {
     }).datepicker({
         autoClose: true,
         minDate: new Date(thisMonday),
-        maxDate: new Date(nextSunday),
+        maxDate: new Date(thisSunday),
     });
     $(dateContainer).append(dateTitle).append(dateData);
     $(container).append(dateContainer);
