@@ -213,13 +213,33 @@ $('document').ready(function () {
             deleteData(URLS.home_group.detail(id)).then(() => {
                 showAlert('Домашняя группа успешно удалена!');
                 $('#quickEditCartPopup').css('display', 'none');
+                $('.bg').removeClass('active');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
                 createHomeGroupsTable({page: page});
             }).catch((error) => {
                 let errKey = Object.keys(error),
                     html = errKey.map(errkey => `${error[errkey]}`);
-                showAlert(html[0], 'Ошибка');
+                if (error.can_delete === 'true') {
+                    let msg = `${html[0]} Все равно удалить?`;
+                    showConfirm('Подтверждение удаления', msg, function () {
+                        let force = JSON.stringify({"force": true});
+                        deleteData(URLS.home_group.detail(id), {body: force}).then(() => {
+                            showAlert('Домашняя группа успешно удалена!');
+                            $('#quickEditCartPopup').css('display', 'none');
+                            $('.bg').removeClass('active');
+                            $('.preloader').css('display', 'block');
+                            let page = $('.pagination__input').val();
+                            createHomeGroupsTable({page: page});
+                        }).catch((error) => {
+                            showAlert('При удалении сделки произошла ошибка');
+                            console.log(error);
+                        });
+                    }, () => {
+                    });
+                } else {
+                    showAlert(html[0], 'Ошибка');
+                }
             });
         }, () => {
         });

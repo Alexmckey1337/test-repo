@@ -344,7 +344,6 @@ export function deleteDeal(id, pageCount, callback) {
             showAlert('Сделка удалена');
             callback({page: pageCount});
         }).catch(err => {
-            console.log('ERROR-->',err);
             showConfirm('Подтверждение удаления', err.message, function () {
                 let force = JSON.stringify({"force": true});
                 deleteData(URLS.deal.detail(id), {body: force}).then(() => {
