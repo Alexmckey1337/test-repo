@@ -80,6 +80,7 @@ class DealUpdateSerializer(serializers.ModelSerializer):
 
 
 class DealSerializer(DealCreateSerializer):
+
     date = serializers.DateField(format=None, input_formats=None, read_only=True)
     date_created = serializers.DateField(input_formats=None)
     partnership = serializers.PrimaryKeyRelatedField(queryset=Partnership.objects.all())
@@ -90,12 +91,13 @@ class DealSerializer(DealCreateSerializer):
                                          read_only=True, currency_field='currency')
     currency = CurrencySerializer()
     payment_status = serializers.IntegerField()
+    group = serializers.CharField(source='partnership.group.title', read_only=True)
 
     class Meta(DealCreateSerializer.Meta):
         fields = ('id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description',
                   'full_name', 'responsible_name', 'partner_link',
-                  'total_sum', 'currency', 'payment_status', 'type',
+                  'total_sum', 'currency', 'payment_status', 'type', 'group'
                   )
 
 
