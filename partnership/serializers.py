@@ -27,6 +27,9 @@ class PartnershipUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
         fields = BASE_PARTNER_FIELDS
+        extra_kwargs = {
+            'group': {'required': True}
+        }
 
     def update(self, instance, validated_data):
         responsible = validated_data.get('responsible')
@@ -40,6 +43,9 @@ class PartnershipCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partnership
         fields = ('user',) + BASE_PARTNER_FIELDS
+        extra_kwargs = {
+            'group': {'required': True}
+        }
 
 
 class PartnershipTableSerializer(serializers.ModelSerializer):

@@ -96,12 +96,12 @@ class PartnershipViewSet(
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
-        partner = serializer.save()
+        partner = kwargs.get('new_obj')
         PartnershipLogs.log_partner(partner)
 
     @log_perform_create
     def perform_create(self, serializer, **kwargs):
-        partner = serializer.save()
+        partner = kwargs.get('new_obj')
         PartnershipLogs.log_partner(partner)
         return partner
 
