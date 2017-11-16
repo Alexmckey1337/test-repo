@@ -380,12 +380,13 @@ class HomeGroupViewSet(ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.meeting_set.exists():
-            raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
-                                                           'На данную Домашнюю Группу есть созданные отчеты.')})
         if CustomUser.objects.filter(hhome_group__id=instance.id).exists():
             raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
                                                            'В составе данной Домашней Группы есть люди.')})
+
+        if instance.meeting_set.exists() and not request.data.get('force'):
+            raise exceptions.ValidationError({'message': _('Удаление данной Домашней Группы повлечет за собой. '
+                                                           'удаление всех созданных отчетов.')})
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
