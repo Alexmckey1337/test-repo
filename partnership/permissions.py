@@ -169,7 +169,7 @@ def can_see_partner_summary(user):
     """
     Checking that the ``user`` has the right to see partner summary
     """
-    return user.is_leader_or_high
+    return user.is_partner_director or user.is_staff
 
 
 def can_export_partner_list(user):
