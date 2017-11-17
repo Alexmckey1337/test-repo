@@ -78,7 +78,9 @@ $('document').ready(function () {
         filterChange();
     }
 
-    $('.selectdb').select2();
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('#added_churches_date, #search_date_open, #opening_date').datepicker({
         dateFormat: 'yyyy-mm-dd',

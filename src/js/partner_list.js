@@ -17,7 +17,9 @@ $(document).ready(function () {
         exportTableData(this);
     });
 
-    $('#accountable').select2();
+    $('#accountable').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
@@ -119,7 +121,9 @@ $(document).ready(function () {
         });
     });
 
-    $('.selectdb').select2();
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',

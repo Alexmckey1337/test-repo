@@ -99,7 +99,9 @@ $(document).ready(function () {
         $('.bg').addClass('active');
     });
 
-    $('.selectdb').select2();
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',

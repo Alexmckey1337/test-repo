@@ -140,13 +140,14 @@ class DealSerializer(serializers.ModelSerializer):
                                          read_only=True, currency_field='currency')
     currency = CurrencySerializer()
     payment_status = serializers.IntegerField()
+    group = serializers.CharField(source='partnership.group.title', read_only=True)
 
     class Meta:
         model = Deal
         fields = ('id', 'partnership', 'date', 'date_created',
                   'value', 'done', 'expired', 'description',
                   'full_name', 'responsible_name', 'partner_link',
-                  'total_sum', 'currency', 'payment_status', 'type',
+                  'total_sum', 'currency', 'payment_status', 'type', 'group'
                   )
 
 

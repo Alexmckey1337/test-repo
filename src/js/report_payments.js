@@ -46,7 +46,9 @@ $('document').ready(function () {
         refreshFilter(this);
     });
 
-    $('.selectdb').select2();
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     //Update payment
     $("#close-payment").on('click', function (e) {

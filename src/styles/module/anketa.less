@@ -2,19 +2,38 @@
 
 .left-contentwrap {
   width: 35%;
-  min-width: 450px;
-  float: left;
+  width:auto;
+  width: 540px;
+  //float: left;
 }
-
+.content_anketa{
+  display: flex;
+}
 .right-contentwrap {
   width: 65%;
+  width:auto;
+  flex:1;
   max-width: ~'calc(100% - 450px)';
-  float: left;
+  //float: left;
   button#send_need {
     margin-left: auto;
   }
 }
-
+#editNameBlock{
+  .right-info__block{
+    padding-top: 60px;
+  }
+}
+#editContactForm{
+  .popup_body{
+    display: flex;
+    justify-content: flex-end;
+    margin-top:25px;
+    .container{
+      width: 240px;
+    }
+  }
+}
 .left-content, .right-content {
   padding-left: 30px;
 }
@@ -82,6 +101,7 @@
     margin: 0;
     padding: 0;
     border: none;
+    padding-right: 25px;
     .container {
       .label_block {
         background: #f2f5fa;
@@ -113,7 +133,10 @@
   .right-info-r {
     width: ~'calc(60% - 2em)';
     float: right;
-    padding: 1.5em 2em .5em 0;
+    padding: 6.5em 2em .5em 0;
+    hgroup{
+      position: relative;
+    }
     & h3#fullname {
       font: ~'calc(1em + 0.3vw)' "UbuntuMedium", sans-serif;
       & ~ h4 {
@@ -123,17 +146,29 @@
       }
     }
     & #social {
-      padding-top: 0.7em;
+      //padding-top: 0.7em;
+      display: flex;
+      transform: translateY(37px);
       & .a-social {
-        float: left;
-        height: 2em;
+        //float: left;
+        //height: 2em;
+        margin-right: 15px;
         overflow: hidden;
-        & a {
-          & i {
-            color: #cdd0d4;
-            font-size: 1.5em;
-            line-height: 1.5em;
-            padding-right: 0.5em;
+        a {
+          display: inline-block;
+          box-sizing: border-box;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background-color: #656d78;
+          text-align: center;
+          padding-top: 3px;
+
+          i {
+            color: #fff;
+            font-size: 1.2em;
+            line-height: 25px;
+            //padding-right: 0.5em;
           }
           &:hover i {
             color: #3caeda;
@@ -144,18 +179,17 @@
   }
   .anketa-photo {
     position: relative;
-    top: 15px;
-    left: 0;
-    width: 0;
-    height: 0;
-    margin-bottom: 30px;
-    padding: 15%;
+    padding: 18%;
     border-radius: 100%;
     border: 3px solid #43b0db;
     box-shadow: 0 0 0 5px #b3d7e8;
     overflow: hidden;
     cursor: pointer;
-    & img {
+    width: 0;
+    height: 0;
+    transform: translateY(50%);
+    margin-left:15px;
+    img {
       position: absolute;
       left: 0;
       top: 0;
@@ -175,7 +209,7 @@
       font-size: 1.5em;
       &.edit {
         right: 1em;
-        top: 1em;
+        top: 4em;
         width: 1em;
         height: 1em;
 
@@ -207,6 +241,7 @@
     margin-bottom: 20px;
     & > li {
       padding: 1.5em 1em;
+      width:100%;
 
       .right-info__block {
         position: relative;
@@ -225,7 +260,18 @@
           transition: color .3s;
         }
         form ul {
-          padding-top: 8px;
+          //padding-top: 8px;
+          width:100%;
+          &>li{
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            a{
+              width: 240px;
+              margin-left: 10px;
+              display: inline-block;
+            }
+          }
         }
         ul > li > ul {
           padding-top: 0;
@@ -455,10 +501,12 @@
           color: #3caeda;
         }
       }
-      &:hover{
-        button {
-          opacity: 1;
+      button {
+        &:hover{
+         opacity: 1;
         }
+      }
+      &:hover{
         h4{
           color: #656d78;
         }
@@ -466,7 +514,20 @@
     }
   }
 }
-
+.left-content {
+  .right-info{
+    float: none;
+    //margin-top: -35px;
+    //transform: translateY(-30px);
+    li{
+      .right-info__block{
+        h4{
+          display: none;
+        }
+      }
+    }
+  }
+}
 .anketa {
   .hgroup {
     & h3 {
@@ -654,6 +715,10 @@
 
 .user-fiowrap {
   position: relative;
+  z-index:8;
+  .user-fio{
+    margin-top: -50px;
+  }
 }
 
 .a-socials {

@@ -26,7 +26,9 @@ $('document').ready(function () {
 
     createChurchesDetailsTable({}, CHURCH_ID, link);
 
-    $('#added_home_group_pastor').select2();
+    $('#added_home_group_pastor').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
     $('#added_home_group_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
@@ -200,7 +202,9 @@ $('document').ready(function () {
                     makePastorList(id, '#editPastorSelect');
                 })
             });
-            $('#report_currency').prop('disabled', false).select2();
+            $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
+                $('.select2-search__field').focus();
+            });
             $input.each(function () {
                 if (!$(this).hasClass('no__edit')) {
                     if ($(this).attr('disabled')) {
