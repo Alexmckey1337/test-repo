@@ -87,9 +87,15 @@ $('document').ready(function () {
         filterChange();
     }
 
-    $departmentSelect.select2();
-    $('#pastor_select').select2();
-    $('.selectdb').select2();
+    $departmentSelect.select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
+    $('#pastor_select').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
     $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
@@ -196,7 +202,9 @@ $('document').ready(function () {
         });
     }
 
-    $('#added_home_group_church_select').select2();
+    $('#added_home_group_church_select').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('.save-group').on('click', function () {
         saveHomeGroups(this, createHomeGroupsTable);

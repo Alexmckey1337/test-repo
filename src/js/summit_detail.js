@@ -312,8 +312,12 @@ $(document).ready(function () {
     //     });
     // }
 
-    $('#departments_filter').select2();
-    $('.select__db').select2();
+    $('#departments_filter').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
+    $('.select__db').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     //    Events
     $("#add").on('click', function () {

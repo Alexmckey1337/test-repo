@@ -14,7 +14,9 @@ $(document).ready(function () {
         startDate: new Date(),
         autoClose: true,
     });
-    $('#stats_manager').select2();
+    $('#stats_manager').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
     if (!$('#statistic_block').hasClass('no_visible')) {
         filterByMonth();
     }

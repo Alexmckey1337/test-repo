@@ -171,7 +171,9 @@ $('document').ready(function () {
         applyFilter(this, churchStatistics)
     });
 
-    $('.selectdb').select2();
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('#filter_button').on('click', function () {
         filterInit();
