@@ -18,10 +18,10 @@ def check_user_table_exist(func_table):
 
 
 @check_user_table_exist
-def group_table(user, category_title=None):
+def group_table(user, category_title=None, prefix_ordering_title=''):
     table_columns = _filter_group_columns(user.table.columns.select_related('columnType'), category_title)
 
-    return _get_result_table(table_columns)
+    return _get_result_table(table_columns, prefix_ordering_title)
 
 
 @check_user_table_exist
@@ -29,6 +29,16 @@ def deal_table(user, prefix_ordering_title=''):
     table_columns = _filter_deals_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns, prefix_ordering_title)
+
+
+@check_user_table_exist
+def church_deal_table(user, prefix_ordering_title=''):
+    columns = deal_table(user, prefix_ordering_title=prefix_ordering_title)
+
+    for k in columns:
+        if columns[k]['ordering_title'] == 'partnership__user__last_name':
+            columns[k]['ordering_title'] = 'partnership__church__title'
+    return columns
 
 
 def _filter_deals_columns(table_columns):
@@ -119,6 +129,13 @@ def user_table(user, prefix_ordering_title=''):
 @check_user_table_exist
 def partner_table(user):
     table_columns = _filter_partner_columns(user.table.columns.select_related('columnType'))
+
+    return _get_result_table(table_columns)
+
+
+@check_user_table_exist
+def church_partner_table(user):
+    table_columns = _filter_church_partner_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns)
 
@@ -245,3 +262,7 @@ def _filter_partner_columns(table_columns):
     return table_columns.filter(
         columnType__category__title="partnership").exclude(
         columnType__title__in=('count', 'result_value'))
+
+
+def _filter_church_partner_columns(table_columns):
+    return _filter_partner_columns(table_columns)

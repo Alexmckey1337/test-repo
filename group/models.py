@@ -60,6 +60,10 @@ class Church(CommonGroup):
         return reverse('church_detail', args=(self.id,))
 
     @property
+    def link(self):
+        return self.get_absolute_url()
+
+    @property
     def owner_name(self):
         return self.pastor.last_name
 

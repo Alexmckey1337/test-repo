@@ -4,7 +4,7 @@ import re
 from account.models import CustomUser
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from hierarchy.models import Hierarchy, Department
-from partnership.models import Deal, Partnership, PartnerGroup
+from partnership.models import Deal, Partnership, PartnerGroup, ChurchDeal, ChurchPartner
 from rest_framework import filters
 
 
@@ -17,7 +17,20 @@ class DateAndValueFilter(django_filters.FilterSet):
     class Meta:
         model = Deal
         fields = ['partnership__responsible', 'currency_id', 'responsible',
-                  'partnership__user', 'value', 'date_created', 'date',
+                  'value', 'date_created', 'date',
+                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
+
+
+class ChurchDateAndValueFilter(django_filters.FilterSet):
+    from_date = django_filters.DateFilter(name="date_created", lookup_expr='gte')
+    to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
+    from_value = django_filters.NumberFilter(name="value", lookup_expr='gte')
+    to_value = django_filters.NumberFilter(name="value", lookup_expr='lte')
+
+    class Meta:
+        model = ChurchDeal
+        fields = ['partnership__responsible', 'currency_id', 'responsible',
+                  'value', 'date_created', 'date',
                   'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
 
 
@@ -59,6 +72,24 @@ class PartnerUserFilter(django_filters.FilterSet):
         model = Partnership
         fields = ['master', 'hierarchy', 'department', 'user', 'responsible', 'is_active',
                   'repentance_date_from', 'repentance_date_to', 'group']
+
+
+class ChurchPartnerFilter(django_filters.FilterSet):
+    department = django_filters.ModelMultipleChoiceFilter(name="church__department",
+                                                          queryset=Department.objects.all())
+    pastor = django_filters.ModelChoiceFilter(name='church__pastor', queryset=CustomUser.objects.filter(
+        church__pastor__id__isnull=False).distinct())
+    is_open = django_filters.BooleanFilter(name='church__is_open')
+    opening_date = django_filters.DateFilter(name='church__opening_date')
+
+    group = django_filters.ModelMultipleChoiceFilter(name="group", queryset=PartnerGroup.objects.all())
+    is_active = django_filters.BooleanFilter(name='is_active')
+    value_to = django_filters.NumberFilter(name="value", lookup_expr='lte')
+    value_from = django_filters.NumberFilter(name="value", lookup_expr='gte')
+
+    class Meta:
+        model = ChurchPartner
+        fields = ('department', 'pastor', 'is_open', 'opening_date', 'group', 'is_active', 'value_from', 'value_to')
 
 
 class PartnerFilterByDateAge(filters.BaseFilterBackend):

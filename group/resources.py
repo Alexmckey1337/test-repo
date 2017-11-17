@@ -1,31 +1,64 @@
 from django.utils.translation import ugettext_lazy as _
 from import_export import fields
+from import_export.resources import ModelDeclarativeMetaclass
 
 from account.models import CustomUser
 from common.resources import CustomFieldsModelResource
 from group.models import Church, HomeGroup
 from group.serializers import BASE_GROUP_USER_FIELDS
 
-COMMON_GROUP_RESOURCE_FIELDS = ('get_title', 'opening_date', 'city', 'address', 'phone_number',
+COMMON_GROUP_RESOURCE_FIELDS = ('opening_date', 'city', 'address', 'phone_number',
                                 'website')
+CHURCH_MAIN_RESOURCE_FIELDS = COMMON_GROUP_RESOURCE_FIELDS + ('country', 'is_open')
+CHURCH_RESOURCE_FIELDS = CHURCH_MAIN_RESOURCE_FIELDS + ('get_title', 'department', 'pastor')
+
+
+class ChurchMetaclass(ModelDeclarativeMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        new_class = super(ChurchMetaclass, mcs).__new__(mcs, name, bases, attrs)
+
+        def create_dehydrate_method(f):
+            def dehydrate_method(self, obj):
+                church_field = self.get_church_field(obj)
+                return getattr(church_field, f)
+
+            return dehydrate_method
+
+        for f in CHURCH_MAIN_RESOURCE_FIELDS:
+            setattr(new_class, 'dehydrate_{}'.format(f), create_dehydrate_method(f))
+        return new_class
 
 
 class ChurchResource(CustomFieldsModelResource):
     """For excel import/export"""
-    get_title = fields.Field(attribute='title')
+    get_title = fields.Field()
+
+    church_field_name = None
 
     class Meta:
         model = Church
-        fields = COMMON_GROUP_RESOURCE_FIELDS + ('department', 'pastor', 'country', 'is_open')
+        fields = CHURCH_RESOURCE_FIELDS
+
+    def get_church_field(self, church):
+        if self.church_field_name:
+            return getattr(church, self.church_field_name)
+        return church
 
     def dehydrate_department(self, church):
-        return str(church.department)
+        church_field = self.get_church_field(church)
+        return str(church_field.department)
 
     def dehydrate_pastor(self, church):
-        return str(church.pastor)
+        church_field = self.get_church_field(church)
+        return str(church_field.pastor)
+
+    def dehydrate_get_title(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.title)
 
     def dehydrate_is_open(self, church):
-        return _('Yes') if church.is_open else _('No')
+        church_field = self.get_church_field(church)
+        return _('Yes') if church_field.is_open else _('No')
 
 
 class HomeGroupResource(CustomFieldsModelResource):

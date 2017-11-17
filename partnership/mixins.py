@@ -23,7 +23,8 @@ from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
 from navigation.table_fields import partnership_summary_table
 from partnership.permissions import CanSeePartnerStatistics, CanCreatePartnerPayment, CanSeeDealPayments, \
-    CanExportPartnerList, CanSeeManagerSummary
+    CanExportPartnerList, CanSeeManagerSummary, CanCreateChurchPartnerPayment, CanSeeChurchDealPayments, \
+    CanExportChurchPartnerList
 from payment.models import Payment, Currency
 from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from .models import Partnership, Deal, PartnershipLogs
@@ -413,8 +414,26 @@ class DealListPaymentMixin(ListPaymentMixin):
         return self._payments(request, pk)
 
 
+class ChurchDealCreatePaymentMixin(CreatePaymentMixin):
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, CanCreateChurchPartnerPayment))
+    def create_payment(self, request, pk=None):
+        return self._create_payment(request, pk)
+
+
+class ChurchDealListPaymentMixin(ListPaymentMixin):
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeeChurchDealPayments))
+    def payments(self, request, pk=None):
+        return self._payments(request, pk)
+
+
 class PartnerExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
+    def export(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
+
+
+class ChurchPartnerExportViewSetMixin(ExportViewSetMixin):
+    @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportChurchPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 

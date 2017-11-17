@@ -4,7 +4,8 @@ from django.db import models
 from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
     can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
     can_update_partner_need, can_update_deal, can_create_payment_for_partner, can_update_partner, \
-    can_see_partner_summary, can_see_managers_summary
+    can_see_partner_summary, can_see_managers_summary, can_update_church_deal, can_update_church_partner, \
+    can_create_church_deal_for_partner, can_create_church_partner_payments, can_close_church_partner_deals
 
 
 class PartnerUserPermission(models.Model):
@@ -63,11 +64,23 @@ class PartnerUserPermission(models.Model):
         """
         return can_close_partner_deals(self)
 
+    def can_close_church_partner_deals(self):
+        """
+        Checking that the ``self`` user has the right to close deals of church partner
+        """
+        return can_close_church_partner_deals(self)
+
     def can_create_partner_payments(self):
         """
         Checking that the ``self`` user has the right to create payments by deals
         """
         return can_create_partner_payments(self)
+
+    def can_create_church_partner_payments(self):
+        """
+        Checking that the ``self`` user has the right to create payments by church deals
+        """
+        return can_create_church_partner_payments(self)
 
     def can_create_payment_for_partner(self, partner):
         """
@@ -105,6 +118,24 @@ class PartnerUserPermission(models.Model):
         """
         return can_see_managers_summary(self)
 
+    def can_update_church_deal(self, church_deal):
+        """
+        Checking that the ``self`` user has the right to update ``church_deal``
+        """
+        return can_update_church_deal(self, church_deal)
+
+    def can_update_church_partner(self, church):
+        """
+        Checking that the ``self`` user has the right to update partnership of ``church``
+        """
+        return can_update_church_partner(self, church)
+
+    def can_create_church_deal_for_partner(self, partner):
+        """
+        Checking that the ``self`` user has the right to create deal for certain ``partner``
+        """
+        return can_create_church_deal_for_partner(self, partner)
+
     @property
     def is_partner(self):
         """
@@ -115,7 +146,7 @@ class PartnerUserPermission(models.Model):
     @property
     def has_partner_role(self):
         """
-        Checking that the ``self`` user is partner
+        Checking that the ``self`` user has partner role
         """
         return self._partner_role() is not None
 
@@ -159,14 +190,29 @@ class PartnerUserPermission(models.Model):
         partner_role = self._partner_role()
         return self.has_partner_role and partner_role.level == settings.PARTNER_LEVELS['director']
 
-    def is_partner_responsible_of(self, user_id):
+    def is_partner_responsible_of(self, user_id, check_partner_role=True):
         """
-        Checking that the `` self`` user is responsible of ``user``
+        Checking that the ``self`` user is responsible of ``user``
         """
         from partnership.models import Partnership
         if not isinstance(user_id, (int, str)):
             user_id = user_id.id
-        return self.is_partner and Partnership.objects.filter(responsible=self, user_id=user_id)
+        is_responsible = Partnership.objects.filter(responsible=self, user_id=user_id).exists()
+        if check_partner_role:
+            return self.has_partner_role and is_responsible
+        return is_responsible
+
+    def is_partner_responsible_of_church(self, church_id, check_partner_role=True):
+        """
+        Checking that the ``self`` user is responsible of ``church``
+        """
+        from partnership.models import ChurchPartner
+        if not isinstance(church_id, (int, str)):
+            church_id = church_id.id
+        is_responsible = ChurchPartner.objects.filter(responsible=self, church_id=church_id).exists()
+        if check_partner_role:
+            return self.has_partner_role and is_responsible
+        return is_responsible
 
     # Helpers
 

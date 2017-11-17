@@ -58,6 +58,7 @@ class PaymentUpdateDestroyView(LogAndCreateUpdateDestroyMixin,
     def perform_update(self, serializer, **kwargs):
         new_obj = kwargs.get('new_obj')
         self._update_purpose(self.old_data, new_obj.get_data_for_deal_purpose_update(), new_obj)
+        return new_obj
 
     @log_perform_destroy
     def perform_destroy(self, instance, **kwargs):

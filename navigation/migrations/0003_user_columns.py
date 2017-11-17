@@ -7,6 +7,7 @@ from django.db import migrations
 def update_user_column_types(apps, schema_editor):
     UserColumns = apps.get_model("navigation", "ColumnType")
     Category = apps.get_model("navigation", "Category")
+    Category.objects.get_or_create(title='partnership')
 
     category = Category.objects.get(id=1)
 
