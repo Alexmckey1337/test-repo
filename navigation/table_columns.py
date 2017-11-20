@@ -7,7 +7,7 @@ church_columns = {
     'get_title': {
         'id': 0, 'title': 'Название церкви', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
     'department': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department_title', 'number': 2, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Отдел', 'ordering_title': 'department__title', 'number': 2, 'active': True, 'editable': True},
     'city': {
         'id': 0, 'title': 'Город', 'ordering_title': 'city', 'number': 3, 'active': True, 'editable': True},
     'pastor': {
@@ -108,25 +108,25 @@ partner_columns = {
 
 church_partner_columns = {
     'church.get_title': {
-        'id': 0, 'title': 'Название церкви', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
+        'id': 0, 'title': 'Название церкви', 'ordering_title': 'church__title', 'number': 1, 'active': True, 'editable': False},
     'church.department.title': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department_title', 'number': 2, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Отдел', 'ordering_title': 'church__department__title', 'number': 2, 'active': True, 'editable': True},
     'church.city': {
-        'id': 0, 'title': 'Город', 'ordering_title': 'city', 'number': 3, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Город', 'ordering_title': 'church__city', 'number': 3, 'active': True, 'editable': True},
     'church.pastor.fullname': {
-        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'pastor__last_name', 'number': 4, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'church__pastor__last_name', 'number': 4, 'active': True, 'editable': True},
     'church.is_open': {
-        'id': 0, 'title': 'Открыта', 'ordering_title': 'is_open', 'number': 5, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Открыта', 'ordering_title': 'church__is_open', 'number': 5, 'active': True, 'editable': True},
     'church.address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'address', 'number': 6, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Адрес', 'ordering_title': 'church__address', 'number': 6, 'active': True, 'editable': True},
     'church.phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'phone_number', 'number': 7, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'church__phone_number', 'number': 7, 'active': True, 'editable': True},
     'church.website': {
-        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'website', 'number': 8, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'church__website', 'number': 8, 'active': True, 'editable': True},
     'church.country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 9, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Страна', 'ordering_title': 'church__country', 'number': 9, 'active': True, 'editable': True},
     'church.opening_date': {
-        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'church__opening_date', 'number': 10, 'active': True, 'editable': True},
     'group': {
         'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 11, 'active': True, 'editable': False},
     'responsible': {
