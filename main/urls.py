@@ -117,7 +117,6 @@ urlpatterns = [
     url(r'^events/', include(events_patterns, namespace='events')),
     url(r'^summits/', include(summit_patterns, namespace='summit')),
     url(r'^payment/deal/(?P<pk>\d+)/$', views.DealPaymentView.as_view(), name='payment-deal'),
-    url(r'^payment/partner/(?P<pk>\d+)/$', views.PartnerPaymentView.as_view(), name='payment-partner'),
 
     url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
     url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),

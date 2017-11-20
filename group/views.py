@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
                     ChurchHomeGroupMixin, ExportViewSetMixin):
-    queryset = Church.objects.all()
+    queryset = Church.objects.select_related('pastor', 'department')
 
     serializer_class = ChurchSerializer
     serializer_list_class = ChurchListSerializer

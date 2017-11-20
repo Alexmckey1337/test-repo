@@ -13,7 +13,11 @@ router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'deals', views.DealViewSet)
 router_v1_0.register(r'partner_groups', views.PartnerGroupViewSet)
 
+router_v1_0.register(r'church_partners', views.ChurchPartnerViewSet, base_name='church_partner')
+router_v1_0.register(r'church_deals', views.ChurchDealViewSet)
+
 custom_urls = [
+    # url(r'all_deals', views.AllDealListView.as_view()),
     url(r'^users/(?P<user_id>\d+)/set_partner_role/$', views.SetPartnerRoleView.as_view(), name="set_partner_role"),
     url(r'^users/(?P<user_id>\d+)/delete_partner_role/$',
         views.DeletePartnerRoleView.as_view(), name="delete_partner_role"),

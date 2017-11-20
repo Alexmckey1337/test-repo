@@ -289,7 +289,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
-        new_obj = kwargs.get('new_obj')
+        return kwargs.get('new_obj')
         # self._update_divisions(new_obj)
 
     @log_perform_create
