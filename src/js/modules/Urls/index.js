@@ -102,6 +102,15 @@ const DEAL = {
     check_duplicates: () => `/api/v1.0/deals/check_duplicates/`,
 };
 
+const CHURCH_DEAL = {
+    detail: (dealId) => `/api/v1.0/church_deals/${dealId}/`,
+    list: () => `/api/v1.0/church_deals/`,
+    payments: (dealId) => `/api/v1.0/church_deals/${dealId}/payments/`,
+    create_payment: (dealId) => `/api/v1.0/church_deals/${dealId}/create_payment/`,
+    create_uah_payment: (dealId) => `/api/v1.0/church_deals/${dealId}/create_uah_payment/`,
+    find_duplicates: () => `/api/v1.0/church_deals/get_duplicates/`,
+    check_duplicates: () => `/api/v1.0/church_deals/check_duplicates/`,
+};
 const CHURCH = {
     detail: (churchId) => `/api/v1.0/churches/${churchId}/`,
     list: () => `/api/v1.0/churches/`,
@@ -158,6 +167,7 @@ const URLS = {
     user: USER,
     partner: PARTNER,
     deal: DEAL,
+    church_deal: CHURCH_DEAL,
     payment: PAYMENT,
     summit_profile: SUMMIT_PROFILE,
     summit_ticket: SUMMIT_TICKET,
