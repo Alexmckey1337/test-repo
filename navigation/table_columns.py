@@ -464,5 +464,4 @@ def get_table(table_name, user):
     columns = OrderedDict()
     for field, attributes in column_list:
         columns[field] = attributes
-    print(columns)
     return columns

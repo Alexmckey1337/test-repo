@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -10,17 +11,15 @@ from analytics.decorators import log_perform_update, log_perform_destroy
 from analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
+from common.views_mixins import ExportViewSetMixin
 from payment.filters import (PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
                              FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
                              FilterByChurchReportChurchTitle, FilterByDealType)
 from payment.serializers import (PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer,
                                  PaymentChurchReportShowSerializer)
 from .models import Payment
-from .permissions import PaymentManagerOrSupervisor
 from .pagination import PaymentPagination, ChurchReportPaymentPagination
-from django.db.models import F
-from rest_framework.generics import get_object_or_404
-from common.views_mixins import ExportViewSetMixin
+from .permissions import PaymentManagerOrSupervisor
 from .resources import PaymentResource
 
 COMMON_PAYMENTS_ORDERING_FIELDS = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
@@ -127,11 +126,13 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        FilterByDealManager,
                        FilterByDealType,
                        filters.OrderingFilter,)
-    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('deals__partnership__user__last_name',
-                                                         'deals__date_created',
-                                                         'deals__partnership__responsible__last_name',
-                                                         'deals__responsible__last_name',
-                                                         'deals__type')
+    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + (
+        # 'deals__partnership__user__last_name',
+        # 'deals__date_created',
+        # 'deals__partnership__responsible__last_name',
+        # 'deals__responsible__last_name',
+        # 'deals__type'
+    )
 
     field_search_fields = {
         'search_description': ('description',),
@@ -145,8 +146,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
 
     def get_queryset(self):
         user = self.request.user
-        return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
-            purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
+        return self.queryset.for_user_by_deal(user).add_deal_fio()
 
     def post(self, request, *args, **kwargs):
         """For export/import to excel"""
