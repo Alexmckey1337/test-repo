@@ -21,7 +21,7 @@ from rest_framework.response import Response
 
 from account.models import CustomUser
 from common.views_mixins import ExportViewSetMixin
-from navigation.table_fields import partnership_summary_table
+from navigation.table_columns import get_table
 from partnership.permissions import CanSeePartnerStatistics, CanCreatePartnerPayment, CanSeeDealPayments, \
     CanExportPartnerList, CanSeeManagerSummary
 from payment.models import Payment, Currency
@@ -233,7 +233,7 @@ class ManagerSummaryMixin:
             manager['sum_pay_tithe'] != 0)]
         managers = self._order_managers(managers)
 
-        return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
+        return Response({'results': managers, 'table_columns': get_table('partner_summary', self.request.user.id)})
 
     def _get_start_data(self):
         year = int(self.request.query_params.get('year', datetime.now().year))

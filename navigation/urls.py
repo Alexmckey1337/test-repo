@@ -12,7 +12,7 @@ router_v1_0.register(r'columnTypes', views.ColumnTypeViewSet)
 router_v1_0.register(r'columns', views.ColumnViewSet)
 
 custom_urls = [
-    url(r'^update_columns/$', views.update_columns),
+    url(r'^update_columns/$', views.redis_update_columns),
 ]
 
 urlpatterns = [

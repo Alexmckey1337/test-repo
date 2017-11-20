@@ -76,7 +76,7 @@ $(document).ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createPaymentsTable);
+        updateSettings(createPaymentsTable, 'deal_payment');
     });
 
     //Filter

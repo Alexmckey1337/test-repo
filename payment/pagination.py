@@ -1,7 +1,7 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import payment_table, report_payments_table
+from navigation.table_columns import get_table
 from django.db.models import Sum
 from payment.models import Currency
 
@@ -11,8 +11,10 @@ class PaymentPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     payments_sum = {}
 
+    category = 'deal_payment'
+
     def get_columns(self):
-        return payment_table(self.request.user)
+        return get_table(self.category, self.request.user)
 
     def get_paginated_response(self, data):
         return Response({
@@ -35,5 +37,4 @@ class PaymentPagination(PageNumberPagination):
 
 
 class ChurchReportPaymentPagination(PaymentPagination):
-    def get_columns(self):
-        return report_payments_table(self.request.user)
+    category = 'report_payment'

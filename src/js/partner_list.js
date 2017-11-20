@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(getPartners);
+        updateSettings(getPartners, 'partner',);
     });
 
     $('#filter_button').on('click', function () {

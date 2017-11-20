@@ -19,7 +19,7 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -41,7 +41,7 @@ from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.models import HomeGroup, Church
 from hierarchy.serializers import DepartmentSerializer
-from navigation.table_fields import user_table
+from navigation.table_columns import get_table
 from .resources import UserResource
 from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -73,7 +73,7 @@ class UserPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': user_table(self.request.user),
+            'user_table': get_table('user', self.request.user.id),
             'results': data
         })
 

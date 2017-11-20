@@ -22,11 +22,7 @@ export function getPartners(config) {
         let id = "partnersList";
         let showCount = (count < CONFIG.pagination_count) ? count : response.results.length;
         let text = `Показано ${showCount} из ${count}`;
-        let common_table = Object.keys(response.common_table);
-        data.user_table = response.user_table;
-        common_table.forEach(function (item) {
-            data.user_table[item] = response.common_table[item];
-        });
+        data.user_table = response.table_columns;
         let keys = [];
         for (let k in data.user_table) {
             if (!data.user_table.hasOwnProperty(k)) continue;
@@ -39,10 +35,16 @@ export function getPartners(config) {
         });
         data.user_table = user_table;
         data.results = response.results.map(function (item) {
-            let result = item.user;
-            common_table.forEach(function (key) {
-                result[key] = item[key];
-            });
+            let result = Object.assign({}, item);
+            for (let key in data.user_table) {
+                if (!data.user_table.hasOwnProperty(key)) continue;
+                let fields = key.split('.')
+                let buff = result[fields[0]]
+                fields.slice(1).forEach(function (k) {
+                    buff = buff ? buff[k] : buff
+                })
+                result[key] = buff
+            }
             return result;
         });
         data.count = response.count;

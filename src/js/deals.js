@@ -25,7 +25,7 @@ $(document).ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(dealsTable);
+        updateSettings(dealsTable, 'deal');
     });
 
     $("#close-payment").on('click', function (e) {

@@ -9,6 +9,7 @@ from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Ex
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -398,6 +399,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
     @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
         user = request.query_params.get('master_tree')
+        user = get_object_or_404(CustomUser, pk=user) if user else self.request.user
         queryset = self.filter_queryset(self.queryset.for_user(user))
 
         statistics = queryset.aggregate(

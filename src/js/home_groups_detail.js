@@ -70,7 +70,7 @@ $('document').ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createHomeGroupUsersTable);
+        updateSettings(createHomeGroupUsersTable, 'group_user');
     });
 
     $('#export_table').on('click', function () {

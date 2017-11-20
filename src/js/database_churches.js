@@ -106,7 +106,7 @@ $('document').ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createChurchesTable);
+        updateSettings(createChurchesTable, 'church');
     });
 
     $('#filter_button').on('click', function () {

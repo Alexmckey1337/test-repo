@@ -376,7 +376,7 @@ $(document).ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createSummitUsersTable);
+        updateSettings(createSummitUsersTable, 'summit');
     });
 
     $('#filter_button').on('click', function () {

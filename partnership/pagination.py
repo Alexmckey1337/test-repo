@@ -3,6 +3,7 @@ from collections import OrderedDict
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from navigation.table_columns import get_table
 from navigation.table_fields import partner_table, user_table, deal_table
 
 
@@ -18,8 +19,7 @@ class PartnershipPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'common_table': partner_table(self.request.user),
-            'user_table': user_table(self.request.user, prefix_ordering_title='user__'),
+            'table_columns': get_table('partner', self.request.user.id),
             'results': data
         })
 
@@ -36,7 +36,7 @@ class DealPagination(PageNumberPagination):
             ('count', self.page.paginator.count),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
-            ('table_columns', deal_table(self.request.user)),
+            ('table_columns', get_table('deal', self.request.user.id)),
             ('results', data)
         ]))
 

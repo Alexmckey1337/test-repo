@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .models import Navigation, Table, ColumnType, Column
 from .serializers import NavigationSerializer, TableSerializer, ColumnTypeSerializer, ColumnSerializer, \
-    UpdateColumnSerializer
+    UpdateColumnSerializer, RedisTableSerializer
 
 
 class NavigationViewSet(viewsets.ModelViewSet):
@@ -53,3 +53,12 @@ def update_columns(request):
         'column_table': request.user.column_table
     }
     return Response(response_dict)
+
+
+@api_view(['POST'])
+def redis_update_columns(request):
+    '''POST: (id, number, active)'''
+    serializer = RedisTableSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.save(user_id=request.user.id)
+    return Response(data)

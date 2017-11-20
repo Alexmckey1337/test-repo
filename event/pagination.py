@@ -1,17 +1,17 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import meeting_table, meetings_summary_table, reports_summary_table
+from navigation.table_columns import get_table
 
 
 class MeetingPagination(PageNumberPagination):
-    category = 'meetings'
+    category = 'meeting'
     page_size = 30
     page_size_query_param = 'page_size'
     statistics = {}
 
     def get_columns(self):
-        return meeting_table(self.request.user, self.category)
+        return get_table(self.category, self.request.user.id)
 
     def get_paginated_response(self, data):
 
@@ -44,18 +44,12 @@ class ChurchReportPagination(MeetingPagination):
 
 
 class MeetingVisitorsPagination(MeetingPagination):
-    category = 'attends'
+    category = 'attend'
 
 
 class MeetingSummaryPagination(MeetingPagination):
-    category = 'meetings_summary'
-
-    def get_columns(self):
-        return meetings_summary_table(self.request.user, self.category)
+    category = 'meeting_summary'
 
 
 class ReportsSummaryPagination(MeetingPagination):
-    category = 'reports_summary'
-
-    def get_columns(self):
-        return reports_summary_table(self.request.user, self.category)
+    category = 'report_summary'

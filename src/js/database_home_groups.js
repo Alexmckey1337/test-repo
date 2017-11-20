@@ -133,7 +133,7 @@ $('document').ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createHomeGroupsTable);
+        updateSettings(createHomeGroupsTable, 'home_group');
     });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {

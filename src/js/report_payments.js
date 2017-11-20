@@ -35,7 +35,7 @@ $('document').ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createChurchPaymentsTable);
+        updateSettings(createChurchPaymentsTable, 'report_payment');
     });
 
     $('.apply-filter').on('click', function () {

@@ -38,7 +38,7 @@ $(document).ready(function () {
     // Sort table
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(PartnershipSummaryTable);
+        updateSettings(PartnershipSummaryTable, 'partner_summary');
     });
 
     $('.prefilter-group').find('.month').on('click', function () {

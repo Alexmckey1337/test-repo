@@ -31,20 +31,11 @@ def deal_table(user, prefix_ordering_title=''):
     return _get_result_table(table_columns, prefix_ordering_title)
 
 
-def _filter_deals_columns(table_columns):
-    return table_columns.filter(
-        columnType__category__title="deal").exclude(columnType__title='done')
-
-
 @check_user_table_exist
 def payment_table(user, prefix_ordering_title=''):
     table_columns = _filter_payment_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns, prefix_ordering_title)
-
-
-def _filter_payment_columns(table_columns):
-    return table_columns.filter(columnType__category__title='payment')
 
 
 @check_user_table_exist
@@ -61,19 +52,11 @@ def meetings_summary_table(user, category_title=None):
     return _get_result_table(table_columns)
 
 
-def _filter_meetings_summary_columns(table_columns):
-    return table_columns.filter(columnType__category__title='meetings_summary')
-
-
 @check_user_table_exist
 def reports_summary_table(user, category_title=None):
     table_columns = _filter_reports_summary_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns)
-
-
-def _filter_reports_summary_columns(table_columns):
-    return table_columns.filter(columnType__category__title='reports_summary')
 
 
 @check_user_table_exist
@@ -83,10 +66,6 @@ def report_payments_table(user):
     return _get_result_table(table_columns)
 
 
-def _filter_report_payments_columns(table_columns):
-    return table_columns.filter(columnType__category__title='report_payments')
-
-
 @check_user_table_exist
 def tasks_table(user):
     table_columns = _filter_tasks_columns(user.table.columns.select_related('columnType'))
@@ -94,19 +73,11 @@ def tasks_table(user):
     return _get_result_table(table_columns)
 
 
-def _filter_tasks_columns(table_columns):
-    return table_columns.filter(columnType__category__title='tasks')
-
-
 @check_user_table_exist
 def partnership_summary_table(user, category_title=None):
     table_columns = _filter_partnership_summary_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns)
-
-
-def _filter_partnership_summary_columns(table_columns):
-    return table_columns.filter(columnType__category__title='partnership_summary')
 
 
 @check_user_table_exist
@@ -245,3 +216,33 @@ def _filter_partner_columns(table_columns):
     return table_columns.filter(
         columnType__category__title="partnership").exclude(
         columnType__title__in=('count', 'result_value'))
+
+
+def _filter_partnership_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='partnership_summary')
+
+
+def _filter_tasks_columns(table_columns):
+    return table_columns.filter(columnType__category__title='tasks')
+
+
+def _filter_report_payments_columns(table_columns):
+    return table_columns.filter(columnType__category__title='report_payments')
+
+
+def _filter_reports_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='reports_summary')
+
+
+def _filter_meetings_summary_columns(table_columns):
+    return table_columns.filter(columnType__category__title='meetings_summary')
+
+
+def _filter_payment_columns(table_columns):
+    return table_columns.filter(columnType__category__title='payment')
+
+
+def _filter_deals_columns(table_columns):
+    return table_columns.filter(
+        columnType__category__title="deal").exclude(columnType__title='done')
+

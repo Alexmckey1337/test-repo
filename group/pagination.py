@@ -1,7 +1,7 @@
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import group_table
+from navigation.table_columns import get_table
 
 
 class PaginationMixin(PageNumberPagination):
@@ -17,21 +17,21 @@ class PaginationMixin(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'table_columns': group_table(self.request.user, self.category),
+            'table_columns': get_table(self.category, self.request.user.id),
             'results': data,
         })
 
 
 class ChurchPagination(PaginationMixin):
-    category = 'churches'
+    category = 'church'
 
 
 class HomeGroupPagination(PaginationMixin):
-    category = 'home_groups'
+    category = 'home_group'
 
 
 class GroupUsersPagination(PaginationMixin):
-    category = 'group_users'
+    category = 'group_user'
 
 
 class ForSelectPagination(PageNumberPagination):

@@ -3,7 +3,7 @@ from collections import OrderedDict
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from navigation.table_fields import summit_table, summit_statistics_table
+from navigation.table_columns import get_table
 
 
 class SummitPagination(PageNumberPagination):
@@ -18,7 +18,7 @@ class SummitPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': summit_table(self.request.user),
+            'user_table': get_table('summit', self.request.user),
             'common_table': OrderedDict(),
             'results': data
         })
@@ -36,7 +36,7 @@ class SummitStatisticsPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': summit_statistics_table(),
+            'user_table': get_table('summit_stats', self.request.user),
             'common_table': OrderedDict(),
             'results': data
         })

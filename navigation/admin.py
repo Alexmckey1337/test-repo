@@ -32,7 +32,7 @@ admin.site.register(Table, TableAdmin)
 
 
 class ColumnTypeTAdmin(admin.ModelAdmin):
-    list_display = ('title', 'verbose_title', 'ordering_title', 'category',)
+    list_display = ('title', 'verbose_title', 'ordering_title', 'category', 'number', 'active', 'editable')
     list_filter = ('category',)
 
     class Meta:
