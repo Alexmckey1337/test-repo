@@ -106,6 +106,35 @@ partner_columns = {
         'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 20, 'active': True, 'editable': True},
 }
 
+church_partner_columns = {
+    'church.get_title': {
+        'id': 0, 'title': 'Название церкви', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
+    'church.department.title': {
+        'id': 0, 'title': 'Отдел', 'ordering_title': 'department_title', 'number': 2, 'active': True, 'editable': True},
+    'church.city': {
+        'id': 0, 'title': 'Город', 'ordering_title': 'city', 'number': 3, 'active': True, 'editable': True},
+    'church.pastor.fullname': {
+        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'pastor__last_name', 'number': 4, 'active': True, 'editable': True},
+    'church.is_open': {
+        'id': 0, 'title': 'Открыта', 'ordering_title': 'is_open', 'number': 5, 'active': True, 'editable': True},
+    'church.address': {
+        'id': 0, 'title': 'Адрес', 'ordering_title': 'address', 'number': 6, 'active': True, 'editable': True},
+    'church.phone_number': {
+        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'phone_number', 'number': 7, 'active': True, 'editable': True},
+    'church.website': {
+        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'website', 'number': 8, 'active': True, 'editable': True},
+    'church.country': {
+        'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 9, 'active': True, 'editable': True},
+    'church.opening_date': {
+        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True},
+    'group': {
+        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 11, 'active': True, 'editable': False},
+    'responsible': {
+        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 12, 'active': True, 'editable': True},
+    'value': {
+        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 13, 'active': True, 'editable': True},
+}
+
 home_group_columns = {
     'get_title': {
         'id': 0, 'title': 'Название Группы', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
@@ -410,6 +439,7 @@ TABLES = {
     'partner_summary': partner_summary_columns,
     'user': user_columns,
     'partner': partner_columns,
+    'church_partner': church_partner_columns,
     'summit': summit_columns,
 
     'church': church_columns,
