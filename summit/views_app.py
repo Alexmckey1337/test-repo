@@ -62,7 +62,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
-        reg_code = request.query_params.get('reg_code')
+        reg_code = request.query_params.get('reg_code').lower().strip()
         code_error_message = {'detail': _('Невозможно получить объект. Передан некорректный регистрационный код')}
 
         try:
