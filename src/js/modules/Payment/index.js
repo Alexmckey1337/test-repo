@@ -1,6 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import getData from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import {showAlert} from "../ShowNotifications/index";
@@ -227,8 +228,9 @@ export function deleteDealsPayment(id) {
     }
 }
 
-export function showPayments(id) {
-    getPayment(id).then(function (data) {
+export function showPayments(id, type) {
+    let url = (type === 'people') ? URLS.deal.payments(id) : URLS.church_deal.payments(id);
+    getData(url).then(function (data) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
@@ -242,21 +244,21 @@ export function showPayments(id) {
     })
 }
 
-function getPayment(id) {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.deal.payments(id), null, function (data) {
-            resolve(data);
-        }, 'GET', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                reject();
-                showAlert(data.detail)
-            }
-        })
-    })
-}
+// function getPayment(id) {
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.deal.payments(id), null, function (data) {
+//             resolve(data);
+//         }, 'GET', true, {
+//             'Content-Type': 'application/json'
+//         }, {
+//             403: function (data) {
+//                 data = data.responseJSON;
+//                 reject();
+//                 showAlert(data.detail)
+//             }
+//         })
+//     })
+// }
 
 export function createPaymentsTable(config) {
     Object.assign(config, getSearch('search_purpose_fio'));

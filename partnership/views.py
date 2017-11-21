@@ -367,41 +367,59 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination, )
+
+    @list_route(methods=['GET'])
     def get_duplicates(self, request):
+        deal_ids = self.filter_queryset(self.queryset).values_list('id', flat=True)
+        if not deal_ids:
+            return Response(list(), status.HTTP_200_OK)
+
         query = """
                 SELECT
                 array_agg(d.id) c,
                 p.id,
+                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name),
                 d.value,
                 to_char(d.date_created, 'YYYY.MM')
                 FROM partnership_deal d
                 JOIN partnership_partnership p ON d.partnership_id = p.id
-                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
+                JOIN account_customuser ON p.user_id = account_customuser.user_ptr_id
+                JOIN auth_user ON account_customuser.user_ptr_id = auth_user.id
+                WHERE d.id in ('{0}')
+                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM'),
+                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
                 HAVING count(*) > 1
-                ORDER BY count(*) DESC;
-            """
+                ORDER BY p.id;
+            """.format("','".join(str(_id) for _id in deal_ids))
 
         with connection.cursor() as cursor:
             cursor.execute(query)
             data = cursor.fetchall()
 
-        deal_ids = []
-        for value in data:
-            for _id in value[0]:
-                deal_ids.append(_id)
+        page = int(request.query_params.get('page', 1) or 1)
 
-        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
+        try:
+            page_data = data[page - 1]
+        except IndexError:
+            raise exceptions.ValidationError(
+                {'message': _('Parameter {page} out of array range')}
+            )
 
-        page = self.paginate_queryset(deals)
-        if page is not None:
-            deals = self.get_serializer(page, many=True)
-            return self.get_paginated_response(deals.data)
+        deals_data = {
+            'deal_ids': page_data[0],
+            'partnership_id': page_data[1],
+            'partnership_fio': page_data[2],
+            'value': page_data[3],
+            'date_created': page_data[4],
+            'count': len(data)
+        }
 
-        deals = self.serializer_class(deals, many=True)
-        return Response(deals.data, status=status.HTTP_200_OK)
+        deals_with_payment = Deal.objects.filter(id__in=deals_data.get('deal_ids')).annotate(
+            payment_sum=Sum('payments__effective_sum')).values('id', 'payment_sum')
+
+        deals_data['deal_ids'] = deals_with_payment
+
+        return Response(deals_data, status=status.HTTP_200_OK)
 
 
 # class AllDealListView(GenericAPIView):
@@ -586,58 +604,42 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
-    def get_duplicates(self, request):
-        deal_ids = self.filter_queryset(self.queryset).values_list('id', flat=True)
-        if not deal_ids:
-            return Response(list(), status.HTTP_200_OK)
 
+    @list_route(methods=['GET'],
+                serializer_class=DealDuplicateSerializer,
+                pagination_class=DealDuplicatePagination, )
+    def get_duplicates(self, request):
         query = """
                 SELECT
                 array_agg(d.id) c,
                 p.id,
-                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name),
                 d.value,
                 to_char(d.date_created, 'YYYY.MM')
                 FROM partnership_deal d
                 JOIN partnership_partnership p ON d.partnership_id = p.id
-                JOIN account_customuser ON p.user_id = account_customuser.user_ptr_id
-                JOIN auth_user ON account_customuser.user_ptr_id = auth_user.id
-                WHERE d.id in ('{0}')
-                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM'),
-                CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
+                GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
                 HAVING count(*) > 1
-                ORDER BY p.id;
-            """.format("','".join(str(_id) for _id in deal_ids))
+                ORDER BY count(*) DESC;
+            """
 
         with connection.cursor() as cursor:
             cursor.execute(query)
             data = cursor.fetchall()
 
-        page = int(request.query_params.get('page', 1) or 1)
+        deal_ids = []
+        for value in data:
+            for _id in value[0]:
+                deal_ids.append(_id)
 
-        try:
-            page_data = data[page - 1]
-        except IndexError:
-            raise exceptions.ValidationError(
-                {'message': _('Parameter {page} out of array range')}
-            )
+        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
 
-        deals_data = {
-            'deal_ids': page_data[0],
-            'partnership_id': page_data[1],
-            'partnership_fio': page_data[2],
-            'value': page_data[3],
-            'date_created': page_data[4],
-            'count': len(data)
-        }
+        page = self.paginate_queryset(deals)
+        if page is not None:
+            deals = self.get_serializer(page, many=True)
+            return self.get_paginated_response(deals.data)
 
-        deals_with_payment = Deal.objects.filter(id__in=deals_data.get('deal_ids')).annotate(
-            payment_sum=Sum('payments__effective_sum')).values('id', 'payment_sum')
-
-        deals_data['deal_ids'] = deals_with_payment
-
-        return Response(deals_data, status=status.HTTP_200_OK)
+        deals = self.serializer_class(deals, many=True)
+        return Response(deals.data, status=status.HTTP_200_OK)
 
 
 class CheckPartnerLevelMixin:

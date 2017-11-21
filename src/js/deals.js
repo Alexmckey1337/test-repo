@@ -5,23 +5,31 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import URLS from './modules/Urls/index';
+import {postData} from "./modules/Ajax/index";
 import {
     DealsTable,
     updateDealsTable,
     createDealsPayment,
     dealsTable,
-    updateDeal,
     makeDuplicateDealsWithCustomPagin,
     deleteDeal,
     makeDealsTable
 } from './modules/Deals/index';
-import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 
 $(document).ready(function () {
     $('.preloader').css('display', 'block');
     DealsTable();
+
+    $('#statusTabs').on('click', 'button', function () {
+        $('#statusTabs').find('li').each(function () {
+            $(this).removeClass('current');
+        });
+        $(this).parent().addClass('current');
+        $('.preloader').css('display', 'block');
+        dealsTable();
+    });
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
@@ -59,9 +67,17 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).prop('disabled', true);
         let id = $(this).attr('data-id'),
-            sum = $('#new_payment_sum').val(),
-            description = $('#popup-create_payment textarea').val();
-        createDealsPayment(id, sum, description).then(function () {
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-create_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+                "operation": $('#operation').val()
+            },
+            type = $('#statusTabs').find('.current button').attr('data-type'),
+            url = (type === 'people') ? URLS.deal.create_uah_payment(id) : URLS.church_deal.create_uah_payment(id);
+
+        postData(url, data).then(function () {
             updateDealsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
@@ -152,10 +168,12 @@ $(document).ready(function () {
             'value': value,
             'description': description,
             'type': type,
-        };
+        },
+        typeTable = $('#statusTabs').find('.current button').attr('data-type');
 
     if (value && date) {
-        updateDeal(id, data).then(() => {
+        let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
+        postData(url, data, {method: 'PATCH'}).then(() => {
             let page = $('#sdelki').find('.pagination__input').val();
             $('.preloader').css('display', 'block');
             dealsTable({page:page});
@@ -185,7 +203,7 @@ $(document).ready(function () {
     $('#delete_deal').on('click', function () {
        let id = $(this).attr('data-id'),
            pageCount = $('#sdelki').find('.pagination__input').first().val();
-        deleteDeal(id, pageCount, DealsTable);
+        deleteDeal(id, pageCount, dealsTable);
     });
 
 });

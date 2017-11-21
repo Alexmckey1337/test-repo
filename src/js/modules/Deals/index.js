@@ -1,7 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
-import getData, {deleteData} from "../Ajax/index";
+import getData, {postData, deleteData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
@@ -102,7 +102,8 @@ function makeDealsTable(data, config = {}) {
         currentPage: page,
         pages: pages,
         callback: dealsTable
-    };
+    },
+        type = $('#statusTabs').find('.current button').attr('data-type');
     makePagination(paginationConfig);
     $('.table__count').text(text);
     fixedTableHead();
@@ -112,42 +113,40 @@ function makeDealsTable(data, config = {}) {
     btnDeals();
     $("button.complete").on('click', function () {
         let id = $(this).attr('data-id');
-        updateDeals(id);
+        updateDeals(id, type);
     });
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
-        showPayments(id);
+        showPayments(id, type);
     });
     $('.quick-edit').on('click', function () {
-        makeQuickEditDeal(this);
+        makeQuickEditDeal(this, type);
     });
 }
 
 export function dealsTable(config = {}) {
+    let type = $('#statusTabs').find('.current button').attr('data-type'),
+        url = (type === 'people') ? URLS.deal.list() : URLS.church_deal.list();
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
-    getData(URLS.deal.list(), config).then(data => {
+    getData(url, config).then(data => {
         $('.preloader').css('display', 'none');
         makeDealsTable(data, config);
     })
 }
 
-function updateDeals(id) {
+function updateDeals(id, type) {
     let data = {
         "done": true,
-    };
-    let config = JSON.stringify(data);
-    ajaxRequest(URLS.deal.detail(id), config, function () {
+    },
+        url = (type === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
+    postData(url, data, {method: 'PATCH'}).then(() => {
         updateDealsTable();
         document.getElementById('popup').style.display = '';
-    }, 'PATCH', true, {
-        'Content-Type': 'application/json'
-    }, {
-        403: function (data) {
-            data = data.responseJSON;
-            showAlert(data.detail);
-        }
+    }).catch(err => {
+       showAlert('Ошибка при отправке на сервер');
+       console.log(err);
     });
 }
 
@@ -157,11 +156,12 @@ export function updateDealsTable() {
     dealsTable({page: page});
 }
 
-function makeQuickEditDeal(el) {
+function makeQuickEditDeal(el, type) {
     let id = $(el).attr('data-id'),
-        popup = $('#popup-create_deal');
+        popup = $('#popup-create_deal'),
+        url = (type === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
     $('#send_new_deal').prop('disabled', false);
-    getDealDetail(id).then(data => {
+    getData(url).then(data => {
         let sum = numeral(data.value).value(),
             txt = `<div class="block_line">
                         <p>Плательщик:</p>
@@ -183,20 +183,20 @@ function makeQuickEditDeal(el) {
     });
 }
 
-function getDealDetail(id) {
-    let url = URLS.deal.detail(id);
-
-    let defaultOption = {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        })
-    };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-    }
-}
+// function getDealDetail(id) {
+//     let url = URLS.deal.detail(id);
+//
+//     let defaultOption = {
+//         method: 'GET',
+//         credentials: 'same-origin',
+//         headers: new Headers({
+//             'Content-Type': 'application/json',
+//         })
+//     };
+//     if (typeof url === "string") {
+//         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+//     }
+// }
 
 export function createDealsPayment(id, sum, description) {
     return new Promise(function (resolve, reject) {
@@ -236,21 +236,21 @@ export function createDealsPayment(id, sum, description) {
     })
 }
 
-export function updateDeal(id, data) {
-    let url = URLS.deal.detail(id);
-
-    let defaultOption = {
-        method: 'PATCH',
-        credentials: 'same-origin',
-        headers: new Headers({
-            'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(data),
-    };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-    }
-}
+// export function updateDeal(id, data) {
+//     let url = URLS.deal.detail(id);
+//
+//     let defaultOption = {
+//         method: 'PATCH',
+//         credentials: 'same-origin',
+//         headers: new Headers({
+//             'Content-Type': 'application/json',
+//         }),
+//         body: JSON.stringify(data),
+//     };
+//     if (typeof url === "string") {
+//         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
+//     }
+// }
 export function makeDuplicateDeals(config = {}) {
     getData(URLS.deal.check_duplicates(), config).then(data => {
         let table = `<table>
@@ -289,9 +289,12 @@ export function makeDuplicateDeals(config = {}) {
 }
 
 export function makeDuplicateDealsWithCustomPagin(config = {}) {
+    let type = $('#statusTabs').find('.current button').attr('data-type'),
+        url = (type === 'people') ? URLS.deal.find_duplicates() : URLS.church_deal.find_duplicates();
+    Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
-    getData(URLS.deal.find_duplicates(), config).then(data => {
-        if (!Object.keys(data).length == 0) {
+    getData(url, config).then(data => {
+        if (data.count !== 0) {
             let table = `<table>
                         <thead>
                             <tr>
@@ -306,7 +309,7 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
                                 <button class="delete_btn" data-id="${item.id}"></button>
                                 ${data.partnership_fio}
                             </td>
-                            <td>${ (item.total_payments) ? item.total_payments : 0 } / ${data.value}</td>
+                            <td>${ (item.payment_sum) ? item.payment_sum : 0 } / ${data.value}</td>
                             <td>${data.date_created}</td>
                         </tr>`;
                         }).join('')}</tbody>
@@ -338,15 +341,17 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
 }
 
 export function deleteDeal(id, pageCount, callback) {
-    let msg = 'Вы действительно хотите удалить данную сделку';
+    let msg = 'Вы действительно хотите удалить данную сделку',
+        type = $('#statusTabs').find('.current button').attr('data-type'),
+        url = (type === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
     showConfirm('Удаление', msg, function () {
-        deleteData(URLS.deal.detail(id)).then(() => {
+        deleteData(url).then(() => {
             showAlert('Сделка удалена');
             callback({page: pageCount});
         }).catch(err => {
             showConfirm('Подтверждение удаления', err.message, function () {
                 let force = JSON.stringify({"force": true});
-                deleteData(URLS.deal.detail(id), {body: force}).then(() => {
+                deleteData(url, {body: force}).then(() => {
                     showAlert('Сделка удалена');
                     callback({page: pageCount});
                 }).catch(err => {
