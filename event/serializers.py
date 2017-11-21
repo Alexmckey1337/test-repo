@@ -77,7 +77,7 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
     class Meta:
         model = Meeting
         fields = ('id', 'home_group', 'owner', 'type', 'date', 'total_sum',
-                  'status', 'can_submit', 'cant_submit_cause')
+                  'status', 'can_submit', 'cant_submit_cause', 'image')
 
         validators = [
             UniqueTogetherValidator(

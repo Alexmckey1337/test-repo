@@ -74,6 +74,11 @@ class AbstractStatusModel(models.Model):
         abstract = True
 
 
+def get_event_week():
+    week = datetime.datetime.now().isocalendar()[1]
+    return 'event/%s/' % week
+
+
 @python_2_unicode_compatible
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
@@ -90,6 +95,8 @@ class Meeting(AbstractStatusModel):
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
+
+    image = models.ImageField(_('Event Image'), upload_to=get_event_week(), blank=True, null=True)
 
     objects = MeetingManager()
 
@@ -130,9 +137,9 @@ class Meeting(AbstractStatusModel):
 
     @cached_property
     def can_submit(self):
-        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
-                and self.status == Meeting.IN_PROGRESS:
-            return False
+        # if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
+        #         and self.status == Meeting.IN_PROGRESS:
+        #     return False
         return True
 
     @property
