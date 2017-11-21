@@ -63,7 +63,10 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
     @list_route(methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code').lower().strip()
-        code_error_message = {'detail': _('Невозможно получить объект. Передан некорректный регистрационный код')}
+        code_error_message = {
+            'detail': _('Невозможно получить объект. Передан некорректный регистрационный код'),
+            'error': 1
+        }
 
         try:
             visitor_id = decode_reg_code(reg_code)
@@ -83,7 +86,10 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             r.set(reg_code, device_id)
             r.expire(reg_code, settings.APP_DEVICE_ID_EXPIRE)
         elif device_id != exist_device_id.decode('utf8'):
-            raise exceptions.ValidationError({'detail': _('Вход был выполнен нa другом устройстве.')})
+            raise exceptions.ValidationError({
+                'detail': _('Этот регистрационный код уже был использован на другом устройстве.'),
+                'error': 2
+            })
 
         if visitor.reg_code != reg_code:
             raise exceptions.ValidationError(code_error_message)
