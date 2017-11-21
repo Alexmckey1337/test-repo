@@ -174,7 +174,7 @@ def can_edit_home_group(user, home_group):
     """
     Checking that the ``user`` has the right to edit ``home_group``
     """
-    return user.is_main_bishop_or_high or user.is_staff
+    return user.is_bishop_or_high or user.is_staff
 
 
 def can_add_user_to_home_group(current_user, user, home_group):

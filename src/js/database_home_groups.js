@@ -87,9 +87,15 @@ $('document').ready(function () {
         filterChange();
     }
 
-    $departmentSelect.select2();
-    $('#pastor_select').select2();
-    $('.selectdb').select2();
+    $departmentSelect.select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
+    $('#pastor_select').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
+    $('.selectdb').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
     $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
@@ -196,7 +202,9 @@ $('document').ready(function () {
         });
     }
 
-    $('#added_home_group_church_select').select2();
+    $('#added_home_group_church_select').select2().on('select2:open', function () {
+        $('.select2-search__field').focus();
+    });
 
     $('.save-group').on('click', function () {
         saveHomeGroups(this, createHomeGroupsTable);
@@ -213,13 +221,33 @@ $('document').ready(function () {
             deleteData(URLS.home_group.detail(id)).then(() => {
                 showAlert('Домашняя группа успешно удалена!');
                 $('#quickEditCartPopup').css('display', 'none');
+                $('.bg').removeClass('active');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
                 createHomeGroupsTable({page: page});
             }).catch((error) => {
                 let errKey = Object.keys(error),
                     html = errKey.map(errkey => `${error[errkey]}`);
-                showAlert(html[0], 'Ошибка');
+                if (error.can_delete === 'true') {
+                    let msg = `${html[0]} Все равно удалить?`;
+                    showConfirm('Подтверждение удаления', msg, function () {
+                        let force = JSON.stringify({"force": true});
+                        deleteData(URLS.home_group.detail(id), {body: force}).then(() => {
+                            showAlert('Домашняя группа успешно удалена!');
+                            $('#quickEditCartPopup').css('display', 'none');
+                            $('.bg').removeClass('active');
+                            $('.preloader').css('display', 'block');
+                            let page = $('.pagination__input').val();
+                            createHomeGroupsTable({page: page});
+                        }).catch((error) => {
+                            showAlert('При удалении сделки произошла ошибка');
+                            console.log(error);
+                        });
+                    }, () => {
+                    });
+                } else {
+                    showAlert(html[0], 'Ошибка');
+                }
             });
         }, () => {
         });

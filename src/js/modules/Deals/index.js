@@ -306,7 +306,7 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
                                 <button class="delete_btn" data-id="${item.id}"></button>
                                 ${data.partnership_fio}
                             </td>
-                            <td>${ (item.total_payments) ? item.total_payments : 0 } / ${data.value}</td>
+                            <td>${ (item.payment_sum) ? item.payment_sum : 0 } / ${data.value}</td>
                             <td>${data.date_created}</td>
                         </tr>`;
                         }).join('')}</tbody>
@@ -344,7 +344,6 @@ export function deleteDeal(id, pageCount, callback) {
             showAlert('Сделка удалена');
             callback({page: pageCount});
         }).catch(err => {
-            console.log('ERROR-->',err);
             showConfirm('Подтверждение удаления', err.message, function () {
                 let force = JSON.stringify({"force": true});
                 deleteData(URLS.deal.detail(id), {body: force}).then(() => {

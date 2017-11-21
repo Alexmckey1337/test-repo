@@ -423,6 +423,12 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
             return self.queryset.exclude(pk__in=descendants.values_list('pk', flat=True))
         return self.queryset
 
+    def filter_queryset(self, queryset):
+        include_user = self.request.query_params.get('include_user')
+        if include_user:
+            return super().filter_queryset(queryset).union(self.queryset.filter(pk=include_user))
+        return super().filter_queryset(queryset)
+
 
 class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).exclude(is_active=False).select_related(

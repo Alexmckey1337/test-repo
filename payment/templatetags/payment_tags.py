@@ -16,13 +16,16 @@ def create_payment_form(purpose=None):
     }
     return ctx
 
-@register.inclusion_tag('payment/partials/update_payment.html')
-def update_payment_form(purpose=None):
+
+@register.inclusion_tag('payment/partials/update_payment.html', takes_context=True)
+def update_payment_form(context, purpose=None):
     currencies = Currency.objects.all()
+    request = context.get('request', None)
 
     ctx = {
         'currencies': currencies,
         'purpose': purpose,
+        'user': request.user
     }
     return ctx
 
