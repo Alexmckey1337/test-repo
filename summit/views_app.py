@@ -72,11 +72,11 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             visitor_id = decode_reg_code(reg_code)
             visitor = SummitAnket.objects.get(pk=visitor_id)
         except (ValueError, TypeError):
-            raise exceptions.ValidationError(code_error_message)
+            return Response(data=code_error_message, status=status.HTTP_400_BAD_REQUEST)
         except InvalidRegCode:
-            raise exceptions.ValidationError(code_error_message)
+            return Response(data=code_error_message, status=status.HTTP_400_BAD_REQUEST)
         except ObjectDoesNotExist:
-            raise exceptions.ValidationError(code_error_message)
+            return Response(data=code_error_message, status=status.HTTP_400_BAD_REQUEST)
 
         device_id = request.META.get(settings.APP_DEVICE_ID_FIELD)
         r = RedisBackend()
@@ -86,13 +86,13 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             r.set(reg_code, device_id)
             r.expire(reg_code, settings.APP_DEVICE_ID_EXPIRE)
         elif device_id != exist_device_id.decode('utf8'):
-            raise exceptions.ValidationError({
+            return Response(data={
                 'detail': _('Этот регистрационный код уже был использован на другом устройстве.'),
                 'error': 2
-            })
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         if visitor.reg_code != reg_code:
-            raise exceptions.ValidationError(code_error_message)
+            return Response(data=code_error_message, status=status.HTTP_400_BAD_REQUEST)
 
         AnketStatus.objects.get_or_create(
             anket=visitor, defaults={'reg_code_requested': True,
