@@ -83,6 +83,7 @@ const EVENT = {
 const PARTNER = {
     detail: (partnerId) => `/api/v1.1/partnerships/${partnerId}/`,
     list: () => `/api/v1.1/partnerships/`,
+    church_list: () => `/api/v1.0/church_partners/`,
     create_payment: (partnerId) => `/api/v1.1/partnerships/${partnerId}/create_payment/`,
     stats_payment: () => `/api/v1.1/partnerships/stats_payments/`,
     stats_deal: () => `/api/v1.1/partnerships/stat_deals/`,
@@ -143,6 +144,11 @@ const PAYMENT = {
     payment_detail: (id) => `/api/v1.0/payments/${id}/detail/`,
 };
 
+const EXPORT = {
+    partners: () => `/api/v1.1/partnerships/export/`,
+    church_partners: () => `/api/v1.0/church_partners/export/`,
+};
+
 const URLS = {
     login: () => `/api/v1.0/login/`,
     logout: () => `/api/v1.0/logout/`,
@@ -175,6 +181,7 @@ const URLS = {
     event: EVENT,
     church: CHURCH,
     home_group: HOME_GROUP,
+    export: EXPORT,
 };
 
 export default URLS;

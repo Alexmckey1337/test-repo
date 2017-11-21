@@ -2,12 +2,11 @@
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import getData, {postData, deleteData} from "../Ajax/index";
-import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
 import numeral from 'numeral/min/numeral.min.js';
 import getSearch from '../Search/index';
-import {getFilterParam} from "../Filter/index";
+import {getFilterParam, getTabsFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
@@ -130,6 +129,7 @@ export function dealsTable(config = {}) {
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
+    Object.assign(config, getTabsFilterParam());
     getData(url, config).then(data => {
         $('.preloader').css('display', 'none');
         makeDealsTable(data, config);
@@ -293,6 +293,7 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
         url = (type === 'people') ? URLS.deal.find_duplicates() : URLS.church_deal.find_duplicates();
     Object.assign(config, getSearch('search'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getTabsFilterParam());
     getData(url, config).then(data => {
         if (data.count !== 0) {
             let table = `<table>

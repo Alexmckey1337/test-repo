@@ -27,9 +27,7 @@
                     </button>
                 </li>
                 <li>
-                    <button type="submit" id="export_table" data-export-url="{% url "partner-export" %}"
-                            class="download header__button">Export
-                    </button>
+                    <button type="submit" id="export_table" class="download header__button">Export</button>
                 </li>
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
@@ -42,8 +40,18 @@
 
 {% block main.content %}
 
-    <div class="content">
+    <div id="partners" class="content">
             <div class="top-pag">
+                <div class="tab-status">
+                    <ul id="statusTabs">
+                        <li class="current">
+                            <button data-type="people">Люди</button>
+                        </li>
+                        <li>
+                            <button data-type="church">Церкви</button>
+                        </li>
+                    </ul>
+                </div>
                 <div class="table__count"></div>
                 <div class="pagination partners__pagination"></div>
             </div>

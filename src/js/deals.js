@@ -3,6 +3,7 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import moment from 'moment/min/moment.min.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import URLS from './modules/Urls/index';
@@ -10,17 +11,27 @@ import {postData} from "./modules/Ajax/index";
 import {
     DealsTable,
     updateDealsTable,
-    createDealsPayment,
     dealsTable,
     makeDuplicateDealsWithCustomPagin,
     deleteDeal,
     makeDealsTable
 } from './modules/Deals/index';
 import updateSettings from './modules/UpdateSettings/index';
+import reverseDate from './modules/Date/index';
 
 $(document).ready(function () {
+        let date = new Date(),
+        thisMonthStart = moment(date).startOf('month').format('DD.MM.YYYY'),
+        thisMonthEnd = moment(date).endOf('month').format('DD.MM.YYYY'),
+        lastMonthStart = moment(date).subtract(1, 'months').startOf('month').format('DD.MM.YYYY'),
+        lastMonthEnd = moment(date).subtract(1, 'months').endOf('month').format('DD.MM.YYYY'),
+        configData = {
+        from_date: reverseDate(thisMonthStart, '-'),
+        to_date: reverseDate(thisMonthEnd, '-'),
+    };
+
     $('.preloader').css('display', 'block');
-    DealsTable();
+    DealsTable(configData);
 
     $('#statusTabs').on('click', 'button', function () {
         $('#statusTabs').find('li').each(function () {
@@ -109,6 +120,39 @@ $(document).ready(function () {
         autoClose: true
     });
 
+        // Events
+    $('#date_range').datepicker({
+        dateFormat: 'dd.mm.yyyy',
+        range: true,
+        autoClose: true,
+        multipleDatesSeparator: '-',
+        onSelect: function (date) {
+            if (date.length > 10) {
+                $('.preloader').css('display', 'block');
+                dealsTable();
+                $('.tab-home-stats').find('.week').removeClass('active');
+            } else if (date == '') {
+                $('.preloader').css('display', 'block');
+                dealsTable();
+                $('.tab-home-stats').find('.week').removeClass('active');
+            }
+        }
+    });
+
+    $('.tab-home-stats').find('.week').on('click', function () {
+        $('.preloader').css('display', 'block');
+        $(this).closest('.tab-home-stats').find('.week').removeClass('active');
+        $(this).addClass('active');
+        if ($(this).hasClass('week_now')) {
+            $('.set-date').find('input').val(`${thisMonthStart}-${thisMonthEnd}`);
+        } else if ($(this).hasClass('week_prev')) {
+            $('.set-date').find('input').val(`${lastMonthStart}-${lastMonthEnd}`);
+        } else {
+            $('.set-date').find('input').val('');
+        }
+        dealsTable();
+    });
+
     $('#filter_button').on('click', function () {
         //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
@@ -117,12 +161,6 @@ $(document).ready(function () {
 
     $('.selectdb').select2().on('select2:open', function () {
         $('.select2-search__field').focus();
-    });
-
-    $('.select_date_filter').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
     });
     
     $('.apply-filter').on('click', function () {
@@ -205,6 +243,8 @@ $(document).ready(function () {
            pageCount = $('#sdelki').find('.pagination__input').first().val();
         deleteDeal(id, pageCount, dealsTable);
     });
+
+    $('#date_range').val(`${thisMonthStart}-${thisMonthEnd}`);
 
 });
 

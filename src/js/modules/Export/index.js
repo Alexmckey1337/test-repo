@@ -4,7 +4,7 @@ import {postExport} from "../Ajax/index";
 import {getFilterParam} from "../Filter/index";
 import {showAlert, showPromt} from "../ShowNotifications/index";
 
-export default function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
+export default function exportTableData(el, additionalFilter = {}, search = 'search_fio', urlExp = '') {
     let url, filter, filterKeys, items, count;
     showPromt('Экспорт', 'Введите имя файла', 'File_default', (evt, value) => {
         let perVal = value.replace(/^\s+|\s+$/g, '');
@@ -13,7 +13,7 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
             return;
         }
         showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
-        url = $(el).attr('data-export-url');
+        url = ($(el).attr('data-export-url')) ? $(el).attr('data-export-url') : urlExp;
         filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {

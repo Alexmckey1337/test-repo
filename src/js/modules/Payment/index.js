@@ -14,6 +14,7 @@ import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import OrderTable from '../Ordering/index';
 import fixedTableHead from '../FixedHeadTable/index';
+import reverseDate from '../Date/index';
 
 export function createPayment(data, id) {
     let resData = {
@@ -260,9 +261,10 @@ export function showPayments(id, type) {
 //     })
 // }
 
-export function createPaymentsTable(config) {
+export function createPaymentsTable(config = {}) {
     Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getPreFilterParam());
     Object.assign(config, getOrderingData());
     getPaymentsDeals(config).then(function (data) {
         let count = data.count,
@@ -314,4 +316,15 @@ function getPaymentsDeals(config) {
         };
         newAjaxRequest(data, status, reject)
     });
+}
+
+export function getPreFilterParam() {
+    let data = {},
+        rangeDate = $('#date_deal').val();
+    if (rangeDate) {
+        data.purpose_date_from = reverseDate(rangeDate, '-');
+        data.purpose_date_to = reverseDate(rangeDate, '-');
+    }
+
+    return data
 }

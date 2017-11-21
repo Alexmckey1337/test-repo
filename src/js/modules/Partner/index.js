@@ -1,7 +1,8 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
-import ajaxRequest from '../Ajax/ajaxRequest';
+// import ajaxRequest from '../Ajax/ajaxRequest';
+import getData from '../Ajax/index';
 import getSearch from '../Search/index';
 import {getFilterParam} from "../Filter/index";
 import {getOrderingData} from "../Ordering/index";
@@ -10,11 +11,13 @@ import makePagination from '../Pagination/index';
 import OrderTable from '../Ordering/index';
 import {makeDataTable} from "../Table/index";
 
-export function getPartners(config) {
+export function getPartners(config = {}) {
+    let type = $('#statusTabs').find('.current button').attr('data-type'),
+        url = (type === 'people') ? URLS.partner.list() : URLS.partner.church_list();
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
-    getPartnersList(config).then(function (response) {
+    getData(url, config).then(function (response) {
         let page = config['page'] || 1;
         let count = response.count;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -38,11 +41,11 @@ export function getPartners(config) {
             let result = Object.assign({}, item);
             for (let key in data.user_table) {
                 if (!data.user_table.hasOwnProperty(key)) continue;
-                let fields = key.split('.')
-                let buff = result[fields[0]]
+                let fields = key.split('.');
+                let buff = result[fields[0]];
                 fields.slice(1).forEach(function (k) {
                     buff = buff ? buff[k] : buff
-                })
+                });
                 result[key] = buff
             }
             return result;
@@ -65,19 +68,19 @@ export function getPartners(config) {
     });
 }
 
-function getPartnersList(data) {
-    let config = {
-        search: "",
-        page: 1
-    };
-    Object.assign(config, data);
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.partner.list(), config, function (data) {
-            if (data) {
-                resolve(data);
-            } else {
-                reject("Ошибка")
-            }
-        })
-    })
-}
+// function getPartnersList(data) {
+//     let config = {
+//         search: "",
+//         page: 1
+//     };
+//     Object.assign(config, data);
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.partner.list(), config, function (data) {
+//             if (data) {
+//                 resolve(data);
+//             } else {
+//                 reject("Ошибка")
+//             }
+//         })
+//     })
+// }
