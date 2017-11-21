@@ -306,7 +306,7 @@ export function makeDuplicateDealsWithCustomPagin(config = {}) {
                                 <button class="delete_btn" data-id="${item.id}"></button>
                                 ${data.partnership_fio}
                             </td>
-                            <td>${ (item.total_payments) ? item.total_payments : 0 } / ${data.value}</td>
+                            <td>${ (item.payment_sum) ? item.payment_sum : 0 } / ${data.value}</td>
                             <td>${data.date_created}</td>
                         </tr>`;
                         }).join('')}</tbody>
