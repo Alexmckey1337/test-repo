@@ -83,6 +83,7 @@ const EVENT = {
 const PARTNER = {
     detail: (partnerId) => `/api/v1.1/partnerships/${partnerId}/`,
     list: () => `/api/v1.1/partnerships/`,
+    church_detail: (partnerId) => `/api/v1.0/church_partners/${partnerId}/`,
     church_list: () => `/api/v1.0/church_partners/`,
     create_payment: (partnerId) => `/api/v1.1/partnerships/${partnerId}/create_payment/`,
     stats_payment: () => `/api/v1.1/partnerships/stats_payments/`,

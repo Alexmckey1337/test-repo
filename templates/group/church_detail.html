@@ -155,6 +155,59 @@
                     </div>
         </div>
     </div>
+    {% for partner in church.partners.all %}
+        <div class="a-sdelki a-church_sdelki">
+            <div class="partner_wrapper">
+                <ul class="right-info">
+                    <li id="editPartnership">
+                        <div class="right-info__block">
+                            <h4>Партнерские данные</h4>
+                            <div class="success__block"></div>
+                            {% include "account/partials/partner_form.html" with bla=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
+                        </div>
+                    </li>
+                </ul>
+                <div id="editPartnershipNeed" class="note_wrapper">
+                    <form class="partnership_need" action="/" name="editPartnershipNeed" data-action="update-user"
+                          data-partner="{{ partner.id }}"
+                          id="partnership_need">
+                        <input type="hidden" data-id="user" value="{{ partner.id }}">
+                        <button class="edit" data-edit-block="editPartnershipNeed"></button>
+                        <button class="save__info" type="submit"></button>
+                        <label for="id_need_text">Молитвенная нужда</label>
+                        <textarea data-id="need_text" id="id_need_text" rows="7" cols="50"
+                                  readonly>{{ partner.need_text }}</textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="a-sdelki a-church_sdelki">
+            <div class="partner_wrapper">
+                <ul class="right-info">
+                    <li id="editPartnership">
+                        <div class="right-info__block">
+                            <h4>Партнерские данные</h4>
+                            <div class="success__block"></div>
+                            {% include "account/partials/partner_form.html" with bla=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
+                        </div>
+                    </li>
+                </ul>
+                <div id="editPartnershipNeed" class="note_wrapper">
+                    <form class="partnership_need" action="/" name="editPartnershipNeed" data-action="update-user"
+                          data-partner="{{ partner.id }}"
+                          id="partnership_need">
+                        <input type="hidden" data-id="user" value="{{ partner.id }}">
+                        <button class="edit" data-edit-block="editPartnershipNeed"></button>
+                        <button class="save__info" type="submit"></button>
+                        <label for="id_need_text">Молитвенная нужда</label>
+                        <textarea data-id="need_text" id="id_need_text" rows="7" cols="50"
+                                  readonly>{{ partner.need_text }}</textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
     <div class="container">
         <div class="col-12">
             <div class="top-panel tabs-panel">

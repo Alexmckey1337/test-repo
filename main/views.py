@@ -797,6 +797,7 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
                 hhome_group__church_id=church.id, partners__isnull=False).count(),
             'no_partners_count': church.uusers.filter(partners__isnull=True).count() + CustomUser.objects.filter(
                 hhome_group__church_id=church.id, partners__isnull=True).count(),
+        'partner_groups': PartnerGroup.objects.all()
         }
         ctx.update(extra_context)
 

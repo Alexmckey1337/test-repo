@@ -328,7 +328,7 @@
                         <li id="editPartnership">
                             <div class="right-info__block">
                                 <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" %}
+                                {% include "account/partials/partner_form.html" with bla=account is_supervisor=request.user.is_partner_supervisor_or_high %}
                             </div>
                         </li>
                     {% endif %}
@@ -537,7 +537,7 @@
                                         <div class="right-info__block">
                                             <h4>Партнерские данные</h4>
                                             <div class="success__block"></div>
-                                            {% include "account/partials/partner_form.html" with partner=partner %}
+                                            {% include "account/partials/partner_form.html" with bla=account partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
                                         </div>
                                     </li>
                                 </ul>
