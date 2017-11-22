@@ -743,6 +743,15 @@
         </div>
 
     </div>
+    {% if account.skins.all %}
+        <div class="clearfix"></div>
+        <h1>Менеджер у пользователей:</h1>
+        <ul style="padding-left: 40px;">
+            {% for skin in account.skins.all %}
+                <li><a href="{{ skin.get_absolute_url }}">{{ skin.fullname }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <div class="clearfix"></div>
     {% if log_messages or log_messages_iam %}
         <h1>Пользователь:</h1>
