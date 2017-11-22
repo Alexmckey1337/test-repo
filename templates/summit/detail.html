@@ -24,15 +24,17 @@
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-                {% is_summit_supervisor_or_high user summit as is_supervisor %}
-                {% if is_supervisor %}
-                <li>
-                    <button id="send_codes">Отправить коды</button>
-                </li>
+                {% if summit.status == 'open' %}
+                    {% is_summit_supervisor_or_high user summit as is_supervisor %}
+                    {% if is_supervisor %}
+                    <li>
+                        <button id="send_codes">Отправить коды</button>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <button id="add">Добавить пользователя</button>
+                    </li>
                 {% endif %}
-                <li>
-                    <button id="add">Добавить пользователя</button>
-                </li>
                 <li>
                     <button id="filter_button"
                             data-count="0"
