@@ -4,6 +4,7 @@ volumes:
   postgres_data_dev: {}
   postgres_backup_dev: {}
   redis_data_dev: {}
+  es_data_dev: {}
 
 services:
   postgres:
@@ -15,11 +16,27 @@ services:
       - POSTGRES_USER=crm_user
       - POSTGRES_DB=crm_db
       - POSTGRES_PASSWORD=crm_pass
+    ports:
+      - "4321:5432"
 
   redis:
     image: redis:latest
     volumes:
       - redis_data_dev:/data
+
+  es:
+    image: elasticsearch:latest
+    volumes:
+      - es_data_dev:/data
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:latest
+    environment:
+      - ELASTICSEARCH_URL=http://es:9200
+    ports:
+      - "5601:5601"
 
   django:
     build:
@@ -42,6 +59,7 @@ services:
     links:
       - postgres
       - redis
+      - es
 
   celeryworker:
     build:
