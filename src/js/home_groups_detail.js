@@ -16,12 +16,8 @@ import {getPotentialLeadersForHG} from "./modules/GetList/index";
 import pasteLink from './modules/pasteLink';
 
 $('document').ready(function () {
-    let $createUserForm = $('#createUser'),
-        $homeGroup = $('#home_group');
+    let $homeGroup = $('#home_group');
     const ID = $homeGroup.data('id');
-    const HG_ID = $homeGroup.data('departament_id');
-    const CH_ID = $homeGroup.data('church-id');
-    const HG_TITLE = $homeGroup.data('departament_title');
 
     createHomeGroupUsersTable({}, ID);
 
@@ -36,14 +32,6 @@ $('document').ready(function () {
         $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
     });
-
-    // $('#choose').on('click', function () {
-    //     $(this).closest('.popup').css('display', 'none');
-    //     $('#searchedUsers').html('');
-    //     $('#searchUserFromDatabase').val('');
-    //     $('.choose-user-wrap .splash-screen').removeClass('active');
-    //     $('#chooseUserINBases').css('display', 'block');
-    // });
 
     $('#addNewUser').on('click', function () {
         let departament_id = $('#home_group').data('departament_id');

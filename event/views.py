@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import json
 import logging
 
 from django.db import transaction, IntegrityError
@@ -9,11 +10,13 @@ from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Ex
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status, filters, exceptions
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from account.models import CustomUser
 from common.filters import FieldSearchFilter
+from common.parsers import MultiPartAndJsonParser
 from .filters import (ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
                       ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
                       EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, )
@@ -102,8 +105,10 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         return self.queryset.for_user(self.request.user)
 
-    @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer)
+    @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer,
+                  parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser))
     def submit(self, request, pk):
+        print(1)
         home_meeting = self.get_object()
         valid_attends = self.validate_to_submit(home_meeting, request.data)
 
@@ -136,6 +141,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         #     raise exceptions.ValidationError({
         #         'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
         #     })
+        data._mutable = True
 
         if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError({
@@ -156,7 +162,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         attends = data.pop('attends')
         valid_visitors = list(meeting.home_group.uusers.values_list('id', flat=True))
-        valid_attends = [attend for attend in attends if attend.get('user_id') in valid_visitors]
+        valid_attends = [attend for attend in json.loads(attends[0]) if attend.get('user_id') in valid_visitors]
 
         if not valid_attends:
             raise exceptions.ValidationError({
@@ -174,7 +180,10 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             self.perform_update(meeting)
             return Response(meeting.data)
 
-        attends = request.data.pop('attends')
+        data = request.data
+        data._mutable = True
+
+        attends = json.loads(data.pop('attends')[0])
 
         try:
             with transaction.atomic():

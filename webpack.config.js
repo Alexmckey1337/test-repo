@@ -41,7 +41,6 @@ module.exports = {
         summit_stats: ['babel-polyfill', './summit_stats'],
         summit_bishop: ['babel-polyfill', './summit_bishop'],
         summit_statistics: ['babel-polyfill', './summit_statistics'],
-        scanner: ['babel-polyfill', './scanner'],
     },
     output: {
         path: path.resolve(__dirname, './public/static/js'),

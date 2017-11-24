@@ -4,10 +4,14 @@ import 'select2/dist/css/select2.css';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import updateSettings from './modules/UpdateSettings/index';
-import {getPastorsByDepartment, getChurches} from "./modules/GetList/index";
+import {getPastorsByDepartment} from "./modules/GetList/index";
 import parseUrlQuery from './modules/ParseUrl/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {churchPastorReportsTable, makeChurchPastorReportsTable, getChurchPastorReports} from "./modules/Reports/reports_summary";
+import {
+    churchPastorReportsTable,
+    makeChurchPastorReportsTable,
+    getChurchPastorReports
+} from "./modules/Reports/reports_summary";
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),

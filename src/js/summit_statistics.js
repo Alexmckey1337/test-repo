@@ -77,22 +77,6 @@ $('document').ready(function () {
 
     $('.preloader_chart').css('display', 'none');
 
-    // $('#applyFilter').on('click', function (e) {
-    //     e.preventDefault();
-    //     let update = true,
-    //         depart = $('#departments_filter option:selected').text(),
-    //         master = $('#master option:selected').text();
-    //     initChart(summitId, update);
-    //     initBarChart(summitId, update);
-    //     let filter = $('#master').val();
-    //     (filter !== 'ВСЕ') ? updatePieChart(summitId, filter) : $('#pie_stats').hide();
-    //     // $('.department_title').find('span').text(depart);
-    //     // $('.master_title').find('span').text(master);
-    //     $(this).closest('#filterPopup').hide();
-    //     let count = getCountFilter();
-    //     $('#filter_button').attr('data-count', count);
-    // });
-
     $('#print').on('click', function () {
         $('body').addClass('is-print');
         setTimeout(window.print, 300);

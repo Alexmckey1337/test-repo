@@ -218,6 +218,9 @@
                     <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
                     {% endif %}
                     <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                    <% if (results[index].image != null) { %>
+                    <button class="view_img" data-img="<%= results[index].image %>"></button>
+                    <% } %>
                 </td>
                 <% } else if (key == 'home_group') { %>
                 <% if (results[index][key] != null) { %>

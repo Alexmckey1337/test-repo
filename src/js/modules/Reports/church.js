@@ -220,7 +220,6 @@ export function makeReportData(data) {
     $(container).attr({
         'class': 'report-block'
     });
-    console.log(data.comment);
     let txt = `
              <div class="column col-6">
                     <h3>Отчет по людям</h3>

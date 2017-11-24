@@ -13,10 +13,7 @@ import {
     updateDeal,
     makeDuplicateDealsWithCustomPagin,
     deleteDeal,
-    makeDealsTable
 } from './modules/Deals/index';
-import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 
 $(document).ready(function () {

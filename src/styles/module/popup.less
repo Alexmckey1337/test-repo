@@ -1064,6 +1064,26 @@ button{
   }
 }
 
+.edit {
+  .view_img {
+    top: .45em;
+    right: .1em;
+    left: auto;
+    padding: 0;
+    &:before {
+      content: '\f03e';
+      font: 1.2em FontAwesome;
+      color: #656d78;
+      padding-right: .5em;
+    }
+  }
+  &:hover {
+    .view_img:hover::before {
+      color: #3caeda;
+    }
+  }
+}
+
 #popupDelete{
   .summa-wrap{
     border: none;
