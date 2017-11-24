@@ -350,7 +350,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
     serializer_list_class = SummitAttendSerializer
-    # permission_classes = (HasAPIAccess,)
+    permission_classes = (HasAPIAccess,)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -383,7 +383,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 {'message': 'Params {code} and {summit_id} must be passed'}
             )
-        
+
         anket = get_object_or_404(SummitAnket, code=code, summit_id=summit_id)
         AnketStatus.objects.get_or_create(
             anket=anket, defaults={'reg_code_requested': True,
