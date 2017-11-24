@@ -27,7 +27,7 @@ from .serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
-    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer)
+    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -350,7 +350,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitAttend.objects.prefetch_related('anket')
     serializer_class = SummitAnketCodeSerializer
     serializer_list_class = SummitAttendSerializer
-    permission_classes = (HasAPIAccess,)
+    # permission_classes = (HasAPIAccess,)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -378,7 +378,13 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     @list_route(methods=['GET'], serializer_class=SummitAcceptMobileCodeSerializer)
     def accept_mobile_code(self, request):
         code = request.query_params.get('code', '')
-        anket = get_object_or_404(SummitAnket, code=code)
+        summit_id = request.query_params.get('summit_id')
+        if not (code and summit_id):
+            raise exceptions.ValidationError(
+                {'message': 'Params {code} and {summit_id} must be passed'}
+            )
+        
+        anket = get_object_or_404(SummitAnket, code=code, summit_id=summit_id)
         AnketStatus.objects.get_or_create(
             anket=anket, defaults={'reg_code_requested': True,
                                    'reg_code_requested_date': datetime.now()})
@@ -415,3 +421,14 @@ class SummitEventTableViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('summit',)
     pagination_class = None
+
+
+class OpenSummitsForAppViewSet(viewsets.ModelViewSet):
+    queryset = Summit.objects.all()
+    serializer_class = OpenSummitsForAppSerializer
+    permission_classes = (HasAPIAccess,)
+    filter_backends = (filters.DjangoFilterBackend,)
+    pagination_class = None
+
+    def get_queryset(self):
+        return self.queryset.filter(status=Summit.OPEN)
