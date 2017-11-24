@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %} Сканер Билетов {% endblock %}
+{% block page_content %}
+<div class="col-md-6 col-md-offset-3">
+    <h1 style="text-align: center">
+	{{ wtf.quick_form(form) }}
+        <img src= {{ profile_image }} width="300px">
+        <hr>
+        {{ fullname }}
+        <hr>
+        {{ passes_count }}
+        <br>
+        {{ active }}
+        <a style='color:red; font-size: 55px'><strong>{{message}}</strong></a>
+    </h1>
+</div>
+{% endblock %}
