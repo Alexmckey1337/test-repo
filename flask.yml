@@ -1,20 +1,20 @@
-version: '2'
+version: '3'
 
 services:
   ticket:
     restart: always
     build:
       context: .
-      dockerfile: ./compose/flask/Dockerfile
+      dockerfile: ./compose/scanner/Dockerfile
     ports:
       - "7000:7000"
     volumes:
       - nginx_data:/app/public
-    user: django
+    user: flask
     depends_on:
       - postgres
     command: /gunicorn.sh
-    env_file: .env
+    env_file: .envf
     environment:
       - VIRTUAL_HOST=ticket.vocrm.net
       - VIRTUAL_PORT=80

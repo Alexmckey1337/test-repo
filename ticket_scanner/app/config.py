@@ -22,8 +22,8 @@ USER = os.environ.get('DB_USER', 'crm_user')
 PASSWORD = os.environ.get('DB_PASSWORD', 'crm_pass')
 TABLE = os.environ.get('DB_TABLE', 'crm_db')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://crm_user:crm_pass@localhost/crm_db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{0}:{1}@localhost:5432/{2}'.format(USER, PASSWORD, TABLE)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://crm_user:crm_pass@postgres/crm_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{0}:{1}@postgres:5432/{2}'.format(USER, PASSWORD, TABLE)
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
