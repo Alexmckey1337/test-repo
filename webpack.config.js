@@ -67,7 +67,19 @@ module.exports = {
             name: 'vendor',
             minChunks: 2,
             filename: 'vendor.bundle.js'
-        })
+        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: "vendor",
+        //     minChunks: function (module) {
+        //         return module.context && module.context.indexOf("node_modules") !== -1;
+        //     },
+        //     filename: 'vendor.bundle.js'
+        // }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: "manifest",
+        //     minChunks: Infinity,
+        //     filename: 'manifest.bundle.js'
+        // }),
     ],
 
     resolveLoader: {
