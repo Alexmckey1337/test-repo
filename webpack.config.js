@@ -41,7 +41,6 @@ module.exports = {
         summit_stats: ['babel-polyfill', './summit_stats'],
         summit_bishop: ['babel-polyfill', './summit_bishop'],
         summit_statistics: ['babel-polyfill', './summit_statistics'],
-        scanner: ['babel-polyfill', './scanner'],
     },
     output: {
         path: path.resolve(__dirname, './public/static/js'),
@@ -68,7 +67,19 @@ module.exports = {
             name: 'vendor',
             minChunks: 2,
             filename: 'vendor.bundle.js'
-        })
+        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: "vendor",
+        //     minChunks: function (module) {
+        //         return module.context && module.context.indexOf("node_modules") !== -1;
+        //     },
+        //     filename: 'vendor.bundle.js'
+        // }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: "manifest",
+        //     minChunks: Infinity,
+        //     filename: 'manifest.bundle.js'
+        // }),
     ],
 
     resolveLoader: {

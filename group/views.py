@@ -317,11 +317,11 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
             user = self.request.user
 
         result = dict()
-        result['peoples_in_home_groups'] = CustomUser.objects.for_user(user).filter(
+        result['peoples_in_home_groups'] = CustomUser.objects.for_user(user, extra_perms=False).filter(
             Q(hhome_group__isnull=False)).count()
-        result['peoples_in_churches'] = CustomUser.objects.for_user(user).filter(
+        result['peoples_in_churches'] = CustomUser.objects.for_user(user, extra_perms=False).filter(
             Q(cchurch__isnull=False) | Q(hhome_group__isnull=False)).count()
-        result['churches_count'] = self.queryset.for_user(user).count()
+        result['churches_count'] = self.queryset.for_user(user, extra_perms=False).count()
         result['home_groups_count'] = HomeGroup.objects.for_user(user, extra_perms=False).count()
 
         result = self.serializer_class(result)

@@ -204,6 +204,7 @@ class UserUpdateSerializer(BaseUserSerializer):
 
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
+        user.save()
 
         return user
 

@@ -765,17 +765,17 @@ $('document').ready(function () {
     $('#departments').on('change', function () {
         let status = $('#selectHierarchy').find('option:selected').data('level');
         let department = $(this).val();
-        makeResponsibleList(department, status);
+        makeResponsibleList(department, status, false, true);
     });
     // after fix
     let depart = $('#departments').val(),
         stat = $('#selectHierarchy').find('option:selected').attr('data-level');
-    makeResponsibleList(depart, stat);
+    makeResponsibleList(depart, stat, false, true);
 
     $('#selectHierarchy').on('change', function () {
         let department = $('#departments').val();
         let status = $(this).find('option:selected').data('level');
-        makeResponsibleList(department, status, true);
+        makeResponsibleList(department, status, true, true);
     });
     $('.sel__date').each(function () {
         let $el = $(this);

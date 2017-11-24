@@ -2,10 +2,11 @@
 import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches,
         getDepartmentsOfUser, getShortUsers} from '../GetList/index';
 
-export function makeResponsibleList(department, status, flag = false) {
+export function makeResponsibleList(department, status, flag = false, include = false) {
     let $selectResponsible = $('#selectResponsible'),
-        activeMaster = $selectResponsible.find('option:selected').val();
-    getResponsible(department, status).then(function (data) {
+        activeMaster = $selectResponsible.find('option:selected').val(),
+        include_id = (include) ? activeMaster : '';
+    getResponsible(department, status, '', include_id).then(function (data) {
         let defaultOption = `<option value="none" disabled="disabled" selected="selected">Выберите ответственного</option>`
         let options = data.map(option =>
             `<option value="${option.id}" ${(activeMaster == option.id) ? 'selected' : ''}>${option.fullname}</option>`);
