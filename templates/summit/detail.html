@@ -28,6 +28,9 @@
                     {% is_summit_supervisor_or_high user summit as is_supervisor %}
                     {% if is_supervisor %}
                     <li>
+                        <button id="send_schedules">Отправить расписание</button>
+                    </li>
+                    <li>
                         <button id="send_codes">Отправить коды</button>
                     </li>
                     {% endif %}

@@ -10,6 +10,7 @@ import requests
 from celery.result import AsyncResult
 from channels import Group
 from dbmail import send_db_mail, send_db_sms
+from dbmail.models import MailTemplate
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 
@@ -91,11 +92,37 @@ def send_email_with_code(profile_id, sender_id, countdown=0):
             try:
                 r = RedisBackend()
                 r.sadd('summit:email:sending:{}:{}'.format(profile.summit_id, profile_id), task.id)
-                r.expire('summit:email:sending:{}'.format(profile), 30 * 24 * 60 * 60)
+                r.expire('summit:email:sending:{}:{}'.format(profile.summit_id, profile), 30 * 24 * 60 * 60)
             except Exception as err:
                 print(err)
             # if isinstance(result, AsyncResult):
             #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
+        except Exception:
+            send_error(profile_id, sender_id)
+
+
+@app.task(max_retries=0)
+def send_email_with_schedule(profile_id, sender_id, template_slug, countdown=0):
+    profile = SummitAnket.objects.select_related('summit', 'user').get(pk=profile_id)
+    template = MailTemplate.objects.get(slug=template_slug)
+    email = profile.user.email
+    if template and email:
+        try:
+            task = send_db_mail(
+                template.slug,
+                email,
+                {'profile': profile},
+                send_after=countdown,
+                max_retries=0
+            )
+            try:
+                r = RedisBackend()
+                r.sadd('summit:schedule:sending:{}:{}'.format(profile.summit_id, profile_id), task.id)
+                r.expire('summit:schedule:sending:{}:{}'.format(profile.summit_id, profile), 30 * 24 * 60 * 60)
+            except Exception as err:
+                print(err)
+                # if isinstance(result, AsyncResult):
+                #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 

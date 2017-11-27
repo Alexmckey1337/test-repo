@@ -91,6 +91,7 @@ summit_patterns = [
     url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
     url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
     url(r'^(?P<summit_id>\d+)/status/$', views.SummitEmailTasksView.as_view(), name='status'),
+    url(r'^(?P<summit_id>\d+)/schedule/$', views.SummitScheduleTasksView.as_view(), name='schedule'),
     url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
     url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
     url(r'^(?P<pk>\d+)/report/$', views.SummitBishopReportView.as_view(), name='report'),
