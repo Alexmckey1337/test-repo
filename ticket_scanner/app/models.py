@@ -9,6 +9,13 @@ class SummitAnket(db.Model):
         return '%s' % self.id
 
 
+class SummitAttend(db.Model):
+    __table__ = db.Model.metadata.tables['summit_summitattend']
+
+    def __repr__(self):
+        return '%s' % self.id
+
+
 class AnketStatus(db.Model):
     __table__ = db.Model.metadata.tables['summit_anketstatus']
 

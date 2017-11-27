@@ -40,6 +40,20 @@ def get_or_create_anket_status(anket_id):
                 (%s, false, true)
                 """ % anket_id
         db.engine.execute(create)
+        app.logger.error('Create anket_status for anket_id=%s' % anket_id)
+
+
+def get_or_create_summit_attend(anket_id):
+    attend = db.session.query(SummitAttend).join(SummitAnket).filter(
+        SummitAttend.anket_id == anket_id, SummitAttend.date == datetime.now().date()).first()
+    if not attend:
+        create = """INSERT INTO summit_summitattend
+                    (anket_id, date, time, status)
+                    VALUES
+                    (%s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '')
+        """ % anket_id
+        db.engine.execute(create)
+        app.logger.error('Create summit_attend for anket_id=%s' % anket_id)
 
 
 def get_anket_data(anket_id):
@@ -67,6 +81,7 @@ def get_anket_data(anket_id):
 
     if data[4]:
         create_anket_passes(anket_id)
+        get_or_create_summit_attend(anket_id)
 
     anket_data = {'visitor_id': data[0],
                   'profile_image': 'https://vocrm.net/media/' + data[1],
@@ -117,10 +132,12 @@ def index():
 
         app.logger.error('Calculated summit visitors data: %s' % anket_data)
 
-        anket_data['active'] = ('Статус: ' + 'Активен') if anket_data['active'] else ''
-        if not anket_data['active']:
-            anket_data.pop('active')
+        anket_data['active'] = True if anket_data['active'] else False
+        active = anket_data.pop('active')
+        if not active:
             anket_data['message'] = 'ЗАБЛОКИРОВАН!'
+        else:
+            anket_data['message_active'] = 'АКТИВЕН'
         anket_data['passes_count'] = 'Количество проходов: ' + str(anket_data.get('passes_count'))
 
         app.logger.error('<< Finish >>. Send response.\n\n')
