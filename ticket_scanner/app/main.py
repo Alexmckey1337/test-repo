@@ -48,9 +48,9 @@ def get_or_create_summit_attend(anket_id):
         SummitAttend.anket_id == anket_id, SummitAttend.date == datetime.now().date()).first()
     if not attend:
         create = """INSERT INTO summit_summitattend
-                    (anket_id, date, time, status)
+                    (anket_id, date, time, created_at, status)
                     VALUES
-                    (%s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '')
+                    (%s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '')
         """ % anket_id
         db.engine.execute(create)
         app.logger.error('Create summit_attend for anket_id=%s' % anket_id)
