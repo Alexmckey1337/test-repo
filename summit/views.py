@@ -53,7 +53,7 @@ from .serializers import (
     SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
     SummitAnketStatisticsSerializer,
     MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
-from .tasks import generate_tickets, send_email_with_code, send_sms_with_code
+from .tasks import generate_tickets, send_email_with_code, send_sms_with_code, send_email_with_schedule
 
 logger = logging.getLogger(__name__)
 
@@ -617,7 +617,7 @@ def send_code(request, profile_id):
         try:
             r = RedisBackend()
             r.sadd('summit:email:wait:{}:{}'.format(profile.summit_id, profile_id), task.id)
-            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
+            r.expire('summit:email:wait:{}:{}'.format(profile.summit_id, profile), 30 * 24 * 60 * 60)
         except Exception as err:
             print(err)
 
@@ -687,13 +687,80 @@ def send_unsent_codes(request, summit_id):
         r = RedisBackend()
         for profile, task_id in tasks.items():
             r.sadd('summit:email:wait:{}:{}'.format(summit_id, profile), task_id)
-            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
+            r.expire('summit:email:wait:{}:{}'.format(summit_id, profile), 30 * 24 * 60 * 60)
     except Exception as err:
         print(err)
     users_without_emails = summit.ankets.filter(user__email='').annotate(full_name=Concat(
                 'user__last_name', V(' '),
                 'user__first_name', V(' '),
                 'user__middle_name'))
+    return Response(data={
+        'sent_count': sent_count,
+        'users_without_emails_count': users_without_emails.count(),
+        'users_without_emails': list(users_without_emails.values('user_id', 'full_name', 'user__email')),
+    }, status=status.HTTP_202_ACCEPTED)
+
+
+def get_status_schedule_ids(summit_id):
+    r = RedisBackend()
+    ids = set()
+    for profile_id in r.scan_iter('summit:schedule:wait:{}:*'.format(summit_id)):
+        ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
+    return ids
+
+
+def get_fail_schedule_ids(summit_id):
+    r = RedisBackend()
+    ids = set()
+    for profile_id in r.scan_iter('summit:schedule:sending:{}:*'.format(summit_id)):
+        tasks = r.smembers(profile_id)
+        fail = True
+        for task_id in tasks:
+            result = AsyncResult(task_id)
+            if result.successful() or not result.ready():
+                fail = False
+                break
+        if fail:
+            ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
+    return ids
+
+
+@api_view(['GET'])
+def send_unsent_schedules(request, summit_id):
+    delay = 15
+    limit = -1
+    summit = get_object_or_404(Summit, pk=summit_id)
+    current_user = request.user
+    if not current_user.is_summit_supervisor_or_high(summit):
+        raise exceptions.PermissionDenied()
+
+    sent_count = 0
+    tasks = dict()
+
+    exist_ids = get_status_schedule_ids(summit_id)
+    fail_ids = get_fail_schedule_ids(summit_id)
+    countdown = 0
+    profiles = summit.ankets.exclude(
+        Q(user__email='') | Q(pk__in=(exist_ids - fail_ids))).select_related('user')
+    if limit > 0:
+        profiles = profiles[:limit]
+    for profile in profiles:
+        task = send_email_with_schedule.apply_async(args=[profile.id, current_user.id, 'raspisanie-sammita-2017', countdown])
+        countdown += delay
+        tasks[profile.id] = task.id
+        sent_count += 1
+
+    try:
+        r = RedisBackend()
+        for profile, task_id in tasks.items():
+            r.sadd('summit:schedule:wait:{}:{}'.format(summit_id, profile), task_id)
+            r.expire('summit:schedule:wait:{}:{}'.format(summit_id, profile), 30 * 24 * 60 * 60)
+    except Exception as err:
+        print(err)
+    users_without_emails = summit.ankets.filter(user__email='').annotate(full_name=Concat(
+        'user__last_name', V(' '),
+        'user__first_name', V(' '),
+        'user__middle_name'))
     return Response(data={
         'sent_count': sent_count,
         'users_without_emails_count': users_without_emails.count(),

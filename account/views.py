@@ -47,7 +47,7 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
-from .pagination import DashboardPagination
+from .pagination import DashboardPagination, UserCallsPagination
 
 logger = logging.getLogger(__name__)
 
@@ -482,3 +482,7 @@ class LogoutView(RestAuthLogoutView):
 
         return Response({"success": _("Successfully logged out.")},
                         status=status.HTTP_200_OK)
+
+
+class CallsToUser(ModelWithoutDeleteViewSet):
+    pagination_class = UserCallsPagination

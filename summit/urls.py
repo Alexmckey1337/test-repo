@@ -19,6 +19,7 @@ router_v1_0.register(r'summit_attends', views_app.SummitAttendViewSet)
 
 router_app = routers.DefaultRouter()
 router_app.register(r'summits', views_app.SummitTypeForAppViewSet, base_name='summits')
+router_app.register(r'open_summits', views_app.OpenSummitsForAppViewSet, base_name='open_summits')
 router_app.register(r'users', views_app.SummitProfileForAppViewSet, base_name='users')
 router_app.register(r'draw_users', views_app.SummitProfileWithLess10AbsentForAppViewSet, base_name='draw_users')
 
@@ -31,6 +32,7 @@ custom_urls = [
     url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
     url(r'^summit/profile/(?P<profile_id>\d+)/send_code/$', views.send_code, name='send_code'),
     url(r'^summit/(?P<summit_id>\d+)/send_unsent_codes/$', views.send_unsent_codes, name='send_unsent_codes'),
+    url(r'^summit/(?P<summit_id>\d+)/send_unsent_schedules/$', views.send_unsent_schedules, name='send_unsent_schedules'),
     url(r'^summit/(?P<summit_id>\d+)/stats/attends/$',
         views.HistorySummitAttendStatsView.as_view(), name='attend-stats'),
     url(r'^summit/(?P<summit_id>\d+)/stats/latecomers/$',

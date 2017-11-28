@@ -641,7 +641,6 @@ class SummitHistoryStatisticsView(LoginRequiredMixin, CanSeeSummitHistoryStatsMi
 class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
     template_name = 'summit/summit_email_tasks.html'
     login_url = 'entry'
-    active_tab = 'home_groups'
 
     summit_id = None
 
@@ -670,6 +669,51 @@ class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
             full_name=Concat(
                 'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
         profiles = list(profiles.values('id', 'code', 'email_statuses', 'user_id', 'full_name', 'user__email'))
+        statuses = self.get_statuses()
+        for profile in profiles:
+            profile['statuses'] = statuses[profile['id']]
+        return profiles
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        profiles = self.get_profiles()
+
+        ctx['statuses'] = sorted(profiles, key=lambda p: len(p['statuses']), reverse=True)
+
+        return ctx
+
+
+class SummitScheduleTasksView(LoginRequiredMixin, TemplateView):
+    template_name = 'summit/summit_schedule_tasks.html'
+    login_url = 'entry'
+
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('summit_id')
+        return super().get(request, *args, **kwargs)
+
+    def get_statuses(self):
+        r = RedisBackend()
+        statuses = defaultdict(list)
+        for profile_id in r.scan_iter('summit:schedule:sending:{}:*'.format(self.summit_id)):
+            tasks = r.smembers(profile_id)
+            for task_id in tasks:
+                result = AsyncResult(task_id)
+                statuses[int(profile_id.decode('utf8').rsplit(':', 1)[-1])].append(
+                    (result.status, task_id.decode('utf8')))
+        return statuses
+
+    def get_profiles(self):
+        summit = get_object_or_404(Summit, pk=self.summit_id)
+        profiles = summit.ankets.all()
+        # emails = AnketEmail.objects.filter(is_success=False, anket_id=OuterRef('pk'))
+        # profiles = profiles.annotate(email_exist=Exists(emails)).filter(email_exist=True)
+        profiles = profiles.annotate(
+            full_name=Concat(
+                'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
+        profiles = list(profiles.values('id', 'code', 'user_id', 'full_name', 'user__email'))
         statuses = self.get_statuses()
         for profile in profiles:
             profile['statuses'] = statuses[profile['id']]

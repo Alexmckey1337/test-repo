@@ -22,7 +22,7 @@ from hierarchy.models import Department, Hierarchy
 from navigation.models import Table
 from partnership.models import Partnership
 from status.models import Division
-
+from summit.models import SummitAnket, Summit
 
 BASE_USER_FIELDS = (
     'id',
@@ -204,7 +204,11 @@ class UserUpdateSerializer(BaseUserSerializer):
 
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
-        user.save()
+        for profile in user.summit_profiles.all():
+            profile.save()
+        SummitAnket.objects.filter(
+            summit__status=Summit.OPEN,
+            user_id__in=user.disciples.values_list('pk', flat=True)).update(responsible=user.fullname)
 
         return user
 

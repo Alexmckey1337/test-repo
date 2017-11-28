@@ -174,6 +174,12 @@ class SummitTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'title', 'image')
 
 
+class SummitTypeTitleForAppSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummitType
+        fields = ('title',)
+
+
 # FOR APP
 
 
@@ -269,6 +275,14 @@ class SummitTypeForAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitType
         fields = ('title', 'summits')
+
+
+class OpenSummitsForAppSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='type.title', read_only=True)
+
+    class Meta:
+        model = Summit
+        fields = ('id', 'title', 'status')
 
 
 class UserForAppSerializer(serializers.ModelSerializer):
