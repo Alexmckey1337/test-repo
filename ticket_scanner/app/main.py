@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytz
 from flask import request, jsonify, render_template
 from datetime import datetime
 from forms import PostCodeForm
@@ -46,12 +47,18 @@ def get_or_create_anket_status(anket_id):
 def get_or_create_summit_attend(anket_id):
     attend = db.session.query(SummitAttend).join(SummitAnket).filter(
         SummitAttend.anket_id == anket_id, SummitAttend.date == datetime.now().date()).first()
+    eet = pytz.timezone('EET')
+    time_format = '%H:%M:%S'
+    date_format = '%Y-%m-%d'
+    now = datetime.now(eet)
+    date = now.strftime(date_format)
+    time = now.strftime(time_format)
     if not attend:
         create = """INSERT INTO summit_summitattend
-                    (anket_id, date, time, status)
+                    (anket_id, date, time, created_at, status)
                     VALUES
-                    (%s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '')
-        """ % anket_id
+                    ({anket}, '{date}', '{time}', CURRENT_TIMESTAMP, '')
+        """.format(anket=anket_id, date=date, time=time)
         db.engine.execute(create)
         app.logger.error('Create summit_attend for anket_id=%s' % anket_id)
 
