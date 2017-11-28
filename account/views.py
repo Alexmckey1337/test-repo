@@ -48,6 +48,9 @@ from .serializers import (
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
 from .pagination import DashboardPagination, UserCallsPagination
+from django.db import connections
+from django.db.utils import ConnectionDoesNotExist
+from rest_framework.decorators import api_view
 
 logger = logging.getLogger(__name__)
 
@@ -484,5 +487,38 @@ class LogoutView(RestAuthLogoutView):
                         status=status.HTTP_200_OK)
 
 
-class CallsToUser(ModelWithoutDeleteViewSet):
-    pagination_class = UserCallsPagination
+@api_view(['GET'])
+def calls_to_user(request):
+    user = User.objects.get(id=request.query_params.get('user_id'))
+    if not user:
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be passed'})
+    try:
+        cursor = connections['asterisk_db'].cursor()
+    except ConnectionDoesNotExist:
+        print('Asterisk database is not configured')
+        return None
+
+    phone_number = user.phone_number[-10:]
+
+    query = """SELECT
+               calldate, src, dst, lastapp, duration, disposition, recordingfile
+               FROM cdr calls
+               WHERE calls.dst = %s
+               LIMIT 3;
+               """ % phone_number
+    cursor.execute(query)
+
+    result = []
+    for call in cursor.fetchall():
+        result.append(call)
+
+    for x in enumerate(result):
+        result[x[0]] = {'call_date': x[1][0],
+                        'source': x[1][1],
+                        'dst': x[1][2],
+                        'lastapp': x[1][3],
+                        'duration': x[1][4],
+                        'disposition': x[1][5],
+                        'record': x[1][6]}
+
+    return Response(result)

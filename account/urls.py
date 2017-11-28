@@ -23,6 +23,7 @@ custom_urls = [
 
 custom_v1_1_urls = [
     url(r'^users/for_select/$', views.UserForSelectView.as_view(), name="users-select"),
+    url(r'^calls_to_user/$', views.calls_to_user, name='calls_to_user')
 ]
 
 urlpatterns = [
