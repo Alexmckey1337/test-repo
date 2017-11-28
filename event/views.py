@@ -105,10 +105,17 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         return self.queryset.for_user(self.request.user)
 
+    @detail_route(methods=['POST'])
+    def clean_image(self, request, pk):
+        meeting = self.get_object()
+        meeting.image = None
+        meeting.save()
+
+        return Response({'message': 'Image was successfuly deleted'})
+
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer,
-                  parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser))
+                  parser_classes=(MultiPartAndJsonParser, JSONParser, FormParser))
     def submit(self, request, pk):
-        print(1)
         home_meeting = self.get_object()
         valid_attends = self.validate_to_submit(home_meeting, request.data)
 
