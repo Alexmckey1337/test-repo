@@ -778,7 +778,7 @@ def send_unsent_schedules(request, summit_id):
     tasks = dict()
 
     exist_ids = get_status_schedule_ids(summit_id) | sent_pulse_emails.get(summit_id, set())
-    fail_ids = get_fail_schedule_ids(summit_id)
+    fail_ids = get_fail_schedule_ids(summit_id) - sent_pulse_emails.get(summit_id, set())
     countdown = 0
     profiles = summit.ankets.exclude(
         Q(user__email='') | Q(pk__in=(exist_ids - fail_ids))).select_related('user')
