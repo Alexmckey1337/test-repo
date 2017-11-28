@@ -55,6 +55,15 @@ module.exports = {
     devtool: NODE_ENV == 'development' ? 'source-map' : false,
 
     plugins: [
+        new webpack.ContextReplacementPlugin(/^\.\/locale$/, context => {
+            if (!/\/moment\//.test(context.context)) {
+                return
+            }
+            Object.assign(context, {
+                regExp: /^\.\/(en|ru)/,
+                request: '../../locale'
+            })
+        }),
         new webpack.DefinePlugin({
             NODE_ENV: JSON.stringify(NODE_ENV)
         }),
@@ -68,6 +77,8 @@ module.exports = {
             minChunks: 2,
             filename: 'vendor.bundle.js'
         }),
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
         // new webpack.optimize.CommonsChunkPlugin({
         //     name: "vendor",
         //     minChunks: function (module) {
@@ -103,14 +114,14 @@ module.exports = {
                 test: /\.css$/,
                 use: [
                     'style-loader',
-                    'css-loader'
+                    { loader: 'css-loader', options: { minimize: true } }
                 ]
             },
             {
                 test: /\.(sass|scss)$/,
                 use: [
                     'style-loader',
-                    'css-loader',
+                    { loader: 'css-loader', options: { minimize: true } },
                     'sass-loader'
                 ]
             }
@@ -122,6 +133,10 @@ if (NODE_ENV == 'production') {
     module.exports.plugins.push(
         new webpack.optimize.UglifyJsPlugin({
             compress: {
+                sequences: true,
+                booleans: true,
+                loops: true,
+                unused: true,
                 warnings: false,
                 drop_console: true,
                 unsafe: true
