@@ -77,7 +77,6 @@ module.exports = {
             minChunks: 2,
             filename: 'vendor.bundle.js'
         }),
-        new webpack.optimize.DedupePlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
         // new webpack.optimize.CommonsChunkPlugin({
         //     name: "vendor",
