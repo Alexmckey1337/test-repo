@@ -278,7 +278,13 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
         if self.action != 'retrieve':
             return self.queryset
         emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
-        qs = self.queryset.annotate(has_email=Exists(emails)).select_related('status') \
+        other_summits = SummitAnket.objects.filter(
+            user_id=OuterRef('user_id'),
+            summit__type_id=get_object_or_404(SummitAnket, pk=self.kwargs.get('pk')).summit.type_id,
+            summit__status=Summit.CLOSE
+        )
+        qs = self.queryset.annotate(
+            has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
             .order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
