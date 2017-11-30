@@ -206,7 +206,7 @@ export function makeCaption(data) {
                         <label>Загрузить фото: </label>
                         <input type="file" data-name="image" id="file">
                         <button id="clear_img">Очистить фото</button>
-                        <img id="hg_attds" src="${data.image}"/>
+                        <img id="hg_attds" src="${(data.image) ? data.image : ''}"/>
                     </p>` : ''}`;
     $(container).append(txt);
 
