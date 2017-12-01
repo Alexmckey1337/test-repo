@@ -108,10 +108,13 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     @detail_route(methods=['POST'])
     def clean_image(self, request, pk):
         meeting = self.get_object()
+        if not meeting.image:
+            raise exceptions.ValidationError(
+                {'message': _('No image form this meeting. Nothing to clean.')})
         meeting.image = None
         meeting.save()
 
-        return Response({'message': 'Image was successfuly deleted'})
+        return Response({'message': 'Image was successfully deleted'})
 
     @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer,
                   parser_classes=(MultiPartAndJsonParser, JSONParser, FormParser))

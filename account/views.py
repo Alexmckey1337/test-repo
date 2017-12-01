@@ -19,7 +19,7 @@ from rest_framework.decorators import list_route, detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -47,10 +47,13 @@ from .serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
-from .pagination import DashboardPagination, UserCallsPagination
+from .pagination import DashboardPagination
 from django.db import connections
 from django.db.utils import ConnectionDoesNotExist
 from rest_framework.decorators import api_view
+from django.core.exceptions import ObjectDoesNotExist
+import requests
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -211,7 +214,9 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
+    @detail_route(methods=['post'],
+                  serializer_class=ManagerIdSerializer,
+                  permission_classes=(IsSuperUser,))
     def set_manager(self, request, pk):
         """
         Set manager for user
@@ -489,36 +494,54 @@ class LogoutView(RestAuthLogoutView):
 
 @api_view(['GET'])
 def calls_to_user(request):
-    user = User.objects.get(id=request.query_params.get('user_id'))
-    if not user:
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be passed'})
+    data = dict()
     try:
-        cursor = connections['asterisk_db'].cursor()
-    except ConnectionDoesNotExist:
-        print('Asterisk database is not configured')
-        return None
+        user = User.objects.get(id=request.query_params.get('user_id'))
+    except ObjectDoesNotExist:
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be passed'})
 
     phone_number = user.phone_number[-10:]
+    if not phone_number:
+        raise exceptions.ValidationError({'message': 'This user not have a {phone_number}'})
 
-    query = """SELECT
-               calldate, src, dst, lastapp, duration, disposition, recordingfile
-               FROM cdr calls
-               WHERE calls.dst = %s
-               LIMIT 3;
-               """ % phone_number
-    cursor.execute(query)
+    _range = request.query_params.get('range')
+    if not _range or (_range not in ['last_3', 'month']):
+        raise exceptions.ValidationError(
+            {'message': 'Invalid {range} parameter or parameter not passed.'})
 
-    result = []
-    for call in cursor.fetchall():
-        result.append(call)
+    month_date = request.query_params.get('month_date')
+    if _range == 'month' and not month_date:
+        raise exceptions.ValidationError({'message': 'Parameter {month_date} must be passed'})
 
-    for x in enumerate(result):
-        result[x[0]] = {'call_date': x[1][0],
-                        'source': x[1][1],
-                        'dst': x[1][2],
-                        'lastapp': x[1][3],
-                        'duration': x[1][4],
-                        'disposition': x[1][5],
-                        'record': x[1][6]}
+    data['phone_number'] = phone_number
+    data['range'] = _range
+    data['month_date'] = month_date
 
-    return Response(result)
+    try:
+        user_calls = requests.get('http://localhost:8080', data=json.dumps(data),
+                                  headers={'Content-Type': 'application/json'})
+    except Exception:
+        return Response({'message': 'Asterisk Service is not available'})
+
+    try:
+        user_calls = user_calls.json()
+    except Exception:
+        return Response({"message": "Can't parse Asterisk Service response"})
+
+    for call in enumerate(user_calls):
+        user_calls[call[0]] = {
+            'call_date': call[1][0],
+            'src': call[1][1],
+            'dst': call[1][2],
+            'lastapp': call[1][3],
+            'duration': call[1][4],
+            'disposition': call[1][5],
+            'record': call[1][6]
+        }
+
+    return Response(user_calls)
+
+
+@api_view(['GET'])
+def users_without_calls(request):
+    pass
