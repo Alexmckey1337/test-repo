@@ -215,3 +215,27 @@ class FilterByElecTicketStatus(BaseFilterBackend):
                 return queryset.filter(Q(status__reg_code_requested=None) | Q(status__reg_code_requested=False))
             return queryset.filter(status__reg_code_requested=True)
         return queryset
+
+
+class FilterIsPartner(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_partner = request.query_params.get('is_partner', '')
+
+        if is_partner.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
+            return queryset.filter(user__partners__isnull=False)
+        elif is_partner.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
+            return queryset.filter(user__partners__isnull=True)
+
+        return queryset
+
+
+class FilterHasAchievement(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        has_achievement = request.query_params.get('has_achievement', '')
+
+        if has_achievement.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
+            return queryset.filter(has_achievement=True)
+        elif has_achievement.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
+            return queryset.filter(has_achievement=False)
+
+        return queryset

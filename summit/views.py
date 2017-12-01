@@ -36,7 +36,7 @@ from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
                             FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
                             FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
-                            FilterByMasterTree, FilterByHasEmail)
+                            FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement)
 from summit.pagination import (SummitPagination, SummitTicketPagination, SummitStatisticsPagination,
                                SummitSearchPagination)
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
@@ -147,6 +147,8 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
         FilterByClub,
         HasPhoto,
         FilterByHasEmail,
+        FilterIsPartner,
+        FilterHasAchievement,
         FilterBySummitAttend,
         FilterByElecTicketStatus,
     )
@@ -161,7 +163,13 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
 
     def get_queryset(self):
         emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
-        qs = self.summit.ankets.annotate(has_email=Exists(emails)).select_related('status') \
+        other_summits = SummitAnket.objects.filter(
+            user_id=OuterRef('user_id'),
+            summit__type_id=self.summit.type_id,
+            summit__status=Summit.CLOSE
+        )
+        qs = self.summit.ankets.annotate(
+            has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
             .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
@@ -270,7 +278,13 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
         if self.action != 'retrieve':
             return self.queryset
         emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
-        qs = self.queryset.annotate(has_email=Exists(emails)).select_related('status') \
+        other_summits = SummitAnket.objects.filter(
+            user_id=OuterRef('user_id'),
+            summit__type_id=get_object_or_404(SummitAnket, pk=self.kwargs.get('pk')).summit.type_id,
+            summit__status=Summit.CLOSE
+        )
+        qs = self.queryset.annotate(
+            has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
             .order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)
