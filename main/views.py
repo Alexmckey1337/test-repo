@@ -252,8 +252,13 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         return ctx
 
 
-class PartnerSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+class PartnerListSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
     template_name = 'partner/partnership_summary.html'
+    login_url = 'entry'
+
+
+class PartnerDetailSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+    template_name = 'partner/partnership_summary_detail.html'
     login_url = 'entry'
 
 

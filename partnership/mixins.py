@@ -3,7 +3,6 @@ from collections import Counter
 from datetime import datetime
 from time import time
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
@@ -44,7 +43,7 @@ def func_time(func):
 class PartnerStatMixin:
     @list_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stats_payments(self, request):
-        current_manager = user=request.user
+        current_manager = user = request.user
 
         self.check_stats_permissions(current_manager)
 
@@ -228,12 +227,145 @@ class ManagerSummaryMixin:
             plan,
         )]
         managers = [manager for manager in managers if (
-            manager['potential_sum'] != 0 or
-            manager['sum_pay'] != 0 or
-            manager['sum_pay_tithe'] != 0)]
+                manager['potential_sum'] != 0 or
+                manager['sum_pay'] != 0 or
+                manager['sum_pay_tithe'] != 0)]
         managers = self._order_managers(managers)
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
+
+    @detail_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    def manager_summary(self, request, pk=None):
+        user = get_object_or_404(CustomUser, pk=pk)
+        period = request.query_params.get('period', '3month')
+
+        now = datetime.now()
+        month_end = now.year * 12 + now.month - 1
+        if period == '3month':
+            month_start = month_end - 3
+        elif period == '6month':
+            month_start = month_end - 6
+        elif period == 'year':
+            month_start = month_end - 12
+        elif period == '30month':
+            month_start = month_end - 30
+        else:
+            month_start = month_end - 3
+
+        deals = self._get_deal_sum_by_months(user.id, month_start)
+        payments = self._get_payment_sum_by_months(user.id, month_start)
+        payments_t1 = self._get_payment_sum_by_months(user.id, month_start, type=1)
+        payments_t2 = self._get_payment_sum_by_months(user.id, month_start, type=2)
+        plans = self._get_plans_by_months(user.id, month_start, month_end)
+        partners = self._get_partners_by_months(user.id, month_start, month_end)
+
+        tt = {}
+        for i in range(month_end, month_start, -1):
+            k = '{}-{:02d}'.format(i // 12, i % 12 + 1)
+            tt[k] = {
+                'payments': payments.get(k, 0),
+                'payments_t1': payments_t1.get(k, 0),
+                'payments_t2': payments_t2.get(k, 0),
+                'deals': deals.get(k, 0),
+                'plans': plans.get(k, 0),
+                'partners_count': len(partners[k]),
+                'active_partners_count': len(tuple(filter(lambda p: bool(p[1]), partners[k]))),
+                'potential': sum([p[0] for p in partners[k]]),
+            }
+
+        return Response(data=tt)
+
+    @staticmethod
+    @func_time
+    def _get_plans_by_months(manager_id, _from, to):
+        months = ', '.join(["('{}-{:02d}')".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)])
+        raw = """
+            SELECT
+              p.month,
+              coalesce(
+                  (SELECT pl.plan
+                   FROM partnership_partnerrolelog pl
+                   WHERE pl.log_date < to_date(p.month, 'YYYY-MM') + interval '1 month' AND pl.user_id = {manager}
+                   ORDER BY pl.log_date DESC
+                   LIMIT 1),
+                  0) plan
+            FROM (VALUES {months}) AS p(month);
+            """.format(manager=manager_id, months=months)
+
+        with connection.cursor() as connect:
+            connect.execute(raw)
+            result = connect.fetchall()
+        return {date: sum for date, sum in result}
+
+    @staticmethod
+    @func_time
+    def _get_partners_by_months(manager_id, _from, to):
+        partners = dict()
+        months = ["{}-{:02d}".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)]
+        for month in months:
+            raw = """
+                SELECT pp.value, pp.is_active
+                FROM partnership_partnershiplogs pp
+                WHERE pp.id IN (
+                  SELECT (SELECT pl.id
+                          FROM partnership_partnershiplogs pl
+                          WHERE p.id = pl.partner_id AND
+                                pl.log_date < to_date('{month}', 'YYYY-MM') + interval '1 month' AND
+                                p.responsible_id = {manager}
+                          ORDER BY log_date DESC
+                          LIMIT 1
+                         ) p_log_id
+                  FROM partnership_partnership p
+                  ORDER BY p.id);
+                """.format(manager=manager_id, month=month)
+
+            with connection.cursor() as connect:
+                connect.execute(raw)
+                result = connect.fetchall()
+            partners[month] = result
+        return partners
+
+    @staticmethod
+    @func_time
+    def _get_deal_sum_by_months(manager_id, month):
+        month = '{}-{}'.format(month // 12, month % 12)
+        raw = """
+            SELECT
+              to_char(d.date_created, 'YYYY-MM'),
+              sum(d.value)
+            FROM partnership_deal d
+            WHERE d.responsible_id = {manager} AND d.date_created >= '{month}-01'
+            GROUP BY to_char(d.date_created, 'YYYY-MM')
+            ORDER BY to_char(d.date_created, 'YYYY-MM') DESC;
+            """.format(manager=manager_id, month=month)
+
+        with connection.cursor() as connect:
+            connect.execute(raw)
+            result = connect.fetchall()
+        return {date: sum for date, sum in result}
+
+    @staticmethod
+    @func_time
+    def _get_payment_sum_by_months(manager_id, month, type=None):
+        month = '{}-{}'.format(month // 12, month % 12)
+        raw = """
+            SELECT
+              to_char(d.date_created, 'YYYY-MM'),
+              sum(p.sum)
+            FROM payment_payment p
+              JOIN partnership_deal d ON p.object_id = d.id AND p.content_type_id = 40
+            WHERE d.responsible_id = {manager} AND d.date_created >= '{month}-01' {type}
+            GROUP BY to_char(d.date_created, 'YYYY-MM')
+            ORDER BY to_char(d.date_created, 'YYYY-MM') DESC;
+            """.format(
+            manager=manager_id,
+            month=month,
+            type='AND d.type = %s' % type if type else '')
+
+        with connection.cursor() as connect:
+            connect.execute(raw)
+            result = connect.fetchall()
+        return {date: sum for date, sum in result}
 
     def _get_start_data(self):
         year = int(self.request.query_params.get('year', datetime.now().year))
@@ -248,9 +380,9 @@ class ManagerSummaryMixin:
         partners = Partnership.objects.all()
 
         if year != datetime.now().year or month != datetime.now().month:
-            logged_year, logged_month = self.get_logged_period(year, month)
-            partners = self.get_logged_queries(logged_year, logged_month)
-            managers, plan = self.get_logged_managers(logged_year, logged_month)
+            next_month = self.get_next_month(year, month)
+            partners = self.get_logged_partners(next_month)
+            managers, plan = self.get_logged_managers(next_month)
         return managers, partners, plan
 
     def _order_managers(self, managers):
@@ -277,8 +409,8 @@ class ManagerSummaryMixin:
           select u.user_ptr_id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
           pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
-          d.type = {0} and (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
-          extract('month' from d.date_created) = {2} )) sum
+          d.type = {type} and (d.date_created BETWEEN '{year}-01-01' and '{year}-12-31') and
+          extract('month' from d.date_created) = {month} )) sum
           from account_customuser u
           WHERE u.user_ptr_id in (
               SELECT uu.user_ptr_id from account_customuser uu
@@ -287,12 +419,12 @@ class ManagerSummaryMixin:
                 SELECT DISTINCT ON (user_id) (
                   SELECT pl.id
                   FROM partnership_partnerrolelog pl
-                  WHERE p.user_id = pl.user_id and pl.log_date < '{4}-{5}-01'
+                  WHERE p.user_id = pl.user_id and pl.log_date < '{next_month}-01'
                   ORDER BY pl.log_date DESC LIMIT 1
                 ) FROM partnership_partnerrolelog p) and pr.deleted = false)
               WHERE pr.id IS NOT NULL OR d.id IS NOT NULL)
           ORDER BY u.user_ptr_id;
-          """.format(deal_type, year, month, settings.PARTNER_LEVELS['manager'], *self.get_logged_period(year, month))
+          """.format(type=deal_type, year=year, month=month, next_month=self.get_next_month(year, month))
 
         with connection.cursor() as connect:
             connect.execute(raw)
@@ -316,14 +448,14 @@ class ManagerSummaryMixin:
 
     @staticmethod
     @func_time
-    def get_logged_queries(log_year, log_month):
+    def get_logged_partners(next_month):
         raw = """
               SELECT (SELECT pl.id FROM partnership_partnershiplogs pl WHERE p.id = pl.partner_id AND
-              pl.log_date < '%s-%s-01'
+              pl.log_date < '%s-01'
               ORDER BY log_date DESC LIMIT 1
               ) p_log_id
               FROM partnership_partnership p ORDER BY p.id;
-              """ % (log_year, log_month)
+              """ % next_month
 
         with connection.cursor() as connect:
             connect.execute(raw)
@@ -337,16 +469,16 @@ class ManagerSummaryMixin:
 
     @staticmethod
     @func_time
-    def get_logged_managers(log_year, log_month):
+    def get_logged_managers(next_month):
         raw = """
                 SELECT log.user_id, log.plan FROM partnership_partnerrolelog log WHERE id IN (
                 SELECT DISTINCT ON (user_id) (
                   SELECT pl.id
                   FROM partnership_partnerrolelog pl
-                  WHERE p.user_id = pl.user_id and pl.log_date < '%s-%s-01'
+                  WHERE p.user_id = pl.user_id and pl.log_date < '%s-01'
                   ORDER BY pl.log_date DESC LIMIT 1
                 ) FROM partnership_partnerrolelog p) and log.deleted = false ORDER BY log.user_id;
-              """ % (log_year, log_month)
+              """ % next_month
 
         with connection.cursor() as connect:
             connect.execute(raw)
@@ -369,30 +501,29 @@ class ManagerSummaryMixin:
         return managers_query, plan
 
     @staticmethod
-    def get_logged_period(year, month):
+    def get_next_month(year, month):
         """
         Create year and month params for PartnershipLogs queries
         """
         if month == 12:
-            return year + 1, 1
-
-        return year, month + 1
+            return '{year}-{month}'.format(year=year + 1, month=1)
+        return '{year}-{month}'.format(year=year, month=month + 1)
 
     @staticmethod
-    def _get_total_partners(queryset, managers):
-        s = dict(Counter(list(queryset.order_by().values_list('responsible', flat=True))))
+    def _get_total_partners(partners, managers):
+        s = dict(Counter(list(partners.order_by().values_list('responsible', flat=True))))
         for m in managers:
             yield s.get(m.pk, 0)
 
     @staticmethod
-    def _get_active_partners(queryset, managers):
-        s = dict(Counter(list(queryset.filter(is_active=True).order_by().values_list('responsible', flat=True))))
+    def _get_active_partners(partners, managers):
+        s = dict(Counter(list(partners.filter(is_active=True).order_by().values_list('responsible', flat=True))))
         for m in managers:
             yield s.get(m.pk, 0)
 
     @staticmethod
-    def _get_potential_sum(queryset, managers):
-        s = list(queryset.order_by().values('responsible', 'value'))
+    def _get_potential_sum(partners, managers):
+        s = list(partners.order_by().values('responsible', 'value'))
         for m in managers:
             yield sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)])
 

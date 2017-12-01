@@ -1,0 +1,157 @@
+{% extends "layout_main.html" %}
+{% load static %}
+{% load partner_tags %}
+{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                <li><a class="active" href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+
+    <div class="content">
+        <div class="container-full">
+            <div class="prefilter-group tab-status tab-home-stats">
+                <button class="month month_now active">Текущий месяц</button>
+                <button class="month month_prev">Предыдущий месяц</button>
+                <div class="set-date">
+                    <input type='text' id="date_field_stats" placeholder="Выберите дату"/>
+                    <div class="cal-icon"></div>
+                </div>
+            </div>
+        </div>
+            <div class="top-pag">
+{#                <div class="table__count"></div>#}
+{#                <div class="pagination partners__pagination"></div>#}
+            </div>
+
+            <div class="table-wrap clearfix"><!--Table -->
+                <div class="query-none" style="display:none">
+                    <p></p>
+                </div>
+                <div class="table scrollbar-inner" id="managersPlan"></div>
+            </div><!--End Table-wrap -->
+{#            <div class="table__count"></div>#}
+{#            <div class="pagination partners__pagination"></div>#}
+    </div><!-- End tab-content-->
+{% endblock %}
+
+{% block add_user_modal.buttons.create %}
+{% endblock %}
+
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src='{% static "js/partnership_summary.bundle.js" %}'></script>
+    <script type="text/template" id="databasePartnershipSummary">
+        <table id="table-1">
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if( (key == 'manager') ) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
+                <% } else { %>
+                <th data-order="<%=table_columns[key].ordering_title%>"
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                class="cell__red"
+                <% } %>
+                ><%=table_columns[key].title %></th>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+            <% for( var index in results) { %>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if (key == 'manager') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <% if (results[index][key] == 'СУММАРНО:') { %>
+                    <%= results[index][key] %>
+                    <% } else { %>
+                        <a href="/account/<%=results[index].user_id %>"
+                            title="<%= results[index][key] %>">
+                            <%= results[index][key] %></a>
+                    <% } %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'plan') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="edit edit-plan">
+                    {% if user.is_partner_director %}
+                        <% if (results[index].manager == 'СУММАРНО:') { %>
+                        <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                        <% } else if (!flag) { %>
+                            <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                        <% } else { %>
+                        <form name="plan_form" class="editPlanForm">
+                            <input name="plan_sum" class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
+                                   value="<%= results[index][key] %>" readonly disabled>
+                            <div class="btn-block">
+                                <button class="send_plan">ОК</button>
+                                <button class="cancel_plan">Отмена</button>
+                            </div>
+                        </form>
+                            <button class="edit_btn"></button>
+                        <% } %>
+                    {% else %}
+                        <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    {% endif %}
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="cell__red <%= key %>">
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'percent_of_plan') { %>
+                <% if (results[index][key] != null) { %>
+                <td class="<%= key %>">
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> %
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] != null ) { %>
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    <% } %>
+                </td>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+        <table id="header-fixed"></table>
+    </script>
+{% endblock %}
