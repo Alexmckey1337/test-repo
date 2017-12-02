@@ -307,7 +307,6 @@ class FullSummitParticipantReport(object):
 
     def _append_user_table(self, u, users):
         table_data = []
-        red_lines = []
         for user in users:
             table_data.append(
                 [user.attended if user.attended else '   ', user.user_name, user.master_name,
@@ -315,8 +314,6 @@ class FullSummitParticipantReport(object):
                  True if user.ticket_status == SummitAnket.PRINTED else False])
         table_data = sorted(table_data, key=lambda a: a[1])
         for l, t in enumerate(table_data):
-            if t[5]:
-                red_lines.append(l+1)
             table_data[l] = table_data[l][:-1]
         if not table_data:
             return
@@ -326,8 +323,6 @@ class FullSummitParticipantReport(object):
         user_table = Table(table_data, colWidths=[
             self.width * 0.1, self.width * 0.35, self.width * 0.35, self.width * 0.2], normalizedData=1)
 
-        red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
-        red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
         user_table.setStyle(TableStyle([
                                            ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
                                            ('FONT', (0, 0), (-1, -1), 'FreeSans'),
@@ -344,7 +339,7 @@ class FullSummitParticipantReport(object):
                                            ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
                                            ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
                                            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                       ] + red_cells))
+                                       ]))
         self.elements.append(user_table)
         if self.short is None:
             self.elements.append(PageBreak())
