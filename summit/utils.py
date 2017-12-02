@@ -310,7 +310,7 @@ class FullSummitParticipantReport(object):
         red_lines = []
         for user in users:
             table_data.append(
-                [user.attended if user.attended else '   ', user.user_name, user.get_ticket_status_display(),
+                [user.attended if user.attended else '   ', user.user_name, user.master_name,
                  user.phone, user.code,
                  True if user.ticket_status == SummitAnket.PRINTED else False])
         table_data = sorted(table_data, key=lambda a: a[1])
@@ -322,9 +322,9 @@ class FullSummitParticipantReport(object):
             return
         self._append_table_header(u)
 
-        table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
+        table_data = [['Был', 'ФИО', 'Ответственный', 'Номер телефона', 'Код']] + table_data
         user_table = Table(table_data, colWidths=[
-            self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
+            self.width * 0.1, self.width * 0.35, self.width * 0.35, self.width * 0.2], normalizedData=1)
 
         red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
         red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
@@ -352,14 +352,16 @@ class FullSummitParticipantReport(object):
     def _get_participants(self):
         raw = """
             SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.depth user_level,
-              h.level hierarchy_level, a.ticket_status ticket_status,
+              a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
+              concat(muu.last_name, ' ', muu.first_name, ' ', mu.middle_name) master_name,
               (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
               from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
-              LEFT JOIN hierarchy_hierarchy h ON u.hierarchy_id = h.id
+              LEFT OUTER JOIN account_customuser mu ON u.master_id = mu.user_ptr_id
+              LEFT OUTER JOIN auth_user muu ON mu.user_ptr_id = muu.id
               WHERE (u.path like '{path}%%' AND u.depth >= {depth} AND summit_id = {summit_id})
               ORDER BY u.path;
         """.format(
