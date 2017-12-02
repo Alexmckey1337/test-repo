@@ -42,7 +42,8 @@ from summit.pagination import (SummitPagination, SummitTicketPagination, SummitS
 from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
 from summit.resources import SummitAnketResource, SummitStatisticsResource
-from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
+from summit.utils import generate_ticket, get_report_by_bishop_or_high, \
+    FullSummitParticipantReport
 from .models import (Summit, SummitAnket, SummitLesson, SummitUserConsultant,
                      SummitTicket, SummitAttend, AnketEmail)
 from .serializers import (
@@ -603,7 +604,7 @@ def summit_report_by_participant(request, summit_id, master_id):
     short = request.query_params.get('short', None)
     attended = request.query_params.get('attended', None)
 
-    pdf = SummitParticipantReport(summit_id, master, report_date, short, attended).generate_pdf()
+    pdf = FullSummitParticipantReport(summit_id, master, report_date, short, attended).generate_pdf()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'

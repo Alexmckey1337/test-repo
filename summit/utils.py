@@ -249,6 +249,146 @@ class SummitParticipantReport(object):
         return self.build()
 
 
+class FullSummitParticipantReport(object):
+    def __init__(self, summit_id, master, report_date, short=None, attended=None):
+        self.summit_id = summit_id
+        self.short = short
+        self.attended = attended
+        self.master = master
+        if report_date:
+            try:
+                self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+            except ValueError:
+                raise exceptions.ValidationError({'detail': _('Invalid date.')})
+        else:
+            self.report_date = datetime.now()
+        self.elements = list()
+        self._init_styles()
+        self.buffer = BytesIO()
+        self.doc = SimpleDocTemplate(
+            self.buffer, rightMargin=72, leftMargin=72, topMargin=22, bottomMargin=22, pagesize=A4)
+        self.width = self.doc.width
+
+    def _init_styles(self):
+        pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
+
+        self.styles = getSampleStyleSheet()
+        self.styles.add(ParagraphStyle(name='RightAlign', fontName='FreeSans', alignment=TA_RIGHT, fontSize=8))
+        self.styles.add(ParagraphStyle(name='LeftAlign', fontName='FreeSans', alignment=TA_LEFT, fontSize=8))
+        self.styles.add(ParagraphStyle(name='date', fontName='FreeSans', alignment=TA_RIGHT, fontSize=12))
+        self.styles.add(ParagraphStyle(
+            name='Header1', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=16, spaceAfter=5))
+        self.styles.add(ParagraphStyle(
+            name='Header12', fontName='FreeSansBold', alignment=TA_LEFT, fontSize=14, spaceAfter=5))
+        self.styles.add(ParagraphStyle(
+            name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5))
+
+    def _append_document_header(self):
+        self.elements.append(Paragraph(
+            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+        self.elements.append(Paragraph(
+            'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
+        self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
+
+    def _append_table_header(self, user):
+        self.elements.append(Paragraph(user.user_name, self.styles['Header2']))
+
+    def _append_tables(self, users):
+        if self.attended and self.attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
+            table_users = list(filter(lambda u: u.attended, users))
+        elif self.attended and self.attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
+            table_users = list(filter(lambda u: not u.attended, users))
+        else:
+            table_users = users
+        user = users[0]
+        self._append_user_table(user, table_users)
+
+    def _append_user_table(self, u, users):
+        table_data = []
+        red_lines = []
+        for user in users:
+            table_data.append(
+                [user.attended if user.attended else '   ', user.user_name, user.get_ticket_status_display(),
+                 user.phone, user.code,
+                 True if user.ticket_status == SummitAnket.PRINTED else False])
+        table_data = sorted(table_data, key=lambda a: a[1])
+        for l, t in enumerate(table_data):
+            if t[5]:
+                red_lines.append(l+1)
+            table_data[l] = table_data[l][:-1]
+        if not table_data:
+            return
+        self._append_table_header(u)
+
+        table_data = [['Был', 'ФИО', 'Билет', 'Номер телефона', 'Код']] + table_data
+        user_table = Table(table_data, colWidths=[
+            self.width * 0.1, self.width * 0.5, self.width * 0.2, self.width * 0.2], normalizedData=1)
+
+        red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
+        red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
+        user_table.setStyle(TableStyle([
+                                           ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+                                           ('FONT', (0, 0), (-1, -1), 'FreeSans'),
+                                           ('FONTSIZE', (0, 0), (-1, -1), 8),
+                                           ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+                                           ('BOX', (0, 0), (-1, -1), 0.15, colors.black),
+
+                                           # ('FONTSIZE', (0, 0), (0, -1), 10),
+                                           ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                                           ('TOPPADDING', (0, 0), (-1, -1), 1),
+
+                                           ('FONTSIZE', (0, 0), (-1, 0), 8),
+                                           ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                                           ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
+                                           ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
+                                           ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                       ] + red_cells))
+        self.elements.append(user_table)
+        if self.short is None:
+            self.elements.append(PageBreak())
+
+    def _get_participants(self):
+        raw = """
+            SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.depth user_level,
+              h.level hierarchy_level, a.ticket_status ticket_status,
+              concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
+            FROM summit_summitanket a
+              INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
+              INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
+              LEFT JOIN hierarchy_hierarchy h ON u.hierarchy_id = h.id
+              WHERE (u.path like '{path}%%' AND u.depth >= {depth} AND summit_id = {summit_id})
+              ORDER BY u.path;
+        """.format(
+            date=self.report_date.strftime('%Y-%m-%d'),
+            path=self.master.path,
+            depth=self.master.depth,
+            summit_id=self.summit_id
+        )
+        return list(SummitAnket.objects.raw(raw))
+
+    def build(self):
+        self.doc.build(self.elements, canvasmaker=NumberedCanvas)
+        pdf = self.buffer.getvalue()
+        self.buffer.close()
+
+        return pdf
+
+    def generate_pdf(self):
+        users = self._get_participants()
+        self._append_document_header()
+        total = len(users)
+        absent = len(tuple(filter(lambda u: not u.attended, users)))
+        self.elements.append(Paragraph('Всего: {total} / Отсутствует: {absent}'.format(total=total, absent=absent),
+                                       self.styles['Header12']))
+        self._append_tables(users)
+
+        return self.build()
+
+
 def generate_ticket(code):
     anket = get_object_or_404(SummitAnket, code=code)
     user = anket.user
@@ -289,9 +429,9 @@ def generate_ticket_by_summit(ankets):
 
     buffer = BytesIO()
 
-    w = 90 * mm
-    h = 58 * mm
-    c = canvas.Canvas(buffer, pagesize=(w, h))
+    w = .035 * A4[0] * cm
+    h = w * 941 / 2241
+    c = canvas.Canvas(buffer, pagesize=A4)
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
