@@ -260,6 +260,17 @@ class PartnerListSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, Temp
 class PartnerDetailSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
     template_name = 'partner/partnership_summary_detail.html'
     login_url = 'entry'
+    manager = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.manager = get_object_or_404(CustomUser, pk=kwargs.get('manager_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['manager'] = self.manager
+
+        return ctx
 
 
 class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):

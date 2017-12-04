@@ -3,7 +3,7 @@ import 'chart.js/dist/Chart.bundle.min.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {getSummitStats, getSummitStatsForMaster} from "../Statistics/summit";
-import {CHARTCOLORS, getRandomColor} from "./config";
+import {CHARTCOLORS, PLUGINS, setConfig, getRandomColor} from "./config";
 
 export function initChart(id, update = false) {
     let url = URLS.summit.attends(id);
@@ -68,67 +68,6 @@ export function initChart(id, update = false) {
     });
 }
 
-function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {}) {
-    let config = {
-        type: type,
-        data: {
-            labels: labels,
-            datasets: datasets,
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: title,
-                fontSize: 18,
-                fontFamily: 'Open Sans, sans-serif'
-            },
-            legend: {
-                display: true,
-                labels: {
-                    fontSize: 14,
-                },
-                fontFamily: 'Open Sans, sans-serif'
-            },
-            tooltips: {
-                mode: 'index',
-                callbacks: callback,
-                footerFontStyle: 'normal',
-                titleFontSize: 15,
-                bodyFontSize: 13,
-                footerFontSize: 13,
-                titleMarginBottom: 12,
-                bodySpacing: 6,
-                titleFontFamily: 'Open Sans, sans-serif',
-                bodyFontFamily: 'Open Sans, sans-serif',
-                footerFontFamily: 'Open Sans, sans-serif'
-            },
-            hover: {
-                mode: 'index',
-                intersect: true
-            },
-            scales: {
-                xAxes: xAxes,
-                yAxes: yAxes,
-            },
-
-            elements: {
-                point: {
-                    radius: 5,
-                    hoverRadius: 7
-                },
-                rectangle: {
-                    borderWidth: 1000
-                }
-
-            }
-        },
-        plugins: PLUGINS
-    };
-
-    return config;
-}
-
 function updateChart({chart, labels, line1, line2}) {
     chart.data.labels = labels;
     chart.data.datasets[0].data = line1;
@@ -140,30 +79,6 @@ function renderChart(select, config) {
     let ctx = document.getElementById(select).getContext("2d");
     window.ChartAttends = new Chart(ctx, config);
 }
-
-const PLUGINS = [{
-    afterDatasetsDraw: function (chart, easing) {
-        let ctx = chart.ctx;
-        chart.data.datasets.forEach(function (dataset, i) {
-            let meta = chart.getDatasetMeta(i);
-            if (!meta.hidden) {
-                meta.data.forEach(function (element, index) {
-                    ctx.fillStyle = 'rgb(0, 0, 0)';
-                    let fontSize = 12,
-                        fontStyle = 'normal',
-                        fontFamily = 'Open Sans, sans-serif';
-                    ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
-                    let dataString = dataset.data[index].toString();
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    let padding = 8,
-                        position = element.tooltipPosition();
-                    ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
-                });
-            }
-        });
-    }
-}];
 
 export function initBarChart(id, update = false) {
     let url = URLS.summit.stats_latecomer(id);

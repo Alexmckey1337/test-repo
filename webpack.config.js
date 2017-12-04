@@ -35,6 +35,7 @@ module.exports = {
         deals: ['babel-polyfill', './deals'],
         partner_list: ['babel-polyfill', './partner_list'],
         partnership_summary: ['babel-polyfill', './partnership_summary'],
+        manager_summary: ['babel-polyfill', './manager_summary'],
         stats: ['babel-polyfill', './stats'],
         payments: ['babel-polyfill', './payments'],
         summit_detail: ['babel-polyfill', './summit_detail'],

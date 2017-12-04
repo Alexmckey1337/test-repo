@@ -76,3 +76,88 @@ export function getRandomColor() {
     }
     return color;
 }
+
+export function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {}) {
+    let config = {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: datasets,
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: title,
+                fontSize: 18,
+                fontFamily: 'Open Sans, sans-serif'
+            },
+            legend: {
+                display: true,
+                labels: {
+                    fontSize: 14,
+                },
+                fontFamily: 'Open Sans, sans-serif'
+            },
+            tooltips: {
+                mode: 'index',
+                callbacks: callback,
+                footerFontStyle: 'normal',
+                titleFontSize: 15,
+                bodyFontSize: 13,
+                footerFontSize: 13,
+                titleMarginBottom: 12,
+                bodySpacing: 6,
+                titleFontFamily: 'Open Sans, sans-serif',
+                bodyFontFamily: 'Open Sans, sans-serif',
+                footerFontFamily: 'Open Sans, sans-serif'
+            },
+            hover: {
+                mode: 'index',
+                intersect: true
+            },
+            scales: {
+                xAxes: xAxes,
+                yAxes: yAxes,
+            },
+
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 7
+                },
+                rectangle: {
+                    borderWidth: 1000
+                }
+
+            }
+        },
+        plugins: PLUGINS
+    };
+
+    return config;
+}
+
+export const PLUGINS = [{
+    afterDatasetsDraw: function (chart, easing) {
+        let ctx = chart.ctx;
+        chart.data.datasets.forEach(function (dataset, i) {
+            let meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
+                meta.data.forEach(function (element, index) {
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    let fontSize = 12,
+                        fontStyle = 'normal',
+                        fontFamily = 'Open Sans, sans-serif';
+                    ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                    let dataString = dataset.data[index].toString();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    let padding = 8,
+                        position = element.tooltipPosition();
+                    ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+                });
+            }
+        });
+    }
+}];
