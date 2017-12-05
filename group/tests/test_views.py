@@ -3,8 +3,8 @@ from django.core.exceptions import FieldError
 from django.urls import reverse
 from rest_framework import status
 
-from group.serializers import ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer
-from group.views import ChurchViewSet, HomeGroupViewSet
+from group.api.serializers import ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer
+from group.api.views import ChurchViewSet, HomeGroupViewSet
 
 
 def create_church_users(church, count, user_factory):
@@ -182,9 +182,8 @@ class TestChurchViewSet:
         response = api_client.get(url, data={'search': 'batm'}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        count = 7 if is_detail else 4
-        assert len(response.data) == 13
-        assert len(list(filter(lambda d: d['can_add'], response.data))) == count
+        assert len(response.data['results']) == 5
+        assert response.data['count'] == 13
 
     @pytest.mark.parametrize('first_name', ('batman', 'loki', 'mario'))
     @pytest.mark.parametrize('last_name', ('batman', 'loki', 'mario'))
@@ -210,7 +209,7 @@ class TestChurchViewSet:
         response = api_login_client.get(url, data=data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 4
+        assert len(response.data['results']) == 4
 
     @pytest.mark.parametrize('is_detail,url_name', (
             (False, 'church-potential-users-church'),
@@ -236,7 +235,7 @@ class TestChurchViewSet:
         response = api_login_client.get(url, data=data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 4
+        assert len(response.data['results']) == 4
 
     @pytest.mark.parametrize('is_detail,url_name', (
             (False, 'church-potential-users-church'),
@@ -257,7 +256,8 @@ class TestChurchViewSet:
         response = api_login_client.get(url, data={'search': 'batm lok'}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 30
+        assert len(response.data['results']) == 5
+        assert response.data['count'] == 40
 
     def test_add_user_without_user_id(self, monkeypatch, api_login_client, church):
         monkeypatch.setattr(ChurchViewSet, 'get_queryset', lambda s: s.queryset)

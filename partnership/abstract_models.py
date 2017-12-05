@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.db import models
 
-from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
-    can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
-    can_update_partner_need, can_update_deal, can_create_payment_for_partner, can_update_partner, \
-    can_see_partner_summary, can_see_managers_summary
+from partnership.api.permissions import (
+    can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments,
+    can_close_partner_deals, can_create_partner_payments, can_export_partner_list,
+    can_create_deal_for_partner, can_update_partner_need, can_update_deal, can_create_payment_for_partner,
+    can_update_partner, can_see_partner_summary, can_see_managers_summary)
 
 
 class PartnerUserPermission(models.Model):
@@ -166,7 +167,7 @@ class PartnerUserPermission(models.Model):
         from partnership.models import Partnership
         if not isinstance(user_id, (int, str)):
             user_id = user_id.id
-        return self.is_partner and Partnership.objects.filter(responsible=self, user_id=user_id)
+        return self.has_partner_role and Partnership.objects.filter(responsible=self, user_id=user_id)
 
     # Helpers
 

@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Sum, Value as V, F
 from django.db.models.functions import Concat
-from rest_framework.compat import is_authenticated
 from django.db.models.functions import Coalesce
 
 
@@ -10,7 +9,7 @@ class MeetingQuerySet(models.query.QuerySet):
         return self
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self.base_queryset()
@@ -43,7 +42,7 @@ class ChurchReportQuerySet(models.query.QuerySet):
         return self
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self.base_queryset()

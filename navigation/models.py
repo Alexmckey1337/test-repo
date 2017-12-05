@@ -30,7 +30,7 @@ class Category(models.Model):
 @python_2_unicode_compatible
 class ColumnType(models.Model):
     title = models.CharField(max_length=100)
-    category = models.ForeignKey(Category, related_name="columnTypes", blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="columnTypes", blank=True, null=True)
     verbose_title = models.CharField(max_length=100, blank=True)
     ordering_title = models.CharField(max_length=100, blank=True)
     number = models.IntegerField(default=0)
@@ -46,7 +46,7 @@ class ColumnType(models.Model):
 
 @python_2_unicode_compatible
 class Table(models.Model):
-    user = models.OneToOneField('account.CustomUser', related_name='table')
+    user = models.OneToOneField('account.CustomUser', on_delete=models.CASCADE, related_name='table')
     columnTypes = models.ManyToManyField(ColumnType,
                                          through='Column',
                                          through_fields=('table', 'columnType'),
@@ -59,8 +59,8 @@ class Table(models.Model):
 
 @python_2_unicode_compatible
 class Column(models.Model):
-    table = models.ForeignKey(Table, related_name='columns')
-    columnType = models.ForeignKey(ColumnType, related_name='columns')
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='columns')
+    columnType = models.ForeignKey(ColumnType, on_delete=models.CASCADE, related_name='columns')
     number = models.IntegerField(default=0)
     active = models.BooleanField(default=False)
 

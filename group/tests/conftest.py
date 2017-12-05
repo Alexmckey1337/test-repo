@@ -7,7 +7,7 @@ from account.factories import UserFactory
 from common.test_helpers.views import fake_dispatch
 from group.factories import ChurchFactory
 from group.factories import HomeGroupFactory
-from group.views import ChurchViewSet, HomeGroupViewSet
+from group.api.views import ChurchViewSet, HomeGroupViewSet
 from hierarchy.factories import DepartmentFactory, HierarchyFactory
 
 register(UserFactory)

@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Q
 
-from rest_framework.compat import is_authenticated
 from django.db.models import Value as V, F
 from django.db.models.functions import Concat
 
@@ -14,7 +13,7 @@ class PaymentQuerySet(models.query.QuerySet):
     def for_user_by_all(self, user):
         from partnership.models import Deal, Partnership
         from summit.models import SummitAnket
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
         partner_ids = Partnership.objects.for_user(user).values_list('id', flat=True)
@@ -28,7 +27,7 @@ class PaymentQuerySet(models.query.QuerySet):
 
     def for_user_by_deal(self, user):
         from partnership.models import Deal
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
 
@@ -38,7 +37,7 @@ class PaymentQuerySet(models.query.QuerySet):
 
     def for_user_by_summit_anket(self, user):
         from summit.models import SummitAnket
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         anket_ids = SummitAnket.objects.for_user(user).values_list('id', flat=True)
 
@@ -48,14 +47,13 @@ class PaymentQuerySet(models.query.QuerySet):
 
     def for_user_by_church_report(self, user):
         from event.models import ChurchReport
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         church_report_ids = ChurchReport.objects.for_user(user).values_list('id', flat=True)
 
         return self.filter(
             (Q(content_type__model='churchreport') & Q(object_id__in=church_report_ids))
         )
-
 
     """
         CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name) as purpose_fio,
@@ -69,7 +67,7 @@ class PaymentQuerySet(models.query.QuerySet):
                 'purpose_fio': '''
                     SELECT
                     CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
-                    as purpose_fio
+                    AS purpose_fio
                     FROM partnership_deal
 
                     JOIN partnership_partnership ON partnership_deal.partnership_id = partnership_partnership.id
@@ -81,7 +79,7 @@ class PaymentQuerySet(models.query.QuerySet):
             select={
                 'purpose_date': '''
                     SELECT
-                    partnership_deal.date_created as purpose_date
+                    partnership_deal.date_created AS purpose_date
                     FROM partnership_deal
 
                     WHERE partnership_deal.id = payment_payment.object_id'''
@@ -89,10 +87,10 @@ class PaymentQuerySet(models.query.QuerySet):
             select={
                 'purpose_manager_fio': '''
                     SELECT
-                    CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) as purpose_manager_fio
+                    CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) AS purpose_manager_fio
                     FROM partnership_deal
 
-                    JOIN account_customuser a2 on partnership_deal.responsible_id = a2.user_ptr_id
+                    JOIN account_customuser a2 ON partnership_deal.responsible_id = a2.user_ptr_id
                     JOIN auth_user au2 ON a2.user_ptr_id = au2.id
 
                     WHERE partnership_deal.id = payment_payment.object_id'''

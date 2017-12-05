@@ -4,7 +4,7 @@ from import_export import fields
 from account.models import CustomUser
 from common.resources import CustomFieldsModelResource
 from group.models import Church, HomeGroup
-from group.serializers import BASE_GROUP_USER_FIELDS
+from group.api.serializers import BASE_GROUP_USER_FIELDS
 
 COMMON_GROUP_RESOURCE_FIELDS = ('get_title', 'opening_date', 'city', 'address', 'phone_number',
                                 'website')

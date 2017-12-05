@@ -18,7 +18,6 @@ from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm, cm
-from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -176,7 +175,7 @@ class SummitParticipantReport(object):
         table_data = sorted(table_data, key=lambda a: a[1])
         for l, t in enumerate(table_data):
             if t[5]:
-                red_lines.append(l+1)
+                red_lines.append(l + 1)
             table_data[l] = table_data[l][:-1]
         if not table_data:
             return

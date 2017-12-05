@@ -1,12 +1,10 @@
 import copy
 import datetime
 import itertools
-from decimal import Decimal
 
 import pytest
 from django.conf import settings
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework import status
 
 from account.models import CustomUser

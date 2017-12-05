@@ -10,7 +10,7 @@
     <h2>{% trans "Partner deals" %}</h2>
     <div class="list-group">
         {% for deal in partner.deals.all %}
-            <a href="{% url 'payment-deal' pk=deal.id %}" class="list-group-item">{{ deal }}</a>
+            <a href="{% url 'payment:deal' pk=deal.id %}" class="list-group-item">{{ deal }}</a>
         {% endfor %}
     </div>
 

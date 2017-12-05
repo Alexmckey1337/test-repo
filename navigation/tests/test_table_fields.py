@@ -71,7 +71,7 @@ def test_partner_table(table):
 def test_summit_table(table):
     table_columns = summit_table(table.user)
     category = Category.objects.filter(title="summit")
-    assert list(table_columns.keys()) == list(
+    assert set(table_columns.keys()) == set(
         category.values_list('columnTypes__title', flat=True))
 
 

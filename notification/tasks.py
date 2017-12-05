@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.utils import timezone
 
 from account.models import CustomUser as User
-from .models import Notification
+from notification.models import Notification
 
 
 def create_notifications():

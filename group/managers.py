@@ -1,5 +1,4 @@
 from django.db import models
-from rest_framework.compat import is_authenticated
 
 
 class ChurchQuerySet(models.query.QuerySet):
@@ -7,7 +6,7 @@ class ChurchQuerySet(models.query.QuerySet):
         return self
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self
@@ -30,7 +29,7 @@ class HomeGroupQuerySet(models.query.QuerySet):
         return self
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self

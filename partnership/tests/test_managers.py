@@ -59,26 +59,26 @@ class TestDealManager:
         monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         assert Deal.objects.get_queryset().for_user(user).query.is_empty()
 
-    def test_for_user_if_partner(self, deal_factory, partner_partner, monkeypatch):
+    def test_for_user_if_partner(self, deal_factory, user_user, monkeypatch):
         monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
-        d = [deal_factory(partnership__responsible=partner_partner).id]
-        assert Deal.objects.for_user(partner_partner.user).filter(id__in=dd + d).count() == 1
+        d = [deal_factory(partnership__responsible=user_user).id]
+        assert Deal.objects.for_user(user_user).filter(id__in=dd + d).count() == 0
 
-    def test_for_user_if_manager(self, deal_factory, partner_manager, monkeypatch):
+    def test_for_user_if_manager(self, deal_factory, user_manager, monkeypatch):
         monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
-        d = [deal_factory(partnership__responsible=partner_manager).id]
-        assert Deal.objects.for_user(partner_manager.user).filter(id__in=dd + d).count() == 1
+        d = [deal_factory(partnership__responsible=user_manager).id]
+        assert Deal.objects.for_user(user_manager).filter(id__in=dd + d).count() == 1
 
-    def test_for_user_if_supervisor(self, deal_factory, partner_supervisor, monkeypatch):
+    def test_for_user_if_supervisor(self, deal_factory, user_supervisor, monkeypatch):
         monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
-        d = [deal_factory(partnership__responsible=partner_supervisor).id]
-        assert Deal.objects.for_user(partner_supervisor.user).filter(id__in=dd + d).count() == 3
+        d = [deal_factory(partnership__responsible=user_supervisor).id]
+        assert Deal.objects.for_user(user_supervisor).filter(id__in=dd + d).count() == 3
 
-    def test_for_user_if_director(self, deal_factory, partner_director, monkeypatch):
+    def test_for_user_if_director(self, deal_factory, user_director, monkeypatch):
         monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
-        d = [deal_factory(partnership__responsible=partner_director).id]
-        assert Deal.objects.for_user(partner_director.user).filter(id__in=dd + d).count() == 3
+        d = [deal_factory(partnership__responsible=user_director).id]
+        assert Deal.objects.for_user(user_director).filter(id__in=dd + d).count() == 3

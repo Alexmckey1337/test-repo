@@ -1,70 +1,33 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
+from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.urls import reverse
 
-from django.conf.urls import url, include
-from rest_framework import routers
+from summit import views
 
-from summit import views, views_app
+app_name = 'summit'
 
-router_v1_0 = routers.DefaultRouter()
-router_v1_0.register(r'summit_profiles', views.SummitProfileViewSet, base_name='summit_profiles')
-router_v1_0.register(r'summit_tickets', views.SummitTicketViewSet)
-router_v1_0.register(r'summit_search', views.SummitUnregisterUserViewSet, base_name='summit_search')
-router_v1_0.register(r'summit_lessons', views.SummitLessonViewSet)
 
-router_v1_0.register(r'summit', views.SummitViewSet)
-router_v1_0.register(r'summit_visitors_location', views_app.SummitVisitorLocationViewSet)
-router_v1_0.register(r'summit_event_table', views_app.SummitEventTableViewSet)
-router_v1_0.register(r'summit_attends', views_app.SummitAttendViewSet)
+def redirect_to_summits(request):
+    return redirect(reverse('summit:open'))
 
-router_app = routers.DefaultRouter()
-router_app.register(r'summits', views_app.SummitTypeForAppViewSet, base_name='summits')
-router_app.register(r'open_summits', views_app.OpenSummitsForAppViewSet, base_name='open_summits')
-router_app.register(r'users', views_app.SummitProfileForAppViewSet, base_name='users')
-router_app.register(r'draw_users', views_app.SummitProfileWithLess10AbsentForAppViewSet, base_name='draw_users')
-
-custom_urls = [
-    url(r'^generate_code/.+\.pdf', views.generate_code, name='generate_code'),
-    url(r'^summit/(?P<summit_id>\d+)/master/(?P<master_id>\d+)\.pdf$',
-        views.summit_report_by_participant, name='summit-report-participant'),
-    url(r'^summit/(?P<summit_id>\d+)/report_by_bishops/$',
-        views.summit_report_by_bishops, name='summit-report-bishops'),
-    url(r'^generate_summit_tickets/(?P<summit_id>\d+)/$', views.generate_summit_tickets, name='generate_code'),
-    url(r'^summit/profile/(?P<profile_id>\d+)/send_code/$', views.send_code, name='send_code'),
-    url(r'^summit/(?P<summit_id>\d+)/send_unsent_codes/$', views.send_unsent_codes, name='send_unsent_codes'),
-    url(r'^summit/(?P<summit_id>\d+)/send_unsent_schedules/$', views.send_unsent_schedules, name='send_unsent_schedules'),
-    url(r'^summit/(?P<summit_id>\d+)/stats/attends/$',
-        views.HistorySummitAttendStatsView.as_view(), name='attend-stats'),
-    url(r'^summit/(?P<summit_id>\d+)/stats/latecomers/$',
-        views.HistorySummitLatecomerStatsView.as_view(), name='latecomer-stats'),
-    url(r'^summit/(?P<summit_id>\d+)/stats/master/(?P<master_id>\d+)/disciples/$',
-        views.HistorySummitStatByMasterDisciplesView.as_view(), name='master-disciples-stats'),
-
-    url(r'^summits/(?P<pk>\d+)/users/$', views.SummitProfileListView.as_view(), name='summit-profile-list'),
-    url(r'^summits/(?P<pk>\d+)/bishop_high_masters/$',
-        views.SummitBishopHighMasterListView.as_view(), name='summit-masters'),
-    url(r'^summits/(?P<pk>\d+)/export_users/$',
-        views.SummitProfileListExportView.as_view(), name='summit-profile-export'),
-    url(r'^summits/(?P<pk>\d+)/stats/$', views.SummitStatisticsView.as_view(), name='summit-stats'),
-    url(r'^summits/(?P<pk>\d+)/export_stats/$',
-        views.SummitStatisticsExportView.as_view(), name='summit-stats-export'),
-    url(r'^summit_ticket/(?P<ticket>\d+)/print/$', views.SummitTicketMakePrintedView.as_view(),
-        name='summit-ticket-print'),
-]
-
-custom_app = [
-    url(r'^summits/(?P<summit_id>\d+)/users/$', views_app.SummitProfileTreeForAppListView.as_view(),
-        name='summit-app-profile-list'),
-    url(r'^summits/(?P<summit_id>\d+)/request_count/$', views_app.app_request_count,
-        name='summit-app-profile-list'),
-    url(r'^summits/(?P<summit_id>\d+)/users/(?P<master_id>\d+)/$', views_app.SummitProfileTreeForAppListView.as_view(),
-        name='summit-app-profile-list-master'),
-]
 
 urlpatterns = [
-    url(r'^v1.0/', include(router_v1_0.urls)),
-    url(r'^app/', include(router_app.urls)),
+    url(r'^$', login_required(redirect_to_summits, login_url='entry'), name='main'),
+    url(r'^(?P<pk>\d+)/$', views.SummitDetailView.as_view(), name='detail'),
+    url(r'^(?P<summit_id>\d+)/status/$', views.SummitEmailTasksView.as_view(), name='status'),
+    url(r'^(?P<summit_id>\d+)/schedule/$', views.SummitScheduleTasksView.as_view(), name='schedule'),
+    url(r'^open/$', views.OpenSummitListView.as_view(), name='open'),
+    url(r'^closed/$', views.ClosedSummitListView.as_view(), name='closed'),
+    url(r'^(?P<pk>\d+)/report/$', views.SummitBishopReportView.as_view(), name='report'),
+    url(r'^(?P<pk>\d+)/statistics/$', views.SummitStatisticsView.as_view(), name='stats'),
+    url(r'^profile/(?P<pk>\d+)/$', views.SummitProfileDetailView.as_view(), name='profile-detail'),
+    url(r'^profile/(?P<profile_id>\d+)/emails/$',
+        views.SummitProfileEmailListView.as_view(), name='profile-email-list'),
+    url(r'^emails/(?P<pk>\d+)/$', views.SummitProfileEmailDetailView.as_view(), name='profile-email-detail'),
+    url(r'^emails/(?P<pk>\d+)/text/$', views.SummitProfileEmailTextView.as_view(), name='profile-email-text'),
+    url(r'^tickets/$', views.SummitTicketListView.as_view(), name='tickets'),
+    url(r'^tickets/(?P<pk>\d+)/$', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
 
-    url(r'^v1.0/', include(custom_urls)),
-    url(r'^app/', include(custom_app)),
+    url(r'^(?P<pk>\d+)/history/statistics/$', views.SummitHistoryStatisticsView.as_view(), name='history-stats'),
 ]
