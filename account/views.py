@@ -521,12 +521,12 @@ def calls_to_user(request):
         user_calls = requests.get('http://localhost:8080', data=json.dumps(data),
                                   headers={'Content-Type': 'application/json'})
     except Exception:
-        return Response({'message': 'Asterisk Service is not available'})
+        return Response({'message': 'Asterisk Service is not available'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         user_calls = user_calls.json()
     except Exception:
-        return Response({"message": "Can't parse Asterisk Service response"})
+        return Response({"message": "Can't parse Asterisk Service response"}, status=status.HTTP_400_BAD_REQUEST)
 
     for call in enumerate(user_calls):
         user_calls[call[0]] = {
