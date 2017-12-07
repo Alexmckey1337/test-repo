@@ -5,7 +5,7 @@ import beautifyNumber from '../beautifyNumber';
 
 export function makeManagerTable(ID, config = {}) {
     getData(URLS.partner.manager_summary(ID), config).then(data => {
-            let formatedData = dataProcessing(data),
+            let formatedData = getTransformData(data),
                 tableFinances = createFinanceTable(formatedData.headers, formatedData.dataFinances),
                 tablePartners = createPartnerTable(formatedData.headers, formatedData.dataPartners);
         $('#managersFinances').html('').append(tableFinances);
@@ -74,7 +74,7 @@ function createPartnerTable(headers, body) {
     return table;
 }
 
-function dataProcessing(data) {
+function getTransformData(data) {
     let dataFinances = [
             {
                 title: 'план',
