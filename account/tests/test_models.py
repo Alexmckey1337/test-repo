@@ -42,8 +42,7 @@ class TestUser:
         [('manager', False), ('manager_or_high', False),
          ('supervisor', False), ('supervisor_or_high', False),
          ('director', False)])
-    def test_is_partner_xxx_user_is_partner(self, user, func, is_true, partner_factory):
-        partner_factory(user=user, level=settings.PARTNER_LEVELS['partner'])
+    def test_is_partner_xxx_user_is_partner(self, user, func, is_true):
         assert getattr(user, 'is_partner_{}'.format(func)) == is_true
 
     @pytest.mark.parametrize(
@@ -51,8 +50,8 @@ class TestUser:
         [('manager', True), ('manager_or_high', True),
          ('supervisor', False), ('supervisor_or_high', False),
          ('director', False)])
-    def test_is_partner_xxx_user_is_manager(self, user, func, is_true, partner_factory):
-        partner_factory(user=user, level=settings.PARTNER_LEVELS['manager'])
+    def test_is_partner_xxx_user_is_manager(self, user, func, is_true, partner_role_factory):
+        partner_role_factory(user=user, level=settings.PARTNER_LEVELS['manager'])
         assert getattr(user, 'is_partner_{}'.format(func)) == is_true
 
     @pytest.mark.parametrize(
@@ -60,8 +59,8 @@ class TestUser:
         [('manager', False), ('manager_or_high', True),
          ('supervisor', True), ('supervisor_or_high', True),
          ('director', False)])
-    def test_is_partner_xxx_user_is_supervisor(self, user, func, is_true, partner_factory):
-        partner_factory(user=user, level=settings.PARTNER_LEVELS['supervisor'])
+    def test_is_partner_xxx_user_is_supervisor(self, user, func, is_true, partner_role_factory):
+        partner_role_factory(user=user, level=settings.PARTNER_LEVELS['supervisor'])
         assert getattr(user, 'is_partner_{}'.format(func)) == is_true
 
     @pytest.mark.parametrize(
@@ -69,6 +68,6 @@ class TestUser:
         [('manager', False), ('manager_or_high', True),
          ('supervisor', False), ('supervisor_or_high', True),
          ('director', True)])
-    def test_is_partner_xxx_user_is_director(self, user, func, is_true, partner_factory):
-        partner_factory(user=user, level=settings.PARTNER_LEVELS['director'])
+    def test_is_partner_xxx_user_is_director(self, user, func, is_true, partner_role_factory):
+        partner_role_factory(user=user, level=settings.PARTNER_LEVELS['director'])
         assert getattr(user, 'is_partner_{}'.format(func)) == is_true

@@ -7,27 +7,25 @@ from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from treebeard.mp_tree import MP_Node
 
 from account.abstract_models import CustomUserAbstract
+from account.api.permissions import (
+    can_edit_status_block, can_edit_description_block, can_see_account_page,
+    SeeUserListPermission, CreateUserPermission, ExportUserListPermission)
 from account.managers import CustomUserManager
-from account.permissions import (
-    can_edit_status_block,
-    can_edit_description_block, can_see_account_page, SeeUserListPermission, CreateUserPermission,
-    ExportUserListPermission)
 from analytics.models import LogModel
 from group.abstract_models import GroupUserPermission
-from group.models import Church
 from navigation.models import Table
 from partnership.abstract_models import PartnerUserPermission
-from partnership.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
+from partnership.api.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from summit.abstract_models import SummitUserPermission
 from summit.models import SummitAnket, Summit
 

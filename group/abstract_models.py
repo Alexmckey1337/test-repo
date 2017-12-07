@@ -4,7 +4,7 @@ from django.utils.translation import ugettext
 
 from account.signals import obj_edit
 from analytics.utils import foreign_key_to_dict
-from group import permissions
+from group.api import permissions
 from group.models import Church
 
 

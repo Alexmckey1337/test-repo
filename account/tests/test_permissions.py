@@ -5,7 +5,7 @@ import pytest
 from django.conf import settings
 
 from account.models import CustomUser
-from account.permissions import CanSeeAccountPage, can_see_account_page, CanCreateUser, CanExportUserList, \
+from account.api.permissions import CanSeeAccountPage, can_see_account_page, CanCreateUser, CanExportUserList, \
     CanSeeUserList, can_edit_status_block, \
     can_edit_description_block, SeeUserListPermission, CreateUserPermission, ExportUserListPermission
 
@@ -41,14 +41,17 @@ class TestCanSeeAccountPage:
         request = type('Request', (), {'user': user})
         assert not CanSeeAccountPage().has_object_permission(request, None, u)
 
-    def test_is_partner_responsible(self, partner, partner_factory):
-        p = partner_factory(responsible=partner)
-        request = type('Request', (), {'user': partner.user})
+    def test_is_partner_responsible(self, user_factory, partner_factory, partner_role_factory):
+        user = user_factory()
+        partner_role_factory(user=user)
+        p = partner_factory(responsible=user)
+        request = type('Request', (), {'user': user})
         assert CanSeeAccountPage().has_object_permission(request, None, p.user)
 
-    def test_not_is_partner_responsible(self, partner, partner_factory):
-        p = partner_factory(responsible=partner_factory())
-        request = type('Request', (), {'user': partner.user})
+    def test_not_is_partner_responsible(self, partner_factory, user_factory):
+        user = user_factory()
+        p = partner_factory(responsible=user_factory())
+        request = type('Request', (), {'user': user})
         assert not CanSeeAccountPage().has_object_permission(request, None, p.user)
 
 
@@ -147,13 +150,16 @@ class TestCanSeeAccountPageFunc:
         u = other_user.add_child(username='user', master=other_user)
         assert not can_see_account_page(user, u)
 
-    def test_is_partner_responsible(self, partner, partner_factory):
-        p = partner_factory(responsible=partner)
-        assert can_see_account_page(partner.user, p.user)
+    def test_is_partner_responsible(self, user_factory, partner_role_factory, partner_factory):
+        user = user_factory()
+        partner_role_factory(user=user)
+        p = partner_factory(responsible=user)
+        assert can_see_account_page(user, p.user)
 
-    def test_not_is_partner_responsible(self, partner, partner_factory):
-        p = partner_factory(responsible=partner_factory())
-        assert not can_see_account_page(partner.user, p.user)
+    def test_not_is_partner_responsible(self, partner_factory, user_factory):
+        user = user_factory()
+        p = partner_factory(responsible=user_factory())
+        assert not can_see_account_page(user, p.user)
 
 
 @pytest.mark.django_db

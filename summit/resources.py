@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from import_export import fields
 
 from common.resources import CustomFieldsModelResource
-from .models import SummitAnket
+from summit.models import SummitAnket
 
 
 class SummitAnketResource(CustomFieldsModelResource):

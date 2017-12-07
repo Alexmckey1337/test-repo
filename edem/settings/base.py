@@ -129,7 +129,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [str(BASE_DIR.path('templates')), ],
         # 'DIRS': [BASE_DIR + '/templates', ],
-       'OPTIONS': {
+        'OPTIONS': {
             'debug': DEBUG,
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -310,7 +310,7 @@ import djcelery
 djcelery.setup_loader()
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'account.serializers.UserSerializer',
+    'USER_DETAILS_SERIALIZER': 'account.api.serializers.UserSerializer',
 }
 OLD_PASSWORD_FIELD_ENABLED = True
 

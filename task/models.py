@@ -20,13 +20,18 @@ class Task(models.Model):
         (DONE, _('done')),
     )
 
-    type = models.ForeignKey('TaskType', related_name='tasks', verbose_name=_('TaskType'))
-    division = models.ForeignKey('status.Division', related_name='tasks', verbose_name=_('Division'),
+    type = models.ForeignKey('TaskType', on_delete=models.PROTECT,
+                             related_name='tasks', verbose_name=_('TaskType'))
+    division = models.ForeignKey('status.Division', on_delete=models.PROTECT,
+                                 related_name='tasks', verbose_name=_('Division'),
                                  blank=True, null=True)
-    executor = models.ForeignKey('account.CustomUser', related_name='task_executor', blank=True, null=True,
+    executor = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
+                                 related_name='task_executor', blank=True, null=True,
                                  verbose_name=_('Task Executor'))
-    creator = models.ForeignKey('account.CustomUser', related_name='task_creator', verbose_name=_('Task Creator'))
-    target = models.ForeignKey('account.CustomUser', related_name='task_target', blank=True, null=True,
+    creator = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
+                                related_name='task_creator', verbose_name=_('Task Creator'))
+    target = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
+                               related_name='task_target', blank=True, null=True,
                                verbose_name=_('Task Target'))
     status = models.CharField(_('Status'), default=IN_WORK, choices=STATUSES, max_length=255)
     date_published = models.DateField(_('Date Published'))

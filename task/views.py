@@ -1,24 +1,21 @@
-from .models import Task
-from rest_framework.viewsets import ModelViewSet
-from .serializers import TaskCreateUpdateSerializer, TaskDisplaySerializer
-from django.db.models import Q
-from .pagintation import TaskPagination
-from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+
+from account.models import CustomUser
+from status.models import Division
+from task.models import TaskType
 
 
-class TaskViewSet(ModelViewSet):
-    queryset = Task.objects.select_related('executor', 'creator', 'target')
-    serializer_display_class = TaskDisplaySerializer
-    serializer_create_update_class = TaskCreateUpdateSerializer
-    pagination_class = TaskPagination
-    permission_classes = (IsAuthenticated,)
+@login_required(login_url='entry')
+def task_list(request):
+    if not request.user.is_staff and not request.user.hierarchy:
+        return redirect('/')
 
-    def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
-            return self.serializer_display_class
-        return self.serializer_create_update_class
+    ctx = {
+        'divisions': Division.objects.all(),
+        'executors': CustomUser.objects.for_user(request.user),
+        'targets': CustomUser.objects.all(),
+        'types': TaskType.objects.all()
+    }
 
-    def get_queryset(self):
-        return self.queryset.filter(
-            Q(creator=self.request.user) | Q(executor=self.request.user) | Q(
-                division__in=self.request.user.divisions.all()))
+    return render(request, 'tasks/task_list.html', context=ctx)

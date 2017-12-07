@@ -13,12 +13,12 @@ from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.functional import cached_property
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from analytics.decorators import log_change_payment
 from account.abstract_models import CustomUserAbstract
+from analytics.decorators import log_change_payment
 from notification.backend import RedisBackend
 from payment.models import get_default_currency, AbstractPaymentPurpose
 from summit.managers import ProfileManager, SummitManager
@@ -62,7 +62,7 @@ class Summit(models.Model):
     #: End date of the summit
     end_date = models.DateField()
     #: Summit type
-    type = models.ForeignKey('SummitType', related_name='summits', blank=True, null=True)
+    type = models.ForeignKey('SummitType', on_delete=models.PROTECT, related_name='summits', blank=True, null=True)
     #: Display name
     description = models.CharField(max_length=255, verbose_name='Описание',
                                    blank=True, null=True)
@@ -185,8 +185,8 @@ class ProfileAbstract(models.Model):
 
 @python_2_unicode_compatible
 class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
-    user = models.ForeignKey('account.CustomUser', related_name='summit_profiles')
-    summit = models.ForeignKey('Summit', related_name='ankets', verbose_name='Саммит',
+    user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='summit_profiles')
+    summit = models.ForeignKey('Summit', on_delete=models.PROTECT, related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True, db_index=True)
 
     #: The amount paid for the summit
@@ -514,7 +514,7 @@ class SummitAnketNote(models.Model):
 
 @python_2_unicode_compatible
 class SummitVisitorLocation(models.Model):
-    visitor = models.ForeignKey('summit.SummitAnket', verbose_name=_('Summit Visitor'),
+    visitor = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, verbose_name=_('Summit Visitor'),
                                 related_name='visitor_locations')
     date_time = models.DateTimeField(verbose_name='Date Time', db_index=True)
     longitude = models.FloatField(verbose_name=_('Longitude'))
@@ -562,7 +562,8 @@ class SummitEventTable(models.Model):
 
 @python_2_unicode_compatible
 class SummitAttend(models.Model):
-    anket = models.ForeignKey('summit.SummitAnket', related_name='attends', verbose_name=_('Anket'))
+    anket = models.ForeignKey('summit.SummitAnket', on_delete=models.PROTECT, related_name='attends',
+                              verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'), db_index=True)
     time = models.TimeField(verbose_name=_('Time'), null=True)
     status = models.CharField(verbose_name=_('Status'), max_length=20, default='')
@@ -580,7 +581,8 @@ class SummitAttend(models.Model):
 
 @python_2_unicode_compatible
 class AnketStatus(models.Model):
-    anket = models.OneToOneField('summit.SummitAnket', related_name='status', verbose_name=_('Anket'))
+    anket = models.OneToOneField('summit.SummitAnket', on_delete=models.CASCADE, related_name='status',
+                                 verbose_name=_('Anket'))
     reg_code_requested = models.BooleanField(verbose_name=_('Запрос регистрационного кода'), default=False)
     reg_code_requested_date = models.DateTimeField(verbose_name=_('Дата ввода регистрационного кода'),
                                                    null=True, blank=True)
@@ -596,7 +598,8 @@ class AnketStatus(models.Model):
 
 @python_2_unicode_compatible
 class AnketPasses(models.Model):
-    anket = models.ForeignKey('summit.SummitAnket', related_name='passes_count', verbose_name=_('Anket'))
+    anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='passes_count',
+                              verbose_name=_('Anket'))
     datetime = models.DateTimeField(verbose_name='Дата и время прохода', auto_now=True, editable=False)
 
     def __str__(self):

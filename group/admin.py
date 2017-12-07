@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 from django.contrib import admin
-from .models import Church, HomeGroup
+from group.models import Church, HomeGroup
 
 
 class ChurchAdmin(admin.ModelAdmin):

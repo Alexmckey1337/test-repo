@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import CustomUser, UserMarker
-from .resources import UserResource
+from account.models import CustomUser, UserMarker
+from account.resources import UserResource
 
 
 class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
