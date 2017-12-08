@@ -6,10 +6,10 @@ from django.views import View
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.base import ContextMixin
 
-from account.models import CustomUser
-from group.models import Church, HomeGroup
-from hierarchy.models import Department, Hierarchy
-from payment.models import Currency
+from apps.account.models import CustomUser
+from apps.group.models import Church, HomeGroup
+from apps.hierarchy.models import Department, Hierarchy
+from apps.payment.models import Currency
 
 
 __all__ = [

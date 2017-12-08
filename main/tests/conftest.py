@@ -1,9 +1,9 @@
 import pytest
 from pytest_factoryboy import register
 
-from account.factories import UserFactory
-from partnership.factories import PartnerFactory, DealFactory
-from payment.factories import PaymentFactory, CurrencyFactory
+from apps.account.factories import UserFactory
+from apps.partnership.factories import PartnerFactory, DealFactory
+from apps.payment.factories import PaymentFactory, CurrencyFactory
 
 register(UserFactory)
 register(PartnerFactory)
