@@ -1,5 +1,4 @@
 from django.contrib.auth.models import UserManager
-from rest_framework.compat import is_authenticated
 from treebeard.mp_tree import MP_NodeQuerySet
 
 
@@ -11,7 +10,7 @@ class CustomUserQuerySet(MP_NodeQuerySet):
         ).filter(is_active=True)
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self

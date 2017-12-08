@@ -9,9 +9,9 @@ import pytest
 from rest_framework import status, permissions
 
 from partnership.models import Deal
-from payment.filters import FilterByDealFIO, FilterByDealDate
+from payment.api.filters import FilterByDealFIO, FilterByDealDate
+from payment.api.views import PaymentDealListView
 from payment.models import Payment
-from payment.views import PaymentDealListView
 
 
 class Factory:
@@ -67,9 +67,9 @@ class TestPaymentUpdateDestroyView:
         [('delete', status.HTTP_204_NO_CONTENT), ('patch', status.HTTP_200_OK)],
         ids=['delete', 'update'])
     def test_del_or_upd_payment_when_current_user_is_partner_supervisor(
-            self, api_client, supervisor_partner, purpose_payment, method, code):
+            self, api_client, supervisor_user, purpose_payment, method, code):
         url = '/payment/{}/'.format(purpose_payment.id)
-        api_client.force_login(supervisor_partner.user)
+        api_client.force_login(supervisor_user)
         response = getattr(api_client, method)(url, format='json')
 
         if purpose_payment.content_type.app_label == 'partnership':

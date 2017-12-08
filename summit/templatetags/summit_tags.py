@@ -1,8 +1,8 @@
 from django import template
 
+from account.models import CustomUser
 from payment.models import Currency
 from summit.models import SummitAnket, SummitUserConsultant, Summit
-from account.models import CustomUser
 
 register = template.Library()
 
@@ -29,8 +29,8 @@ def is_consultant_for_user(context, summit, user_to, user_from=None):
     user_from_anket = SummitAnket.objects.filter(
         user=user_from, summit=summit, role__gte=SummitAnket.CONSULTANT)
     is_consultant = (
-        user_from_anket.exists() and SummitUserConsultant.objects.filter(
-            consultant=user_from_anket, user__user=user_to, summit=summit).exists())
+            user_from_anket.exists() and
+            SummitUserConsultant.objects.filter(consultant=user_from_anket, user__user=user_to, summit=summit).exists())
 
     return is_consultant
 
@@ -54,4 +54,3 @@ def is_summit_consultant_or_high(user, summit):
 @register.simple_tag
 def is_summit_supervisor_or_high(user, summit):
     return user.is_summit_supervisor_or_high(summit)
-

@@ -11,6 +11,7 @@ from celery.result import AsyncResult
 from channels import Group
 from dbmail import send_db_mail, send_db_sms
 from dbmail.models import MailTemplate
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 
@@ -18,7 +19,6 @@ from edem.settings.celery import app
 from notification.backend import RedisBackend
 from summit.models import SummitAnket, SummitTicket, SummitAttend
 from summit.utils import generate_ticket, generate_ticket_by_summit
-from django.conf import settings
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
@@ -149,31 +149,29 @@ def send_sms_with_code(profile_id, sender_id):
     # recipient = profile.user.phone_number
     recipient = "380932875260"
 
-    r = {
-        "recipients": [
-            recipient
-        ],
-        "message": "Текст Viber сообщения",
-        "message_live_time": 60,
-        "sender_id": 1,
-        "send_date": "now",
-        "additional": {
-            "resend_sms": {
-                "status": True,
-                "sms_text": "Текст SMS сообщения",
-                "sms_sender_name": "VOTV"
-            }
-        }
-    }
+    # r = {
+    #     "recipients": [
+    #         recipient
+    #     ],
+    #     "message": "Текст Viber сообщения",
+    #     "message_live_time": 60,
+    #     "sender_id": 1,
+    #     "send_date": "now",
+    #     "additional": {
+    #         "resend_sms": {
+    #             "status": True,
+    #             "sms_text": "Текст SMS сообщения",
+    #             "sms_sender_name": "VOTV"
+    #         }
+    #     }
+    # }
 
     if template and recipient:
         try:
-            result = send_db_sms(
+            send_db_sms(
                 slug=template.slug,
                 recipient=recipient,
             )
-            # if isinstance(result, AsyncResult):
-            #     check_send_email_with_code_state.apply_async(args=[result.id, profile_id, sender_id])
         except Exception:
             send_error(profile_id, sender_id)
 

@@ -9,15 +9,17 @@ from rest_framework import status
 from account.factories import UserFactory
 from common.test_helpers.views import fake_dispatch
 from hierarchy.factories import DepartmentFactory, HierarchyFactory
-from partnership.factories import PartnerFactory, DealFactory
-from partnership.models import Partnership
-from partnership.views import DealViewSet
+from partnership.factories import PartnerFactory, DealFactory, PartnerRoleFactory, PartnerGroupFactory
+from partnership.models import Partnership, PartnerRole
+from partnership.api.views import DealViewSet
 from payment.factories import PaymentFactory, PartnerPaymentFactory, DealPaymentFactory, CurrencyFactory
 
 register(UserFactory)
 register(DepartmentFactory)
 register(HierarchyFactory)
 register(PartnerFactory)
+register(PartnerGroupFactory)
+register(PartnerRoleFactory)
 register(DealFactory)
 register(PaymentFactory)
 register(PartnerPaymentFactory)
@@ -26,18 +28,18 @@ register(CurrencyFactory)
 
 #                                           is_responsible             is not responsible
 CREATOR_PARTNERS = [
-    {'partner': 'partner_partner', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
-    {'partner': 'partner_manager', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
-    {'partner': 'partner_supervisor', 'code': (status.HTTP_201_CREATED, status.HTTP_201_CREATED)},
-    {'partner': 'partner_director', 'code': (status.HTTP_201_CREATED, status.HTTP_201_CREATED)},
+    {'user': 'user_user', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
+    {'user': 'user_manager', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
+    {'user': 'user_supervisor', 'code': (status.HTTP_201_CREATED, status.HTTP_201_CREATED)},
+    {'user': 'user_director', 'code': (status.HTTP_201_CREATED, status.HTTP_201_CREATED)},
 ]
 
 #                                           is_responsible             is not responsible
 VIEWER_PARTNERS = [
-    {'partner': 'partner_partner', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
-    {'partner': 'partner_manager', 'code': (status.HTTP_200_OK, status.HTTP_403_FORBIDDEN)},
-    {'partner': 'partner_supervisor', 'code': (status.HTTP_200_OK, status.HTTP_200_OK)},
-    {'partner': 'partner_director', 'code': (status.HTTP_200_OK, status.HTTP_200_OK)},
+    {'user': 'user_user', 'code': (status.HTTP_403_FORBIDDEN, status.HTTP_403_FORBIDDEN)},
+    {'user': 'user_manager', 'code': (status.HTTP_200_OK, status.HTTP_403_FORBIDDEN)},
+    {'user': 'user_supervisor', 'code': (status.HTTP_200_OK, status.HTTP_200_OK)},
+    {'user': 'user_director', 'code': (status.HTTP_200_OK, status.HTTP_200_OK)},
 ]
 
 
@@ -47,7 +49,7 @@ class Factory:
 
 
 FIELD_VALUE = list(six.iteritems({
-    'responsible': (Factory('partner_factory'),),
+    'responsible': (Factory('user_factory'),),
     'value': (Decimal(10), 40, Decimal(40)),
     'date': (date(2000, 2, 2), '2002-04-04', date(2002, 4, 4)),
     'need_text': ('old_text', 'new text'),
@@ -82,33 +84,33 @@ def currency(currency_factory):
 
 
 @pytest.fixture
-def partner_partner(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=Partnership.PARTNER)
+def user_user(user_factory):
+    return user_factory()
 
 
 @pytest.fixture
-def partner_manager(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=Partnership.MANAGER)
+def user_manager(partner_role_factory):
+    return partner_role_factory(level=PartnerRole.MANAGER).user
 
 
 @pytest.fixture
-def partner_supervisor(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=Partnership.SUPERVISOR)
+def user_supervisor(partner_role_factory):
+    return partner_role_factory(level=PartnerRole.SUPERVISOR).user
 
 
 @pytest.fixture
-def partner_director(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=Partnership.DIRECTOR)
+def user_director(partner_role_factory):
+    return partner_role_factory(level=PartnerRole.DIRECTOR).user
 
 
-@pytest.fixture(params=CREATOR_PARTNERS, ids=[cp['partner'] for cp in CREATOR_PARTNERS])
+@pytest.fixture(params=CREATOR_PARTNERS, ids=[cp['user'] for cp in CREATOR_PARTNERS])
 def creator(request):
-    return {'partner': request.getfuncargvalue(request.param['partner']), 'code': request.param['code']}
+    return {'user': request.getfuncargvalue(request.param['user']), 'code': request.param['code']}
 
 
-@pytest.fixture(params=VIEWER_PARTNERS, ids=[vp['partner'] for vp in VIEWER_PARTNERS])
+@pytest.fixture(params=VIEWER_PARTNERS, ids=[vp['user'] for vp in VIEWER_PARTNERS])
 def viewer(request):
-    return {'partner': request.getfuncargvalue(request.param['partner']), 'code': request.param['code']}
+    return {'user': request.getfuncargvalue(request.param['user']), 'code': request.param['code']}
 
 
 @pytest.fixture
@@ -137,9 +139,9 @@ def field_value(request):
 
 
 @pytest.fixture
-def api_login_supervisor_client(api_client, partner_factory):
-    partner = partner_factory(level=Partnership.SUPERVISOR)
-    api_client.force_login(user=partner.user)
+def api_login_supervisor_client(api_client, partner_role_factory):
+    partner_role = partner_role_factory(level=PartnerRole.SUPERVISOR)
+    api_client.force_login(user=partner_role.user)
 
     return api_client
 

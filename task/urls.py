@@ -1,15 +1,20 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
+from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.urls import reverse
 
-from django.conf.urls import url, include
-from rest_framework import routers
+from task import views
 
-from . import views
+app_name = 'tasks'
 
-router_v1_0 = routers.DefaultRouter()
 
-router_v1_0.register(r'tasks', views.TaskViewSet)
+def redirect_to_tasks(request):
+    if not request.user.hierarchy.level <= 1:
+        return redirect(reverse('db:people'))
+    return redirect(reverse('tasks:task_list'))
+
 
 urlpatterns = [
-    url(r'^v1.0/', include(router_v1_0.urls)),
+    url(r'^$', login_required(redirect_to_tasks, login_url='entry'), name='main'),
+    url(r'^all/$', views.task_list, name='task_list'),
 ]

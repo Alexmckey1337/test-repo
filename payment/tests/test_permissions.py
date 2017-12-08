@@ -9,7 +9,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 from account.models import CustomUser
 from partnership.models import Deal, Partnership
-from payment.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
+from payment.api.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
 from summit.models import SummitAnket
 
 Qs = namedtuple('Qs', ['model'])

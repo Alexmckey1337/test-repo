@@ -19,7 +19,7 @@ class Country(models.Model):
 class Region(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.title
@@ -29,8 +29,8 @@ class Region(models.Model):
 class City(models.Model):
     code = models.IntegerField()
     title = models.CharField(max_length=50)
-    region = models.ForeignKey(Region, null=True, blank=True)
-    country = models.ForeignKey(Country, null=True, blank=True)
+    region = models.ForeignKey(Region, on_delete=models.PROTECT, null=True, blank=True)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.title

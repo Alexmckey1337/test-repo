@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import Status, Division
+from status.models import Status, Division
 
 
 class StatusAdmin(admin.ModelAdmin):

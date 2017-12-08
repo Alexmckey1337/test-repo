@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from rest_framework import exceptions
 
-from partnership.filters import FilterPartnerMasterTreeWithSelf, FilterByPartnerBirthday
+from partnership.api.filters import FilterPartnerMasterTreeWithSelf, FilterByPartnerBirthday
 from partnership.models import Partnership
 
 

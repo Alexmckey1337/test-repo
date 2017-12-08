@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Sum, Value as V
 from django.db.models.functions import Coalesce, Concat
-from rest_framework.compat import is_authenticated
 
 
 class ProfileQuerySet(models.query.QuerySet):
@@ -23,7 +22,7 @@ class ProfileQuerySet(models.query.QuerySet):
                 'middle_name'))
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self
@@ -55,7 +54,7 @@ class SummitQuerySet(models.query.QuerySet):
             'type', 'currency')
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user):
+        if not user.is_authenticated:
             return self.none()
         if extra_perms and user.is_staff:
             return self

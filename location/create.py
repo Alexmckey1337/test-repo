@@ -5,7 +5,7 @@ import ast
 import time
 import urllib2
 
-from .models import Country, Region, City
+from location.models import Country, Region, City
 
 
 def get_countries():

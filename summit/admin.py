@@ -6,10 +6,11 @@ from import_export.admin import ExportMixin
 from import_export.formats import base_formats
 
 from summit.admin_filters import HasTicketListFilter, HasEmailListFilter
-from .models import (SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-                     SummitUserConsultant, SummitVisitorLocation, SummitEventTable, AnketStatus)
-from .resources import SummitAnketResource
-from .tasks import send_tickets, create_tickets
+from summit.models import (
+    SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
+    SummitUserConsultant, SummitVisitorLocation, SummitEventTable, AnketStatus)
+from summit.resources import SummitAnketResource
+from summit.tasks import send_tickets, create_tickets
 
 
 class SummitUserConsultantInline(admin.TabularInline):
