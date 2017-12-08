@@ -235,11 +235,8 @@ class ManagerSummaryMixin:
 
         return Response({'results': managers, 'table_columns': partnership_summary_table(self.request.user)})
 
-    @detail_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
-    def manager_summary(self, request, pk=None):
-        user = get_object_or_404(CustomUser, pk=pk)
-        period = request.query_params.get('period', '3month')
-
+    @staticmethod
+    def _get_month_period(period):
         now = datetime.now()
         month_end = now.year * 12 + now.month - 1
         if period == '3month':
@@ -252,13 +249,17 @@ class ManagerSummaryMixin:
             month_start = month_end - 30
         else:
             month_start = month_end - 3
+        return month_start, month_end
 
-        deals = self._get_deal_sum_by_months(user.id, month_start)
-        payments = self._get_payment_sum_by_months(user.id, month_start)
-        payments_t1 = self._get_payment_sum_by_months(user.id, month_start, type=1)
-        payments_t2 = self._get_payment_sum_by_months(user.id, month_start, type=2)
-        plans = self._get_plans_by_months(user.id, month_start, month_end)
-        partners = self._get_partners_by_months(user.id, month_start, month_end)
+    def _get_manager_summary(self, period, user=None):
+        month_start, month_end = self._get_month_period(period)
+
+        deals = self._get_deal_sum_by_months(month_start, manager=user)
+        payments = self._get_payment_sum_by_months(month_start, manager=user)
+        payments_t1 = self._get_payment_sum_by_months(month_start, type=1, manager=user)
+        payments_t2 = self._get_payment_sum_by_months(month_start, type=2, manager=user)
+        plans = self._get_plans_by_months(month_start, month_end, manager=user)
+        partners = self._get_partners_by_months(month_start, month_end, manager=user)
 
         tt = {}
         for i in range(month_end, month_start, -1):
@@ -273,25 +274,34 @@ class ManagerSummaryMixin:
                 'active_partners_count': len(tuple(filter(lambda p: bool(p[1]), partners[k]))),
                 'potential': sum([p[0] for p in partners[k]]),
             }
+        return tt
 
-        return Response(data=tt)
+    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    def managers_by_period(self, request):
+        return Response(data=self._get_manager_summary(request.query_params.get('period', '3month')))
+
+    @detail_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    def manager_summary(self, request, pk=None):
+        user = get_object_or_404(CustomUser, pk=pk)
+        return Response(data=self._get_manager_summary(request.query_params.get('period', '3month'), user))
 
     @staticmethod
     @func_time
-    def _get_plans_by_months(manager_id, _from, to):
+    def _get_plans_by_months(_from, to, manager=None):
         months = ', '.join(["('{}-{:02d}')".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)])
+        manager = 'AND pl.user_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
               p.month,
               coalesce(
                   (SELECT pl.plan
                    FROM partnership_partnerrolelog pl
-                   WHERE pl.log_date < to_date(p.month, 'YYYY-MM') + interval '1 month' AND pl.user_id = {manager}
+                   WHERE pl.log_date < to_date(p.month, 'YYYY-MM') + interval '1 month' {manager}
                    ORDER BY pl.log_date DESC
                    LIMIT 1),
                   0) plan
             FROM (VALUES {months}) AS p(month);
-            """.format(manager=manager_id, months=months)
+            """.format(manager=manager, months=months)
 
         with connection.cursor() as connect:
             connect.execute(raw)
@@ -300,9 +310,10 @@ class ManagerSummaryMixin:
 
     @staticmethod
     @func_time
-    def _get_partners_by_months(manager_id, _from, to):
+    def _get_partners_by_months(_from, to, manager=None):
         partners = dict()
         months = ["{}-{:02d}".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)]
+        manager = 'AND p.responsible_id = {}'.format(manager.id) if manager else ''
         for month in months:
             raw = """
                 SELECT pp.value, pp.is_active
@@ -311,14 +322,13 @@ class ManagerSummaryMixin:
                   SELECT (SELECT pl.id
                           FROM partnership_partnershiplogs pl
                           WHERE p.id = pl.partner_id AND
-                                pl.log_date < to_date('{month}', 'YYYY-MM') + interval '1 month' AND
-                                p.responsible_id = {manager}
+                                pl.log_date < to_date('{month}', 'YYYY-MM') + interval '1 month' {manager}
                           ORDER BY log_date DESC
                           LIMIT 1
                          ) p_log_id
                   FROM partnership_partnership p
                   ORDER BY p.id);
-                """.format(manager=manager_id, month=month)
+                """.format(manager=manager, month=month)
 
             with connection.cursor() as connect:
                 connect.execute(raw)
@@ -328,17 +338,18 @@ class ManagerSummaryMixin:
 
     @staticmethod
     @func_time
-    def _get_deal_sum_by_months(manager_id, month):
+    def _get_deal_sum_by_months(month, manager=None):
         month = '{}-{}'.format(month // 12, month % 12)
+        manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
               to_char(d.date_created, 'YYYY-MM'),
               sum(d.value)
             FROM partnership_deal d
-            WHERE d.responsible_id = {manager} AND d.date_created >= '{month}-01'
+            WHERE d.date_created >= '{month}-01' {manager}
             GROUP BY to_char(d.date_created, 'YYYY-MM')
             ORDER BY to_char(d.date_created, 'YYYY-MM') DESC;
-            """.format(manager=manager_id, month=month)
+            """.format(manager=manager, month=month)
 
         with connection.cursor() as connect:
             connect.execute(raw)
@@ -347,19 +358,20 @@ class ManagerSummaryMixin:
 
     @staticmethod
     @func_time
-    def _get_payment_sum_by_months(manager_id, month, type=None):
+    def _get_payment_sum_by_months(month, type=None, manager=None):
         month = '{}-{}'.format(month // 12, month % 12)
+        manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
               to_char(d.date_created, 'YYYY-MM'),
               sum(p.sum)
             FROM payment_payment p
               JOIN partnership_deal d ON p.object_id = d.id AND p.content_type_id = 40
-            WHERE d.responsible_id = {manager} AND d.date_created >= '{month}-01' {type}
+            WHERE d.date_created >= '{month}-01' {type} {manager}
             GROUP BY to_char(d.date_created, 'YYYY-MM')
             ORDER BY to_char(d.date_created, 'YYYY-MM') DESC;
             """.format(
-            manager=manager_id,
+            manager=manager,
             month=month,
             type='AND d.type = %s' % type if type else '')
 
