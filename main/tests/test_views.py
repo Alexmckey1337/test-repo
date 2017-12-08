@@ -5,9 +5,9 @@ import pytest
 from django.urls import reverse
 from django.test import TestCase
 
-from account.factories import UserFactory
-from hierarchy.factories import HierarchyFactory, DepartmentFactory
-from hierarchy.models import Department, Hierarchy
+from apps.account.factories import UserFactory
+from apps.hierarchy.factories import HierarchyFactory, DepartmentFactory
+from apps.hierarchy.models import Department, Hierarchy
 
 
 class LoginUserMixin(TestCase):

@@ -1,4 +1,4 @@
-from account.models import CustomUser
+from apps.account.models import CustomUser
 from django.db.models import Q
 
 

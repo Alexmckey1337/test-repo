@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from account.models import CustomUser
-from hierarchy.models import Department, Hierarchy
-from summit.models import SummitType
+from apps.account.models import CustomUser
+from apps.hierarchy.models import Department, Hierarchy
+from apps.summit.models import SummitType
 
 
 __all__ = ['entry', 'index', 'restore', 'edit_pass']
