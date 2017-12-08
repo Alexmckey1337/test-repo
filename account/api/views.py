@@ -54,6 +54,7 @@ from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from group.models import HomeGroup, Church
 from hierarchy.api.serializers import DepartmentSerializer
 from navigation.table_fields import user_table
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -510,7 +511,7 @@ def calls_to_user(request):
         raise exceptions.ValidationError(
             {'message': 'Invalid {range} parameter or parameter not passed.'})
 
-    month_date = request.query_params.get('month_date')
+    month_date = request.query_params.get('month_date', datetime.now().date().strftime('%Y-%m'))
     if _range == 'month' and not month_date:
         raise exceptions.ValidationError({'message': 'Parameter {month_date} must be passed'})
 
@@ -522,23 +523,30 @@ def calls_to_user(request):
         user_calls = requests.get('http://localhost:8080', data=json.dumps(data),
                                   headers={'Content-Type': 'application/json'})
     except Exception:
-        return Response({'message': 'Asterisk Service is not available'})
+        return Response({'message': 'Asterisk Service is not available'},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     try:
         user_calls = user_calls.json()
     except Exception:
-        return Response({"message": "Can't parse Asterisk Service response"})
+        return Response({"message": "Can't parse Asterisk Service response"},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    for call in enumerate(user_calls):
-        user_calls[call[0]] = {
-            'call_date': call[1][0],
-            'src': call[1][1],
-            'dst': call[1][2],
-            'lastapp': call[1][3],
-            'duration': call[1][4],
-            'disposition': call[1][5],
-            'record': call[1][6]
-        }
+    try:
+        for call in enumerate(user_calls):
+            user_calls[call[0]] = {
+                'call_date': call[1][0],
+                'src': call[1][6].split('-')[2],
+                'dst': call[1][6].split('-')[1],
+                'lastapp': call[1][3],
+                'billsec': call[1][4],
+                'disposition': call[1][5],
+                'record': call[1][6],
+                'type': call[1][6].split('-')[0]
+            }
+    except Exception:
+        return Response({"message": "Can't prepare data to response. Most likely this conversation has no record."},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     return Response(user_calls)
 
