@@ -276,7 +276,7 @@ class ManagerSummaryMixin:
             }
         return tt
 
-    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,), url_path='all/manager_summary')
     def managers_by_period(self, request):
         return Response(data=self._get_manager_summary(request.query_params.get('period', '3month')))
 
