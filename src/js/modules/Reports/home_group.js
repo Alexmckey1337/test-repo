@@ -1,11 +1,11 @@
 'use strict';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import {deleteData} from "../Ajax/index";
 import newAjaxRequest from  '../Ajax/newAjaxRequest';
+import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import getSearch from '../Search/index';
 import {getFilterParam, getTabsFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
@@ -82,7 +82,11 @@ function makeHomeReportsTable(data, config = {}) {
     $('.table__count').text(text);
     new OrderTable().sort(homeReportsTable, ".table-wrap th");
     $('.preloader').css('display', 'none');
-        $("button.delete_btn").on('click', function () {
+    btnControls();
+}
+
+function btnControls() {
+    $("button.delete_btn").on('click', function () {
         let id = $(this).attr('data-id');
         showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
             deleteData(URLS.event.home_meeting.detail(id)).then(() => {
@@ -98,6 +102,12 @@ function makeHomeReportsTable(data, config = {}) {
         }, () => {
         });
     });
+    $('button.view_img').on('click', function () {
+        let url = $(this).attr('data-img'),
+            photo = document.createElement('img');
+        $(photo).attr('src', url);
+        showAlert(photo, 'Фото присутствующих');
+    })
 }
 
 export function makeHomeReportDetailTable(data) {
@@ -159,75 +169,64 @@ export function getHomeReportDetailTableData(config = {}) {
 }
 
 export function makeCaption(data) {
-    let container = document.createElement('div');
-    let title = document.createElement('h2');
-    let dist = {
-        night: "О Марафоне",
-        home: "Домашней группы",
-        service: "О Воскресном Служении"
-    };
+    let container = document.createElement('div'),
+        title,
+        dist = {
+            night: "О Марафоне",
+            home: "Домашней группы",
+            service: "О Воскресном Служении"
+        };
     if (data.status === 1) {
-        $(title).text(`Подача отчета ${dist[data.type.code]}`);
+        title = `Подача отчета ${dist[data.type.code]}`;
+    } else if (data.status === 2) {
+        title = `Отчет ${dist[data.type.code]}`;
+    } else if (data.status === 3) {
+        title = `Отчет ${dist[data.type.code]}<span> (просрочен)</span>`;
     }
-    if (data.status === 2) {
-        $(title).text(`Отчет ${dist[data.type.code]}`);
-    }
-    if (data.status === 3) {
-        $(title).html(`Отчет ${dist[data.type.code]} <span>(просрочен)</span>`);
-    }
-    $(container).append(title);
-    let ownerContainer = document.createElement('p');
-    let ownerTitle = document.createElement('span');
-    let ownerData = document.createElement('a');
-    $(ownerTitle).text('Лидер: ');
-    $(ownerData).text(data.owner.fullname).attr('href', `/account/${data.owner.id}`);
-    $(ownerContainer).append(ownerTitle).append(ownerData);
-    $(container).append(ownerContainer);
+    $(container).addClass('hg_caption');
+    let txt = `<h2>${title}</h2>
+                 <p>
+                    <span>Лидер: </span><a href="/account/${data.owner.id}">${data.owner.fullname}</a>
+                 </p>
+                 <p>
+                    <span>Домашняя группа: </span>
+                    <a href="/home_groups/${data.home_group.id}">${data.home_group.title}</a>
+                 </p>
+                 <p>
+                    <label>Дата отчёта: </label>
+                    <input id="report_date" value="${data.date}" size="${data.date.length}" data-name="date">
+                 </p>
+                    ${ (data.type.code != 'service') ?
+                        `<p>
+                            <label>Сумма пожертвований: </label>
+                                <input value=${data.total_sum} size="7" data-name="total_sum">
+                            </p>` : '' }
+                    ${ (data.type.code == 'home') ?
+                    `<p>
+                        <label>Загрузить фото: </label>
+                        <input type="file" data-name="image" id="file">
+                        <button id="clear_img">Очистить фото</button>
+                        <img id="hg_attds" src="${(data.image) ? data.image : ''}"/>
+                    </p>` : ''}`;
+    $(container).append(txt);
 
-    let groupContainer = document.createElement('p');
-    let groupTitle = document.createElement('span');
-    let groupData = document.createElement('a');
-    $(groupTitle).text('Домашняя группа: ');
-    $(groupData).text(data.home_group.title).attr('href', `/home_groups/${data.home_group.id}`);
-    $(groupContainer).append(groupTitle).append(groupData);
-    $(container).append(groupContainer);
-
-    let dateContainer = document.createElement('p');
-    let dateTitle = document.createElement('label');
-    let dateData = document.createElement('input');
-    $(dateTitle).text('Дата отчёта: ');
-    let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
-        thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
-        thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
-    $(dateData).val(data.date).attr({
-        'size': data.date.length,
-        'data-name': 'date',
-    }).datepicker({
-        autoClose: true,
-        minDate: new Date(thisMonday),
-        maxDate: new Date(thisSunday),
-    });
-    $(dateContainer).append(dateTitle).append(dateData);
-    $(container).append(dateContainer);
-    if (data.type.code != 'service') {
-        let amountContainer = document.createElement('p');
-        let amountTitle = document.createElement('label');
-        let amountData = document.createElement('input');
-        $(amountTitle).text('Сумма пожертвований: ');
-        $(amountData).val(data.total_sum).attr({
-            'size': 7,
-            'data-name': 'total_sum',
-        });
-        $(amountContainer).append(amountTitle).append(amountData);
-        $(container).append(amountContainer);
-    }
     return container;
 }
 
 export function sendForms(btn, data) {
-    let $homeReports = $('#homeReports');
+    const $homeReports = $('#homeReports'),
+          pathnameArr = window.location.pathname.split('/'),
+          REPORTS_ID = pathnameArr[(pathnameArr.length - 2)];
+    let config = {
+            data: data,
+            method: 'POST',
+            contentType: 'multipart/form-data',
+        };
+
     if (btn.attr('data-update') == 'true') {
-        updateReports(JSON.stringify(data)).then((res) => {
+        Object.assign(config, {method: 'PUT'});
+        config.url = URLS.event.home_meeting.detail(REPORTS_ID);
+        ajaxSendFormData(config).then(() => {
             btn.attr({
                 'data-click': false,
                 'data-update': false,
@@ -238,7 +237,9 @@ export function sendForms(btn, data) {
             });
         });
     } else {
-        submitReports(JSON.stringify(data)).then((data) => {
+        config.url = URLS.event.home_meeting.submit(REPORTS_ID);
+        ajaxSendFormData(config).then((data) => {
+            console.log(data);
             btn.text('Редактировать').attr({
                 'data-click': false,
                 'data-update': false,
@@ -247,6 +248,7 @@ export function sendForms(btn, data) {
                 $(this).attr('disabled', true);
             });
         }).catch((err) => {
+            console.log(err);
             let error = JSON.parse(err.responseText),
                 errKey = Object.keys(error);
             let html = errKey.map(errkey => `${error[errkey]}`);
@@ -255,50 +257,19 @@ export function sendForms(btn, data) {
     }
 }
 
-function submitReports(config) {
-    return new Promise((resolve, reject) => {
-        let pathnameArr = window.location.pathname.split('/');
-        const REPORTS_ID = pathnameArr[(pathnameArr.length - 2)];
-        let data = {
-            method: 'POST',
-            url: URLS.event.home_meeting.submit(REPORTS_ID),
-            data: config,
-            contentType: 'application/json',
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-        };
-        newAjaxRequest(data, status, reject)
-    })
-}
-
-function updateReports(config) {
-    let pathnameArr = window.location.pathname.split('/');
-    const REPORTS_ID = pathnameArr[(pathnameArr.length - 2)];
-
-    return new Promise((resolve, reject) => {
-        let data = {
-            method: 'PUT',
-            url: URLS.event.home_meeting.detail(REPORTS_ID),
-            data: config,
-            contentType: 'application/json',
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function (err) {
-                reject(err)
-            },
-            400: function (err) {
-                reject(err)
-            }
-        };
-        newAjaxRequest(data, status, reject)
-    })
+export function handleImgFileSelect(e) {
+    let $img = $('#hg_attds'),
+        files = e.target.files;
+    for (let i = 0, file; file = files[i]; i++) {
+        if (!file.type.match('image.*')) {
+            continue;
+        }
+        let reader = new FileReader();
+        reader.onload = (function () {
+            return function (e) {
+                $img.attr('src', e.target.result);
+            };
+        })();
+        reader.readAsDataURL(file);
+    }
 }

@@ -28,3 +28,18 @@ class DealFactory(factory.DjangoModelFactory):
 
     class Params:
         duration = 6
+
+
+class PartnerRoleFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.PartnerRole
+
+    user = factory.SubFactory('account.factories.UserFactory')
+    level = models.PartnerRole.MANAGER
+
+
+class PartnerGroupFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.PartnerGroup
+
+    title = factory.Sequence(lambda n: 'title{}'.format(n))

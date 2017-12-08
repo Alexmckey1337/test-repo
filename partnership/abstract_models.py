@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.db import models
 
-from partnership.permissions import can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments, \
-    can_close_partner_deals, can_create_partner_payments, can_export_partner_list, can_create_deal_for_partner, \
-    can_update_partner_need, can_update_deal, can_create_payment_for_partner, can_update_partner, \
-    can_see_partner_summary, can_see_managers_summary, can_update_church_deal, can_update_church_partner, \
-    can_create_church_deal_for_partner, can_create_church_partner_payments, can_close_church_partner_deals
+from partnership.api.permissions import (
+    can_see_partners, can_see_deals, can_see_partner_stats, can_see_deal_payments,
+    can_close_partner_deals, can_create_partner_payments, can_export_partner_list,
+    can_create_deal_for_partner, can_update_partner_need, can_update_deal, can_create_payment_for_partner,
+    can_update_partner, can_see_partner_summary, can_see_managers_summary, can_update_church_deal,
+    can_update_church_partner,
+    can_create_church_deal_for_partner, can_create_church_partner_payments, can_close_church_partner_deals)
 
 
 class PartnerUserPermission(models.Model):

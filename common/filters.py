@@ -12,7 +12,6 @@ from django.utils import six
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
-from rest_framework.compat import template_render
 from rest_framework import filters
 
 from account.models import CustomUser
@@ -116,7 +115,7 @@ class FieldSearchFilter(filters.BaseFilterBackend):
                 'term': term
             }
         template = loader.get_template(self.template)
-        return template_render(template, context)
+        return template.render(context)
 
     def get_fields(self, view):
         return [view.field_search_fields.keys()] if hasattr(view, 'field_search_fields') else []

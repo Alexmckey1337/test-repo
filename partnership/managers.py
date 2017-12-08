@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models import Value as V, Sum, F
 from django.db.models.functions import Concat, Coalesce
-#
-from rest_framework.compat import is_authenticated
 
 
 class DealQuerySet(models.query.QuerySet):
@@ -29,7 +27,7 @@ class DealQuerySet(models.query.QuerySet):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user) or not user.is_partner:
+        if not user.is_authenticated or not user.has_partner_role:
             return self.none()
         if extra_perms and user.is_partner_supervisor_or_high:
             return self
@@ -71,7 +69,7 @@ class PartnerQuerySet(models.query.QuerySet):
                 'user__middle_name'))
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user) or not user.is_partner:
+        if not user.is_authenticated or not user.has_partner_role:
             return self.none()
         if extra_perms and user.is_partner_supervisor_or_high:
             return self
@@ -113,7 +111,7 @@ class ChurchDealQuerySet(models.query.QuerySet):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
 
     def for_user(self, user, extra_perms=True):
-        if not is_authenticated(user) or not user.is_partner:
+        if not user.is_authenticated or not user.is_partner:
             return self.none()
         if extra_perms and user.is_partner_supervisor_or_high:
             return self

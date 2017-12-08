@@ -111,7 +111,7 @@ def partner_table(user):
 
 @check_user_table_exist
 def church_partner_table(user):
-    table_columns = _filter_church_partner_columns(user.table.columns.select_related('columnType'))
+    table_columns = _filter_partner_columns(user.table.columns.select_related('columnType'))
 
     return _get_result_table(table_columns)
 
@@ -262,9 +262,3 @@ def _filter_meetings_summary_columns(table_columns):
 
 def _filter_payment_columns(table_columns):
     return table_columns.filter(columnType__category__title='payment')
-
-
-def _filter_deals_columns(table_columns):
-    return table_columns.filter(
-        columnType__category__title="deal").exclude(columnType__title='done')
-

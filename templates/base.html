@@ -47,10 +47,12 @@
 {% block main_scripts %}
     <script>
         var MAINURLS = {
-            ticketsURL: '{% url 'summit:tickets' %}'
+            ticketsURL: '{% url 'summit:tickets' %}',
+            staticImg: '{% static "img" %}'
         };
     </script>
     <script src="{% static "js/vendor.bundle.js" %}"></script>
+{#    <script src="{% static "js/manifest.bundle.js" %}"></script>#}
     <script src="{% static "js/main.bundle.js" %}"></script>
 {% endblock %}
 {% block extra_scripts %}

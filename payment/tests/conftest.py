@@ -4,16 +4,17 @@ from pytest_factoryboy import register
 from rest_framework import permissions
 
 from account.factories import UserFactory
-from partnership.factories import PartnerFactory, DealFactory
+from partnership.factories import PartnerFactory, DealFactory, PartnerRoleFactory
 from payment.factories import SummitAnketPaymentFactory, PartnerPaymentFactory, DealPaymentFactory, PaymentFactory, \
     CurrencyFactory
-from payment.views import PaymentUpdateDestroyView, PaymentListView
+from payment.api.views import PaymentUpdateDestroyView, PaymentListView
 from summit.factories import SummitAnketFactory
 from summit.models import SummitAnket
 
 register(UserFactory)
 register(SummitAnketFactory)
 register(PartnerFactory)
+register(PartnerRoleFactory)
 register(DealFactory)
 
 register(PaymentFactory)
@@ -54,23 +55,23 @@ def partner(partner_factory, user):
 
 
 @pytest.fixture
-def partner_partner(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=settings.PARTNER_LEVELS['partner'])
+def partner_user(user_factory):
+    return user_factory()
 
 
 @pytest.fixture
-def manager_partner(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=settings.PARTNER_LEVELS['manager'])
+def manager_user(partner_role_factory):
+    return partner_role_factory(level=settings.PARTNER_LEVELS['manager']).user
 
 
 @pytest.fixture
-def supervisor_partner(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=settings.PARTNER_LEVELS['supervisor'])
+def supervisor_user(partner_role_factory):
+    return partner_role_factory(level=settings.PARTNER_LEVELS['supervisor']).user
 
 
 @pytest.fixture
-def director_partner(partner_factory, user_factory):
-    return partner_factory(user=user_factory(), level=settings.PARTNER_LEVELS['director'])
+def director_user(partner_role_factory):
+    return partner_role_factory(level=settings.PARTNER_LEVELS['director']).user
 
 
 @pytest.fixture
@@ -105,7 +106,7 @@ def have_permission_user(request):
 
 @pytest.fixture(params=[
     'user',
-    'partner_partner', 'manager_partner',
+    'partner_user', 'manager_user',
     'visitor_anket', 'consultant_anket', 'supervisor_anket'])
 def dont_have_permission_user(request):
     return request.getfuncargvalue(request.param)

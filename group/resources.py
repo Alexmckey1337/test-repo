@@ -5,7 +5,7 @@ from import_export.resources import ModelDeclarativeMetaclass
 from account.models import CustomUser
 from common.resources import CustomFieldsModelResource
 from group.models import Church, HomeGroup
-from group.serializers import BASE_GROUP_USER_FIELDS
+from group.api.serializers import BASE_GROUP_USER_FIELDS
 
 COMMON_GROUP_RESOURCE_FIELDS = ('opening_date', 'city', 'address', 'phone_number',
                                 'website')

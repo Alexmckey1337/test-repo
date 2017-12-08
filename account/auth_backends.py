@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import TokenAuthentication
 
-from .models import CustomUser, Token
+from account.models import CustomUser, Token
 
 
 class CustomUserModelBackend(ModelBackend):

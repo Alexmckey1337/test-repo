@@ -451,7 +451,7 @@ TABLES = {
 
 
 def get_table(table_name, user):
-    from navigation.serializers import RedisTableSerializer
+    from navigation.api.serializers import RedisTableSerializer
     user = user.id if isinstance(user, CustomUser) else user
 
     columns = deepcopy(TABLES.get(table_name, {}))

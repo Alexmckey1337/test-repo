@@ -20,31 +20,19 @@ class TestPartnership:
         assert partner.extra_payments.count() == 11
 
     def test__str__(self, partner):
-        assert partner.__str__() == partner.fullname
+        assert partner.__str__() == '{} (UA)'.format(partner.fullname)
 
-    def test_move_old_unclosed_deal_after_change_responsible(self, partner_factory, deal_factory):
-        responsible = partner_factory()
+    def test_move_old_unclosed_deal_after_change_responsible(self, user_factory, partner_factory, deal_factory):
+        responsible = user_factory()
         partner = partner_factory(responsible=responsible)  # autocreate deal
-        deal_factory.create_batch(2, date_created=timezone.now()+timedelta(days=-32), partnership=partner)
+        deal_factory.create_batch(2, date_created=timezone.now() + timedelta(days=-32), partnership=partner)
 
         assert responsible.disciples_deals.count() == 3
 
-        partner.responsible = partner_factory()
+        partner.responsible = user_factory()
         partner.save()
 
         assert responsible.disciples_deals.count() == 2
-
-    def test_partner_payments_without_deal_payments(self, partner, payment_factory):
-        payment_factory.create_batch(11, purpose=partner)
-        assert partner.payments.count() == 11
-
-    def test_partner_payments_with_deal_payments(self, partner, payment_factory, deal_factory):
-        deal1 = deal_factory(partnership=partner)
-        deal2 = deal_factory(partnership=partner)
-        payment_factory.create_batch(11, purpose=partner)  # count +11, = 11
-        payment_factory.create_batch(2, purpose=deal1)  # count +2, = 13
-        payment_factory.create_batch(3, purpose=deal2)  # count +3, = 16
-        assert partner.payments.count() == 16
 
     def test_partner_deal_payments_with_deal_payments(self, partner, payment_factory, deal_factory):
         deal1 = deal_factory(partnership=partner)
@@ -53,16 +41,6 @@ class TestPartnership:
         payment_factory.create_batch(2, purpose=deal1)  # count +2, = 2
         payment_factory.create_batch(3, purpose=deal2)  # count +3, = 5
         assert partner.deal_payments.count() == 5
-
-    @pytest.mark.parametrize(
-        "level", range(4), ids=['director', 'supervisor', 'manager', 'partner'])
-    def test_is_responsible(self, partner, level):
-        partner.level = level
-        partner.save()
-        if level <= partner.__class__.MANAGER:
-            assert partner.is_responsible
-        else:
-            assert not partner.is_responsible
 
     def test_full_name(self, partner, user):
         assert partner.fullname == user.fullname
@@ -89,24 +67,21 @@ class TestPartnership:
     def test_value_str(self, partner):
         assert partner.value_str == '{} {}'.format(partner.value, partner.currency.short_name)
 
-    def test_payment_page_url(self, partner):
-        assert partner.payment_page_url() == '/payment/partner/{}/'.format(partner.id)
-
     @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit_payment(self, partner_factory, level, with_responsible):
-        responsible = partner_factory() if with_responsible else None
+    def test_can_user_edit_payment(self, user_factory, partner_factory, partner_role_factory, level, with_responsible):
+        responsible = user_factory() if with_responsible else None
         partner = partner_factory(responsible=responsible)
-        editor = partner_factory(level=level)
+        editor = partner_role_factory(level=level)
         if level > settings.PARTNER_LEVELS['supervisor']:
             assert not partner.can_user_edit_payment(editor.user)
         else:
             assert partner.can_user_edit_payment(editor.user)
 
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit_payment_if_user_is_responsible(self, partner_factory, level):
-        editor = partner_factory(level=level)
-        partner = partner_factory(responsible=editor)
+    def test_can_user_edit_payment_if_user_is_responsible(self, partner_factory, partner_role_factory, level):
+        editor = partner_role_factory(level=level)
+        partner = partner_factory(responsible=editor.user)
         if level > settings.PARTNER_LEVELS['manager']:
             assert not partner.can_user_edit_payment(editor.user)
         else:
@@ -176,20 +151,21 @@ class TestDeal:
 
     @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit(self, deal, partner_factory, level, with_responsible):
-        responsible = partner_factory() if with_responsible else None
+    def test_can_user_edit(self, deal, user_factory, partner_role_factory, partner_factory, level, with_responsible):
+        responsible = user_factory() if with_responsible else None
         deal.responsible = responsible
         deal.save()
-        editor = partner_factory(level=level, responsible=responsible)
+        user_role = partner_role_factory(level=level)
+        editor = partner_factory(user=user_role.user, responsible=responsible)
         if level > settings.PARTNER_LEVELS['supervisor']:
             assert not deal.can_user_edit(editor.user)
         else:
             assert deal.can_user_edit(editor.user)
 
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit_if_user_is_responsible(self, deal, partner_factory, level):
-        editor = partner_factory(level=level)
-        deal.responsible = editor
+    def test_can_user_edit_if_user_is_responsible(self, deal, partner_role_factory, level):
+        editor = partner_role_factory(level=level)
+        deal.responsible = editor.user
         deal.save()
         if level > settings.PARTNER_LEVELS['manager']:
             assert not deal.can_user_edit(editor.user)
@@ -198,20 +174,23 @@ class TestDeal:
 
     @pytest.mark.parametrize('with_responsible', [True, False], ids=['with_responsible', 'without_responsible'])
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit_payment(self, deal, partner_factory, level, with_responsible):
-        responsible = partner_factory() if with_responsible else None
+    def test_can_user_edit_payment(self, deal, user_factory, partner_role_factory, partner_factory, level,
+                                   with_responsible):
+        responsible = user_factory() if with_responsible else None
         deal.responsible = responsible
         deal.save()
-        editor = partner_factory(level=level, responsible=responsible)
+
+        user_role = partner_role_factory(level=level)
+        editor = partner_factory(user=user_role.user, responsible=responsible)
         if level > settings.PARTNER_LEVELS['supervisor']:
             assert not deal.can_user_edit_payment(editor.user)
         else:
             assert deal.can_user_edit_payment(editor.user)
 
     @pytest.mark.parametrize('level', [p.level for p in PARTNER_LEVELS], ids=[p.title for p in PARTNER_LEVELS])
-    def test_can_user_edit_payment_if_user_is_responsible(self, deal, partner_factory, level):
-        editor = partner_factory(level=level)
-        deal.responsible = editor
+    def test_can_user_edit_payment_if_user_is_responsible(self, deal, partner_role_factory, level):
+        editor = partner_role_factory(level=level)
+        deal.responsible = editor.user
         deal.save()
         if level > settings.PARTNER_LEVELS['manager']:
             assert not deal.can_user_edit_payment(editor.user)

@@ -90,7 +90,7 @@
                             -
                             <a class="reset_hard_user" href="" style="color:darkred;">Сбросить</a>
                         </h1>
-                    {% elif request.user.is_superuser %}
+                    {% elif request.user.is_superuser or request.user.skins.all or request.real_user.skins.all %}
                         <div class="user-wrap">
                             <h1 style="padding-left: 1em;"><strong>User:</strong>
                                 <a href="{{ request.user.get_absolute_url }}">

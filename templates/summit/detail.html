@@ -24,15 +24,20 @@
         </div>
         <div class="top-buttons-wrap">
             <ul class="top-buttons">
-                {% is_summit_supervisor_or_high user summit as is_supervisor %}
-                {% if is_supervisor %}
-                <li>
-                    <button id="send_codes">Отправить коды</button>
-                </li>
+                {% if summit.status == 'open' %}
+                    {% is_summit_supervisor_or_high user summit as is_supervisor %}
+                    {% if is_supervisor %}
+                    <li>
+                        <button id="send_schedules">Отправить расписание</button>
+                    </li>
+                    <li>
+                        <button id="send_codes">Отправить коды</button>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <button id="add">Добавить пользователя</button>
+                    </li>
                 {% endif %}
-                <li>
-                    <button id="add">Добавить пользователя</button>
-                </li>
                 <li>
                     <button id="filter_button"
                             data-count="0"
@@ -287,6 +292,28 @@
                             <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
                         </p>
                     </label>
+                    <label>
+                        <span class="label_block">Облако свидетелей</span>
+                        <select class="select__db select__custom"
+                                data-filter="has_achievement"
+                                name="has_achievement"
+                                id="has_achievement">
+                            <option>ВСЕ</option>
+                            <option value="true">Да</option>
+                            <option value="false">Нет</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнеры</span>
+                        <select class="select__db select__custom"
+                                data-filter="is_partner"
+                                name="is_partner"
+                                id="is_partner">
+                            <option>ВСЕ</option>
+                            <option value="true">Да</option>
+                            <option value="false">Нет</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
@@ -319,13 +346,19 @@
                     <% if(user_table[key].active) { %>
                     <% if (key == 'full_name') { %>
                     <% if (results[index][key] != null) { %>
-                    <td{% if is_supervisor %} class="edit"{% endif %} class="edit"><a href="<%= results[index].link %>"
-                                        data-link="<%= results[index].link %>"
-                                        data-id="<%=results[index].user_id %>"
+                    <td{% if is_supervisor %} class="edit"{% endif %} class="edit">
+                        <% if (results[index].has_achievement) { %>
+                        <span class="achiev"></span>
+                        <% } %>
+                        <a href="<%= results[index].link %>"
+                           data-link="<%= results[index].link %>"
+                           data-id="<%=results[index].user_id %>"
                         <% if(results[index].id) { %>
                         data-ankets="<%= results[index].id %>"
-                        <% } %>><%= results[index][key] %></a>
+                        <% } %>><%= results[index][key] %>
+                        </a>
                         <span class="quick-edit"></span>
+
                     </td>
                     <% } else { %>
                     <td></td>

@@ -17,8 +17,8 @@ class NotificationTheme(models.Model):
 
 @python_2_unicode_compatible
 class Notification(models.Model):
-    user = models.ForeignKey('account.CustomUser', null=True, blank=True)
-    theme = models.ForeignKey(NotificationTheme, related_name='notifications')
+    user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, null=True, blank=True)
+    theme = models.ForeignKey(NotificationTheme, on_delete=models.CASCADE, related_name='notifications')
     description = models.TextField()
     date = models.DateField(null=True, blank=True)
     common = models.BooleanField(default=True)

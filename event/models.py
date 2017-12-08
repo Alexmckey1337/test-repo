@@ -5,7 +5,8 @@ import datetime
 from datetime import date
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.urlresolvers import reverse
+from django.db.models import Sum
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -34,10 +35,10 @@ class MeetingType(models.Model):
 
 @python_2_unicode_compatible
 class MeetingAttend(models.Model):
-    user = models.ForeignKey('account.CustomUser', related_name='attends',
+    user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='attends',
                              verbose_name=_('User'))
 
-    meeting = models.ForeignKey('event.Meeting', related_name='attends',
+    meeting = models.ForeignKey('event.Meeting', on_delete=models.PROTECT, related_name='attends',
                                 verbose_name=_('Meeting'))
 
     attended = models.BooleanField(_('Attended'), default=False)
@@ -74,15 +75,20 @@ class AbstractStatusModel(models.Model):
         abstract = True
 
 
+def get_event_week():
+    week = datetime.datetime.now().isocalendar()[1]
+    return 'event/%s/' % week
+
+
 @python_2_unicode_compatible
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
-    type = models.ForeignKey(MeetingType, verbose_name=_('Meeting type'))
+    type = models.ForeignKey(MeetingType, on_delete=models.PROTECT, verbose_name=_('Meeting type'))
 
-    owner = models.ForeignKey('account.CustomUser',
+    owner = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                               limit_choices_to={'hierarchy__level__gte': 1})
 
-    home_group = models.ForeignKey('group.HomeGroup', verbose_name=_('Home Group'))
+    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT, verbose_name=_('Home Group'))
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
@@ -90,6 +96,8 @@ class Meeting(AbstractStatusModel):
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=0, default=0)
+
+    image = models.ImageField(_('Event Image'), upload_to=get_event_week(), blank=True, null=True)
 
     objects = MeetingManager()
 
@@ -130,9 +138,9 @@ class Meeting(AbstractStatusModel):
 
     @cached_property
     def can_submit(self):
-        if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
-                and self.status == Meeting.IN_PROGRESS:
-            return False
+        # if Meeting.objects.filter(owner=self.owner, status=Meeting.EXPIRED).exists() \
+        #         and self.status == Meeting.IN_PROGRESS:
+        #     return False
         return True
 
     @property
@@ -144,7 +152,7 @@ class Meeting(AbstractStatusModel):
 
 @python_2_unicode_compatible
 class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
-    pastor = models.ForeignKey('account.CustomUser',
+    pastor = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                                limit_choices_to={'hierarchy__level__gte': 2})
     church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
                                verbose_name=_('Church'))
@@ -214,48 +222,10 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
         return ''
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class DayOfTheWeekField(models.CharField):
-    def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(DAY_OF_THE_WEEK.items()))
-        kwargs['max_length'] = 1
-        super(DayOfTheWeekField, self).__init__(*args, **kwargs)
+"""
+#######################################################################################################
+#######################################################################################################
+"""
 
 
 def current_week():
@@ -285,7 +255,7 @@ class EventType(models.Model):
 
 @python_2_unicode_compatible
 class EventAnket(models.Model):
-    user = models.OneToOneField('account.CustomUser', related_name='event_anket', )
+    user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT, related_name='event_anket', )
 
     def __str__(self):
         return self.user.get_full_name()
@@ -303,8 +273,8 @@ class Week(models.Model):
 
 @python_2_unicode_compatible
 class Event(models.Model):
-    week = models.ForeignKey(Week, null=True, blank=True)
-    event_type = models.ForeignKey(EventType, related_name='events', blank=True, null=True)
+    week = models.ForeignKey(Week, on_delete=models.PROTECT, null=True, blank=True)
+    event_type = models.ForeignKey(EventType, on_delete=models.PROTECT, related_name='events', blank=True, null=True)
     from_date = models.DateField(default=date.today)
     to_date = models.DateField(default=date.today)
     time = models.TimeField(default=timezone.now)
@@ -327,8 +297,8 @@ class Event(models.Model):
 
 @python_2_unicode_compatible
 class Participation(models.Model):
-    user = models.ForeignKey(EventAnket, related_name='participations')
-    event = models.ForeignKey(Event, related_name='participations')
+    user = models.ForeignKey(EventAnket, on_delete=models.PROTECT, related_name='participations')
+    event = models.ForeignKey(Event, on_delete=models.PROTECT, related_name='participations')
     check = models.BooleanField(default=False)
     value = models.IntegerField(blank=True, null=True)
     result_value = models.IntegerField(blank=True, null=True)

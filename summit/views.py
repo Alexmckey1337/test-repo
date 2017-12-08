@@ -1,835 +1,331 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
-import collections
-import logging
 from collections import defaultdict
-from datetime import datetime, time
 
 from celery.result import AsyncResult
-from django.conf import settings
-from django.db import transaction, IntegrityError
-from django.db.models import (
-    Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q, Exists)
-from django.db.models import Value as V
-from django.db.models.functions import Concat, Coalesce
-from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _, ugettext
-from rest_framework import exceptions, viewsets, filters, status, mixins
-from rest_framework.decorators import list_route, detail_route, api_view
-from rest_framework.generics import get_object_or_404, GenericAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.settings import api_settings
-from rest_framework.viewsets import GenericViewSet
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
+from django.db.models import Case, When, BooleanField, Value
+from django.db.models.functions import Concat
+from django.shortcuts import redirect, get_object_or_404
+from django.views import View
+from django.views.generic import DetailView, ListView, TemplateView
 
 from account.models import CustomUser
-from account.signals import obj_add, obj_delete
-from analytics.utils import model_to_dict
-from common.filters import FieldSearchFilter
-from common.test_helpers.utils import get_real_user
-from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
+from hierarchy.models import Department, Hierarchy
 from notification.backend import RedisBackend
-from payment.serializers import PaymentShowWithUrlSerializer
-from payment.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from summit.filters import (FilterByClub, SummitUnregisterFilter, ProfileFilter,
-                            FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
-                            FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
-                            FilterByMasterTree, FilterByHasEmail)
-from summit.pagination import (SummitPagination, SummitTicketPagination, SummitStatisticsPagination,
-                               SummitSearchPagination)
-from summit.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
-    can_see_report_by_bishop_or_high
-from summit.resources import SummitAnketResource, SummitStatisticsResource
-from summit.utils import generate_ticket, SummitParticipantReport, get_report_by_bishop_or_high
-from .models import (Summit, SummitAnket, SummitLesson, SummitUserConsultant,
-                     SummitTicket, SummitAttend, AnketEmail)
-from .serializers import (
-    SummitSerializer, SummitUnregisterUserSerializer, SummitAnketSerializer,
-    SummitAnketNoteSerializer, SummitLessonSerializer,
-    SummitAnketForSelectSerializer,
-    SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
-    SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
-    SummitAnketStatisticsSerializer,
-    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
-from .tasks import generate_tickets, send_email_with_code, send_sms_with_code
-
-logger = logging.getLogger(__name__)
+from summit.models import Summit, SummitTicket, SummitAnket, AnketEmail
 
 
-def get_success_headers(data):
-    try:
-        return {'Location': data[api_settings.URL_FIELD_NAME]}
-    except (TypeError, KeyError):
-        return {}
-
-
-class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
-    summit = None
-
+class CanSeeSummitMixin(View):
     def dispatch(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        summit = kwargs.get('pk')
+        if not (summit and request.user.can_see_summit(summit)):
+            raise PermissionDenied
+        return super(CanSeeSummitMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitTicketMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_any_summit_ticket():
+            raise PermissionDenied
+        return super(CanSeeSummitTicketMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitReportByBishopsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.can_see_report_by_bishop_or_high(kwargs.get('pk')):
+            raise PermissionDenied
+        return super(CanSeeSummitReportByBishopsMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitProfileMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        return super(CanSeeSummitProfileMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CanSeeSummitHistoryStatsMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        summit = kwargs.get('pk')
+        if not (summit and request.user.can_see_summit_history_stats(summit)):
+            raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
-    def check_permissions(self, request):
-        super().check_permissions(request)
-        # ``summit`` consultant or high
-        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
-            self.permission_denied(
-                request, message=getattr(CanSeeSummitProfiles, 'message', None)
-            )
+class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
+    model = Summit
+    context_object_name = 'summit'
+    template_name = 'summit/detail.html'
+    login_url = 'entry'
 
-
-class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
-    serializer_class = SummitAnketSerializer
-    pagination_class = SummitPagination
-    permission_classes = (IsAuthenticated,)
-
-    filter_class = ProfileFilter
-    ordering_fields = (
-        'first_name', 'last_name', 'responsible',
-        'spiritual_level', 'divisions_title', 'department', 'user__facebook', 'country', 'city',
-        'code', 'value', 'description',
-        'middle_name', 'user__born_date', 'country',
-        'user__region', 'city', 'user__district',
-        'user__address', 'user__phone_number',
-        'user__email', 'hierarchy__level', 'ticket_status', 'status__reg_code_requested', 'has_email'
-    )
-    filter_backends = (
-        filters.DjangoFilterBackend,
-        filters.OrderingFilter,
-        FieldSearchFilter,
-        FilterProfileMasterTreeWithSelf,
-        FilterByClub,
-        HasPhoto,
-        FilterByHasEmail,
-        FilterBySummitAttend,
-        FilterByElecTicketStatus,
-    )
-
-    field_search_fields = {
-        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
-        'search_email': ('user__email',),
-        'search_phone_number': ('user__phone_number',),
-        'search_country': ('country',),
-        'search_city': ('city',),
-    }
-
-    def get_queryset(self):
-        emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
-        qs = self.summit.ankets.annotate(has_email=Exists(emails)).select_related('status') \
-            .base_queryset().annotate_total_sum().annotate_full_name().order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
-        return qs.for_user(self.request.user)
-
-
-class SummitBishopHighMasterListView(SummitProfileListMixin):
-    serializer_class = MasterSerializer
-    permission_classes = (IsAuthenticated,)
-    queryset = CustomUser.objects.all()
-    pagination_class = None
-
-    def get_queryset(self):
-        subqs = self.summit.ankets.all()
-        return self.queryset.filter(pk__in=Subquery(subqs.values('user_id')), hierarchy__level__gte=4).annotate(
-            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
-
-
-class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
-    resource_class = SummitAnketResource
-    queryset = SummitAnket.objects.all()
-
-    def post(self, request, *args, **kwargs):
-        return self._export(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return super().get_queryset().exclude(status__active=False)
-        # return super().get_queryset().annotate_full_name().exclude(status__active=False)
-
-
-class ToChar(Func):
-    function = 'to_char'
-    template = "%(function)s(%(expressions)s, '%(time_format)s')"
-
-
-class SummitStatisticsView(SummitProfileListView):
-    serializer_class = SummitAnketStatisticsSerializer
-    pagination_class = SummitStatisticsPagination
-
-    filter_date = None
-
-    ordering_fields = (
-        'last_name', 'first_name', 'middle_name',
-        'responsible',
-        'department',
-        'code',
-        'user__phone_number',
-        'attended',
-    )
-
-    filter_backends = (
-        filters.DjangoFilterBackend,
-        filters.OrderingFilter,
-        FieldSearchFilter,
-        FilterProfileMasterTreeWithSelf,
-        HasPhoto,
-        FilterBySummitAttendByDate,
-        FilterByTime,
-    )
-
-    def get(self, request, *args, **kwargs):
-        filter_date = request.GET.get('date')
-        if not filter_date:
-            self.filter_date = datetime.now()
-        else:
-            try:
-                self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
-            except ValueError:
-                raise exceptions.ValidationError({'detail': _('Invalid date.')})
-        return super(SummitStatisticsView, self).get(request, *args, **kwargs)
-
-    def annotate_queryset(self, qs):
-        subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
-            first_time=Coalesce(
-                ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
-                ToChar(F('created_at'), function='to_char', time_format='HH24:MI:SS el', output_field=CharField()),
-                V('true'),
-                output_field=CharField()))
-        qs = qs.select_related('user', 'status').annotate(
-            attended=Subquery(subqs.values('first_time')[:1], output_field=CharField())).annotate_full_name().order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
-        return qs
-
-    def get_queryset(self):
-        qs = self.annotate_queryset(self.summit.ankets)
-        return qs.for_user(self.request.user)
-
-
-class SummitStatisticsExportView(SummitStatisticsView, ExportViewSetMixin):
-    resource_class = SummitStatisticsResource
-    queryset = SummitAnket.objects.all()
-
-    def post(self, request, *args, **kwargs):
-        return self._export(request, *args, **kwargs)
-
-
-class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                           mixins.DestroyModelMixin, GenericViewSet,
-                           CreatePaymentMixin, ListPaymentMixin):
-    queryset = SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name()
-    serializer_class = SummitAnketSerializer
-    serializer_update_class = SummitProfileUpdateSerializer
-    serializer_create_class = SummitProfileCreateSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        if self.action != 'retrieve':
-            return self.queryset
-        emails = AnketEmail.objects.filter(anket=OuterRef('pk'))
-        qs = self.queryset.annotate(has_email=Exists(emails)).select_related('status') \
-            .order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
-        return qs.for_user(self.request.user)
-
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return self.serializer_create_class
-        if self.action in ('update', 'partial_update'):
-            return self.serializer_update_class
-        return self.serializer_class
-
-    def perform_create(self, serializer):
-        profile = serializer.save()
-        profile.creator = self.request.user if self.request.user.is_authenticated else None
-        profile.code = '0{}'.format(4 * 1000 * 1000 + profile.id)
-        profile.save()
-
-        new_dict = model_to_dict(profile, fields=('summit',))
-        obj_add.send(
-            sender=self.__class__,
-            obj=profile.user,
-            obj_dict=new_dict,
-            editor=get_real_user(self.request),
-            reason={
-                'text': ugettext('Added to the summit'),
-            }
-        )
-
-    def perform_destroy(self, profile):
-        if profile.payments.exists():
-            payments = PaymentShowWithUrlSerializer(
-                profile.payments.all(), many=True, context={'request': self.request}).data
-            raise exceptions.ValidationError({
-                'detail': _('Summit profile has payments. Please, remove them before deleting profile.'),
-                'payments': payments,
-            })
-        deletion_dict = model_to_dict(profile, fields=('summit',))
-        obj_delete.send(
-            sender=self.__class__,
-            obj=profile.user,
-            obj_dict=deletion_dict,
-            editor=get_real_user(self.request),
-            reason={
-                'text': ugettext('Deleted from the summit'),
-            }
-        )
-        profile.delete()
-
-    @detail_route(methods=['get'], )
-    def predelete(self, request, pk=None):
-        profile = self.get_object()
-        lessons = profile.all_lessons.all()
-        consultant_on = Summit.objects.filter(id__in=profile.consultees.values_list('summit_id', flat=True))
-        consultees = SummitAnket.objects.filter(id__in=profile.consultees.values_list('user_id', flat=True))
-        consultants = SummitAnket.objects.filter(id__in=profile.consultants.values_list('consultant_id', flat=True))
-        notes = profile.notes.all()
-
-        return Response({
-            'notes': SummitAnketNoteSerializer(notes, many=True).data,
-            'lessons': SummitLessonShortSerializer(lessons, many=True).data,
-            'summits': SummitShortSerializer(consultant_on, many=True).data,
-            'users': SummitAnketShortSerializer(consultees, many=True).data,
-            'consultants': SummitAnketShortSerializer(consultants, many=True).data,
-        })
-
-    @detail_route(methods=['get'])
-    def notes(self, request, pk=None):
-        serializer = SummitAnketNoteSerializer
-        anket = self.get_object()
-        queryset = anket.notes
-
-        serializer = serializer(queryset, many=True)
-
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'])
-    def create_note(self, request, pk=None):
-        text = request.data['text']
-        data = {
-            'text': text,
-            'summit_anket': pk
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitDetailView, self).get_context_data(**kwargs)
+        extra_context = {
+            'departments': Department.objects.all(),
+            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'hierarchies': Hierarchy.objects.order_by('level'),
         }
-        serializer = SummitAnketNoteSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(owner=request.user.customuser)
-        headers = get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,), pagination_class=SummitTicketPagination)
-    def codes(self, request):
-        serializer = SummitAnketCodeSerializer
-        summit_id = request.query_params.get('summit_id')
-        ankets = SummitAnket.objects.filter(summit=summit_id)
-
-        page = self.paginate_queryset(ankets)
-        ankets = serializer(page, many=True)
-
-        return self.get_paginated_response(ankets.data)
-
-    @detail_route(methods=['post'])
-    def set_ticket_status(self, request, pk=None):
-        profile = self.get_object()
-        new_status = request.data.get('new_status', settings.NEW_TICKET_STATUS.get(profile.ticket_status, None))
-
-        if new_status not in map(lambda s: s[0], SummitAnket.TICKET_STATUSES):
-            raise exceptions.ValidationError({
-                'new_status': _('Incorrect status code.'),
-                'correct_statuses': ['none', 'download', 'print', 'given']
-            })
-
-        profile.ticket_status = new_status
-        profile.save()
-
-        return Response({'new_status': new_status, 'text': profile.get_ticket_status_display()})
+        ctx.update(extra_context)
+        return ctx
 
 
-class SummitLessonViewSet(viewsets.ModelViewSet):
-    queryset = SummitLesson.objects.all()
-    serializer_class = SummitLessonSerializer
-
-    @detail_route(methods=['post'])
-    def add_viewer(self, request, pk=None):
-        anket_id = request.data['anket_id']
-        lesson = self.get_object()
-        anket = get_object_or_404(SummitAnket, pk=anket_id)
-
-        current_user_anket = SummitAnket.objects.filter(
-            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
-        is_consultant = SummitUserConsultant.objects.filter(
-            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
-        if not is_consultant:
-            return Response({'detail': 'Только консультант может отмечать уроки.',
-                             'lesson_id': pk,
-                             'checked': False},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        lesson.viewers.add(anket)
-
-        return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': True})
-
-    @detail_route(methods=['post'])
-    def del_viewer(self, request, pk=None):
-        anket_id = request.data['anket_id']
-        lesson = self.get_object()
-        anket = get_object_or_404(SummitAnket, pk=anket_id)
-
-        current_user_anket = SummitAnket.objects.filter(
-            user=request.user, summit=anket.summit, role__gte=SummitAnket.CONSULTANT)
-        is_consultant = SummitUserConsultant.objects.filter(
-            consultant=current_user_anket, user_id=anket_id, summit=anket.summit).exists()
-        if not is_consultant:
-            return Response({'detail': 'Только консультант может отмечать уроки.',
-                             'lesson_id': pk,
-                             'checked': True},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        lesson.viewers.remove(anket)
-
-        return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': False})
+class SummitStatisticsView(SummitDetailView):
+    template_name = 'summit/stats.html'
 
 
-class SummitUnregisterUserViewSet(ModelWithoutDeleteViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = SummitUnregisterUserSerializer
-    filter_backends = (filters.SearchFilter,
-                       filters.DjangoFilterBackend,)
-    permission_classes = (IsAuthenticated,)
-    filter_class = SummitUnregisterFilter
-    search_fields = ('first_name', 'last_name', 'middle_name',)
-    pagination_class = SummitSearchPagination
+class SummitListMixin(LoginRequiredMixin, ListView):
+    model = Summit
+    context_object_name = 'summits'
+    login_url = 'entry'
+    template_name = None
+    status = None
+
+    def get_queryset(self):
+        return super(SummitListMixin, self).get_queryset().order_by(
+            '-start_date').for_user(self.request.user).filter(status=self.status)
 
 
-class SummitTicketMakePrintedView(GenericAPIView):
-    serializer_class = SummitTicketSerializer
+class OpenSummitListView(SummitListMixin):
+    template_name = 'summit/open/list.html'
+    status = Summit.OPEN
 
-    def post(self, request, *args, **kwargs):
-        ticket_id = kwargs.get('ticket', None)
-        ticket = get_object_or_404(SummitTicket, pk=ticket_id)
+    def get(self, request, *args, **kwargs):
         try:
-            with transaction.atomic():
-                ticket.is_printed = True
-                ticket.save()
-                ticket.users.exclude(ticket_status=SummitAnket.GIVEN).update(ticket_status=SummitAnket.PRINTED)
-        except IntegrityError as err:
-            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
-            logger.error(err)
-            return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        return Response({'detail': _('Билеты отмечены напечатаными.')})
+            summit = self.get_queryset().get()
+        except MultipleObjectsReturned:
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return super(OpenSummitListView, self).get(request, *args, **kwargs)
+        else:
+            return redirect(summit.get_absolute_url())
 
 
-# UNUSED
+class ClosedSummitListView(SummitListMixin):
+    template_name = 'summit/closed/list.html'
+    status = Summit.CLOSE
 
 
-class SummitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date')
-    serializer_class = SummitSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_fields = ('type',)
-    permission_classes = (IsAuthenticated,)
+class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
+    model = SummitTicket
+    context_object_name = 'tickets'
+    template_name = 'summit/ticket/list.html'
+    login_url = 'entry'
 
-    @detail_route(methods=['get'])
-    def lessons(self, request, pk=None):
-        serializer = SummitLessonSerializer
-        summit = self.get_object()
-        queryset = summit.lessons
-
-        serializer = serializer(queryset, many=True)
-
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'], )
-    def add_lesson(self, request, pk=None):
-        name = request.data['name']
-        data = dict()
-        data['name'] = name
-        data['summit'] = pk
-        serializer = SummitLessonSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    @detail_route(methods=['get'])
-    def consultants(self, request, pk=None):
-        serializer = SummitAnketForSelectSerializer
-        summit = self.get_object()
-        queryset = summit.consultants.order_by('-id')
-
-        serializer = serializer(queryset, many=True)
-
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'], )
-    def add_consultant(self, request, pk=None):
-        summit = self.get_object()
-
-        if not request.user.is_summit_supervisor_or_high(summit):
-            return Response({'result': 'У вас нет прав для добавления консультантов.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        anket_id = request.data['anket_id']
-        anket = get_object_or_404(SummitAnket, pk=anket_id)
-        if anket.summit != summit:
-            return Response({'result': 'Выбранная анкета не соответствует данному саммиту.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        anket.role = SummitAnket.CONSULTANT
-        anket.save()
-        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'added'}
-
-        return Response(data, status=status.HTTP_201_CREATED)
-
-    @detail_route(methods=['post'], )
-    def del_consultant(self, request, pk=None):
-        summit = self.get_object()
-
-        if not request.user.is_summit_supervisor_or_high(summit):
-            return Response({'result': 'У вас нет прав для удаления консультантов.'},
-                            status=status.HTTP_403_FORBIDDEN)
-
-        anket_id = request.data['anket_id']
-        anket = get_object_or_404(SummitAnket, pk=anket_id)
-        if anket.summit != summit:
-            return Response({'result': 'Выбранная анкета не соответствует данному саммиту.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        anket.role = SummitAnket.VISITOR
-        anket.save()
-        data = {'summit_id': int(pk), 'consultant_id': anket_id, 'action': 'removed'}
-
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
-
-
-class SummitTicketViewSet(viewsets.GenericViewSet):
-    queryset = SummitTicket.objects.all()
-    serializer_class = SummitTicketSerializer
-    permission_classes = (IsAuthenticated,)
-
-    @detail_route(['get'])
-    def users(self, request, pk=None):
-        code = request.query_params.get('code')
-        ticket = self.get_object()
-        users = ticket.users.order_by('code').select_related('user').annotate(
-            is_active=Case(
-                When(code=code, then=True),
-                default=False,
-                output_field=BooleanField(),
-            ),
-        )
-        summit_profiles = SummitAnketForTicketSerializer(users, many=True)
-
-        return Response(summit_profiles.data)
-
-
-@api_view(['GET'])
-def generate_code(request):
-    code = request.query_params.get('code', '00000000')
-
-    pdf = generate_ticket(code)
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;'
-
-    response.write(pdf)
-
-    return response
-
-
-@api_view(['GET'])
-def summit_report_by_participant(request, summit_id, master_id):
-    can_download = can_download_summit_participant_report(request.user, summit_id)
-    if not can_download:
-        raise exceptions.PermissionDenied(_('You do not have permission to download report. '))
-    master = get_object_or_404(CustomUser, pk=master_id)
-    report_date = request.query_params.get('date', '')
-    short = request.query_params.get('short', None)
-    attended = request.query_params.get('attended', None)
-
-    pdf = SummitParticipantReport(summit_id, master, report_date, short, attended).generate_pdf()
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;'
-
-    response.write(pdf)
-
-    return response
-
-
-@api_view(['GET'])
-def summit_report_by_bishops(request, summit_id):
-    can_see_report = can_see_report_by_bishop_or_high(request.user, summit_id)
-    if not can_see_report:
-        raise exceptions.PermissionDenied(_('You do not have permission to see report by bishops. '))
-    department = request.query_params.get('department', None)
-    fio = request.query_params.get('search_fio', '')
-    hierarchy = request.query_params.get('hierarchy', None)
-    report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
-    try:
-        report_date = datetime.strptime(report_date, '%Y-%m-%d')
-    except ValueError:
-        report_date = datetime.now()
-
-    bishops = get_report_by_bishop_or_high(summit_id, report_date, department, fio, hierarchy)
-
-    return Response(bishops)
-
-
-@api_view(['GET'])
-def generate_summit_tickets(request, summit_id):
-    limit = 2000
-
-    ankets = list(SummitAnket.objects.order_by('id').filter(
-        summit_id=summit_id, tickets__isnull=True).exclude(user__image='')[:limit].values_list('id', 'code'))
-    if len(ankets) == 0:
-        return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
-    ticket = SummitTicket.objects.create(
-        summit_id=summit_id, owner=request.user, title='{}-{}'.format(
-            min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1]))
-    logger.info('New ticket: {}'.format(ticket.id))
-    ticket.users.set([a[0] for a in ankets])
-
-    result = generate_tickets.apply_async(args=[summit_id, ankets, ticket.id])
-    logger.info('generate_ticket: {}'.format(result))
-
-    result = SummitAnket.objects.filter(id__in=[a[0] for a in ankets]).update(ticket_status=SummitAnket.DOWNLOADED)
-    logger.info('Update profiles ticket_status: {}'.format(result))
-
-    return Response(data={'ticket_id': ticket.id})
-
-
-@api_view(['GET'])
-def send_code(request, profile_id):
-    profile = get_object_or_404(SummitAnket, pk=profile_id)
-    send_method = request.query_params.get('method')
-    if not send_method:
-        return exceptions.ValidationError({'message': 'Parameter {method} must be passed'})
-
-    if send_method == 'email':
-        if not profile.summit.mail_template:
-            return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not profile.user.email:
-            return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
-        task = send_email_with_code.apply_async(args=[profile_id, request.user.id])
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketListView, self).dispatch(request, *args, **kwargs)
         try:
             r = RedisBackend()
-            r.sadd('summit:email:wait:{}:{}'.format(profile.summit_id, profile_id), task.id)
-            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(
+                self.get_queryset().values_list('id', flat=True)))
         except Exception as err:
             print(err)
 
-    if send_method == 'sms':
-        send_sms_with_code.applay_async(args=[profile_id, request.user.id])
+        return response
 
-    return Response(data={'profile_id': profile_id})
-
-
-def get_status_ids(summit_id):
-    r = RedisBackend()
-    ids = set()
-    for profile_id in r.scan_iter('summit:email:wait:{}:*'.format(summit_id)):
-        ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
-    return ids
-
-
-def get_fail_ids(summit_id):
-    r = RedisBackend()
-    ids = set()
-    for profile_id in r.scan_iter('summit:email:sending:{}:*'.format(summit_id)):
-        tasks = r.smembers(profile_id)
-        fail = True
-        for task_id in tasks:
-            result = AsyncResult(task_id)
-            if result.successful() or not result.ready():
-                fail = False
-                break
-        if fail:
-            ids.add(int(profile_id.decode('utf8').rsplit(':', 1)[-1]))
-    return ids
+    def get_queryset(self):
+        code = self.request.GET.get('code', '')
+        qs = super(SummitTicketListView, self).get_queryset()
+        try:
+            r = RedisBackend()
+            ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
+        except Exception as err:
+            ticket_ids = None
+            print(err)
+        if ticket_ids:
+            qs = qs.annotate(
+                is_new=Case(
+                    When(id__in=ticket_ids, then=True),
+                    default=False,
+                    output_field=BooleanField(),
+                ),
+            )
+        if code:
+            return qs.filter(users__code=code).distinct()
+        return qs
 
 
-@api_view(['GET'])
-def send_unsent_codes(request, summit_id):
-    delay = 5
-    limit = -1
-    summit = get_object_or_404(Summit, pk=summit_id)
-    current_user = request.user
-    if not current_user.is_summit_supervisor_or_high(summit):
-        raise exceptions.PermissionDenied()
+class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, DetailView):
+    model = SummitTicket
+    context_object_name = 'ticket'
+    template_name = 'summit/ticket/detail.html'
+    login_url = 'entry'
 
-    sent_count = 0
-    unsent_count = 0
-    tasks = dict()
-    if not summit.mail_template:
-        return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+    def dispatch(self, request, *args, **kwargs):
+        response = super(SummitTicketDetailView, self).dispatch(request, *args, **kwargs)
+        try:
+            r = RedisBackend()
+            r.srem('summit:ticket:{}'.format(request.user.id), self.object.id)
+        except Exception as err:
+            print(err)
 
-    exist_ids = get_status_ids(summit_id)
-    fail_ids = get_fail_ids(summit_id)
-    countdown = 0
-    emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
-    profiles = summit.ankets.annotate(has_email=Exists(emails)).filter(has_email=False).exclude(
-        Q(user__email='') | Q(pk__in=(exist_ids - fail_ids))).select_related('user')
-    if limit > 0:
-        profiles = profiles[:limit]
-    for profile in profiles:
-        if not profile.user.email:
-            unsent_count += 1
-            continue
-        task = send_email_with_code.apply_async(args=[profile.id, current_user.id, countdown])
-        countdown += delay
-        tasks[profile.id] = task.id
-        sent_count += 1
+        return response
 
-    try:
+
+class SummitProfileDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = SummitAnket
+    context_object_name = 'profile'
+    template_name = 'summit/profile.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailDetailView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/detail.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailTextView(LoginRequiredMixin, CanSeeSummitProfileMixin, DetailView):
+    model = AnketEmail
+    context_object_name = 'email'
+    template_name = 'summit/emails/text.html'
+    login_url = 'entry'
+
+
+class SummitProfileEmailListView(LoginRequiredMixin, CanSeeSummitProfileMixin, ListView):
+    model = AnketEmail
+    context_object_name = 'emails'
+    template_name = 'summit/emails/list.html'
+    login_url = 'entry'
+
+    profile = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.profile = get_object_or_404(SummitAnket, pk=kwargs.get('profile_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().filter(anket=self.profile)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['profile'] = self.profile
+
+        return ctx
+
+
+class SummitBishopReportView(LoginRequiredMixin, CanSeeSummitReportByBishopsMixin, TemplateView):
+    template_name = 'summit/bishop_report.html'
+    login_url = 'entry'
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk')
+        return super(SummitBishopReportView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(SummitBishopReportView, self).get_context_data(**kwargs)
+
+        ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
+        ctx['departments'] = Department.objects.all()
+        ctx['hierarchies'] = Hierarchy.objects.order_by('level')
+
+        return ctx
+
+
+class SummitHistoryStatisticsView(LoginRequiredMixin, CanSeeSummitHistoryStatsMixin, TemplateView):
+    template_name = 'summit/history/stats.html'
+    login_url = 'entry'
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('pk')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx['summit'] = get_object_or_404(Summit, pk=self.summit_id)
+        ctx['departments'] = Department.objects.all()
+
+        return ctx
+
+
+class SummitEmailTasksView(LoginRequiredMixin, TemplateView):
+    template_name = 'summit/summit_email_tasks.html'
+    login_url = 'entry'
+
+    summit_id = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit_id = kwargs.get('summit_id')
+        return super().get(request, *args, **kwargs)
+
+    def get_statuses(self):
         r = RedisBackend()
-        for profile, task_id in tasks.items():
-            r.sadd('summit:email:wait:{}:{}'.format(summit_id, profile), task_id)
-            r.expire('summit:email:wait:{}'.format(profile), 30 * 24 * 60 * 60)
-    except Exception as err:
-        print(err)
-    users_without_emails = summit.ankets.filter(user__email='').annotate(full_name=Concat(
-                'user__last_name', V(' '),
-                'user__first_name', V(' '),
-                'user__middle_name'))
-    return Response(data={
-        'sent_count': sent_count,
-        'users_without_emails_count': users_without_emails.count(),
-        'users_without_emails': list(users_without_emails.values('user_id', 'full_name', 'user__email')),
-    }, status=status.HTTP_202_ACCEPTED)
+        statuses = defaultdict(list)
+        for profile_id in r.scan_iter('summit:email:sending:{}:*'.format(self.summit_id)):
+            tasks = r.smembers(profile_id)
+            for task_id in tasks:
+                result = AsyncResult(task_id)
+                statuses[int(profile_id.decode('utf8').rsplit(':', 1)[-1])].append(
+                    (result.status, task_id.decode('utf8')))
+        return statuses
+
+    def get_profiles(self):
+        summit = get_object_or_404(Summit, pk=self.summit_id)
+        profiles = summit.ankets.all()
+        # emails = AnketEmail.objects.filter(is_success=False, anket_id=OuterRef('pk'))
+        # profiles = profiles.annotate(email_exist=Exists(emails)).filter(email_exist=True)
+        profiles = profiles.annotate(
+            email_statuses=ArrayAgg('emails__is_success'),
+            full_name=Concat(
+                'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
+        profiles = list(profiles.values('id', 'code', 'email_statuses', 'user_id', 'full_name', 'user__email'))
+        statuses = self.get_statuses()
+        for profile in profiles:
+            profile['statuses'] = statuses[profile['id']]
+        return profiles
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        profiles = self.get_profiles()
+
+        ctx['statuses'] = sorted(profiles, key=lambda p: len(p['statuses']), reverse=True)
+
+        return ctx
 
 
-class HistorySummitStatsMixin(GenericAPIView):
-    queryset = SummitAnket.objects.all()
+class SummitScheduleTasksView(LoginRequiredMixin, TemplateView):
+    template_name = 'summit/summit_schedule_tasks.html'
+    login_url = 'entry'
 
-    pagination_class = None
-    permission_classes = (IsAuthenticated,)
-
-    filter_backends = (
-        FilterByDepartment,
-        FilterByMasterTree,
-    )
-
-    summit = None
-    _profiles = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return self.summit.ankets.all()
-
-    def check_permissions(self, request):
-        super().check_permissions(request)
-        # ``summit`` supervisor or high
-        if not request.user.can_see_summit_history_stats(self.summit):
-            self.permission_denied(
-                request, message=_('You do not have permission to see statistics.')
-            )
-
-    @property
-    def profiles(self):
-        if self._profiles is None:
-            self._profiles = self.filter_queryset(self.get_queryset())
-        return self._profiles
-
-    def get_attends(self):
-        filter_attends = SummitAttend.objects.filter(
-            anket__in=Subquery(self.profiles.values('pk')), date__range=(self.summit.start_date, self.summit.end_date))
-        attends = SummitAttend.objects.filter(
-            anket__summit=self.summit, date__range=(self.summit.start_date, self.summit.end_date))
-        return filter_attends, attends
-
-
-class HistorySummitAttendStatsView(HistorySummitStatsMixin):
-    """
-    Getting statistics for attends
-    """
-    def get(self, request, *args, **kwargs):
-        filter_attends, attends = self.get_attends()
-
-        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-        attends_by_date = collections.Counter(filter_attends.values_list('date', flat=True))
-        for d in all_attends_by_date.keys():
-            attends_by_date[d] = (attends_by_date.get(d, 0), self.profiles.filter(date__lte=d).count())
-        return Response([
-            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
-        ])
-
-
-class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
-    """
-    Getting statistics on latecomers
-    """
-    start_time = time(11, 30)
+    summit_id = None
 
     def get(self, request, *args, **kwargs):
-        filter_attends, attends = self.get_attends()
+        self.summit_id = kwargs.get('summit_id')
+        return super().get(request, *args, **kwargs)
 
-        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-        filter_attends = filter_attends.values('date', 'time', 'created_at')
-        attends_by_date = defaultdict(list)
-        for a in filter_attends:
-            attends_by_date[a['date']].append(a['time'] or (a['created_at'].time() if a['created_at'] else None))
-        for d in all_attends_by_date.keys():
-            late_count = len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d])))
-            attend_count = len(attends_by_date[d])
-            attends_by_date[d] = [late_count, attend_count - late_count]
-        return Response([
-            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
-        ])
+    def get_statuses(self):
+        r = RedisBackend()
+        statuses = defaultdict(list)
+        for profile_id in r.scan_iter('summit:schedule:sending:{}:*'.format(self.summit_id)):
+            tasks = r.smembers(profile_id)
+            for task_id in tasks:
+                result = AsyncResult(task_id)
+                statuses[int(profile_id.decode('utf8').rsplit(':', 1)[-1])].append(
+                    (result.status, task_id.decode('utf8')))
+        return statuses
 
+    def get_profiles(self):
+        summit = get_object_or_404(Summit, pk=self.summit_id)
+        profiles = summit.ankets.all()
+        # emails = AnketEmail.objects.filter(is_success=False, anket_id=OuterRef('pk'))
+        # profiles = profiles.annotate(email_exist=Exists(emails)).filter(email_exist=True)
+        profiles = profiles.annotate(
+            full_name=Concat(
+                'user__last_name', Value(' '), 'user__first_name', Value(' '), 'user__middle_name'))
+        profiles = list(profiles.values('id', 'code', 'user_id', 'full_name', 'user__email'))
+        statuses = self.get_statuses()
+        for profile in profiles:
+            profile['statuses'] = statuses[profile['id']]
+        return profiles
 
-class HistorySummitStatByMasterDisciplesView(GenericAPIView):
-    """
-    Getting statistics by disciples of master
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
 
-    Returns counts of the disciples of master.disciples.
-    """
-    queryset = SummitAnket.objects.order_by('last_name', 'first_name', 'middle_name')
+        profiles = self.get_profiles()
 
-    permission_classes = (IsAuthenticated,)
-    pagination_class = None
+        ctx['statuses'] = sorted(profiles, key=lambda p: len(p['statuses']), reverse=True)
 
-    summit = None
-    master = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
-        self.master = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        disciples_profiles = list(self.get_queryset().annotate_full_name().values('user_id', 'full_name'))
-
-        master_count = 0
-        for profile in disciples_profiles:
-            master_id = profile['user_id']
-            count = SummitAnket.objects.filter(
-                Q(summit=self.summit) &
-                (Q(master_path__contains=[master_id]) |
-                 Q(user_id=master_id))
-            ).count()
-            if count <= 1:
-                master_count += count
-            else:
-                profile['count'] = count
-        disciples_profiles.append(
-            {'user_id': self.master.id, 'full_name': '({})'.format(str(self.master)), 'count': master_count})
-
-        data = [[m['full_name'], [m['count']]] for m in disciples_profiles if m.get('count')]
-        return Response(data)
-
-    def get_queryset(self):
-        return self.queryset.filter(summit=self.summit, master=self.master)
-
-    def check_permissions(self, request):
-        super().check_permissions(request)
-        # ``summit`` supervisor or high
-        if not request.user.can_see_summit_history_stats(self.summit):
-            self.permission_denied(
-                request, message=_('You do not have permission to see statistics.')
-            )
+        return ctx

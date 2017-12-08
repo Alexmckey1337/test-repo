@@ -10,9 +10,9 @@ from django.utils import timezone
 from rest_framework import status, permissions
 
 from partnership.models import Partnership, Deal
-from partnership.serializers import DealSerializer, DealCreateSerializer, DealUpdateSerializer
-from partnership.views import PartnershipViewSet
-from payment.serializers import PaymentShowSerializer
+from partnership.api.serializers import DealSerializer, DealCreateSerializer, DealUpdateSerializer
+from partnership.api.views import PartnershipViewSet
+from payment.api.serializers import PaymentShowSerializer
 
 FIELD_CODES = (
     # optional fields
@@ -25,29 +25,16 @@ FIELD_CODES = (
 
     # required fields
     ('user', 400),
+    ('group', 400),
 )
 
 
 @pytest.mark.django_db
 class TestPartnershipViewSet:
-    def test_simple(self, monkeypatch, api_login_client, partner_factory):
-        monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
-        partner_factory(level=Partnership.MANAGER + 1)
-        partner_factory.create_batch(2, level=Partnership.MANAGER)
-        partner_factory.create_batch(4, level=Partnership.MANAGER - 1)
-
-        url = reverse('partner-simple')
-
-        response = api_login_client.get(url, format='json')
-
-        assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 6
-
-    @pytest.mark.hh
     @pytest.mark.parametrize(
         "field,code", FIELD_CODES, ids=[f[0] for f in FIELD_CODES])
     def test_create_user_without_one_field(
-            self, monkeypatch, api_login_client, user_factory, currency_factory, partner_factory, field, code):
+            self, monkeypatch, api_login_client, user_factory, currency_factory, partner_group_factory, field, code):
         monkeypatch.setattr(PartnershipViewSet, 'get_permissions', lambda self: [permissions.AllowAny()])
         url = reverse('partner-list')
 
@@ -58,7 +45,8 @@ class TestPartnershipViewSet:
             'date': date(2020, 2, 4),
             'need_text': 'Python is cool',
             'is_active': False,
-            'responsible': partner_factory().id,
+            'responsible': user_factory().id,
+            'group': partner_group_factory().id,
         }
         data.pop(field)
         response = api_login_client.post(url, data=data, format='json')
@@ -94,21 +82,21 @@ class TestPartnershipViewSet:
 
     @pytest.mark.hh
     def test_move_old_unclosed_deal_after_update_responsible(
-            self, api_login_supervisor_client, partner_factory, deal_factory):
-        responsible = partner_factory()
+            self, api_login_supervisor_client, user_factory, partner_factory, deal_factory):
+        responsible = user_factory()
         partner = partner_factory(responsible=responsible)  # autocreate deal
-        deal_factory.create_batch(2, date_created=timezone.now()+timedelta(days=-32), partnership=partner)
+        deal_factory.create_batch(2, date_created=timezone.now() + timedelta(days=-32), partnership=partner)
 
         assert partner.responsible == responsible
         assert responsible.disciples_deals.count() == 3
 
         url = reverse('partner-detail', kwargs={'pk': partner.id})
-        api_login_supervisor_client.patch(url, data={'responsible': partner_factory().id})
+        api_login_supervisor_client.patch(url, data={'responsible': user_factory().id})
 
         partner.refresh_from_db()
 
         assert partner.responsible != responsible
-        assert responsible.disciples_deals.count() == 2
+        assert responsible.disciples_deals.count() == 0
 
     def test_list_of_partners_less_30(self, partner_factory, api_login_supervisor_client):
         partner_factory.create_batch(11)
@@ -137,7 +125,7 @@ class TestPartnershipViewSet:
     def test_user_list_filter_by_hierarchy(
             self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         other_hierarchy = hierarchy_factory()
         hierarchy = hierarchy_factory()
         partner_factory.create_batch(10, user__hierarchy=hierarchy)
@@ -154,7 +142,7 @@ class TestPartnershipViewSet:
     def test_user_list_filter_by_department(
             self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         other_department = department_factory()
         department = department_factory()
         partners = partner_factory.create_batch(10)
@@ -174,7 +162,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         master = partner_factory(user__username='master')
         # partner_factory.create_batch(10, user__master=master.user)
         for i in range(10):
@@ -192,7 +180,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_multi_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         master = partner_factory(user__username='master')
         other_master = partner_factory(user__username='other_master')
         # partner_factory.create_batch(10, user__master=master.user)
@@ -217,7 +205,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner = partner_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
         # partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 3, all_users_count: +3, = 4
@@ -252,7 +240,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_fio(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner_factory.create_batch(10)
         partner_factory(user__last_name='searchlast', user__first_name='searchfirst')
 
@@ -268,7 +256,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_email(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner_factory.create_batch(10)
         partner_factory(user__email='mysupermail@test.com')
         partner_factory(user__email='test@mysupermail.com')
@@ -285,7 +273,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_phone(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner_factory.create_batch(10)
         partner_factory(user__phone_number='+380990002246')
         partner_factory(user__phone_number='+380992299000')
@@ -302,7 +290,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_country(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__country='Ukraine')
 
@@ -318,7 +306,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_city(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.all())
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__city='Tokio')
 
@@ -341,10 +329,10 @@ class TestDealViewSet:
         code = creator['code'][0] if is_responsible else creator['code'][1]
 
         if is_responsible:
-            deal.partnership.responsible = creator['partner']
+            deal.partnership.responsible = creator['user']
             deal.partnership.save()
 
-        api_client.force_login(creator['partner'].user)
+        api_client.force_login(creator['user'])
         api_login_client = api_client
 
         data = {
@@ -374,10 +362,10 @@ class TestDealViewSet:
         code = viewer['code'][0] if is_responsible else viewer['code'][1]
 
         if is_responsible:
-            deal.partnership.responsible = viewer['partner']
+            deal.partnership.responsible = viewer['user']
             deal.partnership.save()
 
-        api_client.force_login(viewer['partner'].user)
+        api_client.force_login(viewer['user'])
 
         response = api_client.get(url, format='json')
 

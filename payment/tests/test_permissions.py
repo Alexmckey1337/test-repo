@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import SAFE_METHODS
 
 from account.models import CustomUser
-from partnership.models import Deal, Partnership
-from payment.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
+from partnership.models import Deal, Partnership, ChurchDeal
+from payment.api.permissions import PaymentPermission, PaymentManager, PaymentManagerOrSupervisor
 from summit.models import SummitAnket
 
 Qs = namedtuple('Qs', ['model'])
@@ -35,9 +35,6 @@ class TestPaymentPermission:
         assert (PaymentPermission().has_object_permission(request, view, None) ==
                 any((is_supervisor(*blank_args(2)), (is_consultant(*blank_args(2)) and method in SAFE_METHODS))))
 
-    @pytest.mark.parametrize('view', [type('View', (), {'get_queryset': lambda: Qs(Deal)}),
-                                      type('View', (), {'get_queryset': lambda: Qs(Partnership)})],
-                             ids=['deal', 'partner'])
     @pytest.mark.parametrize(
         'is_supervisor,has_perm', [(property(lambda s: True), True), (property(lambda s: False), False)],
         ids=['supervisor', 'non supervisor'])
@@ -46,8 +43,8 @@ class TestPaymentPermission:
     @pytest.mark.parametrize('is_manager', [lambda self: True, lambda self: False],
                              ids=['manager', 'non manager'])
     @pytest.mark.parametrize('method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
-    def test_has_object_permission_for_partner_or_deal(
-            self, user, monkeypatch, is_manager, is_disciples, is_supervisor, has_perm, view, method):
+    def test_has_object_permission_for_deal(
+            self, user, monkeypatch, is_manager, is_disciples, is_supervisor, has_perm, method):
         monkeypatch.setattr(CustomUser, 'is_partner_manager_or_high', property(is_manager))
         monkeypatch.setattr(CustomUser, 'is_partner_responsible_of', is_disciples)
         monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', is_supervisor)
@@ -55,7 +52,29 @@ class TestPaymentPermission:
         partner = type('Purpose', (), {'user': None})
         purpose = type('Purpose', (), {'user': None, 'partnership': partner})
 
-        assert (PaymentPermission().has_object_permission(request, view, purpose) ==
+        assert (PaymentPermission().has_object_permission(
+            request, type('View', (), {'get_queryset': lambda: Qs(Deal)}), purpose) ==
+                has_perm or (is_disciples(*blank_args(2)) and method in SAFE_METHODS and is_manager(*blank_args(1))))
+
+    @pytest.mark.parametrize(
+        'is_supervisor,has_perm', [(property(lambda s: True), True), (property(lambda s: False), False)],
+        ids=['supervisor', 'non supervisor'])
+    @pytest.mark.parametrize('is_disciples', [lambda self, a: True, lambda self, a: False],
+                             ids=['disciples', 'non disciples'])
+    @pytest.mark.parametrize('is_manager', [lambda self: True, lambda self: False],
+                             ids=['manager', 'non manager'])
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
+    def test_has_object_permission_for_church_deal(
+            self, user, monkeypatch, is_manager, is_disciples, is_supervisor, has_perm, method):
+        monkeypatch.setattr(CustomUser, 'is_partner_manager_or_high', property(is_manager))
+        monkeypatch.setattr(CustomUser, 'is_partner_responsible_of_church', is_disciples)
+        monkeypatch.setattr(CustomUser, 'is_partner_supervisor_or_high', is_supervisor)
+        request = type('Request', (), {'user': user, 'method': method})
+        partner = type('Purpose', (), {'church': None})
+        purpose = type('Purpose', (), {'church': None, 'partnership': partner})
+
+        assert (PaymentPermission().has_object_permission(
+            request, type('View', (), {'get_queryset': lambda: Qs(ChurchDeal)}), purpose) ==
                 has_perm or (is_disciples(*blank_args(2)) and method in SAFE_METHODS and is_manager(*blank_args(1))))
 
     def test_has_object_permission_for_other(self):

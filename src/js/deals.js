@@ -14,7 +14,6 @@ import {
     dealsTable,
     makeDuplicateDealsWithCustomPagin,
     deleteDeal,
-    makeDealsTable
 } from './modules/Deals/index';
 import updateSettings from './modules/UpdateSettings/index';
 import reverseDate from './modules/Date/index';

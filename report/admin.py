@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import UserReport, WeekReport, MonthReport, YearReport
+from report.models import UserReport, WeekReport, MonthReport, YearReport
 
 
 class UserReportAdmin(admin.ModelAdmin):

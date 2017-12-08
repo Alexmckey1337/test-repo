@@ -7,7 +7,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q, Sum, Value
+from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -20,7 +20,7 @@ from payment.models import Payment, get_default_currency, AbstractPaymentPurpose
 
 
 class PartnerRole(models.Model):
-    user = models.OneToOneField('account.CustomUser', related_name='partner_role')
+    user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT, related_name='partner_role')
 
     DIRECTOR = settings.PARTNER_LEVELS['director']
     SUPERVISOR = settings.PARTNER_LEVELS['supervisor']
@@ -40,7 +40,8 @@ class PartnerRole(models.Model):
 
 
 class PartnerRoleLog(models.Model):
-    user = models.ForeignKey('account.CustomUser', related_name='partner_role_logs', editable=False)
+    user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='partner_role_logs',
+                             editable=False)
     level = models.PositiveSmallIntegerField(_('Level'), editable=False)
     plan = models.DecimalField(max_digits=12, decimal_places=0, blank=True,
                                verbose_name='Manager plan', null=True, editable=False)
@@ -127,7 +128,9 @@ class PartnershipAbstractModel(models.Model):
 
 
 class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
-    user = models.ForeignKey('account.CustomUser', related_name='partners')
+    user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='partners')
+    #: Payments of the current partner that do not relate to deals of partner
+    extra_payments = GenericRelation('payment.Payment', related_query_name='partners')
 
     objects = PartnerManager()
 
@@ -288,7 +291,7 @@ class AbstractDeal(models.Model):
 
 
 class Deal(AbstractDeal, LogModel, AbstractPaymentPurpose):
-    partnership = models.ForeignKey('partnership.Partnership', related_name="deals")
+    partnership = models.ForeignKey('partnership.Partnership', on_delete=models.PROTECT, related_name="deals")
     responsible = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE,
                                     related_name='disciples_deals', editable=False,
                                     verbose_name=_('Responsible of partner'), null=True, blank=True)
@@ -314,7 +317,7 @@ class Deal(AbstractDeal, LogModel, AbstractPaymentPurpose):
         :return: True or False
         """
         return (user.is_partner_supervisor_or_high or
-                (user.is_partner_manager and self.responsible.user == user))
+                (user.is_partner_manager and self.responsible == user))
 
     def can_user_edit_payment(self, user):
         """

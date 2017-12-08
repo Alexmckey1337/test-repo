@@ -4,25 +4,36 @@ from decimal import Decimal
 import pytest
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import OuterRef, Exists
 from django.urls import reverse
 from rest_framework import status
 
 from account.models import CustomUser
-from payment.serializers import PaymentShowSerializer
-from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket
+from notification.backend import RedisBackend
+from payment.api.serializers import PaymentShowSerializer
+from summit.models import Summit, SummitLesson, SummitAnket, SummitTicket, AnketEmail
 from summit.regcode import encode_reg_code
-from summit.serializers import (
+from summit.api.serializers import (
     SummitSerializer, SummitLessonSerializer, SummitAnketForSelectSerializer, SummitAnketNoteSerializer,
     SummitAnketForAppSerializer)
-from summit.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
+from summit.api.views import SummitProfileListView, SummitStatisticsView, SummitBishopHighMasterListView, \
     SummitProfileViewSet, SummitTicketMakePrintedView, SummitTicketViewSet
-from summit.views_app import SummitProfileForAppViewSet, SummitProfileTreeForAppListView
+from summit.api.views_app import SummitProfileForAppViewSet, SummitProfileTreeForAppListView
 
 BISHOP_LEVEL = 4
 
 
 def get_queryset(s):
-    return SummitAnket.objects.base_queryset().annotate_total_sum().annotate_full_name().filter(summit_id=s.summit)
+    emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
+    other_summits = SummitAnket.objects.filter(
+        user_id=OuterRef('user_id'),
+        summit__type_id=s.summit.type_id,
+        summit__status=Summit.CLOSE
+    )
+    return s.summit.ankets.annotate(
+        has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
+        .base_queryset().annotate_total_sum().annotate_full_name().order_by(
+        'user__last_name', 'user__first_name', 'user__middle_name')
 
 
 def get_stats_queryset(self):
@@ -1101,6 +1112,8 @@ class TestSummitProfileForAppViewSet:
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
         profile = summit_anket_factory()
+        r = RedisBackend()
+        r.delete(profile.reg_code)
 
         url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
         response = api_client.get(url, format='json')
@@ -1114,6 +1127,8 @@ class TestSummitProfileForAppViewSet:
         profile = summit_anket_factory()
         profile_status = profile_status_factory(
             anket=profile, reg_code_requested=False, reg_code_requested_date=datetime(2000, 2, 4))
+        r = RedisBackend()
+        r.delete(profile.reg_code)
 
         url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
         response = api_client.get(url, format='json')
@@ -1127,6 +1142,8 @@ class TestSummitProfileForAppViewSet:
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
         profile = summit_anket_factory()
+        r = RedisBackend()
+        r.delete(profile.reg_code)
         assert not hasattr(profile, 'status')
 
         url = '/api/app/users/by_reg_code/?reg_code={}'.format(profile.reg_code)
@@ -1416,8 +1433,8 @@ class TestSummitProfileTreeForAppListView:
         summit_anket_factory(user=u, summit=summit)
         # profile_child = summit_anket_factory.create_batch(2, summit=summit, user__master=profile.user)
         profile_child = []
-        u = profile.user.add_child(username='profile_user', master=profile.user)
         for i in range(2):
+            u = profile.user.add_child(username='profile_user{}'.format(i), master=profile.user)
             profile_child.append(summit_anket_factory(user=u, summit=summit))
 
         api_client.force_login(user=profile.user)
@@ -1490,9 +1507,6 @@ class TestSummitProfileTreeForAppListView:
         response = api_client.get(url, format='json')
         assert {p['id'] for p in response.data['profiles']} == {p.id for p in master_child}
 
-
-@pytest.mark.django_db
-class TestSummitProfileTreeForAppListView:
     def test_users_without_code(self, monkeypatch, api_client, summit_ticket_factory, summit_anket_factory):
         monkeypatch.setattr(SummitTicketViewSet, 'check_permissions', lambda s, r: 0)
 

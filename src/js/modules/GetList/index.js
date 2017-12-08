@@ -3,7 +3,7 @@ import URLS from '../Urls/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 
-export function getResponsible(ids, level, search = "") {
+export function getResponsible(ids, level, search = "", include_id = '') {
     let responsibleLevel;
     if (level === 0 || level === 1) {
         responsibleLevel = level + 1;
@@ -11,7 +11,10 @@ export function getResponsible(ids, level, search = "") {
         responsibleLevel = level;
     }
     return new Promise(function (resolve, reject) {
-        let url = `${URLS.user.short()}?level_gte=${responsibleLevel}&search=${search}`;
+        let url = (include_id) ?
+            `${URLS.user.short()}?level_gte=${responsibleLevel}&search=${search}&include_user=${include_id}`
+            :
+            `${URLS.user.short()}?level_gte=${responsibleLevel}&search=${search}`;
         if (ids instanceof Array) {
             ids.forEach(function (id) {
                 url += '&department=' + id;

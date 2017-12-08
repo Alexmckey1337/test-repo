@@ -12,7 +12,8 @@ from event.models import Participation
 
 @python_2_unicode_compatible
 class UserReport(models.Model):
-    user = models.OneToOneField('account.CustomUser', related_name='user_report', null=True, blank=True)
+    user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT,
+                                related_name='user_report', null=True, blank=True)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -61,10 +62,10 @@ class AbstractReport(models.Model):
 
 @python_2_unicode_compatible
 class WeekReport(AbstractReport):
-    week = models.ForeignKey('event.Week', null=True, blank=True, related_name='week_reports')
+    week = models.ForeignKey('event.Week', on_delete=models.PROTECT, null=True, blank=True, related_name='week_reports')
     from_date = models.DateField(default=datetime.date.today)
     to_date = models.DateField(default=datetime.date.today)
-    user = models.ForeignKey(UserReport, related_name='week_reports')
+    user = models.ForeignKey(UserReport, on_delete=models.PROTECT, related_name='week_reports')
 
     def __str__(self):
         return "%s, week  %i" % (self.user.user.get_full_name(), self.week.week)
@@ -120,7 +121,7 @@ class WeekReport(AbstractReport):
 
 class MonthReport(AbstractReport):
     date = models.DateField()
-    user = models.ForeignKey(UserReport, related_name='month_reports', null=True, blank=True)
+    user = models.ForeignKey(UserReport, on_delete=models.PROTECT, related_name='month_reports', null=True, blank=True)
 
     def get_stat(self):
         month = self.date.month
@@ -142,7 +143,7 @@ class MonthReport(AbstractReport):
 
 class YearReport(AbstractReport):
     date = models.DateField()
-    user = models.ForeignKey(UserReport, related_name='year_reports', null=True, blank=True)
+    user = models.ForeignKey(UserReport, on_delete=models.PROTECT, related_name='year_reports', null=True, blank=True)
 
     def get_stat(self):
         year = self.date.year

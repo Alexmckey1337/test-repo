@@ -13,8 +13,13 @@ import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {createPayment} from "./modules/Payment/index";
-import {createSummitUsersTable, unsubscribeOfSummit,
-        updateSummitParticipant, registerUser, makePotencialSammitUsersList} from "./modules/Summit/index";
+import {
+    createSummitUsersTable,
+    unsubscribeOfSummit,
+    updateSummitParticipant,
+    registerUser,
+    makePotencialSammitUsersList
+} from "./modules/Summit/index";
 import {closePopup} from "./modules/Popup/popup";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import {makePastorListNew, makePastorListWithMasterTree} from "./modules/MakeList/index";
@@ -59,11 +64,6 @@ $(document).ready(function () {
         $('#carousel').find('li').removeClass('active');
         $(this).parent().addClass('active')
     });
-
-    // $("#popup h3 span").on('click', function () {
-    //     $('#popup').css('display', 'none');
-    //     $('.choose-user-wrap').css('display', 'block');
-    // });
 
     $("#close").on('click', function () {
         $('#popup').css('display', 'none');
@@ -185,12 +185,6 @@ $(document).ready(function () {
         $('#addNewUserPopup').addClass('active');
         $('.bg').addClass('active');
     });
-
-    // $('#choose').on('click', function () {
-    //     $('.choose-user-wrap').css('display', 'block');
-    //     $('.add-user-wrap').css('display', 'none');
-    //     document.querySelector('#searchUsers').focus();
-    // });
 
     $('#changeSum').on('click', function () {
         $('#summit-value').removeAttr('readonly');
@@ -439,6 +433,20 @@ $(document).ready(function () {
             showAlert(msg);
         }).catch(err => {
             $('#send_codes').attr('disabled', false);
+            showAlert('При запросе на сервер произошла ошибка. Попробуйте позже');
+            console.log(err);
+        });
+    })
+
+    $('#send_schedules').on('click', function () {
+        $(this).attr('disabled', true);
+        getData(URLS.summit.send_schedules(SUMMIT_ID)).then(data => {
+            $('#send_schedules').attr('disabled', false);
+            let msg = `<p class="text_row">Количество поставленых в очередь писем: <strong>${data.sent_count}</strong></p>
+                       <p class="text_row">Количество пользователей без email: <strong>${data.users_without_emails_count}</strong></p>`;
+            showAlert(msg);
+        }).catch(err => {
+            $('#send_schedules').attr('disabled', false);
             showAlert('При запросе на сервер произошла ошибка. Попробуйте позже');
             console.log(err);
         });

@@ -26,6 +26,7 @@ django-tinymce
 django-treebeard==4.1.2
 djangorestframework==3.6.3
 djangorestframework-filters==0.10.0
+elasticsearch>=6.0.0,<7.0.0
 flower
 kombu==3.0.37
 Markdown==2.6.5
