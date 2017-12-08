@@ -2,27 +2,31 @@
 import 'chart.js/dist/Chart.bundle.min.js';
 import URLS from '../Urls/index';
 import getData from '../Ajax';
-import {CHARTCOLORS, setConfig} from "./config";
+import {CHARTCOLORS, setConfig, setMixedConfig} from "./config";
 
 export function initCharts(ID, config = {}, update = false) {
     let url = URLS.partner.manager_summary(ID);
     getData(url, config).then(data => {
         let {
+            configFinancesChart,
+            configPercentChart,
+            configPartnersChart,
             optionFinancesChart,
+            optionPercentChart,
             optionPartnersChart,
             selectFinancesChart,
-            selectPartnersChart,
-            configFinancesChart,
-            configPartnersChart
+            selectPercentChart,
+            selectPartnersChart
         } = makeChartConfig(data);
-        (update) ?
-            updateFinancesChart(optionFinancesChart)
-            :
+        if (update) {
+            updateFinancesChart(optionFinancesChart);
+            updatePercentChart(optionPercentChart);
+            updatePartnersChart(optionPartnersChart);
+        } else {
             renderChart(selectFinancesChart, configFinancesChart);
-        (update) ?
-            updatePartnersChart(optionPartnersChart)
-            :
+            renderChart(selectPercentChart, configPercentChart);
             renderChart(selectPartnersChart, configPartnersChart);
+        }
         $('.preloader').css('display', 'none');
     });
 }
@@ -37,7 +41,8 @@ function makeChartConfig(data) {
         sumDeals = [],
         potential = [],
         allPartner = [],
-        activePartner = [];
+        activePartner = [],
+        inertPartner = [];
     labels.map(item => {
         let elem = data[item],
             perc = (100 / (elem.plans / elem.payments)).toFixed(1);
@@ -50,40 +55,50 @@ function makeChartConfig(data) {
         potential.push(elem.potential);
         allPartner.push(elem.partners_count);
         activePartner.push(elem.active_partners_count);
+        inertPartner.push(elem.partners_count - elem.active_partners_count);
     });
-    let datasetsFinancesChart = [{
-            label: "План",
-            borderColor: CHARTCOLORS.blue,
-            backgroundColor: CHARTCOLORS.blue,
-            data: plan,
-            fill: false,
-        }, {
-            label: "Общая сумма платежей",
+    let dataFinancesChart = {
+            labels: labels,
+            datasets: [{
+                type: 'line',
+                label: 'План',
+                borderColor: CHARTCOLORS.red,
+                backgroundColor: CHARTCOLORS.red,
+                borderWidth: 2,
+                data: plan,
+                fill: false,
+            },
+                {
+                    label: 'Сумма партнерских',
+                    backgroundColor: CHARTCOLORS.green,
+                    yAxisID: "bar-y-axis",
+                    data: sumPartner
+                }, {
+                    label: 'Сумма десятин',
+                    backgroundColor: CHARTCOLORS.yellow,
+                    yAxisID: "bar-y-axis",
+                    data: sumTithe
+                }]
+        },
+        datasetsPercentChart = [{
+            label: "%",
             borderColor: CHARTCOLORS.green,
             backgroundColor: CHARTCOLORS.green,
-            data: sum,
-            fill: false,
-        }, {
-            label: "Сумма сделок",
-            borderColor: CHARTCOLORS.yellow,
-            backgroundColor: CHARTCOLORS.yellow,
-            data: sumDeals,
-            fill: false,
+            data: percent,
         }],
         datasetsPartnersChart = [{
-            label: "Всего",
-            borderColor: CHARTCOLORS.blue,
-            backgroundColor: CHARTCOLORS.blue,
-            data: allPartner,
-            fill: false,
-        }, {
             label: "Активных",
             borderColor: CHARTCOLORS.green,
             backgroundColor: CHARTCOLORS.green,
             data: activePartner,
-            fill: false,
+        }, {
+            label: "Неактивных",
+            borderColor: CHARTCOLORS.red,
+            backgroundColor: CHARTCOLORS.red,
+            data: inertPartner,
         }],
         titleFinancesChart = "Статистика по финансам",
+        titlePercentChart = "Процент выполнения плана",
         titlePartnersChart = "Статистика по партнёрам",
         xAxes = [{
             display: true,
@@ -99,22 +114,34 @@ function makeChartConfig(data) {
                 labelString: 'Value'
             },
         }],
+        xAxesBar = [{
+            stacked: true,
+        }],
+        yAxesBar = [{
+            stacked: true,
+        }],
         callbackPartnersChart = {
             footer: (tooltipItems, data) => {
-                let all = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
+                let inert = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
                     active = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
-                    diff = all - active;
-                return `Неактивных: ${diff}`;
+                    all = active + inert;
+                return `Всего партнёров: ${all}`;
             },
         },
-        configFinancesChart = setConfig('line', labels, datasetsFinancesChart, titleFinancesChart, xAxes, yAxes),
-        configPartnersChart = setConfig('line', labels, datasetsPartnersChart, titlePartnersChart, xAxes, yAxes, callbackPartnersChart),
+        configFinancesChart = setMixedConfig(dataFinancesChart, titleFinancesChart),
+        configPercentChart = setConfig('bar', labels, datasetsPercentChart, titlePercentChart, xAxesBar, yAxesBar),
+        configPartnersChart = setConfig('bar', labels, datasetsPartnersChart, titlePartnersChart, xAxesBar, yAxesBar, callbackPartnersChart),
         optionFinancesChart = {
             chart: window.ChartFinances,
             labels: labels,
             line1: plan,
-            line2: sum,
-            line3: sumDeals,
+            line2: sumPartner,
+            line3: sumTithe,
+        },
+        optionPercentChart = {
+            chart: window.ChartPercent,
+            labels: labels,
+            line: percent,
         },
         optionPartnersChart = {
             chart: window.ChartPartners,
@@ -123,14 +150,18 @@ function makeChartConfig(data) {
             line2: activePartner,
         },
         selectFinancesChart = 'chart_finances',
+        selectPercentChart = 'chart_percent',
         selectPartnersChart = 'chart_partners';
 
     return {
         configFinancesChart,
+        configPercentChart,
         configPartnersChart,
         optionFinancesChart,
+        optionPercentChart,
         optionPartnersChart,
         selectFinancesChart,
+        selectPercentChart,
         selectPartnersChart
     }
 }
@@ -140,6 +171,12 @@ function updateFinancesChart({chart, labels, line1, line2, line3}) {
     chart.data.datasets[0].data = line1;
     chart.data.datasets[1].data = line2;
     chart.data.datasets[2].data = line3;
+    chart.update();
+}
+
+function updatePercentChart({chart, labels, line}) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = line;
     chart.update();
 }
 
@@ -154,6 +191,8 @@ function renderChart(select, config) {
     let ctx = document.getElementById(select).getContext("2d");
     if (select == 'chart_finances') {
         window.ChartFinances = new Chart(ctx, config);
+    } else if (select == 'chart_percent') {
+        window.ChartPercent = new Chart(ctx, config);
     } else {
         window.ChartPartners = new Chart(ctx, config);
     }

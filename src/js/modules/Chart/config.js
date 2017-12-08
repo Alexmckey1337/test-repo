@@ -65,7 +65,8 @@ export const CHARTCOLORS = {
     green: 'rgb(75, 192, 192)',
     blue: 'rgb(60, 174, 218)',
     purple: 'rgb(153, 102, 255)',
-    grey: 'rgb(201, 203, 207)'
+    grey: 'rgb(201, 203, 207)',
+    white: 'rgb(255, 255, 255)',
 };
 
 export function getRandomColor() {
@@ -75,6 +76,61 @@ export function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+export function setMixedConfig(datasets = [], title = '') {
+    let config = {
+        type: 'bar',
+        data: datasets,
+        options: {
+            title: {
+                display: true,
+                text: title,
+                fontSize: 18,
+                fontFamily: 'Open Sans, sans-serif'
+            },
+            legend: {
+                display: true,
+                labels: {
+                    fontSize: 14,
+                },
+                fontFamily: 'Open Sans, sans-serif'
+            },
+            tooltips: {
+                mode: 'label',
+                footerFontStyle: 'normal',
+                titleFontSize: 15,
+                bodyFontSize: 13,
+                footerFontSize: 13,
+                titleMarginBottom: 12,
+                bodySpacing: 6,
+                titleFontFamily: 'Open Sans, sans-serif',
+                bodyFontFamily: 'Open Sans, sans-serif',
+                footerFontFamily: 'Open Sans, sans-serif'
+            },
+          responsive: true,
+          scales: {
+            xAxes: [{
+              stacked: true,
+            }],
+            yAxes: [{
+              stacked: false,
+              ticks: {
+                beginAtZero: true,
+              }
+            }, {
+              id: "bar-y-axis",
+              stacked: true,
+              ticks: {
+                beginAtZero: true,
+              },
+              type: 'linear'
+            }]
+          }
+        }
+      };
+
+    return config;
 }
 
 export function setConfig(type = 'line', labels = [], datasets = [], title = '', xAxes = [], yAxes = [], callback = {}) {

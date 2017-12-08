@@ -77,7 +77,7 @@ function createPartnerTable(headers, body) {
 function getTransformData(data) {
     let dataFinances = [
             {
-                title: 'план',
+                title: 'План',
             },
             {
                 title: '% выполнения плана',

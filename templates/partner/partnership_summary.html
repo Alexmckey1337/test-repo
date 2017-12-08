@@ -1,7 +1,7 @@
 {% extends "layout_main.html" %}
 {% load static %}
 {% load partner_tags %}
-{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Партнёрство / План по менеджерам</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -11,7 +11,7 @@
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                 <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
                 <li><a class="active" href="{% url 'partner:partnership_summary-list' %}">План по менеджерам</a></li>
-                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                <li><a href="{% url 'partner:partnership_summary-detail' manager_id="all" %}">Статистика</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
