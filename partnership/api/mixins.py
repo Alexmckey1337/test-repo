@@ -288,24 +288,47 @@ class ManagerSummaryMixin:
     @staticmethod
     @func_time
     def _get_plans_by_months(_from, to, manager=None):
-        months = ', '.join(["('{}-{:02d}')".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)])
-        manager = 'AND pl.user_id = {}'.format(manager.id) if manager else ''
-        raw = """
-            SELECT
-              p.month,
-              coalesce(
-                  (SELECT pl.plan
-                   FROM partnership_partnerrolelog pl
-                   WHERE pl.log_date < to_date(p.month, 'YYYY-MM') + interval '1 month' {manager}
-                   ORDER BY pl.log_date DESC
-                   LIMIT 1),
-                  0) plan
-            FROM (VALUES {months}) AS p(month);
-            """.format(manager=manager, months=months)
+        if manager:
+            months = ', '.join(["('{}-{:02d}')".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)])
+            raw = """
+                SELECT
+                  p.month,
+                  coalesce(
+                      (SELECT pl.plan
+                       FROM partnership_partnerrolelog pl
+                       WHERE pl.log_date < to_date(p.month, 'YYYY-MM') + interval '1 month' AND pl.user_id = {manager}
+                       ORDER BY pl.log_date DESC
+                       LIMIT 1),
+                      0) plan
+                FROM (VALUES {months}) AS p(month);
+                """.format(manager=manager.id, months=months)
 
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
+            with connection.cursor() as connect:
+                connect.execute(raw)
+                result = connect.fetchall()
+        else:
+            result = list()
+            months = ["{}-{:02d}".format(i // 12, i % 12 + 1) for i in range(to, _from, -1)]
+            for month in months:
+                raw = """
+                    SELECT
+                      coalesce(sum(log.plan), 0)
+                    FROM partnership_partnerrolelog log
+                    WHERE id IN (
+                      SELECT DISTINCT ON (user_id) (
+                        SELECT pl.id
+                        FROM partnership_partnerrolelog pl
+                        WHERE p.user_id = pl.user_id AND
+                        pl.log_date < to_date('{month}', 'YYYY-MM-DD') + INTERVAL '1 month'
+                        ORDER BY pl.log_date DESC
+                        LIMIT 1
+                      )
+                    FROM partnership_partnerrolelog p) AND log.deleted = FALSE
+                """.format(month=month)
+                with connection.cursor() as connect:
+                    connect.execute(raw)
+                    r = connect.fetchone()
+                result.append((month, r[0]))
         return {date: sum for date, sum in result}
 
     @staticmethod
