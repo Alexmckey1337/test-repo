@@ -15,7 +15,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 from django.utils.translation import ugettext_lazy as _
 import environ
 
-from account.utils import create_token
+from apps.account.utils import create_token
 
 BASE_DIR = environ.Path(__file__) - 3
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,20 +71,20 @@ THIRD_PARTY_APPS = (
 )
 LOCAL_APPS = (
     'main',
-    'account',
-    'hierarchy',
-    'notification',
-    'event',
-    'report',
-    'status',
-    'navigation',
-    'partnership',
-    'summit',
-    'location',
-    'payment',
-    'group',
-    'analytics',
-    'task',
+    'apps.account.apps.AccountConfig',
+    'apps.analytics.apps.AnalyticsConfig',
+    'apps.event.apps.EventsConfig',
+    'apps.group.apps.GroupConfig',
+    'apps.hierarchy.apps.HierarchyConfig',
+    'apps.location.apps.LocationConfig',
+    'apps.navigation.apps.NavigationConfig',
+    'apps.notification.apps.NotificationConfig',
+    'apps.partnership.apps.PartnershipConfig',
+    'apps.payment.apps.PaymentConfig',
+    'apps.report.apps.ReportConfig',
+    'apps.status.apps.StatusConfig',
+    'apps.summit.apps.SummitConfig',
+    'apps.task.apps.TaskConfig',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -144,9 +144,9 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'notification.context_processor.notifications',
-                'account.context_processor.spiritual_levels',
-                'partnership.context_processor.partner_levels'
+                'apps.notification.context_processor.notifications',
+                'apps.account.context_processor.spiritual_levels',
+                'apps.partnership.context_processor.partner_levels'
             ],
         },
     },
@@ -213,22 +213,22 @@ STATICFILES_FINDERS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'account.auth_backends.CustomUserModelBackend',
+    'apps.account.auth_backends.CustomUserModelBackend',
 )
 
-CUSTOM_USER_MODEL = 'account.CustomUser'
+CUSTOM_USER_MODEL = 'apps.account.CustomUser'
 DATE_FORMAT = 'd.m.Y'
 DATETIME_FORMAT = 'd.m.Y H:i:s'
 TIME_FORMAT = 'H:i:s'
 SHORT_DATE_FORMAT = 'd.m.Y'
 
 REST_AUTH_TOKEN_CREATOR = create_token
-REST_AUTH_TOKEN_MODEL = 'account.models.Token'
+REST_AUTH_TOKEN_MODEL = 'apps.account.models.Token'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'edem.authentification.CsrfExemptSessionAuthentication',
-        'account.auth_backends.CustomUserTokenAuthentication',
+        'apps.account.auth_backends.CustomUserTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -310,7 +310,7 @@ import djcelery
 djcelery.setup_loader()
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'account.api.serializers.UserSerializer',
+    'USER_DETAILS_SERIALIZER': 'apps.account.api.serializers.UserSerializer',
 }
 OLD_PASSWORD_FIELD_ENABLED = True
 
@@ -358,27 +358,27 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'account.views': {
+        'apps.account.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'event.views': {
+        'apps.event.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'group.views': {
+        'apps.group.views': {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },
-        'summit.views': {
+        'apps.summit.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'partnership.tasks': {
+        'apps.partnership.tasks': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,

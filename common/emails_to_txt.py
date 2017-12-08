@@ -1,4 +1,4 @@
-from account.models import CustomUser
+from apps.account.models import CustomUser
 
 
 def print_emails():

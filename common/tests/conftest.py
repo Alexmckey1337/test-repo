@@ -3,7 +3,7 @@ from pytest_factoryboy import register
 from rest_framework import serializers
 
 from common.fields import DecimalWithCurrencyField
-from payment.factories import CurrencyFactory
+from apps.payment.factories import CurrencyFactory
 
 register(CurrencyFactory)
 
