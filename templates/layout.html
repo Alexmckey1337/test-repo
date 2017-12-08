@@ -52,7 +52,7 @@
                                         <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
                                     {% endif %}
                                     {% if user.can_see_managers_summary %}
-                                        <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                                        <li><a href="{% url 'partner:partnership_summary-list' %}">План по менеджерам</a></li>
                                     {% endif %}
                                     {% if user.can_see_partner_stats %}
                                         <li><a href="{% url 'partner:stats' %}">Статистика</a></li>

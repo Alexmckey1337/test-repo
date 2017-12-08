@@ -86,7 +86,8 @@ class PartnerDetailSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, Te
     manager = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.manager = get_object_or_404(CustomUser, pk=kwargs.get('manager_id'))
+        manager_id = kwargs.get('manager_id')
+        self.manager = None if manager_id == 'all' else get_object_or_404(CustomUser, pk=manager_id)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
