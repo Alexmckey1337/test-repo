@@ -214,7 +214,7 @@ class SummitParticipantReport(object):
               h.level hierarchy_level, a.ticket_status ticket_status,
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
               (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
-              from apps.summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
@@ -350,7 +350,7 @@ class FullSummitParticipantReport(object):
               concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
               concat(muu.last_name, ' ', muu.first_name, ' ', mu.middle_name) master_name,
               (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
-              from apps.summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
+              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
             FROM summit_summitanket a
               INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
               INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
