@@ -277,13 +277,13 @@ class ManagerSummaryMixin:
     def _get_sum_pay(self, year, month, deal_type):
         raw = """
           select u.user_ptr_id,
-          (select sum(pay.sum) from apps.payment_payment pay WHERE pay.content_type_id = 40 and
-          pay.object_id in (select d.id from apps.partnership_deal d where d.responsible_id = u.user_ptr_id and
+          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
           d.type = {0} and (d.date_created BETWEEN '{1}-01-01' and '{1}-12-31') and
           extract('month' from d.date_created) = {2} )) sum
-          from apps.account_customuser u
+          from account_customuser u
           WHERE u.user_ptr_id in (
-              SELECT uu.user_ptr_id from apps.account_customuser uu
+              SELECT uu.user_ptr_id from account_customuser uu
               LEFT OUTER JOIN partnership_deal d ON (uu.user_ptr_id = d.responsible_id)
               LEFT OUTER JOIN partnership_partnerrolelog pr ON (uu.user_ptr_id = pr.user_id and pr.id IN (
                 SELECT DISTINCT ON (user_id) (
