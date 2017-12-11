@@ -66,7 +66,6 @@ THIRD_PARTY_APPS = (
     'dbmail',
     'tinymce',
     # 'rest_auth.registration',
-    'mptt',
     'channels',
 )
 LOCAL_APPS = (
@@ -214,6 +213,7 @@ STATICFILES_FINDERS = (
 
 AUTHENTICATION_BACKENDS = (
     'apps.account.auth_backends.CustomUserModelBackend',
+    'apps.account.auth_backends.LoginByIdBackend',
 )
 
 CUSTOM_USER_MODEL = 'apps.account.CustomUser'

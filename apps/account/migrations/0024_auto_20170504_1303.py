@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import mptt.fields
 
 
 class Migration(migrations.Migration):
@@ -78,11 +77,6 @@ class Migration(migrations.Migration):
             model_name='customuser',
             name='image_source',
             field=models.ImageField(blank=True, upload_to='images/', verbose_name='Source of image'),
-        ),
-        migrations.AlterField(
-            model_name='customuser',
-            name='master',
-            field=mptt.fields.TreeForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='disciples', to='account.CustomUser', verbose_name='Master'),
         ),
         migrations.AlterField(
             model_name='customuser',

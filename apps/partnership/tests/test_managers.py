@@ -51,34 +51,28 @@ class TestDealManager:
         assert value_name in values.keys()
 
     def test_for_user_if_user_is_anon(self, user, monkeypatch):
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: False)
         assert Deal.objects.get_queryset().for_user(user).query.is_empty()
 
     def test_for_user_if_user_is_not_partner(self, user_factory, monkeypatch):
         user = user_factory()
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         assert Deal.objects.get_queryset().for_user(user).query.is_empty()
 
     def test_for_user_if_partner(self, deal_factory, user_user, monkeypatch):
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
         d = [deal_factory(partnership__responsible=user_user).id]
         assert Deal.objects.for_user(user_user).filter(id__in=dd + d).count() == 0
 
     def test_for_user_if_manager(self, deal_factory, user_manager, monkeypatch):
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
         d = [deal_factory(partnership__responsible=user_manager).id]
         assert Deal.objects.for_user(user_manager).filter(id__in=dd + d).count() == 1
 
     def test_for_user_if_supervisor(self, deal_factory, user_supervisor, monkeypatch):
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
         d = [deal_factory(partnership__responsible=user_supervisor).id]
         assert Deal.objects.for_user(user_supervisor).filter(id__in=dd + d).count() == 3
 
     def test_for_user_if_director(self, deal_factory, user_director, monkeypatch):
-        monkeypatch.setattr(rest_framework.compat, 'is_authenticated', lambda u: True)
         dd = [i.id for i in deal_factory.create_batch(2)]
         d = [deal_factory(partnership__responsible=user_director).id]
         assert Deal.objects.for_user(user_director).filter(id__in=dd + d).count() == 3

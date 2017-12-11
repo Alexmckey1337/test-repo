@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.base import TemplateView
 
@@ -74,9 +75,26 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
         return ctx
 
 
-class PartnerSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+class PartnerListSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
     template_name = 'partner/partnership_summary.html'
     login_url = 'entry'
+
+
+class PartnerDetailSummaryView(LoginRequiredMixin, CanSeePartnerSummaryMixin, TemplateView):
+    template_name = 'partner/partnership_summary_detail.html'
+    login_url = 'entry'
+    manager = None
+
+    def dispatch(self, request, *args, **kwargs):
+        manager_id = kwargs.get('manager_id')
+        self.manager = None if manager_id == 'all' else get_object_or_404(CustomUser, pk=manager_id)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['manager'] = self.manager
+
+        return ctx
 
 
 class PartnerStatisticsListView(LoginRequiredMixin, CanSeePartnerStatsMixin, TemplateView):
