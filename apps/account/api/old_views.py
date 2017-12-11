@@ -52,22 +52,24 @@ def login_view(request):
         user = authenticate(user_id=user_id, password=data['password'])
     elif 'email' in data.keys() or 'email_or_id' in data.keys():
         email = data.get('email', data.get('email_or_id'))
-        try:
-            user = User.objects.get(email__iexact=email, can_login=True)
-        except User.DoesNotExist:
-            if User.objects.filter(email__iexact=email).exists():
-                response_dict['detail'] = _('Вы не имеете право для входа на сайт.')
+        if '@' not in email:
+            user = authenticate(username=email, password=data['password'])
+        else:
+            try:
+                user = User.objects.get(email__iexact=email, can_login=True)
+            except User.DoesNotExist:
+                if User.objects.filter(email__iexact=email).exists():
+                    response_dict['detail'] = _('Вы не имеете право для входа на сайт.')
+                    response_dict['status'] = False
+                    return Response(response_dict)
+                response_dict['detail'] = "Пользователя с таким email не существует"
                 response_dict['status'] = False
                 return Response(response_dict)
-            response_dict['detail'] = "Пользователя с таким email не существует"
-            response_dict['status'] = False
-            return Response(response_dict)
-        except MultipleObjectsReturned:
-            response_dict['detail'] = "Есть несколько пользователей с таким email"
-            response_dict['status'] = False
-            return Response(response_dict)
-
-        user = authenticate(username=user.username, password=data['password'])
+            except MultipleObjectsReturned:
+                response_dict['detail'] = "Есть несколько пользователей с таким email"
+                response_dict['status'] = False
+                return Response(response_dict)
+            user = authenticate(username=user.username, password=data['password'])
     else:
         user = None
     if user is not None:
