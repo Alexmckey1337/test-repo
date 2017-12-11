@@ -5,6 +5,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from apps.account.api import views, old_views
+from apps.account.api import calls as calls_views
 
 router_v1_0 = routers.DefaultRouter()
 router_v1_0.register(r'short_users', views.UserShortViewSet, base_name='short_users')
@@ -23,7 +24,8 @@ custom_urls = [
 
 custom_v1_1_urls = [
     url(r'^users/for_select/$', views.UserForSelectView.as_view(), name="users-select"),
-    url(r'^calls_to_user/$', views.calls_to_user, name='calls_to_user')
+    url(r'^calls_to_user/$', calls_views.calls_to_user, name='calls_to_user'),
+    url(r'^all_calls/$', calls_views.all_calls, name='all_calls')
 ]
 
 urlpatterns = [
