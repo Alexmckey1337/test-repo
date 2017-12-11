@@ -1,4 +1,4 @@
-from group.models import HomeGroup, Church
+from apps.group.models import HomeGroup, Church
 
 
 def create_titles():

@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.deprecation import MiddlewareMixin
 
-from account.models import CustomUser
+from apps.account.models import CustomUser
 
 
 class HardAuthenticationMiddleware(MiddlewareMixin):

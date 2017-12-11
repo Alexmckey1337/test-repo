@@ -25,7 +25,7 @@ function authUser() {
 
     let data = {
         "username": username,
-        "email": username,
+        "email_or_id": username,
         "password": password,
         "remember_me": !remember_me
     };

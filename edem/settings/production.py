@@ -158,22 +158,22 @@ LOGGING['handlers']['sentry'] = {
     'tags': {'custom-tag': 'x'},
     'filters': ['require_debug_false'],
 }
-LOGGING['loggers']['account.views'] = {
+LOGGING['loggers']['apps.account.views'] = {
     'level': 'INFO',
     'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
-LOGGING['loggers']['event.views'] = {
+LOGGING['loggers']['apps.event.views'] = {
     'level': 'INFO',
     'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
-LOGGING['loggers']['summit.views'] = {
+LOGGING['loggers']['apps.summit.views'] = {
     'level': 'INFO',
     'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
-LOGGING['loggers']['partnership.tasks'] = {
+LOGGING['loggers']['apps.partnership.tasks'] = {
     'level': 'INFO',
     'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
