@@ -79,7 +79,7 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
                                 related_name='uusers', verbose_name=_('Church'),
                                 null=True, blank=True, db_index=True)
 
-    hhome_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT,
+    hhome_group = models.ForeignKey('group.HomeGroup', on_delete=models.SET_NULL,
                                     related_name='uusers', verbose_name=_('Home group'),
                                     null=True, blank=True, db_index=True)
 
