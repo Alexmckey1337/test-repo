@@ -2,16 +2,22 @@
 import URLS from '../Urls';
 import getData from '../Ajax';
 import beautifyNumber from '../beautifyNumber';
+import {initCharts} from "../Chart/partners";
 
-export function makeManagerTable(ID, config = {}) {
+export function renderStats(ID, config = {}, update = false) {
     getData(URLS.partner.manager_summary(ID), config).then(data => {
-            let formatedData = getTransformData(data),
-                tableFinances = createFinanceTable(formatedData.headers, formatedData.dataFinances),
-                tablePartners = createPartnerTable(formatedData.headers, formatedData.dataPartners);
-        $('#managersFinances').html('').append(tableFinances);
-        $('#managersPartners').html('').append(tablePartners);
         $('.preloader').css('display', 'none');
+        makeManagerTable(data);
+        initCharts(data, update);
     });
+}
+
+export function makeManagerTable(data) {
+    let formatedData = getTransformData(data),
+        tableFinances = createFinanceTable(formatedData.headers, formatedData.dataFinances),
+        tablePartners = createPartnerTable(formatedData.headers, formatedData.dataPartners);
+    $('#managersFinances').html('').append(tableFinances);
+    $('#managersPartners').html('').append(tablePartners);
 }
 
 function createFinanceTable(headers, body) {
