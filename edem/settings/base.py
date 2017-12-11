@@ -214,6 +214,7 @@ STATICFILES_FINDERS = (
 
 AUTHENTICATION_BACKENDS = (
     'apps.account.auth_backends.CustomUserModelBackend',
+    'apps.account.auth_backends.LoginByIdBackend',
 )
 
 CUSTOM_USER_MODEL = 'apps.account.CustomUser'
