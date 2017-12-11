@@ -536,13 +536,13 @@ def calls_to_user(request):
         for call in enumerate(user_calls):
             user_calls[call[0]] = {
                 'call_date': call[1][0],
-                'src': call[1][6].split('-')[2],
-                'dst': call[1][6].split('-')[1],
-                'lastapp': call[1][3],
-                'billsec': call[1][4],
-                'disposition': call[1][5],
-                'record': call[1][6],
-                'type': call[1][6].split('-')[0]
+                'src': call[1][4].split('-')[2],
+                'dst': call[1][4].split('-')[1],
+                'lastapp': call[1][1],
+                'billsec': call[1][2],
+                'disposition': call[1][3],
+                'record': call[1][4],
+                'type': call[1][4].split('-')[0]
             }
     except Exception:
         return Response({"message": "Can't prepare data to response. Most likely this conversation has no record."},
