@@ -78,7 +78,7 @@ export function getRandomColor() {
     return color;
 }
 
-export function setMixedConfig(datasets = [], title = '') {
+export function setMixedConfig(datasets = [], title = '', callback = {}) {
     let config = {
         type: 'bar',
         data: datasets,
@@ -98,6 +98,7 @@ export function setMixedConfig(datasets = [], title = '') {
             },
             tooltips: {
                 mode: 'label',
+                callbacks: callback,
                 footerFontStyle: 'normal',
                 titleFontSize: 15,
                 bodyFontSize: 13,
@@ -113,19 +114,11 @@ export function setMixedConfig(datasets = [], title = '') {
             xAxes: [{
               stacked: true,
             }],
-            yAxes: [{
-              stacked: false,
-              ticks: {
-                beginAtZero: true,
-              }
-            }, {
-              id: "bar-y-axis",
-              stacked: true,
-              ticks: {
-                beginAtZero: true,
-              },
-              type: 'linear'
-            }]
+              yAxes: [{
+                  stacked: true,
+                  position: "left",
+                  id: "y-axis-0",
+              }]
           }
         }
       };

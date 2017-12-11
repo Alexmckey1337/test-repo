@@ -37,8 +37,11 @@
                 <button class="month" data-period="year">12 мес.</button>
                 <select id="stats_manager">
                     <option value="all">Все менеджера</option>
-                    {% for manager in managers %}
-                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                    {% for man in managers %}
+                        <option value="{{ man.id }}"
+                                {% if man.id == manager.id %} selected{% endif %}>
+                            {{ man.fullname }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>

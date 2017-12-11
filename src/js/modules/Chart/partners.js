@@ -65,18 +65,20 @@ function makeChartConfig(data) {
                 borderColor: CHARTCOLORS.red,
                 backgroundColor: CHARTCOLORS.red,
                 borderWidth: 2,
+                yAxisID: "y-axis-0",
+                lineTension: 0,
                 data: plan,
                 fill: false,
             },
                 {
                     label: 'Сумма партнерских',
                     backgroundColor: CHARTCOLORS.green,
-                    yAxisID: "bar-y-axis",
+                    yAxisID: "y-axis-0",
                     data: sumPartner
                 }, {
                     label: 'Сумма десятин',
                     backgroundColor: CHARTCOLORS.yellow,
-                    yAxisID: "bar-y-axis",
+                    yAxisID: "y-axis-0",
                     data: sumTithe
                 }]
         },
@@ -100,26 +102,20 @@ function makeChartConfig(data) {
         titleFinancesChart = "Статистика по финансам",
         titlePercentChart = "Процент выполнения плана",
         titlePartnersChart = "Статистика по партнёрам",
-        xAxes = [{
-            display: true,
-            scaleLabel: {
-                show: true,
-                labelString: 'Month'
-            }
-        }],
-        yAxes = [{
-            display: true,
-            scaleLabel: {
-                show: true,
-                labelString: 'Value'
-            },
-        }],
         xAxesBar = [{
             stacked: true,
         }],
         yAxesBar = [{
             stacked: true,
         }],
+        callbackFinancesChart = {
+            footer: (tooltipItems, data) => {
+                let sumParthner = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                    sumTithe = data.datasets[tooltipItems[2].datasetIndex].data[tooltipItems[2].index],
+                    totalSum = sumParthner + sumTithe;
+                return `Общая сумма: ${totalSum}`;
+            },
+        },
         callbackPartnersChart = {
             footer: (tooltipItems, data) => {
                 let inert = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
@@ -128,7 +124,7 @@ function makeChartConfig(data) {
                 return `Всего партнёров: ${all}`;
             },
         },
-        configFinancesChart = setMixedConfig(dataFinancesChart, titleFinancesChart),
+        configFinancesChart = setMixedConfig(dataFinancesChart, titleFinancesChart, callbackFinancesChart),
         configPercentChart = setConfig('bar', labels, datasetsPercentChart, titlePercentChart, xAxesBar, yAxesBar),
         configPartnersChart = setConfig('bar', labels, datasetsPartnersChart, titlePartnersChart, xAxesBar, yAxesBar, callbackPartnersChart),
         optionFinancesChart = {
