@@ -38,34 +38,45 @@ def login_view(request):
     """
     Login user via email and password.
 
-    :param request: data{'email': string, 'password': string}
+    :param request: data{'email': string, 'password': string} or data{'user_id': int, 'password': string}
     :return: {'detail': string, 'status': boolean}
     """
     response_dict = dict()
     data = request.data
-    try:
-        user = User.objects.get(email__iexact=data['email'], can_login=True)
-    except User.DoesNotExist:
-        if User.objects.filter(email__iexact=data['email']).exists():
-            response_dict['detail'] = _('Вы не имеете право для входа на сайт.')
+    if 'password' not in data.keys() or not ({'email', 'user_id', 'email_or_id'} & set(data.keys())):
+        response_dict['detail'] = "Неверные данные для входа"
+        response_dict['status'] = False
+        return Response(response_dict)
+    if 'user_id' in data or data.get('email_or_id', '').isdigit():
+        user_id = data.get('user_id', data.get('email_or_id'))
+        user = authenticate(user_id=user_id, password=data['password'])
+    elif 'email' in data.keys() or 'email_or_id' in data.keys():
+        email = data.get('email', data.get('email_or_id'))
+        try:
+            user = User.objects.get(email__iexact=email, can_login=True)
+        except User.DoesNotExist:
+            if User.objects.filter(email__iexact=email).exists():
+                response_dict['detail'] = _('Вы не имеете право для входа на сайт.')
+                response_dict['status'] = False
+                return Response(response_dict)
+            response_dict['detail'] = "Пользователя с таким email не существует"
             response_dict['status'] = False
             return Response(response_dict)
-        response_dict['detail'] = "Пользователя с таким email не существует"
-        response_dict['status'] = False
-        return Response(response_dict)
-    except MultipleObjectsReturned:
-        response_dict['detail'] = "Есть несколько пользователей с таким email"
-        response_dict['status'] = False
-        return Response(response_dict)
+        except MultipleObjectsReturned:
+            response_dict['detail'] = "Есть несколько пользователей с таким email"
+            response_dict['status'] = False
+            return Response(response_dict)
 
-    user = authenticate(username=user.username, password=data['password'])
+        user = authenticate(username=user.username, password=data['password'])
+    else:
+        user = None
     if user is not None:
         login(request, user)
         response_dict['uid'] = user.id
         response_dict['detail'] = "Добро пожаловать"
         response_dict['status'] = True
     else:
-        response_dict['detail'] = "Неверный пароль или email"
+        response_dict['detail'] = "Неверные данные для входа"
         response_dict['status'] = False
     return Response(response_dict)
 
