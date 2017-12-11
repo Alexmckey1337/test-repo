@@ -189,7 +189,7 @@ class ChurchPartnerViewSet(
     permission_update_classes = (IsAuthenticated, CanUpdateChurchPartner)
     permission_list_classes = (IsAuthenticated, CanSeeChurchPartners)
 
-    filter_backends = (filters.DjangoFilterBackend,
+    filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
                        PartnerFilterByDateAge,
                        FilterChurchPartnerMasterTree,
