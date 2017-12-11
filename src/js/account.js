@@ -23,7 +23,7 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {changeLessonStatus, initLocationSelect, sendNote} from './modules/Account/index';
+import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable} from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
@@ -921,4 +921,10 @@ $('document').ready(function () {
     //         window.location.href = `/account/${id}`;
     //     }
     // })
+    function createUrl() {
+        let idUser = $('body').attr('data-user'),
+            url = '/api/v1.1/calls_to_user/?user_id='+ idUser + '&range=last_3';
+        dataIptelTable(url);
+    }
+    createUrl();
 });

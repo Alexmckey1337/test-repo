@@ -497,6 +497,16 @@
                         <textarea name="need_note" id="id_note_text" rows="5" cols="50" readonly>{{ account.description }}</textarea>
                     </div>
                 </div>
+                <div class="a-block a-iptel">
+                    <div class="top-s">
+                        <h3>звонки</h3>
+                    </div>
+                    <div class="a-iptel__wrap">
+                        <div id="iptelBlock"></div>
+{#                        <div class="iptelPlayer"></div>#}
+                    </div>
+                </div>
+
                 {% if user.is_partner_manager_or_high and account.is_partner %}
                     {% for partner in account.partners.all %}
                         <div class="a-block a-sdelki" id="Sdelki">
@@ -918,6 +928,18 @@
             </div>
         </div>
     </div>
+{#    <div id="playerPopup" class="pop-up__table">#}
+{#        <div class="pop_cont">#}
+{#            <div class="top-text">#}
+{#                <h3>Прослушать запись</h3><span class="close_pop">×</span>#}
+{#            </div>#}
+{#            <div class="musicPlayer">#}
+{#                <audio controls>#}
+{#                  <source src="http://192.168.240.47:7000/file/?file_name=out-0687774566-1119-20171023-133344-1508754824.286.wav" type="audio/wav">#}
+{#                </audio>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
 
     <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
         <div class="pop_cont">
@@ -943,8 +965,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+    <script src="{% static "libs/howler.js/dist/howler.min.js" %}"></script>
     <script src="{% static "js/account.bundle.js" %}"></script>
-    <script id="iptelScript">
-
-    </script>
 {% endblock %}

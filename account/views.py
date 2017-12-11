@@ -517,8 +517,43 @@ def calls_to_user(request):
     data['range'] = _range
     data['month_date'] = month_date
 
+    user_calls = [
+    {
+         "record": "in-443372230-0686046505-20171207-174710-1512661630.6310.wav",
+         "disposition": "ANSWERED",
+         "billsec": 4,
+         "lastapp": "BackGround",
+         "type": "in",
+         "call_date": "‎2017-12-07",
+         "dst": "‎443372230",
+         "src": "‎0686046505"
+     },
+     {
+         "record": "out-0686046505-2481-20171130-152620-1512048380.980.wav",
+         "disposition": "ANSWERED",
+         "billsec": 8,
+         "lastapp": "Dial",
+         "type": "out",
+         "call_date": "‎2017-11-30",
+         "dst": "‎0686046505",
+         "src": "2481"
+     },
+     {
+         "record": "out-0686046505-9001-20171129-180913-1511971753.25.wav",
+         "disposition": "BUSY",
+         "billsec": 0,
+         "lastapp": "Busy",
+         "type": "out",
+         "call_date": "‎2017-11-29",
+         "dst": "‎0686046505",
+         "src": "9001"
+     }
+        ]
+
+    return Response(user_calls)
+
     try:
-        user_calls = requests.get('http://localhost:8080', data=json.dumps(data),
+        user_calls = requests.get('http://127.0.0.1:8080', data=json.dumps(data),
                                   headers={'Content-Type': 'application/json'})
     except Exception:
         return Response({'message': 'Asterisk Service is not available'})
