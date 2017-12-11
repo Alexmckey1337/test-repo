@@ -138,8 +138,8 @@ function makeChartConfig(data) {
         optionPartnersChart = {
             chart: window.ChartPartners,
             labels: labels,
-            line1: allPartner,
-            line2: activePartner,
+            line1: activePartner,
+            line2: inertPartner,
         },
         selectFinancesChart = 'chart_finances',
         // selectPercentChart = 'chart_percent',
