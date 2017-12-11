@@ -939,3 +939,43 @@
   color: #3caeda;
   font-size: 1.5em;
 }
+
+.container-prefilter {
+  display: flex;
+  justify-content: space-between;
+  .prefilter-group {
+    margin-top: 0;
+    .month[data-period="year"] {
+      margin-right: 20px;
+      border-right: 1px solid #cdd0d4;
+    }
+    #stats_manager {
+      width: 250px;
+    }
+  }
+  .chart_or_table {
+    input {
+      display: none;
+    }
+    label {
+      position: relative;
+      display: block;
+      width: 1em;
+      height: 1em;
+      &::before {
+        position: absolute;
+        top: 0.2em;
+        right: 0;
+        font-family: FontAwesome;
+        font-size: 3em;
+        content: '\f201';
+        cursor: pointer;
+      }
+    }
+    input:checked + label {
+      &::before {
+        content: '\f0ce';
+      }
+    }
+  }
+}

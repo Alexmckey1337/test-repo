@@ -1,0 +1,71 @@
+{% extends "layout_main.html" %}
+{% load static %}
+{% load partner_tags %}
+{% block header.top.h1 %}<h1>Партнёрство / Статистика</h1>{% endblock %}
+
+{% block header.search %}
+{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
+                <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
+                <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
+                {% if user.can_see_managers_summary %}
+                    <li><a href="{% url 'partner:partnership_summary-list' %}">План по менеджерам</a></li>
+                {% endif %}
+                <li><a class="active" href="{% url 'partner:partnership_summary-detail' manager_id="all" %}">Статистика</a></li>
+            </ul>
+        </div>
+        <div class="top-buttons-wrap">
+            <ul class="top-buttons">
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    {% get_simple_managers as managers %}
+    <div class="content content-managerStats">
+{#        <h1 class="content_title">Менеджер: {% if manager %}<a href="{{ manager.get_absolute_url }}">{{ manager.fullname }}</a>{% else %}Все{% endif %}</h1>#}
+        <div class="container-full container-prefilter">
+            <div class="prefilter-group tab-status tab-home-stats">
+                <button class="month active" data-period="3month">3 мес.</button>
+                <button class="month" data-period="6month">6 мес.</button>
+                <button class="month" data-period="year">12 мес.</button>
+                <select id="stats_manager">
+                    <option value="all">Все менеджера</option>
+                    {% for man in managers %}
+                        <option value="{{ man.id }}"
+                                {% if man.id == manager.id %} selected{% endif %}>
+                            {{ man.fullname }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="charts">
+            <div class="chart">
+                <canvas id="chart_finances"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="chart_partners"></canvas>
+            </div>
+{#            <div class="chart">#}
+{#                <canvas id="chart_percent"></canvas>#}
+{#            </div>#}
+        </div>
+        <div class="table-wrap clearfix"><!--Table -->
+            <div data-id="{{ manager.id|default:"all" }}" class="table scrollbar-inner" id="managersFinances"></div>
+        </div>
+        <div class="table-wrap table-wrap_margin clearfix"><!--Table -->
+            <div class="table scrollbar-inner" id="managersPartners"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+        <script src='{% static "js/manager_summary.bundle.js" %}'></script>
+{% endblock %}
