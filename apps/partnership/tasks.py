@@ -5,6 +5,8 @@ import logging
 from datetime import datetime, date
 from decimal import Decimal
 
+from django.db.models import OuterRef, Exists
+
 from edem.settings.celery import app
 from apps.partnership.models import Partnership, Deal
 
@@ -56,9 +58,14 @@ def create_new_deals():
     current_date = datetime.now()
     current_month = current_date.month
     current_year = current_date.year
+    exists_deals = Deal.objects.filter(
+        partnership=OuterRef('pk'),
+        date_created__month=current_month,
+        date_created__year=current_year)
     partnerships_without_deals = Partnership.objects \
+        .annotate(deal_exist=Exists(exists_deals)) \
         .filter(is_active=True) \
-        .exclude(deals__date_created__month=current_month, deals__date_created__year=current_year) \
+        .exclude(deal_exist=True) \
         .exclude(value=Decimal(0))
     for partnership in partnerships_without_deals:
         Deal.objects.create(partnership=partnership, value=partnership.value)
