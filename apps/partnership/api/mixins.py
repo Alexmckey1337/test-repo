@@ -248,6 +248,7 @@ class StatsByManagersMixin:
 
         return Response({'results': managers, 'table_columns': get_table('partner_summary', self.request.user.id)})
 
+    @func_time
     def _get_managers(self):
         year = int(self.request.query_params.get('year', datetime.now().year))
         month = int(self.request.query_params.get('month', datetime.now().month))
@@ -265,6 +266,7 @@ class StatsByManagersMixin:
             managers, plan = self.get_logged_managers(next_month)
         return managers, plan
 
+    @func_time
     def _get_partners(self):
         year = int(self.request.query_params.get('year', datetime.now().year))
         month = int(self.request.query_params.get('month', datetime.now().month))
@@ -277,6 +279,7 @@ class StatsByManagersMixin:
             church_partners = self.get_logged_church_partners(next_month)
         return partners, church_partners
 
+    @func_time
     def _order_managers(self, managers):
         ordering = self.request.query_params.get('ordering', 'manager')
         ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners',
@@ -287,15 +290,17 @@ class StatsByManagersMixin:
         return managers
 
     @staticmethod
+    @func_time
     def _get_partners_names(queryset):
-        return queryset.annotate(full_name=Concat(
+        return list(queryset.annotate(full_name=Concat(
             'last_name', V(' '), 'first_name', V(' '), 'middle_name')).values(
-            'full_name', 'id').order_by('pk')
+            'full_name', 'id').order_by('pk'))
 
     """
     Making queries from Partnership model
     """
 
+    @func_time
     def _get_sum_pay(self, year, month, deal_type):
         raw = """
           select u.user_ptr_id,
@@ -323,9 +328,9 @@ class StatsByManagersMixin:
             connect.execute(raw)
             result = connect.fetchall()
 
-        for k in result:
-            yield k[1]
+        return [k[1] for k in result]
 
+    @func_time
     def _get_sum_church_pay(self, year, month):
         raw = """
           select u.user_ptr_id,
@@ -353,27 +358,28 @@ class StatsByManagersMixin:
             connect.execute(raw)
             result = connect.fetchall()
 
-        for k in result:
-            yield k[1]
+        return [k[1] for k in result]
 
     @staticmethod
+    @func_time
     def _get_sum_deals(queryset, year, month):
         subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
             'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
 
-        return queryset.annotate(
+        return list(queryset.annotate(
             sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True)
+            'sum_deals', flat=True))
 
     @staticmethod
+    @func_time
     def _get_sum_church_deals(queryset, year, month):
         subqs_deals = ChurchDeal.objects.filter(
             date_created__year=year, date_created__month=month, responsible=OuterRef('pk')
         ).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
 
-        return queryset.annotate(
+        return list(queryset.annotate(
             sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True)
+            'sum_deals', flat=True))
 
     """
     Making queries from PartnershipLogs model if requested period not in this month
@@ -481,44 +487,45 @@ class StatsByManagersMixin:
         return '{year}-{month}'.format(year=year, month=month + 1)
 
     @staticmethod
+    @func_time
     def _get_total_church_partners(partners, managers):
         s = dict(Counter(list(partners.order_by().values_list('responsible', flat=True))))
-        for m in managers:
-            yield s.get(m.pk, 0)
+        return [s.get(m.pk, 0) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_active_church_partners(partners, managers):
         s = dict(Counter(list(partners.filter(is_active=True).order_by().values_list('responsible', flat=True))))
-        for m in managers:
-            yield s.get(m.pk, 0)
+        return [s.get(m.pk, 0) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_church_potential_sum(partners, managers):
         s = list(partners.order_by().values('responsible', 'value'))
-        for m in managers:
-            yield sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)])
+        return [sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)]) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_total_partners(partners, managers):
         s = dict(Counter(list(partners.order_by().values_list('responsible', flat=True))))
-        for m in managers:
-            yield s.get(m.pk, 0)
+        return [s.get(m.pk, 0) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_active_partners(partners, managers):
         s = dict(Counter(list(partners.filter(is_active=True).order_by().values_list('responsible', flat=True))))
-        for m in managers:
-            yield s.get(m.pk, 0)
+        return [s.get(m.pk, 0) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_potential_sum(partners, managers):
         s = list(partners.order_by().values('responsible', 'value'))
-        for m in managers:
-            yield sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)])
+        return [sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)]) for m in managers]
 
     @staticmethod
+    @func_time
     def _get_managers_plan(managers):
-        return managers.values_list('partner_role__plan', flat=True).order_by('pk')
+        return list(managers.values_list('partner_role__plan', flat=True).order_by('pk'))
 
 
 class StatsByMonthsMixin:
