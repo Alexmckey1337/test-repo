@@ -353,8 +353,10 @@ partner_summary_columns = {
         'id': 0, 'title': 'Сумма партнерских', 'ordering_title': 'sum_pay', 'number': 9, 'active': True, 'editable': True},
     'sum_pay_tithe': {
         'id': 0, 'title': 'Сумма десятин', 'ordering_title': 'sum_pay_tithe', 'number': 10, 'active': True, 'editable': True},
+    'sum_pay_church': {
+        'id': 0, 'title': 'Сумма по церквям', 'ordering_title': 'sum_pay_church', 'number': 11, 'active': True, 'editable': True},
     'total_sum': {
-        'id': 0, 'title': 'Общая сумма', 'ordering_title': 'total_sum', 'number': 11, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Общая сумма', 'ordering_title': 'total_sum', 'number': 12, 'active': True, 'editable': True},
 }
 
 report_payment_columns = {
