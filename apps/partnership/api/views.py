@@ -29,7 +29,7 @@ from apps.partnership.api.filters import (
     ChurchDateAndValueFilter, ChurchPartnerFilter)
 from apps.partnership.api.mixins import (
     PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
-    PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin,
+    PartnerExportViewSetMixin, PartnerStatusReviewMixin, StatsSummaryMixin,
     ChurchDealListPaymentMixin)
 from apps.partnership.api.pagination import PartnershipPagination, DealPagination, DealDuplicatePagination, \
     ChurchDealPagination, \
@@ -59,7 +59,7 @@ class PartnershipViewSet(
     ModelWithoutDeleteViewSet,
     PartnerExportViewSetMixin,
     PartnerStatMixin,
-    ManagerSummaryMixin
+    StatsSummaryMixin
 ):
     queryset = Partnership.objects.base_queryset().order_by(
         'user__last_name', 'user__first_name', 'user__middle_name')
