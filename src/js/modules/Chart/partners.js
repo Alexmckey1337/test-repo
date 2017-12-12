@@ -4,31 +4,27 @@ import URLS from '../Urls/index';
 import getData from '../Ajax';
 import {CHARTCOLORS, setConfig, setMixedConfig} from "./config";
 
-export function initCharts(ID, config = {}, update = false) {
-    let url = URLS.partner.manager_summary(ID);
-    getData(url, config).then(data => {
-        let {
-            configFinancesChart,
-            configPercentChart,
-            configPartnersChart,
-            optionFinancesChart,
-            optionPercentChart,
-            optionPartnersChart,
-            selectFinancesChart,
-            selectPercentChart,
-            selectPartnersChart
-        } = makeChartConfig(data);
-        if (update) {
-            updateFinancesChart(optionFinancesChart);
-            updatePercentChart(optionPercentChart);
-            updatePartnersChart(optionPartnersChart);
-        } else {
-            renderChart(selectFinancesChart, configFinancesChart);
-            renderChart(selectPercentChart, configPercentChart);
-            renderChart(selectPartnersChart, configPartnersChart);
-        }
-        $('.preloader').css('display', 'none');
-    });
+export function initCharts(data, update) {
+    let {
+        configFinancesChart,
+        // configPercentChart,
+        configPartnersChart,
+        optionFinancesChart,
+        // optionPercentChart,
+        optionPartnersChart,
+        selectFinancesChart,
+        // selectPercentChart,
+        selectPartnersChart
+    } = makeChartConfig(data);
+    if (update) {
+        updateFinancesChart(optionFinancesChart);
+        // updatePercentChart(optionPercentChart);
+        updatePartnersChart(optionPartnersChart);
+    } else {
+        renderChart(selectFinancesChart, configFinancesChart);
+        // renderChart(selectPercentChart, configPercentChart);
+        renderChart(selectPartnersChart, configPartnersChart);
+    }
 }
 
 function makeChartConfig(data) {
@@ -82,12 +78,12 @@ function makeChartConfig(data) {
                     data: sumTithe
                 }]
         },
-        datasetsPercentChart = [{
-            label: "%",
-            borderColor: CHARTCOLORS.green,
-            backgroundColor: CHARTCOLORS.green,
-            data: percent,
-        }],
+        // datasetsPercentChart = [{
+        //     label: "%",
+        //     borderColor: CHARTCOLORS.green,
+        //     backgroundColor: CHARTCOLORS.green,
+        //     data: percent,
+        // }],
         datasetsPartnersChart = [{
             label: "Активных",
             borderColor: CHARTCOLORS.green,
@@ -100,7 +96,7 @@ function makeChartConfig(data) {
             data: inertPartner,
         }],
         titleFinancesChart = "Статистика по финансам",
-        titlePercentChart = "Процент выполнения плана",
+        // titlePercentChart = "Процент выполнения плана",
         titlePartnersChart = "Статистика по партнёрам",
         xAxesBar = [{
             stacked: true,
@@ -125,7 +121,7 @@ function makeChartConfig(data) {
             },
         },
         configFinancesChart = setMixedConfig(dataFinancesChart, titleFinancesChart, callbackFinancesChart),
-        configPercentChart = setConfig('bar', labels, datasetsPercentChart, titlePercentChart, xAxesBar, yAxesBar),
+        // configPercentChart = setConfig('bar', labels, datasetsPercentChart, titlePercentChart, xAxesBar, yAxesBar),
         configPartnersChart = setConfig('bar', labels, datasetsPartnersChart, titlePartnersChart, xAxesBar, yAxesBar, callbackPartnersChart),
         optionFinancesChart = {
             chart: window.ChartFinances,
@@ -134,30 +130,30 @@ function makeChartConfig(data) {
             line2: sumPartner,
             line3: sumTithe,
         },
-        optionPercentChart = {
-            chart: window.ChartPercent,
-            labels: labels,
-            line: percent,
-        },
+        // optionPercentChart = {
+        //     chart: window.ChartPercent,
+        //     labels: labels,
+        //     line: percent,
+        // },
         optionPartnersChart = {
             chart: window.ChartPartners,
             labels: labels,
-            line1: allPartner,
-            line2: activePartner,
+            line1: activePartner,
+            line2: inertPartner,
         },
         selectFinancesChart = 'chart_finances',
-        selectPercentChart = 'chart_percent',
+        // selectPercentChart = 'chart_percent',
         selectPartnersChart = 'chart_partners';
 
     return {
         configFinancesChart,
-        configPercentChart,
+        // configPercentChart,
         configPartnersChart,
         optionFinancesChart,
-        optionPercentChart,
+        // optionPercentChart,
         optionPartnersChart,
         selectFinancesChart,
-        selectPercentChart,
+        // selectPercentChart,
         selectPartnersChart
     }
 }
@@ -170,11 +166,11 @@ function updateFinancesChart({chart, labels, line1, line2, line3}) {
     chart.update();
 }
 
-function updatePercentChart({chart, labels, line}) {
-    chart.data.labels = labels;
-    chart.data.datasets[0].data = line;
-    chart.update();
-}
+// function updatePercentChart({chart, labels, line}) {
+//     chart.data.labels = labels;
+//     chart.data.datasets[0].data = line;
+//     chart.update();
+// }
 
 function updatePartnersChart({chart, labels, line1, line2}) {
     chart.data.labels = labels;

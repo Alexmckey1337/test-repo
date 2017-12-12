@@ -45,10 +45,17 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="chart_or_table">
-                <input id="show_chart" type="checkbox">
-                <label for="show_chart"></label>
+        </div>
+        <div class="charts">
+            <div class="chart">
+                <canvas id="chart_finances"></canvas>
             </div>
+            <div class="chart">
+                <canvas id="chart_partners"></canvas>
+            </div>
+{#            <div class="chart">#}
+{#                <canvas id="chart_percent"></canvas>#}
+{#            </div>#}
         </div>
         <div class="table-wrap clearfix"><!--Table -->
             <div data-id="{{ manager.id|default:"all" }}" class="table scrollbar-inner" id="managersFinances"></div>
@@ -56,9 +63,6 @@
         <div class="table-wrap table-wrap_margin clearfix"><!--Table -->
             <div class="table scrollbar-inner" id="managersPartners"></div>
         </div>
-        <canvas id="chart_finances"></canvas>
-        <canvas id="chart_percent"></canvas>
-        <canvas id="chart_partners"></canvas>
     </div>
 {% endblock %}
 
