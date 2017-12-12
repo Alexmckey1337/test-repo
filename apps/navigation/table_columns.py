@@ -344,19 +344,15 @@ partner_summary_columns = {
     'percent_of_plan': {
         'id': 0, 'title': '% выполнения плана', 'ordering_title': 'percent_of_plan', 'number': 5, 'active': True, 'editable': True},
     'total_partners': {
-        'id': 0, 'title': 'Всего партнеров', 'ordering_title': 'total_partners', 'number': 6, 'active': True, 'editable': True},
-    'active_partners': {
-        'id': 0, 'title': 'Активных партнеров', 'ordering_title': 'active_partners', 'number': 7, 'active': True, 'editable': True},
-    'not_active_partners': {
-        'id': 0, 'title': 'Неактивных партнеров', 'ordering_title': 'not_active_partners', 'number': 8, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Всего партнеров (активные/неактивные)', 'ordering_title': 'total_partners', 'number': 6, 'active': True, 'editable': True},
     'sum_pay': {
-        'id': 0, 'title': 'Сумма партнерских', 'ordering_title': 'sum_pay', 'number': 9, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Сумма партнерских', 'ordering_title': 'sum_pay', 'number': 7, 'active': True, 'editable': True},
     'sum_pay_tithe': {
-        'id': 0, 'title': 'Сумма десятин', 'ordering_title': 'sum_pay_tithe', 'number': 10, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Сумма десятин', 'ordering_title': 'sum_pay_tithe', 'number': 8, 'active': True, 'editable': True},
     'sum_pay_church': {
-        'id': 0, 'title': 'Сумма по церквям', 'ordering_title': 'sum_pay_church', 'number': 11, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Сумма по церквям', 'ordering_title': 'sum_pay_church', 'number': 9, 'active': True, 'editable': True},
     'total_sum': {
-        'id': 0, 'title': 'Общая сумма', 'ordering_title': 'total_sum', 'number': 12, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Общая сумма', 'ordering_title': 'total_sum', 'number': 10, 'active': True, 'editable': True},
 }
 
 report_payment_columns = {
