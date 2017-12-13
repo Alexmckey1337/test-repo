@@ -20,7 +20,7 @@ class CommonGroup(models.Model):
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50)
     address = models.CharField(_('Address'), max_length=300, blank=True)
-    phone_number = models.CharField(_('Phone Number'), max_length=13, blank=True)
+    phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
     website = models.URLField(_('Web Site'), blank=True)
 
     class Meta:
