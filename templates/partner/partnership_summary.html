@@ -43,10 +43,16 @@
     <div class="content">
         <div class="container-full">
             <div class="prefilter-group tab-status tab-home-stats">
-                <button class="month month_now active">Текущий месяц</button>
-                <button class="month month_prev">Предыдущий месяц</button>
                 <div class="set-date">
-                    <input type='text' id="date_field_stats" placeholder="Выберите дату"/>
+                    <input type='text' id="date_field_stats" placeholder="Выберите дату" readonly/>
+                    <div class="cal-icon"></div>
+                </div>
+                <div class="checkbox_style">
+                    <input type="checkbox" id="showCompare"/>
+                    <label for="showCompare">Сравнить</label>
+                </div>
+                <div class="set-date">
+                    <input type='text' id="date_field_compare" placeholder="Выберите дату"  readonly disabled/>
                     <div class="cal-icon"></div>
                 </div>
             </div>
@@ -86,7 +92,7 @@
                 <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"
-                <% if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
                 class="cell__red"
                 <% } %>
                 ><%=table_columns[key].title %></th>
@@ -118,10 +124,8 @@
                 <% if (results[index][key] != null) { %>
                 <td class="edit edit-plan">
                     {% if user.is_partner_director %}
-                        <% if (results[index].manager == 'СУММАРНО:') { %>
+                        <% if (results[index].manager === 'СУММАРНО:' || !flag) { %>
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
-                        <% } else if (!flag) { %>
-                            <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else { %>
                         <form name="plan_form" class="editPlanForm">
                             <input name="plan_sum" class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
@@ -140,7 +144,7 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="cell__red <%= key %>">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
@@ -148,6 +152,12 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
+                <% } else if (key == 'total_partners') { %>
+                <td>
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    (<%= String(results[index].active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> /
+                    <%= String(results[index].not_active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>)
+                </td>
                 <% } else if (key == 'percent_of_plan') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="<%= key %>">

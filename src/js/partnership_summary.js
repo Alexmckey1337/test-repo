@@ -3,7 +3,11 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import moment from 'moment/min/moment.min.js';
 import updateSettings from './modules/UpdateSettings/index';
-import {PartnershipSummaryTable, partnershipSummaryTable} from "./modules/PartnerSummary/index";
+import {
+    PartnershipSummaryTable,
+    PartnershipCompareSummaryTable,
+    partnershipSummaryTable
+} from "./modules/PartnerSummary/index";
 
 $(document).ready(function () {
     const USER_ID = $('body').data('user');
@@ -15,9 +19,24 @@ $(document).ready(function () {
             month: moment(dateReports).format('MM')
         };
 
-    $('.set-date').find('input').val(thisPeriod);
+    $('#date_field_stats').val(thisPeriod)
+        .datepicker({
+            maxDate: new Date(),
+            startDate: new Date(),
+            view: 'months',
+            minView: 'months',
+            dateFormat: 'mm/yyyy',
+            autoClose: true,
+            onSelect: (formattedDate) => {
+                if (formattedDate != '') {
+                    $('.preloader').css('display', 'block');
+                    (formattedDate === thisPeriod) ? partnershipSummaryTable() : partnershipSummaryTable({}, false);
+                }
+            }
+        });
 
-    $('#date_field_stats').datepicker({
+    $('#date_field_compare').val(lastPeriod)
+        .datepicker({
         maxDate: new Date(),
         startDate: new Date(),
         view: 'months',
@@ -27,8 +46,6 @@ $(document).ready(function () {
         onSelect: (formattedDate) => {
             if (formattedDate != '') {
                 $('.preloader').css('display', 'block');
-                $('#main').find('.prefilter-group').find('.month').removeClass('active');
-                (formattedDate == thisPeriod) ? partnershipSummaryTable() : partnershipSummaryTable({}, false);
             }
         }
     });
@@ -39,19 +56,16 @@ $(document).ready(function () {
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(PartnershipSummaryTable, 'partner_summary');
+        $('#date_field_stats').val(thisPeriod);
     });
 
-    $('.prefilter-group').find('.month').on('click', function () {
-        $('.preloader').css('display', 'block');
-        $(this).closest('.prefilter-group').find('.month').removeClass('active');
-        $(this).addClass('active');
-        if (!$(this).hasClass('month_prev')) {
-            $('#date_field_stats').val(`${thisPeriod}`);
-            partnershipSummaryTable();
-        } else {
-            $('#date_field_stats').val(`${lastPeriod}`);
-            partnershipSummaryTable({}, false);
-        }
+    $('#showCompare').on('change', function () {
+       if ($(this).is(':checked')) {
+           $('#date_field_compare').prop('disabled', false);
+           PartnershipCompareSummaryTable();
+       } else {
+           $('#date_field_compare').prop('disabled', true);
+       }
     });
 
 });
