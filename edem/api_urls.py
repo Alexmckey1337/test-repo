@@ -2,19 +2,19 @@ from django.conf.urls import url, include
 
 
 urlpatterns = [
-    url(r'^', include('account.urls')),
-    url(r'^', include('event.urls')),
-    url(r'^', include('task.urls')),
-    url(r'^', include('hierarchy.urls')),
-    url(r'^', include('location.urls')),
-    url(r'^', include('navigation.urls')),
-    url(r'^', include('notification.urls')),
-    url(r'^', include('partnership.urls')),
-    url(r'^', include('payment.urls')),
-    url(r'^', include('report.urls')),
+    url(r'^', include('apps.account.api.urls')),
+    url(r'^', include('apps.event.api.urls')),
+    url(r'^', include('apps.task.api.urls')),
+    url(r'^', include('apps.hierarchy.api.urls')),
+    url(r'^', include('apps.location.api.urls')),
+    url(r'^', include('apps.navigation.api.urls')),
+    url(r'^', include('apps.notification.api.urls')),
+    url(r'^', include('apps.partnership.api.urls')),
+    url(r'^', include('apps.payment.api.urls')),
+    url(r'^', include('apps.report.api.urls')),
 
-    url(r'^', include('group.urls')),
+    url(r'^', include('apps.group.api.urls')),
 
-    url(r'^', include('status.urls')),
-    url(r'^', include('summit.urls')),
+    url(r'^', include('apps.status.api.urls')),
+    url(r'^', include('apps.summit.api.urls')),
 ]

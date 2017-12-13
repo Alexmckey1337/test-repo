@@ -3,7 +3,7 @@ from datetime import datetime
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import list_route
-from payment.tasks import generate_export
+from apps.payment.tasks import generate_export
 from rest_framework.response import Response
 
 

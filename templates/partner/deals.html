@@ -4,7 +4,7 @@
 {% load partner_tags %}
 {% load payment_tags %}
 
-{% block header.top.h1 %}<h1>Партнёрство</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Партнёрство / Сделки</h1>{% endblock %}
 
 {% block header.buttons %}
     <div class="top-panel">
@@ -14,9 +14,9 @@
                 <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
                 <li><a href="{% url 'partner:payments' %}">Таблица платежей</a></li>
                 {% if user.can_see_managers_summary %}
-                <li><a href="{% url 'partner:partnership_summary' %}">План по менеджерам</a></li>
+                <li><a href="{% url 'partner:partnership_summary-list' %}">План по менеджерам</a></li>
                 {% endif %}
-                <li><a href="{% url 'partner:stats' %}">Статистика</a></li>
+                <li><a href="{% url 'partner:partnership_summary-detail' manager_id="all" %}">Статистика</a></li>
             </ul>
         </div>
         <div class="top-buttons-wrap">
@@ -81,7 +81,7 @@
                 </div>
                 <table></table>
                 <div class="splash-bauttons">
-{#                    <button class="detail" data-detail-url="{% url "payment-deal" pk=0 %}">{% trans "Detail" %}</button>#}
+{#                    <button class="detail" data-detail-url="{% url "payment:deal" pk=0 %}">{% trans "Detail" %}</button>#}
                     <button class="close">Закрыть</button>
                 </div>
             </div>

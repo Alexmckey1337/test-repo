@@ -23,10 +23,10 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             column=1,
             models=(
-                'summit.models.*',
-                'account.models.*',
-                'partnership.models.*',
-                'payment.models.*',
+                'apps.summit.models.*',
+                'apps.account.models.*',
+                'apps.partnership.models.*',
+                'apps.payment.models.*',
             ),
         ))
         self.children.append(modules.AppList(
@@ -36,9 +36,9 @@ class CustomIndexDashboard(Dashboard):
             css_classes=('collapse closed',),
             exclude=(
                 'django.contrib.*',
-                'summit.models.*',
-                'account.models.*',
-                'partnership.models.*',
+                'apps.summit.models.*',
+                'apps.account.models.*',
+                'apps.partnership.models.*',
             ),
         ))
 

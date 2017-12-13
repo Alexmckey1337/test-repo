@@ -4,7 +4,7 @@
 
 {% block header.top.h1 %}
     {% trans "Payments by deals" %},
-    {% trans "Partner" %} <a href="{% url 'payment-partner' pk=deal.partnership_id %}">{{ deal.full_name }}</a>
+    {% trans "Partner" %} <a href="{% url 'payment:partner' pk=deal.partnership_id %}">{{ deal.full_name }}</a>
 {% endblock %}
 
 {% block main.content %}
