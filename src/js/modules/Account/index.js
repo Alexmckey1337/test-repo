@@ -1,6 +1,7 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
 import WavPlayer from 'webaudio-wav-stream-player';
+import 'howler';
 import URLS from '../Urls/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
@@ -242,7 +243,23 @@ function makeIptelTable(data) {
                                 ${item.billsec}
                             </td> 
                             <td class="recordIptel">
-                                ${item.record}
+                                <p class=''>${item.record}</p>
+                                <svg class="btnPlay active" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                     viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+                                    <a href="google.com"><g>
+                                        <path d="M45.563,29.174l-22-15c-0.307-0.208-0.703-0.231-1.031-0.058C22.205,14.289,22,14.629,22,15v30
+                                            c0,0.371,0.205,0.711,0.533,0.884C22.679,45.962,22.84,46,23,46c0.197,0,0.394-0.059,0.563-0.174l22-15
+                                            C45.836,30.64,46,30.331,46,30S45.836,29.36,45.563,29.174z M24,43.107V16.893L43.225,30L24,43.107z"/>
+                                        <path d="M30,0C13.458,0,0,13.458,0,30s13.458,30,30,30s30-13.458,30-30S46.542,0,30,0z M30,58C14.561,58,2,45.439,2,30
+                                            S14.561,2,30,2s28,12.561,28,28S45.439,58,30,58z"/>
+                                    </g></a>
+                                </svg>
+                                <svg class="btnStop" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100.021 100.021" xmlns:xlink="http://www.w3.org/1999/xlink" enable-background="new 0 0 100.021 100.021">
+                                  <g>
+                                    <path d="M50.011,0C22.435,0,0,22.435,0,50.011s22.435,50.011,50.011,50.011s50.011-22.435,50.011-50.011S77.587,0,50.011,0z    M50.011,98.021C23.538,98.021,2,76.484,2,50.011S23.538,2,50.011,2s48.011,21.537,48.011,48.011S76.484,98.021,50.011,98.021z"/>
+                                    <path d="m70.072,35.899c0-2.761-2.239-5-5-5h-30c-2.761,0-5,2.239-5,5v30c0,2.761 2.239,5 5,5h30c2.761,0 5-2.239 5-5v-30zm-2,30c0,1.657-1.343,3-3,3h-30c-1.657,0-3-1.343-3-3v-30c0-1.657 1.343-3 3-3h30c1.657,0 3,1.343 3,3v30z"/>
+                                  </g>
+                                </svg>
                             </td>
                         </tr>`;
     }).join('')}</tbody>
@@ -259,29 +276,27 @@ function makeIptelTable(data) {
                 'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
             })
         },
-        target = $(this).text().trim(),
-        url = 'http://192.168.240.47:7000/file/?file_name=' + target;
-        play(url,defaultOption)
+        target = $(this).find('p').text().trim(),
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
+        player = new WavPlayer();
+        fetch(url, defaultOption).then(function (response) {
+            console.log(response.url);
+            var sound = new Howl({
+                src: [response.url]
+            }).play();
+        });
+        // if($(this).find('.btnPlay').hasClass('active')){
+        //     //$(this).find('.btnPlay').removeClass('active');
+        //     //$(this).find('.btnStop').addClass('active');
+        //     console.log('play');
+        //     // fetch(url, defaultOption).then(function (response) {
+        //     //     Player.play(response.url);
+        //     // })
+        // }else{
+        //     $(this).find('.btnPlay').addClass('active');
+        //     $(this).find('.btnStop').removeClass('active');
+        //     Player.stop();
+        //     console.log('stop');
+        // };
     })
-    function play(url, config) {
-        fetch(url, config).then(function (response) {
-            //let player = new WavPlayer();
-            //player.play(response.url);
-            // var sound = new Howl({
-            //   src: [response.url],
-            //   autoplay: true,
-            //   loop: true,
-            //   volume: 0.5,
-            //   onend: function() {
-            //     console.log('Finished!');
-            //   }
-            // });
-            // sound.once('load', function(){
-            //   sound.play();
-            // });
-            // console.log(sound)
-            let iframe = $('.a-iptel__wrap').find('iframe');
-            iframe.attr('src',response.url);
-        })
-    }
 }

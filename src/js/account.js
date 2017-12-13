@@ -927,4 +927,6 @@ $('document').ready(function () {
         dataIptelTable(url);
     }
     createUrl();
+
+
 });
