@@ -10,14 +10,16 @@ volumes:
 
 services:
   postgres:
+    container_name: postgres
     restart: always
-    build: ./compose/postgres
+    image: reg.sobsam.com/postgres:9.6
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backup:/backups
     env_file: .env
 
   gulp:
+    container_name: gulp
     build:
       context: .
       dockerfile: ./compose/gulp/Dockerfile
@@ -73,6 +75,7 @@ services:
       - django
 
   django:
+    container_name: django
     restart: always
     build:
       context: .
@@ -99,6 +102,7 @@ services:
       - DEBUG=true
 
   daphne:
+    container_name: daphne
     restart: always
     build:
       context: .
@@ -116,6 +120,7 @@ services:
       - ASGI_HOST=vocrm.net
 
   asgi_worker:
+    container_name: asgi
     restart: always
     build:
       context: .
@@ -128,9 +133,11 @@ services:
     env_file: .env
 
   redis:
+    container_name: redis
     image: redis:latest
 
   celeryworker:
+    container_name: celeryworker
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
@@ -144,6 +151,7 @@ services:
     command: celery -A edem worker -l INFO -c 4
 
   celerybeat:
+    container_name: celerybeat
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile
