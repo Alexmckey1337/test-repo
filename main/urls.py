@@ -44,5 +44,7 @@ urlpatterns = [
 
     url(r'^privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
     url(r'^ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
+    url(r'^calls', views.calls, name='calls')
 ]
+
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
