@@ -12,7 +12,7 @@ services:
   postgres:
     container_name: postgres
     restart: always
-    image: reg.sobsam.com/postgres:9.6
+    build: ./compose/postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backup:/backups
