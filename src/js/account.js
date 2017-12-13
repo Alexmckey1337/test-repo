@@ -13,6 +13,8 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
+import moment from 'moment';
+import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import getLastId from './modules/GetLastId/index';
@@ -23,7 +25,7 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable} from './modules/Account/index';
+import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable,dataIptelMonth} from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
@@ -928,5 +930,67 @@ $('document').ready(function () {
     }
     createUrl();
 
+    $('.recordIptel').on('click',function () {
+        let defaultOption = {
+            method: 'GET',
+            credentials: 'same-origin',
+            mode: 'cors',
+            headers: new Headers({
+                'Content-Type': 'text / html',
+                'Access-Control-Allow-Origin':'*',
+                'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
+            })
+        },
+        target = $(this).find('p').text().trim(),
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
+        player = new WavPlayer();
+        // fetch(url, defaultOption).then(function (response) {
+        //     console.log(response.url);
+        //     var sound = new Howl({
+        //         src: [response.url]
+        //     }).play();
+        // });
+        if($(this).find('.btnPlay').hasClass('active')){
+            $(this).find('.btnPlay').removeClass('active');
+            $(this).find('.btnStop').addClass('active');
+            console.log('play');
+            fetch(url, defaultOption).then(function (response) {
+                player.play(response.url);
+            })
+        }else{
+            $(this).find('.btnPlay').addClass('active');
+            $(this).find('.btnStop').removeClass('active');
+            player.stop();
+            console.log('stop');
+        };
+    });
+    $('#monthInput').datepicker({
+        autoClose: true,
+        view: 'months',
+        onSelect: function (formattedDate, date, inst) {
+            $('.preloader').css('display', 'block');
+            let dateMonth = moment(date).format("YYYY-MM"),
+                idUser = $('body').attr('data-user'),
+                url = '/api/v1.1/calls_to_user/?user_id='+idUser+'&range=month&month_date='+dateMonth;
+            $('#tableMonthIptel').html('');
+            dataIptelMonth(url);
+        }
+    });
+    $('#monthBtn').on('click', function (e) {
+        e.preventDefault;
+        let idUser = $('body').attr('data-user'),
+           todayDate = moment().locale('ru'),
+           url = '/api/v1.1/calls_to_user/?user_id='+idUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
+
+       $('.preloader').css('display', 'block');
+       $('#popupMonth').css('display', 'block');
+       console.log(url);
+       $('#monthInput').val(todayDate.format("MMMM YYYY"));
+       $('#tableMonthIptel').html('');
+        dataIptelMonth(url);
+    });
+    $('.close_pop').on('click',function () {
+        $('#popupMonth').css('display', 'none');
+    })
 
 });

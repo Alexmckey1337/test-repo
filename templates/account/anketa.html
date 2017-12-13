@@ -499,6 +499,7 @@
                 <div class="a-block a-iptel">
                     <div class="top-s">
                         <h3>звонки</h3>
+                        <a id="monthBtn" href="#">Звонки за месяц</a>
                     </div>
                     <div class="a-iptel__wrap">
                         <div id="iptelBlock"></div>
@@ -976,7 +977,24 @@
 {#            </div>#}
 {#        </div>#}
 {#    </div>#}
-
+    <div class="pop-up__table popup__month" id="popupMonth">
+        <div class="pop_cont">
+            <div class="top-text">
+                <h3>Звонки за</h3>
+                <input type="text"
+                   class="iptel-month"
+                   id="monthInput"
+                   data-language='en'
+                   data-min-view="months"
+                   data-view="months"
+                   data-date-format="MM yyyy" />
+                <span class="close_pop">×</span>
+            </div>
+            <div class="main-text">
+                <div class="iptel-month" id="tableMonthIptel"></div>
+            </div>
+        </div>
+    </div>
     <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
         <div class="pop_cont">
             <div class="top-text">

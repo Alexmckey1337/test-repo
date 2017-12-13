@@ -73,6 +73,136 @@ def calls_to_user(request):
     if _range == 'month' and not month_date:
         raise exceptions.ValidationError({'message': 'Parameter {month_date} must be passed'})
 
+    if _range == 'last_3':
+        q = [
+                {
+                     "call_date": "‎2017-10-29",
+                     "src": "1117",
+                     "type": "out",
+                     "lastapp": "Dial",
+                     "dst": "‎0687774566",
+                     "record": "out-0687774566-1117-20171029-184437-1509295476.928.wav",
+                     "disposition": "ANSWERED",
+                     "billsec": 93
+                 },
+                 {
+                     "call_date": "‎2017-10-28",
+                     "src": "1101",
+                     "type": "out",
+                     "lastapp": "Dial",
+                     "dst": "‎0687774566",
+                     "record": "out-0687774566-1101-20171028-142304-1509189784.239.wav",
+                     "disposition": "ANSWERED",
+                     "billsec": 22
+                 },
+                 {
+                     "call_date": "‎2017-10-23",
+                     "src": "1119",
+                     "type": "out",
+                     "lastapp": "Dial",
+                     "dst": "‎0687774566",
+                     "record": "out-0687774566-1119-20171023-133344-1508754824.286.wav",
+                     "disposition": "ANSWERED",
+                     "billsec": 53
+                 },
+        ]
+
+    if _range == 'month':
+        q = [
+                {
+                    "disposition": "NO ANSWER",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 0,
+                    "dst": "‎0687774566",
+                    "call_date": "‎2017-11-11",
+                    "record": "out-0687774566-1117-20171111-185323-1510419203.6906.wav",
+                    "src": "1117"
+                },
+                {
+                    "disposition": "NO ANSWER",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 0,
+                    "dst": "‎0687774566",
+                    "call_date": "‎2017-11-11",
+                    "record": "out-0687774566-1117-20171111-185253-1510419173.6903.wav",
+                    "src": "1117"
+                },
+                {
+                    "disposition": "NO ANSWER",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 0,
+                    "dst": "‎0687774566",
+                    "call_date": "‎2017-11-11",
+                    "record": "out-0687774566-1117-20171111-172233-1510413753.6664.wav",
+                    "src": "1117"
+                },
+                {
+                    "disposition": "ANSWERED",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 44,
+                    "dst": "‎+380687774566",
+                    "call_date": "‎2017-11-06",
+                    "record": "out-+380687774566-1105-20171106-161347-1509977627.1053.wav",
+                    "src": "1105"
+                },
+                {
+                    "disposition": "ANSWERED",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 30,
+                    "dst": "‎+380687774566",
+                    "call_date": "‎2017-11-06",
+                    "record": "out-+380687774566-1105-20171106-160601-1509977161.1051.wav",
+                    "src": "1105"
+                },
+                {
+                    "disposition": "ANSWERED",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 61,
+                    "dst": "‎+380687774566",
+                    "call_date": "‎2017-11-06",
+                    "record": "out-+380687774566-1105-20171106-155701-1509976621.1049.wav",
+                    "src": "1105"
+                },
+                {
+                    "disposition": "BUSY",
+                    "type": "out",
+                    "lastapp": "Busy",
+                    "billsec": 0,
+                    "dst": "‎+380687774566",
+                    "call_date": "‎2017-11-06",
+                    "record": "out-+380687774566-1105-20171106-155609-1509976569.1046.wav",
+                    "src": "1105"
+                },
+                {
+                    "disposition": "ANSWERED",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 11,
+                    "dst": "‎0687774566",
+                    "call_date": "‎2017-11-02",
+                    "record": "out-0687774566-1117-20171102-132417-1509621857.7619.wav",
+                    "src": "1117"
+                },
+                {
+                    "disposition": "ANSWERED",
+                    "type": "out",
+                    "lastapp": "Dial",
+                    "billsec": 2,
+                    "dst": "‎0687774566",
+                    "call_date": "‎2017-11-02",
+                    "record": "out-0687774566-1117-20171102-132314-1509621794.7604.wav",
+                    "src": "1117"
+                }
+            ]
+
+    return Response(q)
+
     data['phone_number'] = phone_number
     data['range'] = _range
     data['month_date'] = month_date
