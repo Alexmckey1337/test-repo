@@ -4,7 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from reportlab.lib import colors
+from reportlab.lib.colors import blue
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -62,12 +64,12 @@ def structure_to_pdf(request, pk=None):
     if not request.user.is_staff:
         raise PermissionDenied
     user = None
-    users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
-    # users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
+    # users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
+    users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
     if pk:
         user = get_object_or_404(CustomUser, pk=pk)
-        users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
-        # users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
+        # users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
+        users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
 
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
@@ -89,13 +91,43 @@ def structure_to_pdf(request, pk=None):
     elements = list()
     if user:
         elements.append(Paragraph(
-            ' > '.join(['TOP'] + [u.fullname for u in user.get_ancestors()] + [user.fullname]), styles['Header2']))
+            ' > '.join(
+                ['<link href="{scheme}://{host}{pdf}" color="blue">TOP</link>'.format(
+                    url=reverse('structure-top'),
+                    pdf=reverse('structure_to_pdf-top'),
+                    host=request.META.get('HTTP_HOST'),
+                    scheme=request.is_secure() and 'https' or 'http'
+                )] +
+                [
+                    '<link href="{scheme}://{host}{pdf}" color="blue">{name}</link>'.format(
+                        name=u.fullname,
+                        url=reverse('structure-detail', kwargs={'pk': u.pk}),
+                        pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk}),
+                        host=request.META.get('HTTP_HOST'),
+                        scheme=request.is_secure() and 'https' or 'http'
+                    )
+                    for u in user.get_ancestors()] +
+                [user.fullname]), styles['Header2']))
     else:
-        elements.append(Paragraph(
-            'TOP', styles['Header2']))
+        elements.append(Paragraph('TOP', styles['Header2']))
     table_data = list()
+
     for u in users:
-        table_data.append([u.fullname, u.hierarchy or '', ', '.join(u.departments.values_list('title', flat=True))])
+        username = u.fullname if u.is_leaf() else Paragraph(
+            '{name} '
+            '<link href="{scheme}://{host}{url}" color="blue">page</color></link> '
+            '<link href="{scheme}://{host}{pdf}" color="red">pdf</link>'.format(
+                name=u.fullname,
+                url=reverse('structure-detail', kwargs={'pk': u.pk}),
+                pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk}),
+                host=request.META.get('HTTP_HOST'),
+                scheme=request.is_secure() and 'https' or 'http'
+            ), styles['LeftAlign'])
+        table_data.append([
+            username,
+            u.hierarchy or '',
+            ', '.join(u.departments.values_list('title', flat=True))
+        ])
     table_data = [['ФИО', 'Иерархия', 'Департаменты']] + table_data
     user_table = Table(table_data, colWidths=[
         doc.width * 0.4, doc.width * 0.2, doc.width * 0.4], normalizedData=1)
