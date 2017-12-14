@@ -7,7 +7,7 @@
     <h1>
         Structure | {{ user|default:"TOP" }} |
         {% if user %}
-            <a href="{% url "structure_to_pdf-detail" pk=user.pk %}">to pdf</a>
+            <a href="{% url "structure_to_pdf-detail" pk=user.pk name=user.fullname %}">to pdf</a>
         {% else %}
             <a href="{% url "structure_to_pdf-top" %}">to pdf</a>
         {% endif %}

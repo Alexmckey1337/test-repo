@@ -60,7 +60,7 @@ def structure(request, pk=None):
 
 
 @login_required(login_url='entry')
-def structure_to_pdf(request, pk=None):
+def structure_to_pdf(request, pk=None, name=''):
     if not request.user.is_staff:
         raise PermissionDenied
     user = None
@@ -102,7 +102,7 @@ def structure_to_pdf(request, pk=None):
                     '<link href="{scheme}://{host}{pdf}" color="blue">{name}</link>'.format(
                         name=u.fullname,
                         url=reverse('structure-detail', kwargs={'pk': u.pk}),
-                        pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk}),
+                        pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk, 'name': u.fullname}),
                         host=request.META.get('HTTP_HOST'),
                         scheme=request.is_secure() and 'https' or 'http'
                     )
@@ -119,7 +119,7 @@ def structure_to_pdf(request, pk=None):
             '<link href="{scheme}://{host}{pdf}" color="red">pdf</link>'.format(
                 name=u.fullname,
                 url=reverse('structure-detail', kwargs={'pk': u.pk}),
-                pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk}),
+                pdf=reverse('structure_to_pdf-detail', kwargs={'pk': u.pk, 'name': u.fullname}),
                 host=request.META.get('HTTP_HOST'),
                 scheme=request.is_secure() and 'https' or 'http'
             ), styles['LeftAlign'])
