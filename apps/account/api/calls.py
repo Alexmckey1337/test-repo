@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 
 class ServiceUnavailable(exceptions.APIException):
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    default_detail = 'Service temporarily unavailable, try again later.'
+    default_detail = 'Asterisk service temporarily unavailable, try again later.'
     default_code = 'service_unavailable'
 
 
@@ -58,8 +58,14 @@ def prepare_calls_data(user_calls):
 
 def prepare_asterisk_users(users):
     for x in enumerate(users):
+        try:
+            user_id = x[1][1].split('_')[0]
+            fullname = User.objects.get(id=user_id).fullname
+        except Exception:
+            fullname = None
         users[x[0]] = {
-            'user': x[1]
+            'extension': x[1][0],
+            'fullname': fullname,
         }
     return users
 
@@ -94,7 +100,9 @@ def calls_to_user(request):
 
     calls_data = prepare_calls_data(user_calls)
 
-    return Response(calls_data, status=status.HTTP_200_OK)
+    result = {'calls_data': calls_data}
+
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -127,20 +135,34 @@ def asterisk_users(request):
 
 
 @api_view(['POST'])
-def asterisk_name_change(request):
+def change_asterisk_user(request):
     data = {}
-    extension = request.data.get('internal_number')
-    user = get_object_or_404(User, pk=request.data.get('id'))
+    extension = request.data.get('extension')  # {"user_id": 15287, "extension": "9002"}
+    if not extension:
+        raise exceptions.ValidationError({'message': 'Parameter {extension} must be passed'})
+
+    user_id = request.data.get('user_id')
+    user = get_object_or_404(User, pk=user_id)
     fullname = user.fullname
 
-    data['extension'] = exception
+    data['extension'] = extension
+    data['name'] = '%s_%s' % (user_id, fullname)
 
     try:
         user_calls = requests.post(settings.ASTERISK_SERVICE_ADDRESS + '/change_user', data=json.dumps(data),
-                                  headers={'Content-Type': 'application/json'})
+                                   headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
         raise ServiceUnavailable({'detail': 'Asterisk Service temporarily unavailable, try again later'})
+
+    if user_calls.status_code == 200:
+        message = user_calls.json()
+        status_code = status.HTTP_200_OK
+    else:
+        message = 'Error in update Asterisk user data'
+        status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return Response({'message': message}, status=status_code)
 
 
 @api_view(['GET'])
