@@ -42,12 +42,10 @@ export function updatePartnershipSummaryTable() {
 
 export function updatePartnershipCompareSummaryTable() {
     $('.preloader').css('display', 'block');
-    // $('input[name="fullsearch"]').unbind('keyup.search');
     makeCompareSummaryTable();
 }
 
 export function PartnershipCompareSummaryTable(config = {}, firstDate = false) {
-    // $('input[name="fullsearch"]').unbind('keyup.search');
     $('.preloader').css('display', 'block');
     let url = URLS.partner.managers_summary(),
         date = (firstDate) ?

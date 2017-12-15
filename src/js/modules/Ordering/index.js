@@ -114,7 +114,8 @@ export class OrderTableByClient extends OrderTable {
 
     _addSearchListenerByClient(callback, data, oldData) {
         $('input[name="fullsearch"]').unbind('keyup');
-        let actualData;
+        let _self = this,
+            actualData;
         if ($.isEmptyObject(oldData)) {
             actualData = data;
         } else {
@@ -128,26 +129,10 @@ export class OrderTableByClient extends OrderTable {
                     newArr = _.filter(pureArr, (e) => {
                         return e.manager.toUpperCase().indexOf(search.toUpperCase()) !== -1;
                     }),
-                    allPlans = newArr.reduce((sum, current) => sum + current.plan, 0),
-                    allSum = newArr.reduce((sum, current) => sum + current.total_sum, 0),
-                    newRow = {
-                        manager: 'СУММАРНО:',
-                        plan: allPlans,
-                        potential_sum: newArr.reduce((sum, current) => sum + current.potential_sum, 0),
-                        sum_deals: newArr.reduce((sum, current) => sum + current.sum_deals, 0),
-                        sum_pay: newArr.reduce((sum, current) => sum + current.sum_pay, 0),
-                        sum_pay_tithe: newArr.reduce((sum, current) => sum + current.sum_pay_tithe, 0),
-                        sum_pay_church: newArr.reduce((sum, current) => sum + current.sum_pay_church, 0),
-                        total_sum: allSum,
-                        percent_of_plan: (100 / (allPlans / allSum)).toFixed(1),
-                        total_partners: newArr.reduce((sum, current) => sum + current.total_partners, 0),
-                        active_partners: newArr.reduce((sum, current) => sum + current.active_partners, 0),
-                        not_active_partners: newArr.reduce((sum, current) => sum + current.not_active_partners, 0),
-                    };
-                newArr.push(newRow);
-                let sortedData = {
+                    data = _self._makeData(newArr),
+                    sortedData = {
                     table_columns: actualData.table_columns,
-                    results: newArr,
+                    results: data,
                 };
                 (actualData.flag) ? sortedData.flag = true : sortedData.flag = false;
                 callback(sortedData, actualData);
@@ -159,7 +144,8 @@ export class OrderTableByClient extends OrderTable {
 
     _addSearchCompareListenerByClient(callback, data, oldData) {
         $('input[name="fullsearch"]').unbind('keyup');
-        let actualData;
+        let _self = this,
+            actualData;
         if ($.isEmptyObject(oldData)) {
             actualData = data;
         } else {
@@ -177,52 +163,43 @@ export class OrderTableByClient extends OrderTable {
                     newArrCompare = _.filter(pureArrCompare, (e) => {
                         return e.manager.toUpperCase().indexOf(search.toUpperCase()) !== -1;
                     }),
-                    allPlans = newArr.reduce((sum, current) => sum + current.plan, 0),
-                    allSum = newArr.reduce((sum, current) => sum + current.total_sum, 0),
-                    newRow = {
-                        manager: 'СУММАРНО:',
-                        plan: allPlans,
-                        potential_sum: newArr.reduce((sum, current) => sum + current.potential_sum, 0),
-                        sum_deals: newArr.reduce((sum, current) => sum + current.sum_deals, 0),
-                        sum_pay: newArr.reduce((sum, current) => sum + current.sum_pay, 0),
-                        sum_pay_tithe: newArr.reduce((sum, current) => sum + current.sum_pay_tithe, 0),
-                        sum_pay_church: newArr.reduce((sum, current) => sum + current.sum_pay_church, 0),
-                        total_sum: allSum,
-                        percent_of_plan: (100 / (allPlans / allSum)).toFixed(1),
-                        total_partners: newArr.reduce((sum, current) => sum + current.total_partners, 0),
-                        active_partners: newArr.reduce((sum, current) => sum + current.active_partners, 0),
-                        not_active_partners: newArr.reduce((sum, current) => sum + current.not_active_partners, 0),
-                    },
-                    allPlansCompare = newArrCompare.reduce((sum, current) => sum + current.plan, 0),
-                    allSumCompare = newArrCompare.reduce((sum, current) => sum + current.total_sum, 0),
-                    newRowCompare = {
-                        manager: 'СУММАРНО:',
-                        plan: allPlansCompare,
-                        potential_sum: newArrCompare.reduce((sum, current) => sum + current.potential_sum, 0),
-                        sum_deals: newArrCompare.reduce((sum, current) => sum + current.sum_deals, 0),
-                        sum_pay: newArrCompare.reduce((sum, current) => sum + current.sum_pay, 0),
-                        sum_pay_tithe: newArrCompare.reduce((sum, current) => sum + current.sum_pay_tithe, 0),
-                        sum_pay_church: newArrCompare.reduce((sum, current) => sum + current.sum_pay_church, 0),
-                        total_sum: allSumCompare,
-                        percent_of_plan: (100 / (allPlansCompare / allSumCompare)).toFixed(1),
-                        total_partners: newArrCompare.reduce((sum, current) => sum + current.total_partners, 0),
-                        active_partners: newArrCompare.reduce((sum, current) => sum + current.active_partners, 0),
-                        not_active_partners: newArrCompare.reduce((sum, current) => sum + current.not_active_partners, 0),
+                    data = _self._makeData(newArr),
+                    dataCompare = _self._makeData(newArrCompare),
+                    sortedData = {
+                        table_columns: actualData.table_columns,
+                        result: data,
+                        resultCompare: dataCompare,
+                        firstDate: actualData.firstDate,
+                        secondDate: actualData.secondDate,
+                        flag: actualData.flag,
                     };
-                newArr.push(newRow);
-                newArrCompare.push(newRowCompare);
-                let sortedData = {
-                    table_columns: actualData.table_columns,
-                    result: newArr,
-                    resultCompare: newArrCompare,
-                    firstDate: actualData.firstDate,
-                    secondDate: actualData.secondDate,
-                    flag: actualData.flag,
-                };
                 callback(sortedData, actualData);
             } else {
                 callback(actualData, actualData);
             }
         }, 500));
+    }
+
+    _makeData(data) {
+        let allPlans = data.reduce((sum, current) => sum + current.plan, 0),
+            allSum = data.reduce((sum, current) => sum + current.total_sum, 0),
+            percent = (100 / (allPlans / allSum)).toFixed(1),
+            newRow = {
+                manager: 'СУММАРНО:',
+                plan: allPlans,
+                potential_sum: data.reduce((sum, current) => sum + current.potential_sum, 0),
+                sum_deals: data.reduce((sum, current) => sum + current.sum_deals, 0),
+                sum_pay: data.reduce((sum, current) => sum + current.sum_pay, 0),
+                sum_pay_tithe: data.reduce((sum, current) => sum + current.sum_pay_tithe, 0),
+                sum_pay_church: data.reduce((sum, current) => sum + current.sum_pay_church, 0),
+                total_sum: allSum,
+                percent_of_plan: (isFinite(+percent) && isNaN(+percent)) ? percent : 0.0,
+                total_partners: data.reduce((sum, current) => sum + current.total_partners, 0),
+                active_partners: data.reduce((sum, current) => sum + current.active_partners, 0),
+                not_active_partners: data.reduce((sum, current) => sum + current.not_active_partners, 0),
+            };
+        data.push(newRow);
+
+        return data;
     }
 }
