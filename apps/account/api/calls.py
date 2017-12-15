@@ -149,8 +149,8 @@ def change_asterisk_user(request):
     data['name'] = '%s_%s' % (user_id, fullname)
 
     try:
-        user_calls = requests.post(settings.ASTERISK_SERVICE_ADDRESS + '/change_user', data=json.dumps(data),
-                                   headers={'Content-Type': 'application/json'})
+        user_calls = requests.put(settings.ASTERISK_SERVICE_ADDRESS + '/change_user', data=json.dumps(data),
+                                  headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
         raise ServiceUnavailable({'detail': 'Asterisk Service temporarily unavailable, try again later'})
