@@ -1,22 +1,33 @@
 'use strict';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import moment from 'moment/min/moment.min.js';
+import moment from 'moment';
 import updateSettings from './modules/UpdateSettings/index';
 import {
     PartnershipSummaryTable,
     PartnershipCompareSummaryTable,
-    partnershipSummaryTable
+    partnershipSummaryTable,
+    partnershipCompareSummaryTable,
+    updatePartnershipSummaryTable,
+    updatePartnershipCompareSummaryTable
 } from "./modules/PartnerSummary/index";
 
 $(document).ready(function () {
-    const USER_ID = $('body').data('user');
     let dateReports = new Date(),
         thisPeriod = moment(dateReports).format('MM/YYYY'),
         lastPeriod = moment(dateReports).subtract(1, 'month').format('MM/YYYY'),
         configData = {
             year: moment(dateReports).format('YYYY'),
             month: moment(dateReports).format('MM')
+        };
+    // Temporary solution. Need to rewrite on React/Redux
+    window.state = {
+            table_columns: null,
+            result: null,
+            resultCompare: null,
+            firstDate: null,
+            secondDate: null,
+            canEdit: null,
         };
 
     $('#date_field_stats').val(thisPeriod)
@@ -27,26 +38,32 @@ $(document).ready(function () {
             minView: 'months',
             dateFormat: 'mm/yyyy',
             autoClose: true,
-            onSelect: (formattedDate) => {
-                if (formattedDate != '') {
-                    $('.preloader').css('display', 'block');
-                    (formattedDate === thisPeriod) ? partnershipSummaryTable() : partnershipSummaryTable({}, false);
+            onSelect: (formattedDate, date) => {
+                let showCompare = $('#showCompare').is(':checked'),
+                    flag = (formattedDate === thisPeriod);
+                window.state = Object.assign(window.state, {
+                    firstDate: moment(date).toISOString(),
+                    canEdit: flag,
+                });
+                if (showCompare) {
+                    PartnershipCompareSummaryTable({}, true);
+                } else {
+                    partnershipSummaryTable();
                 }
             }
         });
 
     $('#date_field_compare').val(lastPeriod)
         .datepicker({
-        maxDate: new Date(),
+        maxDate: new Date(moment(dateReports).subtract(1, 'month').format()),
         startDate: new Date(),
         view: 'months',
         minView: 'months',
         dateFormat: 'mm/yyyy',
         autoClose: true,
-        onSelect: (formattedDate) => {
-            if (formattedDate != '') {
-                $('.preloader').css('display', 'block');
-            }
+        onSelect: (formattedDate, date) => {
+            window.state = Object.assign(window.state, {secondDate: moment(date).toISOString()});
+            PartnershipCompareSummaryTable();
         }
     });
 
@@ -54,17 +71,26 @@ $(document).ready(function () {
 
     // Sort table
     $('#sort_save').on('click', function () {
-        $('.preloader').css('display', 'block');
-        updateSettings(PartnershipSummaryTable, 'partner_summary');
-        $('#date_field_stats').val(thisPeriod);
+        let showCompare = $('#showCompare').is(':checked');
+        if (showCompare) {
+            updateSettings(partnershipCompareSummaryTable, 'partner_summary');
+        } else {
+            updateSettings(PartnershipSummaryTable, 'partner_summary');
+        }
     });
 
     $('#showCompare').on('change', function () {
        if ($(this).is(':checked')) {
            $('#date_field_compare').prop('disabled', false);
-           PartnershipCompareSummaryTable();
+           if (window.state.secondDate) {
+                updatePartnershipCompareSummaryTable();
+           } else {
+               window.state = Object.assign(window.state, {secondDate: moment(dateReports).subtract(1, 'month').toISOString()});
+               PartnershipCompareSummaryTable();
+           }
        } else {
            $('#date_field_compare').prop('disabled', true);
+           updatePartnershipSummaryTable();
        }
     });
 

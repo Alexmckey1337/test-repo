@@ -1,4 +1,6 @@
 'use strict';
+import moment from 'moment';
+import 'moment/locale/ru';
 import URLS from '../Urls/index';
 import getData, {postData} from "../Ajax/index";
 import makeSortForm from '../Sort/index';
@@ -6,55 +8,88 @@ import {showAlert} from "../ShowNotifications/index";
 import fixedTableHead from '../FixedHeadTable/index';
 import {OrderTableByClient} from "../Ordering/index";
 
-export function PartnershipSummaryTable(config, flag = true) {
+export function PartnershipSummaryTable(config = {}) {
+    const dateReports = new Date();
+    let date = window.state.firstDate;
     $('.preloader').css('display', 'block');
+    if (date) {
+        Object.assign(config, {
+            year: moment(date).format('YYYY'),
+            month: moment(date).format('MM')
+        })
+    }
     getData(URLS.partner.managers_summary(), config).then(data => {
-        let newData = makeData(data);
+        let newData = makeData(data),
+            flag = (moment(dateReports).format('MMM YYYY') === (date ? moment(date).format('MMM YYYY') : moment(dateReports).format('MMM YYYY')));
         (flag) ? newData.flag = true : newData.flag = false;
-        window.state = {
-            table_columns: newData.table_columns,
-            result: newData.results,
-            resultCompare: null,
-        };
+        window.state = Object.assign(window.state, {
+            result: data.results,
+            table_columns: data.table_columns,
+            firstDate: date ? date : moment(dateReports).toISOString(),
+            canEdit: flag,
+        });
         makePartnershipSummaryTable(newData);
     });
 }
 
-export function PartnershipCompareSummaryTable(config = {}, flag = true) {
-    let url = URLS.partner.managers_summary(),
-        date = $('#date_field_compare').val().split('/');
-        Object.assign(config, {month: date[0], year: date[1]});
+export function updatePartnershipSummaryTable() {
     $('.preloader').css('display', 'block');
+    let data = $.extend(true, {}, window.state);
+    let newData = makeData({results: data.result, table_columns: data.table_columns});
+    (window.state.canEdit) ? newData.flag = true : newData.flag = false;
+    makePartnershipSummaryTable(newData);
+}
+
+export function updatePartnershipCompareSummaryTable() {
+    $('.preloader').css('display', 'block');
+    // $('input[name="fullsearch"]').unbind('keyup.search');
+    makeCompareSummaryTable();
+}
+
+export function PartnershipCompareSummaryTable(config = {}, firstDate = false) {
+    // $('input[name="fullsearch"]').unbind('keyup.search');
+    $('.preloader').css('display', 'block');
+    let url = URLS.partner.managers_summary(),
+        date = (firstDate) ?
+            $('#date_field_stats').val().split('/')
+            :
+            $('#date_field_compare').val().split('/');
+        Object.assign(config, {month: date[0], year: date[1]});
     (async () => {
         await getData(url, config).then(data => {
-            let newData = makeData(data);
-            (flag) ? newData.flag = true : newData.flag = false;
-            window.state = Object.assign(window.state, {resultCompare: newData.results});
+            window.state = (firstDate) ?
+                Object.assign(window.state, {result: data.results})
+                :
+                Object.assign(window.state, {resultCompare: data.results});
             makeCompareSummaryTable();
         });
     })();
 }
 
-export function partnershipSummaryTable(config = {}, flag = true) {
-    let month = $('#date_field_stats').val().split('/')[0],
-        year = $('#date_field_stats').val().split('/')[1];
-    config.year = year;
-    config.month = month;
-    getData(URLS.partner.managers_summary(), config).then(data => {
-        let newData = makeData(data);
-        (flag) ? newData.flag = true : newData.flag = false;
-        makePartnershipSummaryTable(newData);
-    })
+export function partnershipCompareSummaryTable(config = {}) {
+    $('.preloader').css('display', 'block');
+    let url = URLS.partner.managers_summary(),
+        date = window.state.secondDate,
+        year = moment(date).format('YYYY'),
+        month = moment(date).format('MM');
+    Object.assign(config, {month, year});
+    (async () => {
+        await getData(url, config).then(data => {
+                Object.assign(window.state, {table_columns: data.table_columns});
+            makeCompareSummaryTable();
+        });
+    })();
 }
 
-export function partnershipCompareSummaryTable(config = {}, flag = true) {
+export function partnershipSummaryTable(config = {}) {
+    $('.preloader').css('display', 'block');
     let month = $('#date_field_stats').val().split('/')[0],
         year = $('#date_field_stats').val().split('/')[1];
     config.year = year;
     config.month = month;
     getData(URLS.partner.managers_summary(), config).then(data => {
         let newData = makeData(data);
-        (flag) ? newData.flag = true : newData.flag = false;
+        (window.state.canEdit) ? newData.flag = true : newData.flag = false;
         makePartnershipSummaryTable(newData);
     })
 }
@@ -131,11 +166,13 @@ function btnControls() {
             value = $(this).closest('.edit').find('input').val(),
             sum_pay = $(this).closest('tr').find('.sum_pay').text(),
             sum_pay_tithe = $(this).closest('tr').find('.sum_pay_tithe').text(),
+            sum_pay_church = $(this).closest('tr').find('.sum_pay_church').text(),
             data = {
                 plan_sum: value,
             },
-            percent = (100 / (value / (+sum_pay + +sum_pay_tithe))).toFixed(1),
+            percent = (100 / (value / (+sum_pay + +sum_pay_tithe + +sum_pay_church))).toFixed(1),
             perVal = isFinite(+percent) ? percent : 0;
+
         postData(URLS.partner.set_managers_plan(id), data).then(res => {
             showAlert(res.message);
             $(this).closest('.edit').removeClass('active').find('input').prop('disabled', true).prop('readonly', true);
@@ -147,14 +184,87 @@ function btnControls() {
 }
 
 function makeCompareSummaryTable() {
-    let data = window.state,
-        diff = _.differenceWith(data.results, data.resultCompare, customizer);
-    console.log('DIFF -->', diff);
-    $('.preloader').css('display', 'none');
+    let data = makeCompareDate();
+    data.firstDate = moment(window.state.firstDate).locale('ru').format('MMM YYYY');
+    data.secondDate = moment(window.state.secondDate).locale('ru').format('MMM YYYY');
+    data.flag = window.state.canEdit;
+    renderCompareTable(data);
 }
 
-function customizer(objValue, othValue) {
-  if (objValue.manager === othValue.manager) {
-    return true;
-  }
+function makeCompareDate() {
+    let data = $.extend(true, {}, window.state),
+        dif1 = _.differenceWith(data.result, data.resultCompare, (el1, el2) => el1.user_id === el2.user_id),
+        dif2 = _.differenceWith(data.resultCompare, data.result, (el1, el2) => el1.user_id === el2.user_id),
+        difference = _.uniqBy(_.concat(dif1, dif2), 'user_id');
+    difference.map(el1 => {
+        if (!_.some(data.result, ['user_id', el1.user_id])) {
+            data.result.push({
+                active_church_partners: 0,
+                active_partners: 0,
+                church_potential_sum: 0,
+                manager: el1.manager,
+                not_active_partners: 0,
+                percent_of_plan: '0.0',
+                plan: 0,
+                potential_sum: 0,
+                sum_church_deals: 0,
+                sum_deals: 0,
+                sum_pay: 0,
+                sum_pay_church: 0,
+                sum_pay_tithe: 0,
+                total_church_partners: 0,
+                total_partners: 0,
+                total_sum: 0,
+                user_id: el1.user_id,
+            });
+        }
+        if (!_.some(data.resultCompare, ['user_id', el1.user_id])) {
+            data.resultCompare.push({
+                active_church_partners: 0,
+                active_partners: 0,
+                church_potential_sum: 0,
+                manager: el1.manager,
+                not_active_partners: 0,
+                percent_of_plan: '0.0',
+                plan: 0,
+                potential_sum: 0,
+                sum_church_deals: 0,
+                sum_deals: 0,
+                sum_pay: 0,
+                sum_pay_church: 0,
+                sum_pay_tithe: 0,
+                total_church_partners: 0,
+                total_partners: 0,
+                total_sum: 0,
+                user_id: el1.user_id,
+            });
+        }
+    });
+    let result = _.sortBy(data.result, el => el.manager),
+        resultCompare = _.sortBy(data.resultCompare, el => el.manager),
+        newResultData = makeData({
+            table_columns: data.table_columns,
+            results: result
+        }),
+        newResultCompareData = makeData({
+            table_columns: data.table_columns,
+            results: resultCompare
+        });
+
+    return {
+        result: newResultData.results,
+        table_columns: newResultData.table_columns,
+        resultCompare: newResultCompareData.results,
+    }
+}
+
+function renderCompareTable(data, oldData = {}) {
+    let tmpl = $('#databaseCompareSummary').html(),
+        rendered = _.template(tmpl)(data);
+    $('#managersPlan').html(rendered);
+    makeSortForm(data.table_columns);
+    btnControls();
+    fixedTableHead();
+    new OrderTableByClient().searchCompareByClient(renderCompareTable, data, oldData);
+    $('.preloader').css('display', 'none');
 }
