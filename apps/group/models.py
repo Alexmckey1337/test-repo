@@ -9,7 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from apps.group.managers import ChurchManager, HomeGroupManager
-from apps.event.models import Meeting, MeetingType
+from apps.event.models import Meeting, MeetingType, ChurchReport
 from django.db import transaction
 from apps.payment.models import get_default_currency
 
@@ -20,7 +20,7 @@ class CommonGroup(models.Model):
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50)
     address = models.CharField(_('Address'), max_length=300, blank=True)
-    phone_number = models.CharField(_('Phone Number'), max_length=13, blank=True)
+    phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
     website = models.URLField(_('Web Site'), blank=True)
 
     class Meta:
@@ -50,6 +50,16 @@ class Church(CommonGroup):
     report_currency = models.IntegerField(default=get_default_currency(), verbose_name=_('Report Currency'))
 
     objects = ChurchManager()
+
+    def save(self, *args, **kwargs):
+        is_create = True if not self.pk else False
+        super(Church, self).save(*args, **kwargs)
+
+        if is_create:
+            ChurchReport.objects.create(church=self,
+                                        pastor=self.pastor,
+                                        date=datetime.now().date(),
+                                        currency_id=self.report_currency)
 
     class Meta:
         verbose_name = _('Church')

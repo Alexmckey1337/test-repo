@@ -393,10 +393,10 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                 CONCAT(auth_user.last_name, ' ', auth_user.first_name, ' ', account_customuser.middle_name)
                 HAVING count(*) > 1
                 ORDER BY p.id;
-            """.format("','".join(str(_id) for _id in deal_ids))
+            """.format("','".join(["%s"] * len(deal_ids)))
 
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            cursor.execute(query, deal_ids)
             data = cursor.fetchall()
 
         page = int(request.query_params.get('page', 1) or 1)

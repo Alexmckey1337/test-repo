@@ -8,7 +8,8 @@ volumes:
 
 services:
   postgres:
-    build: ./compose/postgres
+    container_name: postgres_dev
+    image: reg.sobsam.com/postgres:9.6
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
       - postgres_backup_dev:/backups
@@ -20,11 +21,13 @@ services:
       - "4321:5432"
 
   redis:
+    container_name: redis_dev
     image: redis:latest
     volumes:
       - redis_data_dev:/data
 
   es:
+    container_name: es_dev
     image: elasticsearch:latest
     volumes:
       - es_data_dev:/data
@@ -32,6 +35,7 @@ services:
       - "9200:9200"
 
   kibana:
+    container_name: kibana_dev
     image: kibana:latest
     environment:
       - ELASTICSEARCH_URL=http://es:9200
@@ -39,6 +43,7 @@ services:
       - "5601:5601"
 
   django:
+    container_name: django_dev
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile-dev
@@ -62,6 +67,7 @@ services:
       - es
 
   celeryworker:
+    container_name: celeryworker_dev
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile-dev
@@ -82,6 +88,7 @@ services:
     command: celery -A edem worker -l INFO -c 4
 
   flower:
+    container_name: flower_dev
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile-dev
@@ -104,6 +111,7 @@ services:
     command: celery flower
 
   pycharm:
+    container_name: pycharm_dev
     build:
       context: .
       dockerfile: ./compose/django/Dockerfile-dev
