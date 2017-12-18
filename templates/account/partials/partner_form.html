@@ -1,8 +1,15 @@
 {% load partner_tags %}
-<form action="/" name="editPartnership" data-action="update-user" data-partner="{{ partner.id }}" id="partnership">
+<form action="/" name="editPartnership" data-action="update-user" data-partner="{{ partner.id }}">
     <input type="hidden" data-id="user" value="{{ account.id }}">
     {% if request.user.is_partner_supervisor_or_high %}
-        <button class="edit" data-edit-block="editPartnership"></button>
+        <button class="edit"
+                {% if count %}
+                data-edit-block="editPartnership{{ count }}"
+                {% else %}
+                data-edit-block="editPartnership"
+                {% endif %}
+        >
+        </button>
         <button class="save__info" type="submit"></button>
     {% endif %}
     <div class="popup_body">
@@ -12,15 +19,15 @@
                     {% if partner %}Активный{% else %}Партнер{% endif %}
                 </span>
                 {% if partner.is_active %}
-                    <input type="checkbox" id="partnershipCheck" data-block="partner" checked disabled>
+                    <input type="checkbox" class="partnershipCheck" data-block="partner" checked disabled>
                 {% else %}
-                    <input type="checkbox" id="partnershipCheck" readonly disabled>
+                    <input type="checkbox" class="partnershipCheck" readonly disabled>
                 {% endif %}
                 <div></div>
             </label>
         </div>
     </div>
-    <div class="popup_body {% if not partner %} hidden {% endif %} " id="partnershipBlock">
+    <div class="popup_body {% if not partner %} hidden {% endif %} partnershipBlock">
         <div class="container">
             <label>
                 <span class="label_block">Партнёр с:</span>
@@ -31,9 +38,9 @@
                 <span class="label_block">Сумма сделки:</span>
                 <div class="input">
                     <input type="text" data-id="value" value="{{ partner.value }}"
-                           id="payment_value"
+                           class="payment_value"
                            readonly disabled>
-                    <select id="payment_currency" class="no_select" data-id="currency" required
+                    <select class="payment_currency" class="no_select" data-id="currency" required
                             readonly disabled>
                         {% for currency in currencies %}
                             <option value="{{ currency.id }}"
@@ -46,7 +53,7 @@
             </label>
             <label>
                 <span class="label_block">Менеджер:</span>
-                <select id="responsible" data-id="responsible" readonly disabled>
+                <select class="responsible" data-id="responsible" readonly disabled>
                     <option value="">Выберите менеджера</option>
                     {% get_simple_managers as managers %}
                     {% for manager in managers %}
@@ -57,7 +64,7 @@
             </label>
             <label>
                 <span class="label_block">База:</span>
-                <select id="group" class="par__group" data-id="group" readonly disabled>
+                <select class="group" class="par__group" data-id="group" readonly disabled>
                     <option value="" selected disabled>Выберите базу</option>
                     {% for el in partner_groups %}
                         <option value="{{ el.id }}"

@@ -497,7 +497,7 @@
                     </div>
                 </div>
                 {% if user.is_partner_manager_or_high and account.is_partner %}
-                    {% for partner in account.partners.all %}
+                    <button id="addMorePartners">Добавить партнерство</button>
                         <div class="a-sdelki" id="Sdelki">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
@@ -530,31 +530,33 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        {% for partner in account.partners.all %}
+                            <div class="partner_block_wrap">
                             <div class="partner_wrapper">
                                 <ul class="right-info">
-                                    <li id="editPartnership">
+                                    <li id="editPartnership{{ forloop.counter }}">
                                         <div class="right-info__block">
                                             <h4>Партнерские данные</h4>
                                             <div class="success__block"></div>
-                                            {% include "account/partials/partner_form.html" with partner=partner %}
+                                            {% include "account/partials/partner_form.html" with partner=partner count=forloop.counter %}
                                         </div>
                                     </li>
                                 </ul>
                                 <div class="note_wrapper">
-                                    <label for="id_need_text">Молитвенная нужда</label>
+                                    <label for="id_need_text{{ forloop.counter }}">Молитвенная нужда</label>
                                     <div class="btn-block">
                                         <button class="editText"></button>
-                                        <button class="saveNote" id="send_need"
+                                        <button class="saveNote send_need"
                                                 data-partner="{{ partner.id }}"></button>
                                     </div>
-                                    <textarea name="need_text" id="id_need_text" rows="5" cols="50"
+                                    <textarea name="need_text" id="id_need_text{{ forloop.counter }}" rows="5" cols="50"
                                               readonly>{{ partner.need_text }}</textarea>
                                 </div>
                             </div>
-                            <div class="tab-status" id="tabStatus">
-                                <ul id="tabs1">
+                            <div class="tab-status" id="tabStatus{{ forloop.counter }}">
+                                <ul class="tabs_deals">
                                     <li data-tab="1">
-                                        <button>Незавершённые (<span id="incomplete-count">
+                                        <button>Незавершённые (<span>
                                         {% with count=partner.undone_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
@@ -562,15 +564,15 @@
                                         </button>
                                     </li>
                                     <li data-tab="2">
-                                        <button href="#overdue">Просроченные(<span id="overdue-count">
+                                        <button href="#overdue">Просроченные(<span>
                                         {% with count=partner.expired_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
                                     </span>)
                                         </button>
                                     </li>
-                                    <li data-tab="3">
-                                        <button href="#completed">Завершённые(<span id="completed-count">
+                                    <li data-tab="3" class="active">
+                                        <button href="#completed">Завершённые(<span>
                                         {% with count=partner.done_deals_count %}
                                             {% if count > 20 %}20 из {% endif %}{{ count }}
                                         {% endwith %}
@@ -578,7 +580,9 @@
                                         </button>
                                     </li>
                                 </ul>
-                                <button data-currency-id="{{ partner.currency.id }}" id="create_new_deal">
+                                <button data-currency="{{ partner.currency.short_name }}"
+                                        data-partner="{{ partner.id }}"
+                                        class="create_new_deal">
                                     Добавить сделку
                                 </button>
                             </div>
@@ -618,9 +622,10 @@
                                     </p>
                                 </div>
                             {% endfor %}
+                            </div>
+                        {% endfor %}
                         </div>
-                        {% include "partner/partials/create_deal.html" with partnership=partner.id currency=partner.currency %}
-                    {% endfor %}
+                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -933,6 +938,64 @@
             <div class="buttons">
                 <button class="close_pop">Отменить</button>
                 <button id="hard_create">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-create_partners" class="popap">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление партнёрства</h2>
+            </div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="user" value="{{ account.id }}">
+                    <label>
+                        <span class="label_block">Партнер</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">База:</span>
+                        <select class="group selectdb" class="par__group" data-id="group">
+                            <option value="" selected disabled>Выберите базу</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners">Сохранить</button>
             </div>
         </div>
     </div>
