@@ -123,7 +123,7 @@ export function dataIptelMonth(url) {
         $('.preloader').css('display', 'none');
     });
 }
-function makeIptelTable(data,block) {
+export function makeIptelTable(data,block) {
     let table = `<table class="tableIptel">
                         <thead>
                             <tr>
@@ -135,7 +135,8 @@ function makeIptelTable(data,block) {
                                 <th>Запись</th>
                             </tr>
                         </thead>
-                        <tbody>${data.map(item => {
+                        <tbody>${data.calls_data.map(item => {
+        
         return `<tr>
                             <td>
                                 ${item.type === 'out' ? `<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">

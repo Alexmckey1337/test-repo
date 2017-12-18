@@ -229,7 +229,30 @@
   //  }
   //}
 }
-
+.menu__item_phone{
+  display: block;
+  width: 100%;
+  font-size: 1.2em;
+  color: #fff;
+  text-decoration: none;
+  -webkit-transition: color .1s ease;
+  transition: color .1s ease;
+  padding: 35px 0 40px 0;
+  background: 0 0;
+  position: relative;
+  border-top: 1px solid #555b65;
+  &:hover:before {
+    color: #3caeda;
+  }
+  &::before{
+    content: '\f095';
+    color: #cecece;
+    font: 2em FontAwesome;
+    position: absolute;
+    top: 25px;
+    left: 30px;
+  }
+}
 
 .sidebar-submenu{
   display: none;
@@ -291,7 +314,7 @@
 
 #sort-on,
 #load-tickets,
-#duplicates {
+#duplicates,#add-phone {
   font-size: 2em;
   padding: 0.25em 0.5em;
 }
@@ -310,7 +333,7 @@
 #popupMonth,
 #playerPopup,
 #create_duplicate_pop,
-#create_special_pop{
+#create_special_pop,#popupAddUserToPhone{
   .pop_cont{
     height: auto;
     left: 50%;

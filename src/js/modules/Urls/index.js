@@ -145,6 +145,14 @@ const PAYMENT = {
     payment_detail: (id) => `/api/v1.0/payments/${id}/detail/`,
 };
 
+const PHONE = {
+
+    list: () => `/api/v1.1/all_calls/`,
+    user: () => `/api/v1.1/asterisk_users/`,
+    changeUser: () => `/api/v1.1/change_asterisk_user/`,
+    // detail: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/`,
+};
+
 const URLS = {
     login: () => `/api/v1.0/login/`,
     logout: () => `/api/v1.0/logout/`,
@@ -177,6 +185,7 @@ const URLS = {
     event: EVENT,
     church: CHURCH,
     home_group: HOME_GROUP,
+    phone: PHONE,
 };
 
 export default URLS;

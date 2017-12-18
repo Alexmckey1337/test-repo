@@ -981,12 +981,10 @@ $('document').ready(function () {
         let idUser = $('body').attr('data-user'),
            todayDate = moment().locale('ru'),
            url = '/api/v1.1/calls_to_user/?user_id='+idUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
-
+        $('#tableMonthIptel').html('');
        $('.preloader').css('display', 'block');
        $('#popupMonth').css('display', 'block');
-       console.log(url);
        $('#monthInput').val(todayDate.format("MMMM YYYY"));
-       $('#tableMonthIptel').html('');
         dataIptelMonth(url);
     });
     $('.close_pop').on('click',function () {
