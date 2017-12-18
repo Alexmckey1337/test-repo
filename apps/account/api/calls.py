@@ -13,31 +13,27 @@ from django.shortcuts import get_object_or_404
 
 class ServiceUnavailable(exceptions.APIException):
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    default_detail = 'Service temporarily unavailable, try again later.'
+    default_detail = 'Asterisk service temporarily unavailable, try again later.'
     default_code = 'service_unavailable'
 
 
 def request_to_asterisk(data, url):
     try:
-        user_calls = requests.get(settings.ASTERISK_SERVICE_ADDRESS + url, data=json.dumps(data),
-                                  headers={'Content-Type': 'application/json'})
+        response = requests.get(settings.ASTERISK_SERVICE_ADDRESS + url,
+                                data=json.dumps(data),
+                                headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
-        raise ServiceUnavailable({'detail': 'Asterisk Service temporarily unavailable, try again later'})
+        raise ServiceUnavailable(
+            {'detail': 'Asterisk Service temporarily unavailable, try again later'})
 
+    return response
+
+
+def prepare_calls_data(data):
     try:
-        user_calls = user_calls.json()
-    except Exception as e:
-        print(e)
-        raise ServiceUnavailable({"detail": "Can't parse Asterisk Service response"})
-
-    return user_calls
-
-
-def prepare_calls_data(user_calls):
-    try:
-        for call in enumerate(user_calls):
-            user_calls[call[0]] = {
+        for call in enumerate(data):
+            data[call[0]] = {
                 'call_date': call[1][0],
                 'src': call[1][4].split('-')[2],
                 'dst': call[1][4].split('-')[1],
@@ -53,57 +49,71 @@ def prepare_calls_data(user_calls):
             {"detail": "Can't prepare data to response."}
         )
 
-    return user_calls
+    return data
 
 
 def prepare_asterisk_users(users):
     for x in enumerate(users):
+        try:
+            user_id = x[1][1].split('_')[0]
+            fullname = User.objects.get(id=user_id).fullname
+        except Exception:
+            fullname = None
         users[x[0]] = {
-            'user': x[1]
+            'extension': x[1][0],
+            'fullname': fullname,
         }
     return users
+
+
+def get_response_data(response):
+    if response.status_code == status.HTTP_400_BAD_REQUEST:
+        raise exceptions.ValidationError({'message': response.text})
+    try:
+        calls_data = response.json().get('result')
+    except Exception as e:
+        print(e)
+        raise ServiceUnavailable({'detail': 'Can"t parse Asterisk Service response'})
+
+    return calls_data
 
 
 @api_view(['GET'])
 def calls_to_user(request):
     data = dict()
     try:
-        user = User.objects.get(id=request.query_params.get('user_id'))
-    except ObjectDoesNotExist:
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be passed'})
+        user_id = int(request.query_params.get('user_id'))
+    except ValueError:
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be integer'})
+    user = get_object_or_404(User, id=user_id)
 
     phone_number = user.phone_number[-10:]
     if not phone_number:
         raise exceptions.ValidationError({'message': 'This user not have a {phone_number}'})
 
-    _range = request.query_params.get('range')
-    if not _range or (_range not in ['last_3', 'month']):
-        raise exceptions.ValidationError(
-            {'message': 'Invalid {range} parameter or parameter not passed.'})
-
-    month_date = request.query_params.get('month_date', datetime.now().date().strftime('%Y-%m'))
-    if _range == 'month' and not month_date:
-        raise exceptions.ValidationError({'message': 'Parameter {month_date} must be passed'})
-
     data['phone_number'] = phone_number
-    data['range'] = _range
-    data['month_date'] = month_date
+    data['range'] = request.query_params.get('range')
+    data['month_date'] = request.query_params.get('month_date') or datetime.now().date().strftime('%Y-%m')
     data['query_type'] = 'user'
 
-    user_calls = request_to_asterisk(data, url='/calls')
+    response = request_to_asterisk(data, url='/calls')
+    calls_data = get_response_data(response)
+    calls_data = prepare_calls_data(calls_data)
 
-    calls_data = prepare_calls_data(user_calls)
+    result = {'result': calls_data}
 
-    return Response(calls_data, status=status.HTTP_200_OK)
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 def all_calls(request):
     data = request.query_params
 
-    users_calls = request_to_asterisk(data, url='/calls')
+    response = request_to_asterisk(data, url='/calls')
 
-    calls_data = prepare_calls_data(users_calls)
+    calls_data = get_response_data(response)
+
+    calls_data = prepare_calls_data(calls_data)
 
     pages_count = (len(calls_data) // 30) + 1
     page = int(request.query_params.get('page') or 1)
@@ -112,7 +122,7 @@ def all_calls(request):
 
     result = {
         'pages': pages_count,
-        'calls_data': calls_data[page_from:page_to]
+        'result': calls_data[page_from:page_to]
     }
 
     return Response(result, status=status.HTTP_200_OK)
@@ -120,27 +130,44 @@ def all_calls(request):
 
 @api_view(['GET'])
 def asterisk_users(request):
-    users = request_to_asterisk(data=None, url='/users')
-    users = prepare_asterisk_users(users)
+    response = request_to_asterisk(data=None, url='/users')
+    try:
+        users = response.json().get('result')
+    except Exception as e:
+        print(e)
+        raise ServiceUnavailable({'detail': 'Can"t parse Asterisk Service response'})
 
-    return Response(users, status=status.HTTP_200_OK)
+    users = prepare_asterisk_users(users)
+    result = {'result': users}
+
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
-def asterisk_name_change(request):
+def change_asterisk_user(request):
     data = {}
-    extension = request.data.get('internal_number')
-    user = get_object_or_404(User, pk=request.data.get('id'))
-    fullname = user.fullname
+    try:
+        user_id = int(request.data.get('user_id'))
+    except ValueError:
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be integer'})
+    user = get_object_or_404(User, pk=user_id)
 
-    data['extension'] = exception
+    data['extension'] = request.data.get('extension')  # {"user_id": 15287, "extension": "9002"}
+    data['fullname'] = '%s_%s' % (user_id, user.fullname)
 
     try:
-        user_calls = requests.post(settings.ASTERISK_SERVICE_ADDRESS + '/change_user', data=json.dumps(data),
-                                  headers={'Content-Type': 'application/json'})
+        response = requests.put(settings.ASTERISK_SERVICE_ADDRESS + '/change_user',
+                                data=json.dumps(data),
+                                headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
-        raise ServiceUnavailable({'detail': 'Asterisk Service temporarily unavailable, try again later'})
+        raise ServiceUnavailable(
+            {'detail': 'Asterisk Service temporarily unavailable, try again later'})
+
+    result = get_response_data(response)
+    result = {'result': result}
+
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

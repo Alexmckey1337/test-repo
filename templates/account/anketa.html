@@ -16,7 +16,7 @@
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
-{% block header.top.h1 %}<h1>Анкета пользователя</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
 {% block header.search %}
 
 {% endblock %}
