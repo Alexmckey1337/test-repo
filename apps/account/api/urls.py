@@ -27,7 +27,7 @@ custom_v1_1_urls = [
     url(r'^calls_to_user/$', calls_views.calls_to_user, name='calls_to_user'),
     url(r'^all_calls/$', calls_views.all_calls, name='all_calls'),
     url(r'^asterisk_users/$', calls_views.asterisk_users, name='asterisk_users'),
-    url(r'^change_asterisk_user/$', calls_views.change_asterisk_user, name='change_asterisk_user')
+    url(r'^change_asterisk_user', calls_views.change_asterisk_user, name='change_asterisk_user')
 ]
 
 urlpatterns = [
