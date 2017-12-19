@@ -51,7 +51,7 @@ from apps.summit.api.serializers import (
 from apps.summit.models import (
     Summit, SummitAnket, SummitLesson, SummitUserConsultant, SummitTicket, SummitAttend, AnketEmail)
 from apps.summit.resources import SummitAnketResource, SummitStatisticsResource
-from apps.summit.tasks import generate_tickets, send_email_with_code, send_sms_with_code, send_email_with_schedule
+from apps.summit.tasks import generate_tickets, send_email_with_code, send_email_with_schedule
 from apps.summit.utils import generate_ticket, get_report_by_bishop_or_high, \
     FullSummitParticipantReport
 from common.filters import FieldSearchFilter
@@ -666,7 +666,7 @@ def send_code(request, profile_id):
         return exceptions.ValidationError({'message': 'Parameter {method} must be passed'})
 
     if send_method == 'email':
-        if not profile.summit.mail_template:
+        if not profile.summit.zmail_template:
             return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
         if not profile.user.email:
             return Response(data={'detail': 'Empty email.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -677,9 +677,6 @@ def send_code(request, profile_id):
             r.expire('summit:email:wait:{}:{}'.format(profile.summit_id, profile), 30 * 24 * 60 * 60)
         except Exception as err:
             print(err)
-
-    if send_method == 'sms':
-        send_sms_with_code.applay_async(args=[profile_id, request.user.id])
 
     return Response(data={'profile_id': profile_id})
 
@@ -720,7 +717,7 @@ def send_unsent_codes(request, summit_id):
     sent_count = 0
     unsent_count = 0
     tasks = dict()
-    if not summit.mail_template:
+    if not summit.zmail_template:
         return Response(data={'detail': 'Template for summit does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
 
     exist_ids = get_status_ids(summit_id)

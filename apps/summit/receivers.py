@@ -1,7 +1,7 @@
 import traceback
 
-from dbmail.backends.mail import Sender as MailSender
-from dbmail.signals import post_send, post_exception
+from apps.zmail.utils import Sender as MailSender
+from apps.zmail.signals import post_send, post_exception
 
 from apps.summit.models import AnketEmail
 
