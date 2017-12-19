@@ -83,8 +83,8 @@ def calls_to_user(request):
     data = dict()
     try:
         user_id = int(request.query_params.get('user_id'))
-    except ValueError:
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be integer'})
+    except (ValueError, TypeError):
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} required and must be integer'})
     user = get_object_or_404(User, id=user_id)
 
     phone_number = user.phone_number[-10:]
@@ -148,8 +148,8 @@ def change_asterisk_user(request):
     data = {}
     try:
         user_id = int(request.data.get('user_id'))
-    except ValueError:
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} must be integer'})
+    except (ValueError, TypeError):
+        raise exceptions.ValidationError({'message': 'Parameter {user_id} required and must be integer'})
     user = get_object_or_404(User, pk=user_id)
 
     data['extension'] = request.data.get('extension')  # {"user_id": 15287, "extension": "9002"}

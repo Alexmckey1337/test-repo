@@ -21,7 +21,9 @@ djangorestframework<4.0
 djangorestframework-filters==0.10.2
 elasticsearch>=6.0.0,<7.0.0
 flower
+html2text
 Pillow==4.3.0
+premailer
 psycopg2
 raven
 redis>=2.10.5

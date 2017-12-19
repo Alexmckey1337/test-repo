@@ -9,8 +9,8 @@ from time import sleep, time
 import requests
 from celery.result import AsyncResult
 from channels import Group
-from dbmail import send_db_mail, send_db_sms
-from dbmail.models import MailTemplate
+from apps.zmail.utils import send_zmail
+from apps.zmail.models import ZMailTemplate
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
@@ -40,15 +40,15 @@ def create_tickets(ankets):
 def send_tickets(anket_ids):
     ankets = SummitAnket.objects.in_bulk(anket_ids)
     for anket in ankets.values():
-        if anket.summit.mail_template and anket.user.email:
+        if anket.summit.zmail_template and anket.user.email:
             attach = generate_ticket(anket.code)
             pdf_name = '{} ({}).pdf'.format(anket.user.fullname, anket.code)
-            send_db_mail(
-                anket.summit.mail_template.slug,
+            send_zmail(
+                anket.summit.zmail_template.slug,
                 anket.user.email,
-                anket,
+                template_context={'anket': anket},
                 attachments=[(pdf_name, attach, 'application/pdf')],
-                signals_kwargs={'anket': anket}
+                signals_kw={'anket': anket}
             )
 
 
@@ -74,18 +74,18 @@ def send_error(profile_id, sender_id):
 
 @app.task(max_retries=0)
 def send_email_with_code(profile_id, sender_id, countdown=0):
-    profile = SummitAnket.objects.select_related('summit__mail_template', 'user').get(pk=profile_id)
-    template = profile.summit.mail_template
+    profile = SummitAnket.objects.select_related('summit__zmail_template', 'user').get(pk=profile_id)
+    template = profile.summit.zmail_template
     email = profile.user.email
     if template and email:
         try:
             pdf = generate_ticket(profile.code)
-            task = send_db_mail(
+            task = send_zmail(
                 template.slug,
                 email,
-                {'profile': profile},
+                template_context={'profile': profile},
                 attachments=[('ticket.pdf', pdf, 'application/pdf')],
-                signals_kwargs={'anket': profile},
+                signals_kw={'anket': profile},
                 send_after=countdown,
                 max_retries=0
             )
@@ -104,14 +104,14 @@ def send_email_with_code(profile_id, sender_id, countdown=0):
 @app.task(max_retries=0)
 def send_email_with_schedule(profile_id, sender_id, template_slug, countdown=0):
     profile = SummitAnket.objects.select_related('summit', 'user').get(pk=profile_id)
-    template = MailTemplate.objects.get(slug=template_slug)
+    template = ZMailTemplate.objects.get(slug=template_slug)
     email = profile.user.email
     if template and email:
         try:
-            task = send_db_mail(
+            task = send_zmail(
                 template.slug,
                 email,
-                {'profile': profile},
+                template_context={'profile': profile},
                 send_after=countdown,
                 max_retries=0
             )
@@ -140,40 +140,6 @@ def get_send_pulse_access_key():
     }
 
     return access_key
-
-
-@app.task(ignore_result=True, max_retries=0)
-def send_sms_with_code(profile_id, sender_id):
-    profile = SummitAnket.objects.get(pk=profile_id)
-    template = profile.summit.sms_template
-    # recipient = profile.user.phone_number
-    recipient = "380932875260"
-
-    # r = {
-    #     "recipients": [
-    #         recipient
-    #     ],
-    #     "message": "Текст Viber сообщения",
-    #     "message_live_time": 60,
-    #     "sender_id": 1,
-    #     "send_date": "now",
-    #     "additional": {
-    #         "resend_sms": {
-    #             "status": True,
-    #             "sms_text": "Текст SMS сообщения",
-    #             "sms_sender_name": "VOTV"
-    #         }
-    #     }
-    # }
-
-    if template and recipient:
-        try:
-            send_db_sms(
-                slug=template.slug,
-                recipient=recipient,
-            )
-        except Exception:
-            send_error(profile_id, sender_id)
 
 
 @app.task(ignore_result=True, max_retries=0)
