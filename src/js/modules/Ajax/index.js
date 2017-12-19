@@ -10,6 +10,7 @@ let defaultOption = {
 };
 
 export default function getData(url, options = {}, config = {}) {
+
     let keys = Object.keys(options);
     if (keys.length) {
         url += '?';
@@ -24,6 +25,32 @@ export default function getData(url, options = {}, config = {}) {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp.json();
             } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
+}
+export function getDataPhone(url, options = {}, config = {}) {
+
+    let keys = Object.keys(options);
+    if (keys.length) {
+        url += '?';
+        keys.forEach(item => {
+            url += item + '=' + options[item] + "&"
+        });
+    }
+    let initConfig = Object.assign({}, defaultOption, config);
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp.json();
+            }else if (resp.status === 503) {
+                let message = '503';
+                return message;
+            }else {
                 return resp.json().then(err => {
                     throw err;
                 });

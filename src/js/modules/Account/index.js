@@ -5,7 +5,7 @@ import 'howler';
 import URLS from '../Urls/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
-import getData,{getDataAudio} from "../Ajax/index";
+import getData,{getDataPhone} from "../Ajax/index";
 import {getCountries, getRegions, getCities} from '../GetList/index';
 import {makeCountriesList, makeRegionsList, makeCityList} from '../MakeList/index';
 
@@ -113,14 +113,28 @@ export function initLocationSelect(config) {
 }
 
 export function dataIptelTable(url) {
-    getData(url).then(data => {
-        makeIptelTable(data,'#iptelBlock');
+    getDataPhone(url).then(data => {
+        if (data === '503') {
+            let err = document.createElement('p');
+            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $('#iptelBlock').append(err);
+        } else {
+            makeIptelTable(data, '#iptelBlock');
+        }
     });
+
 }
 export function dataIptelMonth(url) {
-    getData(url).then(data => {
-        makeIptelTable(data,'#tableMonthIptel');
-        $('.preloader').css('display', 'none');
+    getDataPhone(url).then(data => {
+        if (data === '503'){
+            let err = document.createElement('p');
+            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $('#tableMonthIptel').append(err);
+            $('.preloader').css('display', 'none');
+        }else{
+            makeIptelTable(data,'#tableMonthIptel');
+            $('.preloader').css('display', 'none');
+        }
     });
 }
 export function makeIptelTable(data,block) {
@@ -135,7 +149,7 @@ export function makeIptelTable(data,block) {
                                 <th>Запись</th>
                             </tr>
                         </thead>
-                        <tbody>${data.calls_data.map(item => {
+                        <tbody>${data.result.map(item => {
         
         return `<tr>
                             <td>

@@ -9,10 +9,11 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'whatwg-fetch';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import {getFilterParam} from "../Filter/index";
-import getData, {postData} from '../Ajax/index';
+import getData, {postData, getDataPhone} from '../Ajax/index';
 import getSearch from '../Search/index';
 import OrderTable from '../Ordering/index';
 import makePagination from '../Pagination/index';
@@ -21,34 +22,41 @@ import updateHistoryUrl from '../History/index';
 import makeSelect from '../MakeAjaxSelect/index';
 
 function parseFunc(data, params) {
-        params.page = params.page || 1;
-        const results = [];
-        console.log(data)
-        data.results.forEach(function makeResults(element) {
-            results.push({
-                id: element.id,
-                name: element.title,
-            });
+    params.page = params.page || 1;
+    const results = [];
+    console.log(data)
+    data.results.forEach(function makeResults(element) {
+        results.push({
+            id: element.id,
+            name: element.title,
         });
-        return {
-            results: results,
-            pagination: {
-                more: (params.page * 100) < data.count
-            }
-        };
-    }
-function formatRepo(data) {
-        if (data.id === '') {
-            return 'ВСЕ';
-        }else{
-            return `<option value="${data.id}">${data.name}</option>`;
+    });
+    return {
+        results: results,
+        pagination: {
+            more: (params.page * 100) < data.count
         }
+    };
+}
+function formatRepo(data) {
+    if (data.id === '') {
+        return 'ВСЕ';
+    } else {
+        return `<option value="${data.id}">${data.name}</option>`;
     }
+}
 
 export function PhoneTable(config) {
-    getData(URLS.phone.list(),config).then(data => {
-        makePhoneTable(data);
+    getDataPhone(URLS.phone.list(), config).then(data => {
+        if (data === '503') {
+            let err = document.createElement('p');
+            $(err).text('Служба Asterisk временно недоступна, повторите попытку позже').addClass('errorText')
+            $('#tablePhone').append(err);
+        } else {
+            makePhoneTable(data);
+        }
     });
+
 }
 
 function makePhoneTable(data, config = {}) {
@@ -75,13 +83,19 @@ export function phoneTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     updateHistoryUrl(config);
-    getData(URLS.phone.list(),config).then(data => {
-        makePhoneTable(data,config);
+    getDataPhone(URLS.phone.list(), config).then(data => {
+        if (data === '503') {
+            let err = document.createElement('p');
+            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $('#tablePhone').append(err);
+        } else {
+            makePhoneTable(data, config);
+        }
     });
 }
 
-function addUserToPhone(data,block){
-    let wrap = `${data.map(item => { 
+function addUserToPhone(data, block) {
+    let wrap = `${data.map(item => {
         return `<form class="form-addUser">
                     <p class="form-addUser__phone">${item.extension}</p>
                     <label>
@@ -92,36 +106,37 @@ function addUserToPhone(data,block){
                     <button class="${(item.fullname != null) ? 'change active' : 'change'}" type="button"></button>
                     <button class="close" type="button"></button>
                     <span class="saved">Сохранено</span>
-                </form>`;}).join('')}`;
+                </form>`;
+    }).join('')}`;
     $(block).append(wrap);
-    $('.selectPh').on('change',function () {
+    $('.selectPh').on('change', function () {
         $(this).parent().parent().find('.add').removeAttr('disabled');
     });
-    $('.change').on('click',function () {
+    $('.change').on('click', function () {
         $(this).removeClass('active');
         $(this).parent().children('.add').addClass('active');
         $(this).parent().children('.close').addClass('active');
         $(this).parent().find('.inputPh').removeClass('active');
         $(this).parent().find('.selectPh').addClass('active');
-        makeSelect($('.selectPh.active'),'/api/v1.1/users/for_select/',parseFunc,formatRepo);
+        makeSelect($('.selectPh.active'), '/api/v1.1/users/for_select/', parseFunc, formatRepo);
     });
-    $('.close').on('click',function () {
+    $('.close').on('click', function () {
         $(this).removeClass('active');
         $(this).parent().children('.change').addClass('active');
         $(this).parent().find('.inputPh').addClass('active');
         $(this).parent().children('.add').removeClass('active');
         $(this).parent().find('.selectPh').removeClass('active').select2('destroy');
     });
-    $('.form-addUser').on('submit',function (e) {
+    $('.form-addUser').on('submit', function (e) {
         e.preventDefault();
-        let phone  = $(this).find('.form-addUser__phone').text(),
+        let phone = $(this).find('.form-addUser__phone').text(),
             userId = $(this).find('.selectPh').val(),
             data = {
                 "user_id": userId,
                 "extension": phone
             }
-        postData(URLS.phone.changeUser(),data).then(() => {
-            let userName = $(this).find('span option[value='+userId+']').text();
+        postData(URLS.phone.changeUser(), data).then(() => {
+            let userName = $(this).find('span option[value=' + userId + ']').text();
             console.log(userName);
             $(this).find('.add').removeClass('active');
             $(this).find('.close').removeClass('active');
@@ -131,18 +146,25 @@ function addUserToPhone(data,block){
             $(this).find('.saved').addClass('active');
             setTimeout(function () {
                 $(this).find('.saved').removeClass('active');
-            },1000);
+            }, 1000);
         });
     })
-    makeSelect($('.selectPh.active'),'/api/v1.1/users/for_select/',parseFunc,formatRepo);
+    makeSelect($('.selectPh.active'), '/api/v1.1/users/for_select/', parseFunc, formatRepo);
 }
 
 export function getDataUserPhone() {
     $('#tableAddUserToPhone').html('');
-    getData(URLS.phone.user()).then(data => {
-        addUserToPhone(data,'#tableAddUserToPhone');
+    getDataPhone(URLS.phone.user()).then(data => {
+        if (data === '503') {
+            let err = document.createElement('p');
+            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $('#tableAddUserToPhone').append(err);
+        } else {
+            addUserToPhone(data, '#tableAddUserToPhone');
+        }
     });
 }
+
 
 
 
