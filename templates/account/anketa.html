@@ -497,7 +497,6 @@
                     </div>
                 </div>
                 {% if user.is_partner_manager_or_high and account.is_partner %}
-                    <button id="addMorePartners">Добавить партнерство</button>
                         <div class="a-sdelki" id="Sdelki">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
@@ -516,7 +515,7 @@
                                 <div class="access_select_wrapper">
                                     <select id="access_select" readonly disabled>
                                         <option value="" {% if account.has_partner_role == False %}selected{% endif %} disabled>
-                                            Права отсутствуют
+                                            Без прав доступа
                                         </option>
                                         {% for level in partner_levels %}
                                             <option value="{{ level.id }}"
@@ -530,8 +529,26 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            <div class="tab-main_status">
+                                <ul class="tab_main">
+                                    {% for partner in account.partners.all %}
+                                        <li {% if forloop.first %}
+                                                class="active"
+                                            {% endif %}
+                                                data-tab="{{ forloop.counter }}">
+                                            <button>
+                                                {{ partner.group.title }}
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if user.is_partner_supervisor_or_high %}
+                                    <button id="addMorePartners">Добавить партнерскую анкету</button>
+                                {% endif %}
+                            </div>
                         {% for partner in account.partners.all %}
-                            <div class="partner_block_wrap">
+                            <div class="partner_block_wrap {% if forloop.first %} active {% endif %}"
+                                 data-main_tab="{{ forloop.counter }}">
                             <div class="partner_wrapper">
                                 <ul class="right-info">
                                     <li id="editPartnership{{ forloop.counter }}">
@@ -544,11 +561,13 @@
                                 </ul>
                                 <div class="note_wrapper">
                                     <label for="id_need_text{{ forloop.counter }}">Молитвенная нужда</label>
-                                    <div class="btn-block">
-                                        <button class="editText"></button>
-                                        <button class="saveNote send_need"
-                                                data-partner="{{ partner.id }}"></button>
-                                    </div>
+                                    {% if user.is_partner_manager_or_high %}
+                                        <div class="btn-block">
+                                            <button class="editText"></button>
+                                            <button class="saveNote send_need"
+                                                    data-partner="{{ partner.id }}"></button>
+                                        </div>
+                                    {% endif %}
                                     <textarea name="need_text" id="id_need_text{{ forloop.counter }}" rows="5" cols="50"
                                               readonly>{{ partner.need_text }}</textarea>
                                 </div>
@@ -612,7 +631,7 @@
                                 {% endfor %}
                             </div>
                             <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
-                                <p class="payment_title">Платежи за сделки</p>
+                                <p class="payment_title">Платежи</p>
                             </div>
                             {% for payment in partner.deal_payments.all %}
                                 <div class="rows">
@@ -945,13 +964,22 @@
     <div id="popup-create_partners" class="popap">
         <div class="pop_cont">
             <div class="popup_text">
-                <h2>Добавление партнёрства</h2>
+                <h2>Добавление партнерской анкеты</h2>
             </div>
             <div class="popup_body">
                 <div class="container container_block">
                     <input type="hidden" data-id="user" value="{{ account.id }}">
                     <label>
-                        <span class="label_block">Партнер</span>
+                        <span class="label_block">Отдел партнерства:</span>
+                        <select class="group selectdb" class="par__group" data-id="group">
+                            <option value="" selected disabled>Выберите отдел партнерства</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
                         <input type="checkbox" class="partnershipCheck">
                         <div></div>
                     </label>
@@ -982,20 +1010,11 @@
                             {% endfor %}
                         </select>
                     </label>
-                    <label>
-                        <span class="label_block">База:</span>
-                        <select class="group selectdb" class="par__group" data-id="group">
-                            <option value="" selected disabled>Выберите базу</option>
-                            {% for el in partner_groups %}
-                                <option value="{{ el.id }}">{{ el.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
                 </div>
             </div>
             <div class="container">
                 <button id="close_addPartners">Отменить</button>
-                <button id="send_addPartners">Сохранить</button>
+                <button id="send_addPartners">Создать</button>
             </div>
         </div>
     </div>

@@ -935,4 +935,13 @@ $('document').ready(function () {
 
     btnNeed();
 
+    $('.tab_main').find('button').on('click', function () {
+        let li = $(this).parent(),
+            tabID = li.attr('data-tab');
+        $('.tab_main').find('li').removeClass('active');
+        li.addClass('active');
+        $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
+        $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
+    });
+
 });

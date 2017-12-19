@@ -1217,10 +1217,11 @@
   margin: 15px 0 0;
 }
 
-.a-sdelki .tabs_deals li.active button {
-  background-color: #fff;
-}
-
-.tabs_deals li.active button {
-  color: #333;
+.a-sdelki {
+  .partner_block_wrap {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
 }
