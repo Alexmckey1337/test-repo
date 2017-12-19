@@ -46,7 +46,6 @@ from apps.account.models import CustomUser as User
 from apps.account.resources import UserResource
 from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
-from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter, OrderingFilter
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
@@ -54,6 +53,8 @@ from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
+from apps.navigation.table_columns import get_table
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
