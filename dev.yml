@@ -64,7 +64,6 @@ services:
     links:
       - postgres
       - redis
-      - es
 
   celeryworker:
     container_name: celeryworker_dev
