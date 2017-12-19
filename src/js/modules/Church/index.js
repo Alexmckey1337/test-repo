@@ -184,7 +184,8 @@ function getAddChurchData() {
         "city": $('#added_churches_city').val(),
         "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
-        "website": $('#added_churches_site').val()
+        "website": $('#added_churches_site').val(),
+        "report_currency": $('#report_currency').val(),
     }
 }
 

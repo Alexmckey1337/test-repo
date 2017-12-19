@@ -589,7 +589,6 @@ $('document').ready(function () {
 
             return;
         }
-        console.log('Valid-->', $('#phone_number').inputmask("isComplete"));
 
         if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete"))) {
             showAlert('Введите коректный номер телефона');
@@ -629,8 +628,8 @@ $('document').ready(function () {
                 updateOrCreatePartner(partner, partnershipData, success)
                     .then(function (data) {
                         let partnerId = data.id;
-                        let partnerForm = $('form#partnership');
-                        partnerForm.data('partner', partnerId);
+                        // let partnerForm = $('form#partnership');
+                        thisForm.attr('data-partner', partnerId);
                     })
                     .then(function (data) {
                         if (hidden) {

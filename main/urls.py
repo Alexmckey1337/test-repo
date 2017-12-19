@@ -44,5 +44,11 @@ urlpatterns = [
 
     url(r'^privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
     url(r'^ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
+    url(r'^structure/$', views.structure, name='structure-top'),
+    url(r'^structure/(?P<pk>\d+)/$', views.structure, name='structure-detail'),
+    url(r'^structure/(?P<pk>\d+)/(?P<name>.+)\.pdf$', views.structure_to_pdf, name='structure_to_pdf-detail'),
+    url(r'^structure/top\.pdf$', views.structure_to_pdf, name='structure_to_pdf-top'),
+    url(r'^calls', views.calls, name='calls')
 ]
+
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
