@@ -92,6 +92,8 @@ const PARTNER = {
     managers_summary: () => `/api/v1.1/partnerships/managers_summary/`,
     manager_summary: (id) => `/api/v1.1/partnerships/${id}/manager_summary/`,
     set_managers_plan: (id) => `/api/v1.1/partnerships/${id}/set_plan/`,
+    last_deals: (id) => `/api/v1.0/partners/${id}/last_deals/`,
+    last_payments: (id) => `/api/v1.0/partners/${id}/last_payments/`,
 };
 
 const DEAL = {

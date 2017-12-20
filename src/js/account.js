@@ -16,6 +16,7 @@ import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import errorHandling from './modules/Error';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
+import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
 import getData, {deleteData, postData} from "./modules/Ajax/index";
@@ -29,7 +30,8 @@ import {
     initLocationSelect,
     sendNote,
     btnNeed,
-    PartnerPaymentTable,
+    renderDealTable,
+    renderPaymentTable,
 } from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
@@ -37,16 +39,11 @@ import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
-          path = window.location.href.split('?')[1];
-    //////////////////////////////////////////////
-    // sorry for my code  -- start
-    //////////////////////////////////////////////
-    function formatRepo(data) {
-        if (data.id === '') {
-            return '-------';
-        }
-        return `<option value="${data.id}">${data.text}</option>`;
-    }
+          PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
+          ID = getLastId();
+    let managerSelect = $('#manager_select');
+    renderDealTable({done: 'False'});
+    renderPaymentTable();
 
     function parseFunc(data, params) {
         params.page = params.page || 1;
@@ -65,81 +62,22 @@ $('document').ready(function () {
         };
     }
 
-    $('#manager_select').select2({
-        ajax: {
-            url: '/api/v1.1/users/for_select/',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    search: params.term,
-                    page: params.page
-                };
-            },
-            processResults: parseFunc,
-            cache: true
-        },
-        escapeMarkup: function (markup) {
-            return markup;
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepo
-    });
+    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
+
     $('#set_manager').on('click', function () {
         const userId = $(this).data('user');
-        let manager = $('#manager_select').val();
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: JSON.stringify({'manager_id': manager})
-        };
-        fetch(`${URLS.user.detail(userId)}set_manager/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        let manager = $('#manager_select').val(),
+            config = {'manager_id': manager};
+        postData(`${URLS.user.detail(userId)}set_manager/`, config)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
     $('.reset_device_id').on('click', function () {
         const profileId = $(this).data('id');
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: null
-        };
-        fetch(`/api/app/users/${profileId}/reset_device_id/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        postData(`/api/app/users/${profileId}/reset_device_id/`, null)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
-    //////////////////////////////////////////////
-    // sorry for my code  -- finish
-    //////////////////////////////////////////////
-    const ID = getLastId();
 
     function AddColorMarkers() {
         let options = $('#markers-select').find('option:selected'),
@@ -169,12 +107,12 @@ $('document').ready(function () {
     });
 
     $(".tabs_deals li").on('click', function () {
-        let id_tab = $(this).attr('data-tab'),
-            block = $(this).closest('.partner_block_wrap');
-        block.find('[data-tab-content]').hide();
-        block.find('[data-tab-content="' + id_tab + '"]').show();
+        let id = $(this).attr('data-partner'),
+            status = $(this).attr('data-status');
+        $('.preloader').css('display', 'block');
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
+        renderDealTable({done: status});
     });
 
     $('.send_email_with_code').on('click', function () {
@@ -326,6 +264,7 @@ $('document').ready(function () {
         postData(URLS.deal.list(), config).then(() => {
             showAlert('Сделка создана.');
             clearDeal();
+            renderDealTable({done: 'False'});
         }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
     }
 
@@ -385,8 +324,6 @@ $('document').ready(function () {
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up_duplicate__table').css('display', 'none');
     });
-
-    $("#tabs1 li").click();
 
     $("#id_deal_date").datepicker({
         dateFormat: "yy-mm-dd",
@@ -940,15 +877,14 @@ $('document').ready(function () {
 
     $('.tab_main').find('button').on('click', function () {
         let li = $(this).parent(),
-            tabID = li.attr('data-tab');
+            tabID = li.attr('data-tab'),
+            partnerID = li.attr('data-partner');
         $('.tab_main').find('li').removeClass('active');
         li.addClass('active');
         $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
         $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
     });
 
-
-    if (path == undefined) {
-        PartnerPaymentTable();
-    }
 });

@@ -51,7 +51,7 @@ export function deleteData(url, config = {}) {
 export function postData(url, data = {}, config = {}) {
     let postConfig = {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: (data === null) ? null : JSON.stringify(data),
         },
         initConfig = Object.assign({}, defaultOption, postConfig, config);
     console.log(initConfig);

@@ -30,6 +30,16 @@
     <div class="popup_body {% if not partner %} hidden {% endif %} partnershipBlock">
         <div class="container">
             <label>
+                <span class="label_block">Тег:</span>
+                <select class="group" class="par__group" data-id="group" readonly disabled>
+                    <option value="" selected disabled>Выберите тег</option>
+                    {% for el in partner_groups %}
+                        <option value="{{ el.id }}"
+                                {% if partner.group.id == el.id %}selected{% endif %}>{{ el.title }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
                 <span class="label_block">Партнёр с:</span>
                 <input type="text" class="sel__date" data-id="date" value="{{ partner.date|date:"d.m.Y" }}"
                        readonly disabled>
@@ -59,16 +69,6 @@
                     {% for manager in managers %}
                         <option value="{{ manager.id }}"
                                 {% if partner.responsible.id == manager.id %}selected{% endif %}>{{ manager.fullname }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label>
-                <span class="label_block">Отдел партнерства:</span>
-                <select class="group" class="par__group" data-id="group" readonly disabled>
-                    <option value="" selected disabled>Выберите отдел партнерства</option>
-                    {% for el in partner_groups %}
-                        <option value="{{ el.id }}"
-                                {% if partner.group.id == el.id %}selected{% endif %}>{{ el.title }}</option>
                     {% endfor %}
                 </select>
             </label>

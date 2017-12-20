@@ -3,10 +3,17 @@ import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import getData, {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
-import OrderTable, {} from '../Ordering/index';
 import {showAlert} from '../ShowNotifications/index';
-import {getCountries, getRegions, getCities} from '../GetList/index';
-import {makeCountriesList, makeRegionsList, makeCityList} from '../MakeList/index';
+import {
+    getCountries,
+    getRegions,
+    getCities
+} from '../GetList/index';
+import {
+    makeCountriesList,
+    makeRegionsList,
+    makeCityList
+} from '../MakeList/index';
 
 export function sendNote(profileId, text, box) {
     let data = {
@@ -148,12 +155,72 @@ export function btnNeed() {
     });
 }
 
-export function PartnerPaymentTable(config = {}) {
-    getData(URLS.church.list(), config).then(function (data) {
-        let tmpl = $('#accountPartnerPayments').html();
-        let rendered = _.template(tmpl)(data);
-        $('.unpayment').html(rendered);
+export function renderDealTable(config = {}) {
+    let id = $('.partner_block_wrap.active').attr('data-partner');
+    getData(URLS.partner.last_deals(id), config).then(function (data) {
+        let rendered = makeDealTable(data);
+        $('.partner_block_wrap.active').find('.deals_content').html(rendered);
         $('.preloader').css('display', 'none');
-        new OrderTable().sort(PartnerPaymentTable, ".table-wrap th");
     });
+}
+
+export function renderPaymentTable(config = {}) {
+    let id = $('.partner_block_wrap.active').attr('data-partner');
+    getData(URLS.partner.last_payments(id), config).then(function (data) {
+        let rendered = makePaymentTable(data);
+        $('.partner_block_wrap.active').find('.payments_content').html(rendered);
+        $('.preloader').css('display', 'none');
+    });
+}
+
+function makeDealTable(data) {
+    let table = `
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Дата сделки</th>
+                        <th>Менеджер</th>
+                        <th>Тип сделки</th>
+                        <th>Сумма</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        ${data.results.map(item => {
+                            return `<tr>
+                                    <td>${item.date_created}</td>
+                                    <td>${item.manager}</td>
+                                    <td>${item.type}</td>
+                                    <td>${item.value}</td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+
+    return table;
+}
+
+function makePaymentTable(data) {
+    let table = `
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Дата платежа</th>
+                        <th>Дата сделки</th>
+                        <th>Принял</th>
+                        <th>Сумма</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        ${data.results.map(item => {
+                            return `<tr>
+                                    <td>${item.sent_date}</td>
+                                    <td>${item.deal_date}</td>
+                                    <td>${item.manager}</td>
+                                    <td>${item.sum}</td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+
+    return table;
 }
