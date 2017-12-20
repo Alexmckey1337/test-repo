@@ -19,6 +19,12 @@
 {% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
 {% block header.search %}
 
+    {% get_partner_titles as titles %}
+    <select name="sasa" id="sasa">
+    {% for t in titles %}
+        <option value="{{ t.0 }}">{{ t.1 }}</option>
+    {% endfor %}
+    </select>
 {% endblock %}
 
 {% block header.buttons.add %}
