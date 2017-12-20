@@ -240,7 +240,7 @@ class Deal(LogModel, AbstractPaymentPurpose):
                                     related_name='disciples_deals', editable=False,
                                     verbose_name=_('Responsible of partner'), null=True, blank=True)
     description = models.TextField(blank=True)
-    done = models.BooleanField(default=False)
+    done = models.BooleanField(default=False, help_text=_('Deal is done?'))
     expired = models.BooleanField(default=False)
 
     date_created = models.DateField(null=True, blank=True, default=date.today)

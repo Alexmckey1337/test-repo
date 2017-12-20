@@ -19,6 +19,9 @@ custom_urls = [
         views.DeletePartnerRoleView.as_view(), name="delete_partner_role"),
     url(r'^users/(?P<user_id>\d+)/update_partner_role/$',
         views.UpdatePartnerRoleView.as_view(), name="update_partner_role"),
+    url(r'^partners/(?P<partner_id>\d+)/last_deals/$', views.LastPartnerDealsView.as_view(), name="partner-last_deals"),
+    url(r'^partners/(?P<partner_id>\d+)/last_payments/$',
+        views.LastPartnerPaymentsView.as_view(), name="partner-last_payments"),
 ]
 
 urlpatterns = [

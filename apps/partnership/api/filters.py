@@ -84,3 +84,9 @@ class PartnerFilterByDateAge(filters.BaseFilterBackend):
             return queryset.extra(where=["age(date) <= INTERVAL %s"], params=[age_lt])
 
         return queryset
+
+
+class LastDealFilter(django_filters.FilterSet):
+    class Meta:
+        model = Deal
+        fields = ('done',)

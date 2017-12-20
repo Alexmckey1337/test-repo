@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
-from django.db.models import Sum, When, Case, F, IntegerField, Q
+from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
@@ -20,15 +20,17 @@ from rest_framework.viewsets import ModelViewSet
 from apps.account.models import CustomUser
 from apps.analytics.decorators import log_perform_create, log_perform_update
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
+from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.partnership.api.filters import (
     FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
-    PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge)
+    PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge, LastDealFilter)
 from apps.partnership.api.mixins import (
     PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
     PartnerExportViewSetMixin, PartnerStatusReviewMixin, ManagerSummaryMixin)
-from apps.partnership.api.pagination import PartnershipPagination, DealPagination, DealDuplicatePagination
+from apps.partnership.api.pagination import PartnershipPagination, DealPagination, DealDuplicatePagination, \
+    LastDealPagination, LastPaymentPagination
 from apps.partnership.api.permissions import (
     CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
     CanUpdatePartner, CanUpdateManagersPlan, CanCreateUpdatePartnerGroup,
@@ -37,7 +39,8 @@ from apps.partnership.api.serializers import (
     DealSerializer, PartnershipUpdateSerializer, DealCreateSerializer,
     PartnershipTableSerializer, DealUpdateSerializer,
     PartnershipCreateSerializer, PartnershipSerializer, PartnerGroupSerializer,
-    PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer)
+    PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
+    LastDealPaymentSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole
 from apps.partnership.resources import PartnerResource
 
@@ -157,6 +160,79 @@ class PartnershipViewSet(
         PartnerRoleLog.log_partner_role(manager.partner_role)
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
+
+
+class LastPartnerDealsView(GenericAPIView):
+    pagination_class = LastDealPagination
+    serializer_class = LastDealSerializer
+    filter_backends = (rest_framework.DjangoFilterBackend,)
+    filter_class = LastDealFilter
+    # filter_fields = ('done',)
+    permission_classes = (IsAuthenticated,)
+
+    partner = None
+    # TODO delete
+    action = 'list'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Getting last deals of partner
+
+
+        By default ordering by ``-date_created``.
+        Pagination by 10 deals per page.
+        """
+        self.partner = get_object_or_404(Partnership, pk=kwargs.get('partner_id'))
+
+        deals = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(deals)
+        serializer = self.get_serializer(page, many=True)
+        return Response(data={'results': serializer.data})
+
+    def get_queryset(self):
+        return self.partner.deals.select_related('responsible').annotate_responsible_name().annotate(
+            total_payments=Sum('payments__effective_sum')).order_by('-date_created')
+
+
+class LastPartnerPaymentsView(GenericAPIView):
+    queryset = Payment.objects.all()
+    pagination_class = LastPaymentPagination
+    serializer_class = LastDealPaymentSerializer
+    permission_classes = (IsAuthenticated,)
+
+    partner = None
+
+    def get(self, request, *args, **kwargs):
+        """
+        Getting last payments of partner
+
+
+        By default ordering by ``-created_at``.
+        Pagination by 10 payments per page.
+        """
+        self.partner = get_object_or_404(Partnership, pk=kwargs.get('partner_id'))
+
+        payments = self.get_queryset()
+        page = self.paginate_queryset(payments)
+        serializer = self.get_serializer(page, many=True)
+        return Response(data={'results': serializer.data})
+
+    def get_queryset(self):
+        deals = self.get_deals()
+        return self.queryset.select_related('manager').order_by('-created_at').filter(
+            (Q(content_type__model='deal') & Q(object_id__in=Subquery(deals.values('pk'))))
+        ).extra(
+            select={
+                'deal_date': '''
+                    SELECT
+                    partnership_deal.date_created AS purpose_date
+                    FROM partnership_deal
+
+                    WHERE partnership_deal.id = payment_payment.object_id'''
+            })
+
+    def get_deals(self):
+        return self.partner.deals.order_by()
 
 
 class PartnerGroupViewSet(ModelWithoutDeleteViewSet):
