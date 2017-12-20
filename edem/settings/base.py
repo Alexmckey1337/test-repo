@@ -44,7 +44,6 @@ ALLOWED_HOSTS = ['vocrm.net']
 # Application definition
 DJANGO_APPS = (
     'django.contrib.contenttypes',
-    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
