@@ -509,15 +509,6 @@
                             </div>
                             <div class="access_wrapper note_wrapper">
                                 <label for="access_select">Права доступа</label>
-                                <div class="btn-block">
-                                    {% if user.is_partner_supervisor_or_high %}
-                                        <button class="editText"></button>
-                                        <button class="saveNote" id="sendAccess"
-                                                data-access="{{ account.has_partner_role }}"
-                                                data-id="{{ account.id }}">
-                                        </button>
-                                    {% endif %}
-                                </div>
                                 <div class="access_select_wrapper">
                                     <select id="access_select" readonly disabled>
                                         <option value="" {% if account.has_partner_role == False %}selected{% endif %} disabled>
@@ -532,6 +523,30 @@
                                     </select>
                                     {% if user.is_partner_supervisor_or_high %}
                                         <button id="delete_access" data-id="{{ account.id }}" disabled></button>
+                                    {% endif %}
+                                </div>
+                                <div class="btn-block">
+                                    {% if user.is_partner_supervisor_or_high %}
+                                        <button class="editText"></button>
+                                        <button class="saveNote" id="sendAccess"
+                                                data-access="{{ account.has_partner_role }}"
+                                                data-id="{{ account.id }}">
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="access_wrapper note_wrapper">
+                                <label for="access_select">Партнёр с:</label>
+                                <div class="access_select_wrapper">
+                                    <input type="text" class="sel__date" data-id="date" value="{{ partner.date|date:"d.m.Y" }}">
+                                </div>
+                                <div class="btn-block">
+                                    {% if user.is_partner_supervisor_or_high %}
+                                        <button class="editText"></button>
+                                        <button class="saveNote" id="sendAccess"
+                                                data-access="{{ account.has_partner_role }}"
+                                                data-id="{{ account.id }}">
+                                        </button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -578,6 +593,7 @@
                                               readonly>{{ partner.need_text }}</textarea>
                                 </div>
                             </div>
+                            <p class="payment_title">Сделки</p>
                             <div class="tab-status" id="tabStatus{{ forloop.counter }}">
                                 <ul class="tabs_deals">
                                     <li data-tab="1">
@@ -588,14 +604,14 @@
                                     </span>)
                                         </button>
                                     </li>
-                                    <li data-tab="2">
-                                        <button href="#overdue">Просроченные(<span>
-                                        {% with count=partner.expired_deals_count %}
-                                            {% if count > 20 %}20 из {% endif %}{{ count }}
-                                        {% endwith %}
-                                    </span>)
-                                        </button>
-                                    </li>
+{#                                    <li data-tab="2">#}
+{#                                        <button href="#overdue">Просроченные(<span>#}
+{#                                        {% with count=partner.expired_deals_count %}#}
+{#                                            {% if count > 20 %}20 из {% endif %}{{ count }}#}
+{#                                        {% endwith %}#}
+{#                                    </span>)#}
+{#                                        </button>#}
+{#                                    </li>#}
                                     <li data-tab="3" class="active">
                                         <button href="#completed">Завершённые(<span>
                                         {% with count=partner.done_deals_count %}
@@ -611,33 +627,34 @@
                                     Добавить сделку
                                 </button>
                             </div>
-                            <div class="sdelki-content clearfix" data-tab-content="1">
-                                {% for deal in partner.undone_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                {% endfor %}
+                            <div class="sdelki-content clearfix unpayment" data-tab-content="1" id="unpayment">
+{#                                {% for deal in partner.undone_deals|slice:":20" %}#}
+{#                                    <div class="rows">#}
+{#                                        <p>{{ account.fullname }}</p>#}
+{#                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>#}
+{#                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>#}
+{#                                {% endfor %}#}
                             </div>
-                            <div class="sdelki-content clearfix" data-tab-content="2">
-                                {% for deal in partner.expired_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                {% endfor %}
-                            </div>
-                            <div class="sdelki-content clearfix" data-tab-content="3">
-                                {% for deal in partner.done_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum|cut:".000" }}/{{ deal.value }}₴</span></p>
-                                    </div>
-                                {% endfor %}
+{#                            <div class="sdelki-content clearfix" data-tab-content="2">#}
+{#                                {% for deal in partner.expired_deals|slice:":20" %}#}
+{#                                    <div class="rows">#}
+{#                                        <p>{{ account.fullname }}</p>#}
+{#                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>#}
+{#                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>#}
+{#                                {% endfor %}#}
+{#                            </div>#}
+                            <div class="sdelki-content clearfix unpayment" data-tab-content="3">
+{#                                {% for deal in partner.done_deals|slice:":20" %}#}
+{#                                    <div class="rows">#}
+{#                                        <p>{{ account.fullname }}</p>#}
+{#                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>#}
+{#                                        <p>Сумма: <span>{{ deal.total_sum|cut:".000" }}/{{ deal.value }}₴</span></p>#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
                             </div>
                             <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
                                 <p class="payment_title">Платежи</p>
+                                <div class="unpayment"></div>
                             </div>
                             {% for payment in partner.deal_payments.all %}
                                 <div class="rows">
@@ -1031,4 +1048,110 @@
 
 {% block extra_scripts %}
     <script src="{% static "js/account.bundle.js" %}"></script>
+{% endblock %}
+
+{% block template_tables %}
+    <script type="text/template" id="accountPartnerPayments">
+         <table id="table-1">
+                <thead>
+                <tr>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                    <% } %>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% for( var index in results) { %>
+                <tr>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                    <% if(key == 'id') { %>
+                    <td class="edit">
+                        {% if user.is_staff %}
+                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
+                        {% endif %}
+                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                    </td>
+                    <% } else if (key == 'church') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td>
+                        <a href="/churches/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if(key == 'value') { %>
+                    <% if (results[index].total_sum != null || results[index].value != null) { %>
+                    <td>
+                        <% if (results[index].status == '2') { %>
+                        <button class="show_payments inline__button" data-id="<%=results[index].id%>">
+                            <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                        </button>
+                        <% } else { %>
+                        <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                        <% } %>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else if (key == 'action' ) { %>
+                    <td>
+                        <% if (results.length) { %>
+                        <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
+                        <button class="complete inline__button"
+                                data-id="<%= results[index].id%>"
+                                data-name="<%=results[index].church.title%>"
+                                data-date="<%=results[index].date%>"
+                                data-responsible="<%=results[index].pastor.fullname%>"
+                                data-total_sum="<%=results[index].total_sum %>"
+                                data-value="<%=results[index].value%>"
+                                data-currency-name="<%=results[index].currency.short_name %>"
+                                data-currency-id="<%=results[index].currency.id %>"
+                        >Закрыть отчет
+                        </button>
+                        <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
+                        <button class="pay inline__button"
+                                data-id="<%= results[index].id%>"
+                                data-name="<%=results[index].church.title%>"
+                                data-date="<%=results[index].date%>"
+                                data-responsible="<%=results[index].pastor.fullname%>"
+                                data-total_sum="<%=results[index].total_sum %>"
+                                data-value="<%=results[index].value%>"
+                                data-currency-name="<%=results[index].currency.short_name %>"
+                                data-currency-id="<%=results[index].currency.id %>"
+                        >Добавить платеж
+                        </button>
+                        <% } else if (results[index].done) { %>
+                        <p class="text__center">✔</p>
+                        <% } %>
+                        <% } %>
+                    </td>
+                    <% } else if(key == 'pastor') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td>
+                        <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+                    </td>
+                    <% } else { %>
+                    <td></td>
+                    <% } %>
+                    <% } else { %>
+                    <td><% if (results[index][key] === true ) { %>
+                        <p class="text__center">✔</p>
+                        <% } else if (results[index][key] === false){ %>
+
+                        <% } else { %>
+                        <%= results[index][key] %>
+                        <% } %>
+                    </td>
+                    <% } %>
+                    <% } %>
+                    <% } %>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+            <table id="header-fixed"></table>
+    </script>
 {% endblock %}

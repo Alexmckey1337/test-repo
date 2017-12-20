@@ -1,8 +1,9 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
-import {postData} from "../Ajax/index";
+import getData, {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
+import OrderTable, {} from '../Ordering/index';
 import {showAlert} from '../ShowNotifications/index';
 import {getCountries, getRegions, getCities} from '../GetList/index';
 import {makeCountriesList, makeRegionsList, makeCityList} from '../MakeList/index';
@@ -144,5 +145,15 @@ export function btnNeed() {
         });
         $(this).siblings('.editText').removeClass('active');
         textArea.attr('readonly', true);
+    });
+}
+
+export function PartnerPaymentTable(config = {}) {
+    getData(URLS.church.list(), config).then(function (data) {
+        let tmpl = $('#accountPartnerPayments').html();
+        let rendered = _.template(tmpl)(data);
+        $('.unpayment').html(rendered);
+        $('.preloader').css('display', 'none');
+        new OrderTable().sort(PartnerPaymentTable, ".table-wrap th");
     });
 }

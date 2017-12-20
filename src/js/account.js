@@ -29,12 +29,15 @@ import {
     initLocationSelect,
     sendNote,
     btnNeed,
+    PartnerPaymentTable,
 } from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
+    const USER_ID = $('body').data('user'),
+          path = window.location.href.split('?')[1];
     //////////////////////////////////////////////
     // sorry for my code  -- start
     //////////////////////////////////////////////
@@ -944,4 +947,8 @@ $('document').ready(function () {
         $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
     });
 
+
+    if (path == undefined) {
+        PartnerPaymentTable();
+    }
 });

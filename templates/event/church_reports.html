@@ -209,107 +209,107 @@
     <script src="{% static "js/church_reports.bundle.js" %}"></script>
 {% endblock %}
 {% block template_tables %}
-<script type="text/template" id="databaseChurchReports">
-     <table id="table-1">
-            <thead>
-            <tr>
-                <% for( var key in table_columns) { %>
-                <% if(table_columns[key].active) { %>
-                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
-                <% } %>
-                <% } %>
-            </tr>
-            </thead>
-            <tbody>
-            <% for( var index in results) { %>
-            <tr>
-                <% for( var key in table_columns) { %>
-                <% if(table_columns[key].active) { %>
-                <% if(key == 'id') { %>
-                <td class="edit">
-                    {% if user.is_staff %}
-                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
-                    {% endif %}
-                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
-                </td>
-                <% } else if (key == 'church') { %>
-                <% if (results[index][key] != null) { %>
-                <td>
-                    <a href="/churches/<%= results[index][key].id %>"><%= results[index][key].title %></a>
-                </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if(key == 'value') { %>
-                <% if (results[index].total_sum != null || results[index].value != null) { %>
-                <td>
-                    <% if (results[index].status == '2') { %>
-                    <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                        <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
-                    </button>
+    <script type="text/template" id="databaseChurchReports">
+         <table id="table-1">
+                <thead>
+                <tr>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                    <% } %>
+                    <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <% for( var index in results) { %>
+                <tr>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                    <% if(key == 'id') { %>
+                    <td class="edit">
+                        {% if user.is_staff %}
+                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
+                        {% endif %}
+                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                    </td>
+                    <% } else if (key == 'church') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td>
+                        <a href="/churches/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+                    </td>
                     <% } else { %>
-                    <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                    <td></td>
                     <% } %>
-                </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'action' ) { %>
-                <td>
-                    <% if (results.length) { %>
-                    <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
-                    <button class="complete inline__button"
-                            data-id="<%= results[index].id%>"
-                            data-name="<%=results[index].church.title%>"
-                            data-date="<%=results[index].date%>"
-                            data-responsible="<%=results[index].pastor.fullname%>"
-                            data-total_sum="<%=results[index].total_sum %>"
-                            data-value="<%=results[index].value%>"
-                            data-currency-name="<%=results[index].currency.short_name %>"
-                            data-currency-id="<%=results[index].currency.id %>"
-                    >Закрыть отчет
-                    </button>
-                    <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
-                    <button class="pay inline__button"
-                            data-id="<%= results[index].id%>"
-                            data-name="<%=results[index].church.title%>"
-                            data-date="<%=results[index].date%>"
-                            data-responsible="<%=results[index].pastor.fullname%>"
-                            data-total_sum="<%=results[index].total_sum %>"
-                            data-value="<%=results[index].value%>"
-                            data-currency-name="<%=results[index].currency.short_name %>"
-                            data-currency-id="<%=results[index].currency.id %>"
-                    >Добавить платеж
-                    </button>
-                    <% } else if (results[index].done) { %>
-                    <p class="text__center">✔</p>
+                    <% } else if(key == 'value') { %>
+                    <% if (results[index].total_sum != null || results[index].value != null) { %>
+                    <td>
+                        <% if (results[index].status == '2') { %>
+                        <button class="show_payments inline__button" data-id="<%=results[index].id%>">
+                            <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                        </button>
+                        <% } else { %>
+                        <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                        <% } %>
+                    </td>
+                    <% } else { %>
+                    <td></td>
                     <% } %>
+                    <% } else if (key == 'action' ) { %>
+                    <td>
+                        <% if (results.length) { %>
+                        <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))>=0) ) { %>
+                        <button class="complete inline__button"
+                                data-id="<%= results[index].id%>"
+                                data-name="<%=results[index].church.title%>"
+                                data-date="<%=results[index].date%>"
+                                data-responsible="<%=results[index].pastor.fullname%>"
+                                data-total_sum="<%=results[index].total_sum %>"
+                                data-value="<%=results[index].value%>"
+                                data-currency-name="<%=results[index].currency.short_name %>"
+                                data-currency-id="<%=results[index].currency.id %>"
+                        >Закрыть отчет
+                        </button>
+                        <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseInt(results[index].total_sum.match(/\d+/))-parseInt(results[index].value.match(/\d+/)))<0) ) { %>
+                        <button class="pay inline__button"
+                                data-id="<%= results[index].id%>"
+                                data-name="<%=results[index].church.title%>"
+                                data-date="<%=results[index].date%>"
+                                data-responsible="<%=results[index].pastor.fullname%>"
+                                data-total_sum="<%=results[index].total_sum %>"
+                                data-value="<%=results[index].value%>"
+                                data-currency-name="<%=results[index].currency.short_name %>"
+                                data-currency-id="<%=results[index].currency.id %>"
+                        >Добавить платеж
+                        </button>
+                        <% } else if (results[index].done) { %>
+                        <p class="text__center">✔</p>
+                        <% } %>
+                        <% } %>
+                    </td>
+                    <% } else if(key == 'pastor') { %>
+                    <% if (results[index][key] != null) { %>
+                    <td>
+                        <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+                    </td>
+                    <% } else { %>
+                    <td></td>
                     <% } %>
-                </td>
-                <% } else if(key == 'pastor') { %>
-                <% if (results[index][key] != null) { %>
-                <td>
-                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
-                </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else { %>
-                <td><% if (results[index][key] === true ) { %>
-                    <p class="text__center">✔</p>
-                    <% } else if (results[index][key] === false){ %>
+                    <% } else { %>
+                    <td><% if (results[index][key] === true ) { %>
+                        <p class="text__center">✔</p>
+                        <% } else if (results[index][key] === false){ %>
 
-                    <% } else { %>
-                    <%= results[index][key] %>
+                        <% } else { %>
+                        <%= results[index][key] %>
+                        <% } %>
+                    </td>
                     <% } %>
-                </td>
+                    <% } %>
+                    <% } %>
+                </tr>
                 <% } %>
-                <% } %>
-                <% } %>
-            </tr>
-            <% } %>
-            </tbody>
-        </table>
-        <table id="header-fixed"></table>
-</script>
+                </tbody>
+            </table>
+            <table id="header-fixed"></table>
+    </script>
 {% endblock %}
