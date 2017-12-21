@@ -107,8 +107,10 @@ $('document').ready(function () {
     });
 
     $(".tabs_deals li").on('click', function () {
-        let id = $(this).attr('data-partner'),
-            status = $(this).attr('data-status');
+        let status = $(this).attr('data-status');
+        if ($(this).hasClass('active')) {
+            return
+        }
         $('.preloader').css('display', 'block');
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
@@ -877,12 +879,16 @@ $('document').ready(function () {
 
     $('.tab_main').find('button').on('click', function () {
         let li = $(this).parent(),
-            tabID = li.attr('data-tab'),
-            partnerID = li.attr('data-partner');
+            tabID = li.attr('data-tab');
+        if (li.hasClass('active')) {
+            return
+        }
         $('.tab_main').find('li').removeClass('active');
         li.addClass('active');
         $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
         $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li').removeClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li:first-child').addClass('active');
         renderDealTable({done: 'False'});
         renderPaymentTable();
     });
