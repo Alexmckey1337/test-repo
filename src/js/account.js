@@ -1,5 +1,5 @@
 'use strict';
-import 'air-datepicker';
+import  'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -13,8 +13,10 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
+import errorHandling from './modules/Error';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
+import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
 import getData, {deleteData, postData} from "./modules/Ajax/index";
@@ -23,21 +25,25 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {changeLessonStatus, initLocationSelect, sendNote} from './modules/Account/index';
+import {
+    changeLessonStatus,
+    initLocationSelect,
+    sendNote,
+    btnNeed,
+    renderDealTable,
+    renderPaymentTable,
+} from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
-    //////////////////////////////////////////////
-    // sorry for my code  -- start
-    //////////////////////////////////////////////
-    function formatRepo(data) {
-        if (data.id === '') {
-            return '-------';
-        }
-        return `<option value="${data.id}">${data.text}</option>`;
-    }
+    const USER_ID = $('body').data('user'),
+          PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
+          ID = getLastId();
+    let managerSelect = $('#manager_select');
+    renderDealTable({done: 'False'});
+    renderPaymentTable();
 
     function parseFunc(data, params) {
         params.page = params.page || 1;
@@ -56,81 +62,22 @@ $('document').ready(function () {
         };
     }
 
-    $('#manager_select').select2({
-        ajax: {
-            url: '/api/v1.1/users/for_select/',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    search: params.term,
-                    page: params.page
-                };
-            },
-            processResults: parseFunc,
-            cache: true
-        },
-        escapeMarkup: function (markup) {
-            return markup;
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepo
-    });
+    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
+
     $('#set_manager').on('click', function () {
         const userId = $(this).data('user');
-        let manager = $('#manager_select').val();
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: JSON.stringify({'manager_id': manager})
-        };
-        fetch(`${URLS.user.detail(userId)}set_manager/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        let manager = $('#manager_select').val(),
+            config = {'manager_id': manager};
+        postData(`${URLS.user.detail(userId)}set_manager/`, config)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
     $('.reset_device_id').on('click', function () {
         const profileId = $(this).data('id');
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: null
-        };
-        fetch(`/api/app/users/${profileId}/reset_device_id/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        postData(`/api/app/users/${profileId}/reset_device_id/`, null)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
-    //////////////////////////////////////////////
-    // sorry for my code  -- finish
-    //////////////////////////////////////////////
-    const ID = getLastId();
 
     function AddColorMarkers() {
         let options = $('#markers-select').find('option:selected'),
@@ -159,30 +106,15 @@ $('document').ready(function () {
         window.location.reload();
     });
 
-    $("#tabs1 li").on('click', function () {
-        let id_tab = $(this).attr('data-tab');
-        $('[data-tab-content]').hide();
-        $('[data-tab-content="' + id_tab + '"]').show();
+    $(".tabs_deals li").on('click', function () {
+        let status = $(this).attr('data-status');
+        if ($(this).hasClass('active')) {
+            return
+        }
+        $('.preloader').css('display', 'block');
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
-    });
-
-    $('#send_need').on('click', function () {
-        let need_text = $('#id_need_text').val();
-        let url = URLS.partner.update_need($(this).data('partner'));
-        let need = JSON.stringify({'need_text': need_text});
-        ajaxRequest(url, need, function () {
-            showAlert('Нужда сохранена.');
-        }, 'PUT', true, {
-            'Content-Type': 'application/json'
-        }, {
-            400: function (data) {
-                data = data.responseJSON;
-                showAlert(data.detail);
-            }
-        });
-        $(this).siblings('.editText').removeClass('active');
-        $(this).parent().siblings('textarea').attr('readonly', true);
+        renderDealTable({done: status});
     });
 
     $('.send_email_with_code').on('click', function () {
@@ -312,9 +244,15 @@ $('document').ready(function () {
         $('#popup-create_deal textarea').val('');
         $('#popup-create_deal').css('display', '');
     });
-    $("#create_new_deal").on('click', function () {
+
+    $(".create_new_deal").on('click', function () {
+        let partnerID = $(this).attr('data-partner'),
+            currency = $(this).attr('data-currency'),
+            popup = $('#popup-create_deal');
         $('#send_new_deal').prop('disabled', false);
-        $('#popup-create_deal').css('display', 'block');
+        $('#send_new_deal').attr('data-partner', partnerID);
+        popup.find('.currency').val(currency);
+        popup.css('display', 'block');
     });
 
     function clearDeal() {
@@ -328,6 +266,7 @@ $('document').ready(function () {
         postData(URLS.deal.list(), config).then(() => {
             showAlert('Сделка создана.');
             clearDeal();
+            renderDealTable({done: 'False'});
         }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
     }
 
@@ -387,8 +326,6 @@ $('document').ready(function () {
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up_duplicate__table').css('display', 'none');
     });
-
-    $("#tabs1 li").click();
 
     $("#id_deal_date").datepicker({
         dateFormat: "yy-mm-dd",
@@ -848,22 +785,6 @@ $('document').ready(function () {
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
     });
 
-    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
-        $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select'),
-            btn = $(this).closest('.access_wrapper').find('#delete_access');
-        if ($(this).hasClass('active')) {
-            textArea.attr('readonly', false);
-            select.attr('readonly', false).attr('disabled', false);
-            btn.attr('disabled', false);
-        } else {
-            textArea.attr('readonly', true);
-            select.attr('readonly', true).attr('disabled', true);
-            btn.attr('disabled', true);
-        }
-    });
-
     AddColorMarkers();
 
     $('#phone_number').inputmask('phone', {
@@ -920,4 +841,56 @@ $('document').ready(function () {
     //         window.location.href = `/account/${id}`;
     //     }
     // })
+
+    $('#addMorePartners').on('click', function () {
+        $('#popup-create_partners').css('display', 'block');
+    });
+
+    $('#close_addPartners').on('click', function () {
+        $('#popup-create_partners').css('display', 'none');
+    });
+
+    $('#send_addPartners').on('click', function () {
+        let popup = $('#popup-create_partners'),
+            checkBox = popup.find('.partnershipCheck'),
+            partnershipData = {};
+        partnershipData.is_active = checkBox.is(':checked');
+        let $input = popup.find('input:not(.select2-search__field), select').filter(":not(':checkbox')");
+        $input.each(function () {
+            let id = $(this).data('id');
+            if ($(this).hasClass('sel__date')) {
+                partnershipData[id] = $(this).val().trim().split('.').reverse().join('-');
+            } else if ($(this).hasClass('par__group')) {
+                if ($(this).val() != null) {
+                    partnershipData[id] = $(this).val();
+                }
+            } else {
+                partnershipData[id] = $(this).val();
+            }
+        });
+        postData(URLS.partner.list(), partnershipData).then(() => {
+            location.reload();
+        }).catch( data => {
+            errorHandling(data);
+        })
+    });
+
+    btnNeed();
+
+    $('.tab_main').find('button').on('click', function () {
+        let li = $(this).parent(),
+            tabID = li.attr('data-tab');
+        if (li.hasClass('active')) {
+            return
+        }
+        $('.tab_main').find('li').removeClass('active');
+        li.addClass('active');
+        $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
+        $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li').removeClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li:first-child').addClass('active');
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
+    });
+
 });

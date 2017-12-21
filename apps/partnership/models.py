@@ -232,7 +232,7 @@ class AbstractDeal(models.Model):
                                  default=get_default_currency)
 
     description = models.TextField(blank=True)
-    done = models.BooleanField(default=False)
+    done = models.BooleanField(default=False, help_text=_('Deal is done?'))
     expired = models.BooleanField(default=False)
 
     date_created = models.DateField(null=True, blank=True, default=date.today)

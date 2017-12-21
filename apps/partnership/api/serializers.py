@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import serializers
 
 from apps.account.api.serializers import UserTableSerializer
+from apps.payment.models import Payment
 from common.fields import DecimalWithCurrencyField
 from apps.group.api.serializers import ChurchListSerializer
 from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
@@ -220,3 +221,22 @@ class DealDuplicateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal
         fields = ('id', 'full_name', 'value', 'date_created')
+
+
+class LastDealSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source='get_type_display')
+    manager = serializers.CharField(source='responsible_name')
+    total_payments = serializers.FloatField()
+
+    class Meta:
+        model = Deal
+        fields = ('date_created', 'manager', 'type', 'value', 'total_payments')
+
+
+class LastDealPaymentSerializer(serializers.ModelSerializer):
+    deal_date = serializers.DateField(format="%m.%Y")
+    manager = serializers.CharField()
+
+    class Meta:
+        model = Payment
+        fields = ('created_at', 'sent_date', 'deal_date', 'manager', 'sum', 'effective_sum')

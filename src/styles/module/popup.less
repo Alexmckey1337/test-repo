@@ -341,14 +341,19 @@
               color: #3caeda;
             }
           }
-          #payment_value{
+          #payment_value,
+          .payment_value {
             width: 65%!important;
             float: left;
           }
-          #payment_currency{
+          #payment_currency,
+          .payment_currency {
             width: 60px !important;
             float: left !important;
             height: 25px;
+          }
+          .payment_currency + .select2 {
+            width: 83px !important;
           }
         }
         .birthday{
@@ -411,7 +416,7 @@
         }
       }
     }
-    &#partnershipBlock{
+    &.partnershipBlock{
       input,.select2,select,.input{
           width: 200px !important;
         }
