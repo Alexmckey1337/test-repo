@@ -39,16 +39,21 @@ $(document).ready(function () {
             dateFormat: 'mm/yyyy',
             autoClose: true,
             onSelect: (formattedDate, date) => {
-                let showCompare = $('#showCompare').is(':checked'),
-                    flag = (formattedDate === thisPeriod);
-                window.state = Object.assign(window.state, {
-                    firstDate: moment(date).toISOString(),
-                    canEdit: flag,
-                });
-                if (showCompare) {
-                    PartnershipCompareSummaryTable({}, true);
+                let dateState = moment(window.state.firstDate).format('MM/YYYY');
+                if ((formattedDate === dateState) || !formattedDate) {
+                    $('#date_field_stats').val(dateState)
                 } else {
-                    partnershipSummaryTable();
+                    let showCompare = $('#showCompare').is(':checked'),
+                        flag = (formattedDate === thisPeriod);
+                    window.state = Object.assign(window.state, {
+                        firstDate: moment(date).toISOString(),
+                        canEdit: flag,
+                    });
+                    if (showCompare) {
+                        PartnershipCompareSummaryTable({}, true);
+                    } else {
+                        partnershipSummaryTable();
+                    }
                 }
             }
         });
@@ -61,10 +66,15 @@ $(document).ready(function () {
         minView: 'months',
         dateFormat: 'mm/yyyy',
         autoClose: true,
-        onSelect: (formattedDate, date) => {
-            window.state = Object.assign(window.state, {secondDate: moment(date).toISOString()});
-            PartnershipCompareSummaryTable();
-        }
+            onSelect: (formattedDate, date) => {
+                let dateState = moment(window.state.secondDate).format('MM/YYYY');
+                if ((formattedDate === dateState) || !formattedDate) {
+                    $('#date_field_compare').val(dateState)
+                } else {
+                    window.state = Object.assign(window.state, {secondDate: moment(date).toISOString()});
+                    PartnershipCompareSummaryTable();
+                }
+            }
     });
 
     PartnershipSummaryTable(configData);
