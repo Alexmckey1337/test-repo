@@ -31,10 +31,10 @@ from apps.partnership.api.filters import (
 from apps.partnership.api.mixins import (
     PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
     PartnerExportViewSetMixin, PartnerStatusReviewMixin, StatsSummaryMixin,
-    ChurchDealListPaymentMixin, ManagerSummaryMixin)
+    ChurchDealListPaymentMixin)
 from apps.partnership.api.pagination import PartnershipPagination, DealPagination, DealDuplicatePagination, \
     ChurchDealPagination, \
-    ChurchPartnerPaginationLastDealPagination, LastPaymentPagination
+    LastPaymentPagination, LastDealPagination, ChurchPartnerPagination
 from apps.partnership.api.permissions import (
     CanSeeDeals, CanSeePartners, CanCreateDeals, CanUpdateDeals,
     CanUpdatePartner, CanUpdateManagersPlan, CanCreateUpdatePartnerGroup,

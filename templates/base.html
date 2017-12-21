@@ -93,7 +93,7 @@
                     <% if(user_table[key].active) { %>
                         <% if (key == 'fullname') { %>
                             <% if (results[index][key] != null) { %>
-                                <td class="edit"><a href="<%= results[index].link %>"
+                                <td class="edit"><a href="/account/<%= results[index].id %>"
                                                     title="<%= results[index][key] %>"
                                                     data-link="<%= results[index].link %>"
                                                     data-id="<%=results[index].id %>"
@@ -134,7 +134,7 @@
                                 <% } else { %>
                                 <td></td>
                                 <% } %>
-                            <% }else if (key == 'departments' || key == 'user.departments' || key == 'divisions') { %>
+                            <% }else if (key == 'departments' || key == 'user.departments' || key == 'divisions' || key == 'user.divisions') { %>
                             <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                                 <% if (results[index][key].length == 1) { %>
                                     <td><%= results[index][key][0].title %></td>
