@@ -326,6 +326,7 @@ class UserTableSerializer(UserSingleSerializer):
     get_church = ChurchNameSerializer(read_only=True)
 
     class Meta(UserSingleSerializer.Meta):
+        fields = BASE_USER_FIELDS + ('get_church',)
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
