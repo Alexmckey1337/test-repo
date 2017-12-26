@@ -48,8 +48,11 @@ export function getDataPhone(url, options = {}, config = {}) {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp.json();
             }else if (resp.status === 503) {
-                let message = '503';
-                return message;
+                let error = {
+                    status: '503',
+                    message: 'Служба Asterisk временно недоступна, повторите попытку позже'
+                };
+                return error;
             }else {
                 return resp.json().then(err => {
                     throw err;

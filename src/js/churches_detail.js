@@ -142,7 +142,7 @@ $('document').ready(function () {
         }
     });
 
-    accordionInfo();
+    // accordionInfo();
 
     $('#opening_date').datepicker({
         dateFormat: 'dd.mm.yyyy',

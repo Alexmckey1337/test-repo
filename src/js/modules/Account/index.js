@@ -114,9 +114,9 @@ export function initLocationSelect(config) {
 
 export function dataIptelTable(url) {
     getDataPhone(url).then(data => {
-        if (data === '503') {
+        if (data.status === '503') {
             let err = document.createElement('p');
-            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $(err).text(data.message).addClass('errorText')
             $('#iptelBlock').append(err);
         } else {
             makeIptelTable(data, '#iptelBlock');
@@ -126,10 +126,10 @@ export function dataIptelTable(url) {
 }
 export function dataIptelMonth(url) {
     getDataPhone(url).then(data => {
-        if (data === '503'){
+        if (data.status === '503'){
             let err = document.createElement('p');
-            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
-            $('#tableMonthIptel').append(err);
+            $(err).text(data.message).addClass('errorText')
+            $('#popupMonth').find('.main-text').append(err);
             $('.preloader').css('display', 'none');
         }else{
             makeIptelTable(data,'#tableMonthIptel');

@@ -48,9 +48,9 @@ function formatRepo(data) {
 
 export function PhoneTable(config) {
     getDataPhone(URLS.phone.list(), config).then(data => {
-        if (data === '503') {
+        if (data.status === '503') {
             let err = document.createElement('p');
-            $(err).text('Служба Asterisk временно недоступна, повторите попытку позже').addClass('errorText')
+            $(err).text(data.message).addClass('errorText');
             $('#tablePhone').append(err);
         } else {
             makePhoneTable(data);
@@ -84,9 +84,9 @@ export function phoneTable(config = {}) {
     Object.assign(config, getFilterParam());
     updateHistoryUrl(config);
     getDataPhone(URLS.phone.list(), config).then(data => {
-        if (data === '503') {
+        if (data.status === '503') {
             let err = document.createElement('p');
-            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
+            $(err).text(data.message).addClass('errorText');
             $('#tablePhone').append(err);
         } else {
             makePhoneTable(data, config);
@@ -155,10 +155,10 @@ function addUserToPhone(data, block) {
 export function getDataUserPhone() {
     $('#tableAddUserToPhone').html('');
     getDataPhone(URLS.phone.user()).then(data => {
-        if (data === '503') {
+        if (data.status === '503') {
             let err = document.createElement('p');
-            $(err).text('Сервис телефония временно недоступна, повторите попытку позже').addClass('errorText')
-            $('#tableAddUserToPhone').append(err);
+            $(err).text(data.message).addClass('errorText');
+            $('#popupAddUserToPhone').find('.main-text').append(err);
         } else {
             addUserToPhone(data, '#tableAddUserToPhone');
         }

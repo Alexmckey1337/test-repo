@@ -734,7 +734,6 @@ $('document').ready(function () {
             }
 
         }
-
         $input.each(function () {
             if (!$(this).attr('disabled')) {
                 $(this).attr('disabled', true);

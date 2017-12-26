@@ -435,7 +435,6 @@
                 </ul>
             </div><!--End left-content -->
         </div>
-
         <div class="right-contentwrap">
             <div class="right-content">
                 {% if request.user.is_superuser %}
@@ -499,7 +498,7 @@
                 <div class="a-block a-iptel">
                     <div class="top-s">
                         <h3>звонки</h3>
-                        <a id="monthBtn" href="#">Звонки за месяц</a>
+                        <span id="monthBtn">Звонки за месяц</span>
                     </div>
                     <div class="a-iptel__wrap">
                         <div id="iptelBlock"></div>
@@ -788,7 +787,6 @@
                 {% endif %}
             </div>
         </div>
-
     </div>
     {% if account.skins.all %}
         <div class="clearfix"></div>
