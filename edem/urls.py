@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import get_storage_class
 from filebrowser.sites import FileBrowserSite
 from rest_framework import exceptions
 from rest_framework.response import Response
@@ -45,7 +45,7 @@ class SwaggerSchemaView(APIView):
         return Response(schema)
 
 
-class FileBrowserStorage(FileSystemStorage):
+class FileBrowserStorage(get_storage_class()):
     pass
 
 

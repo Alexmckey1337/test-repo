@@ -257,7 +257,7 @@ server {
 
 	location / {
         {{ if eq $close_site "yes" }}
-        try_files $uri /500.html;
+        try_files $uri /502.html;
         {{ else }}
 		{{ if eq $proto "uwsgi" }}
 		include uwsgi_params;
@@ -277,8 +277,8 @@ server {
 		{{ end }}
         {{ end }}
 	}
-    location /500.html {
-        alias /etc/nginx/templates/500.html;
+    location /502.html {
+        alias /etc/nginx/templates/502.html;
     }
 }
 
@@ -337,7 +337,7 @@ server {
 	listen [::]:443 ssl http2 {{ $default_server }};
 	{{ end }}
 	access_log /var/log/nginx/access.log vhost;
-	return 500;
+	return 502;
 
 	ssl_certificate /etc/nginx/certs/default.crt;
 	ssl_certificate_key /etc/nginx/certs/default.key;
