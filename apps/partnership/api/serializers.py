@@ -240,3 +240,22 @@ class LastDealPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ('created_at', 'sent_date', 'deal_date', 'manager', 'sum', 'effective_sum')
+
+
+class LastChurchDealSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source='get_type_display')
+    manager = serializers.CharField(source='responsible_name')
+    total_payments = serializers.FloatField()
+
+    class Meta:
+        model = ChurchDeal
+        fields = ('date_created', 'manager', 'type', 'value', 'total_payments')
+
+
+class LastChurchDealPaymentSerializer(serializers.ModelSerializer):
+    deal_date = serializers.DateField(format="%m.%Y")
+    manager = serializers.CharField()
+
+    class Meta:
+        model = Payment
+        fields = ('created_at', 'sent_date', 'deal_date', 'manager', 'sum', 'effective_sum')

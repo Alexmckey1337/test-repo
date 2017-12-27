@@ -121,3 +121,9 @@ class LastDealFilter(django_filters.FilterSet):
     class Meta:
         model = Deal
         fields = ('done',)
+
+
+class LastChurchDealFilter(django_filters.FilterSet):
+    class Meta:
+        model = ChurchDeal
+        fields = ('done',)

@@ -105,8 +105,9 @@ class ChurchDealQuerySet(models.query.QuerySet):
         return self.annotate(
             responsible_name=Concat(
                 'responsible__last_name', V(' '),
-                'responsible__first_name'
-            ))
+                'responsible__first_name', V(' '),
+                'responsible__middle_name')
+            )
 
     def annotate_total_sum(self):
         return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
