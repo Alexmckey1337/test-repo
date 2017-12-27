@@ -22,8 +22,8 @@ export function HomeReportsTable(config) {
 }
 
 export function homeReportsTable(config = {}) {
-    let status = $('#statusTabs').find('.current').find('button').data('status');
-    config.status = status;
+    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
+    config.is_submitted = is_submitted;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
@@ -34,9 +34,9 @@ export function homeReportsTable(config = {}) {
 }
 
 function getHomeReports(config = {}) {
-    if (!config.status) {
-        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
-        config.status = status || 1;
+    if (!config.is_submitted) {
+        let is_submitted = parseInt($('#statusTabs').find('.current').find('button').attr('data-is_submitted'));
+        config.is_submitted = is_submitted || 'false';
     }
     return new Promise(function (resolve, reject) {
         let data = {
