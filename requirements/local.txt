@@ -17,3 +17,9 @@ pytest-xdist
 
 # improved REPL
 ipdb==0.10.2
+
+# Static and Media Storage
+# ------------------------------------------------
+boto3==1.5.4
+django-storages==1.6.5
+Collectfast==0.6.0
