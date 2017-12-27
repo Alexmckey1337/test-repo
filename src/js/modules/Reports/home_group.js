@@ -1,6 +1,7 @@
 'use strict';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import {deleteData} from "../Ajax/index";
@@ -14,6 +15,7 @@ import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
+import reverseDate from '../Date';
 
 export function HomeReportsTable(config) {
     getHomeReports(config).then(data => {
@@ -35,7 +37,7 @@ export function homeReportsTable(config = {}) {
 
 function getHomeReports(config = {}) {
     if (!config.is_submitted) {
-        let is_submitted = parseInt($('#statusTabs').find('.current').find('button').attr('data-is_submitted'));
+        let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
         config.is_submitted = is_submitted || 'false';
     }
     return new Promise(function (resolve, reject) {
@@ -62,6 +64,13 @@ function getHomeReports(config = {}) {
 
 function makeHomeReportsTable(data, config = {}) {
     let tmpl = $('#databaseHomeReports').html();
+    _.map(data.results, item => {
+        let date = new Date(reverseDate(item.date, '-')),
+            weekNumber = moment(date).week(),
+            startDate = moment(date).startOf('isoWeek').format('DD.MM.YY'),
+            endDate = moment(date).endOf('isoWeek').format('DD.MM.YY');
+        item.date = `${weekNumber} нед. (${startDate} - ${endDate})`;
+    });
     let rendered = _.template(tmpl)(data);
     $('#homeReports').html(rendered);
     let count = data.count;
