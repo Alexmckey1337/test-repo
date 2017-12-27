@@ -28,6 +28,9 @@ import {
     btnNeed,
     btnPartners,
     btnDeal,
+    tabs,
+    renderDealTable,
+    renderPaymentTable,
 } from "./modules/Partnerships/index";
 
 $('document').ready(function () {
@@ -36,6 +39,8 @@ $('document').ready(function () {
     let responsibleList = false;
     let link = $('.get_info .active').data('link');
 
+    renderDealTable({done: 'False'});
+    renderPaymentTable();
     createChurchesDetailsTable({}, CHURCH_ID, link);
 
     $('#added_home_group_pastor').select2().on('select2:open', function () {
@@ -325,29 +330,14 @@ $('document').ready(function () {
         });
     });
 
-    btnNeed();
-
     $('.sel__date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
     });
 
-    //Tabs
-    $('.tab_main').find('button').on('click', function () {
-        let li = $(this).parent(),
-            tabID = li.attr('data-tab');
-        if (li.hasClass('active')) {
-            return
-        }
-        $('.tab_main').find('li').removeClass('active');
-        li.addClass('active');
-        $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
-        $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
-        $('.partner_block_wrap.active').find(".tabs_deals").find('li').removeClass('active');
-        $('.partner_block_wrap.active').find(".tabs_deals").find('li:first-child').addClass('active');
-    });
-
+    btnNeed();
     btnPartners();
     btnDeal();
+    tabs();
 
 });

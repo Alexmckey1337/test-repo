@@ -1,7 +1,6 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
-import getData from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
 import {
@@ -116,74 +115,4 @@ export function initLocationSelect(config) {
             $citySelector.html(list);
         })
     });
-}
-
-export function renderDealTable(config = {}) {
-    let id = $('.partner_block_wrap.active').attr('data-partner');
-    getData(URLS.partner.last_deals(id), config).then(function (data) {
-        let rendered = makeDealTable(data);
-        $('.partner_block_wrap.active').find('.deals_content').html(rendered);
-        $('.preloader').css('display', 'none');
-    });
-}
-
-export function renderPaymentTable(config = {}) {
-    let id = $('.partner_block_wrap.active').attr('data-partner');
-    getData(URLS.partner.last_payments(id), config).then(function (data) {
-        let rendered = makePaymentTable(data);
-        $('.partner_block_wrap.active').find('.payments_content').html(rendered);
-        $('.preloader').css('display', 'none');
-    });
-}
-
-function makeDealTable(data) {
-    let table = `
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Дата сделки</th>
-                        <th>Менеджер</th>
-                        <th>Тип сделки</th>
-                        <th>Сумма</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        ${data.results.map(item => {
-                            return `<tr>
-                                    <td>${item.date_created}</td>
-                                    <td>${item.manager}</td>
-                                    <td>${item.type}</td>
-                                    <td>${item.value}</td>
-                                </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>`;
-
-    return table;
-}
-
-function makePaymentTable(data) {
-    let table = `
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Дата платежа</th>
-                        <th>Дата сделки</th>
-                        <th>Принял</th>
-                        <th>Сумма</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        ${data.results.map(item => {
-                            return `<tr>
-                                    <td>${item.sent_date}</td>
-                                    <td>${item.deal_date}</td>
-                                    <td>${item.manager}</td>
-                                    <td>${item.sum}</td>
-                                </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>`;
-
-    return table;
 }

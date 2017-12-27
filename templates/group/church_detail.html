@@ -182,6 +182,7 @@
         {% for partner in church.partners.all %}
             <div class="partner_block_wrap {% if forloop.first %} active {% endif %}"
                  data-partner="{{ partner.id }}"
+                 data-type="CH"
                  data-main_tab="{{ forloop.counter }}">
                 <div class="partner_wrapper">
                     <ul class="right-info">
@@ -429,6 +430,8 @@
             </div>
         </div>
     </div>
+
+    {% include "partials/find_duplicate_deals.html" %}
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
