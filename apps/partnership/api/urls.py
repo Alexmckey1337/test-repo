@@ -24,7 +24,10 @@ custom_urls = [
         views.UpdatePartnerRoleView.as_view(), name="update_partner_role"),
     url(r'^partners/(?P<partner_id>\d+)/last_deals/$', views.LastPartnerDealsView.as_view(), name="partner-last_deals"),
     url(r'^partners/(?P<partner_id>\d+)/last_payments/$',
-        views.LastPartnerPaymentsView.as_view(), name="partner-last_payments"),
+        views.LastPartnerPaymentsView.as_view(), name="church_partner-last_payments"),
+    url(r'^church_partners/(?P<partner_id>\d+)/last_deals/$', views.LastChurchPartnerDealsView.as_view(), name="partner-last_deals"),
+    url(r'^church_partners/(?P<partner_id>\d+)/last_payments/$',
+        views.LastChurchPartnerPaymentsView.as_view(), name="church_partner-last_payments"),
 ]
 
 urlpatterns = [
