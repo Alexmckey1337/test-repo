@@ -29,13 +29,17 @@ import {
     changeLessonStatus,
     initLocationSelect,
     sendNote,
-    btnNeed,
-    renderDealTable,
-    renderPaymentTable,
 } from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
-import {makeDuplicateDeals} from "./modules/Deals/index";
+import {
+    btnNeed,
+    btnPartners,
+    btnDeal,
+    tabs,
+    renderDealTable,
+    renderPaymentTable,
+} from "./modules/Partnerships/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -104,17 +108,6 @@ $('document').ready(function () {
         let user = $(this).data('user-id');
         setCookie('hard_user_id', user, {path: '/'});
         window.location.reload();
-    });
-
-    $(".tabs_deals li").on('click', function () {
-        let status = $(this).attr('data-status');
-        if ($(this).hasClass('active')) {
-            return
-        }
-        $('.preloader').css('display', 'block');
-        $(this).closest('.tab-status').find('li').removeClass('active');
-        $(this).addClass('active');
-        renderDealTable({done: status});
     });
 
     $('.send_email_with_code').on('click', function () {
@@ -236,91 +229,10 @@ $('document').ready(function () {
         $('#popup-change_password').css('display', 'none');
     });
 
-    $("#close-deal").on('click', function () {
-        $('#popup-create_deal').css('display', 'none');
-    });
     $("#popup-create_deal .top-text span").on('click', function (el) {
         $('#new_deal_sum').val('');
         $('#popup-create_deal textarea').val('');
         $('#popup-create_deal').css('display', '');
-    });
-
-    $(".create_new_deal").on('click', function () {
-        let partnerID = $(this).attr('data-partner'),
-            currency = $(this).attr('data-currency'),
-            popup = $('#popup-create_deal');
-        $('#send_new_deal').prop('disabled', false);
-        $('#send_new_deal').attr('data-partner', partnerID);
-        popup.find('.currency').val(currency);
-        popup.css('display', 'block');
-    });
-
-    function clearDeal() {
-        $('#popup-create_deal textarea').val('');
-        $('#new_deal_sum').val('');
-        $('#new_deal_date').val('');
-        $('#popup-create_deal').css('display', 'none');
-    }
-
-    function createDeal(config) {
-        postData(URLS.deal.list(), config).then(() => {
-            showAlert('Сделка создана.');
-            clearDeal();
-            renderDealTable({done: 'False'});
-        }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
-    }
-
-    $('#send_new_deal').on('click', function () {
-        let description = $('#popup-create_deal textarea').val(),
-            value = $('#new_deal_sum').val(),
-            date = $('#new_deal_date').val(),
-            type = $('#new_deal_type').val();
-
-        if (value && date) {
-            let dateFormat = date.trim().split('.').reverse().join('-'),
-                id = $(this).data('partner'),
-                checkDeal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'partnership_id': id,
-                },
-                deal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'description': description,
-                    'partnership': id,
-                    'type': type,
-                };
-            $(this).prop('disabled', true);
-            getData(URLS.deal.check_duplicates(), checkDeal).then( data => {
-                if (data.results) {
-                    $('.preloader').css('display', 'block');
-                    $('#send_new_deal').prop('disabled', false);
-                    makeDuplicateDeals(checkDeal);
-                    $('#hard_create').attr('data-date_created', dateFormat)
-                                     .attr('data-value', value)
-                                     .attr('data-description', description)
-                                     .attr('data-partnership', id)
-                                     .attr('data-type', type);
-                } else {
-                    createDeal(deal);
-                }
-            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
-        } else {
-            showAlert('Заполните все поля.');
-        }
-    });
-
-    $('#hard_create').on('click', function () {
-        let deal = {
-                    'date_created': $(this).attr('data-date_created'),
-                    'value': $(this).attr('data-value'),
-                    'description': $(this).attr('data-description'),
-                    'partnership': $(this).attr('data-partnership'),
-                    'type': $(this).attr('data-type'),
-                };
-        createDeal(deal);
-        $('.pop-up_duplicate__table').css('display', 'none');
     });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
@@ -834,63 +746,9 @@ $('document').ready(function () {
         $('#delete_access').attr('disabled', true);
     });
 
-
-    // $('label[for="master"]').on('click', function () {
-    //     let id = $('#selectResponsible').find('option:selected').val();
-    //     if(id) {
-    //         window.location.href = `/account/${id}`;
-    //     }
-    // })
-
-    $('#addMorePartners').on('click', function () {
-        $('#popup-create_partners').css('display', 'block');
-    });
-
-    $('#close_addPartners').on('click', function () {
-        $('#popup-create_partners').css('display', 'none');
-    });
-
-    $('#send_addPartners').on('click', function () {
-        let popup = $('#popup-create_partners'),
-            checkBox = popup.find('.partnershipCheck'),
-            partnershipData = {};
-        partnershipData.is_active = checkBox.is(':checked');
-        let $input = popup.find('input:not(.select2-search__field), select').filter(":not(':checkbox')");
-        $input.each(function () {
-            let id = $(this).data('id');
-            if ($(this).hasClass('sel__date')) {
-                partnershipData[id] = $(this).val().trim().split('.').reverse().join('-');
-            } else if ($(this).hasClass('par__group')) {
-                if ($(this).val() != null) {
-                    partnershipData[id] = $(this).val();
-                }
-            } else {
-                partnershipData[id] = $(this).val();
-            }
-        });
-        postData(URLS.partner.list(), partnershipData).then(() => {
-            location.reload();
-        }).catch( data => {
-            errorHandling(data);
-        })
-    });
-
     btnNeed();
-
-    $('.tab_main').find('button').on('click', function () {
-        let li = $(this).parent(),
-            tabID = li.attr('data-tab');
-        if (li.hasClass('active')) {
-            return
-        }
-        $('.tab_main').find('li').removeClass('active');
-        li.addClass('active');
-        $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
-        $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
-        $('.partner_block_wrap.active').find(".tabs_deals").find('li').removeClass('active');
-        $('.partner_block_wrap.active').find(".tabs_deals").find('li:first-child').addClass('active');
-        renderDealTable({done: 'False'});
-        renderPaymentTable();
-    });
+    btnPartners();
+    btnDeal();
+    tabs();
 
 });

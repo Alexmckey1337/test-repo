@@ -96,6 +96,8 @@ const PARTNER = {
     set_managers_plan: (id) => `/api/v1.1/partnerships/${id}/set_plan/`,
     last_deals: (id) => `/api/v1.0/partners/${id}/last_deals/`,
     last_payments: (id) => `/api/v1.0/partners/${id}/last_payments/`,
+    church_last_deals: (id) => `/api/v1.0/church_partners/${id}/last_deals/`,
+    church_last_payments: (id) => `/api/v1.0/church_partners/${id}/last_payments/`,
 };
 
 const DEAL = {

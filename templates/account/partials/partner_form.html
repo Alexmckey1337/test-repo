@@ -1,7 +1,7 @@
 {% load partner_tags %}
 <form action="/" name="editPartnership" data-action="update-user" data-partner="{{ partner.id }}">
-    <input type="hidden" data-id="user" value="{{ account.id }}">
-    {% if request.user.is_partner_supervisor_or_high %}
+    <input type="hidden" data-id="user" value="{{ user.id }}">
+    {% if is_supervisor %}
         <button class="edit"
                 {% if count %}
                 data-edit-block="editPartnership{{ count }}"

@@ -325,7 +325,7 @@
                         <li id="editPartnership">
                             <div class="right-info__block">
                                 <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" with bla=account is_supervisor=request.user.is_partner_supervisor_or_high %}
+                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}
                             </div>
                         </li>
                     {% endif %}
@@ -442,13 +442,13 @@
                             <label for="manager_select">Менеджер:</label>
                             <select name="manager" id="manager_select" class="select2"></select>
                             <button id="set_manager" data-user="{{ account.id }}">Set</button>
-                            {% if account.manager %}
-                                <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
-                                    {{ account.manager }}
-                                </a></p>
-                            {% else %}
-                                <p>Текущий менеджер: Нет менеджера</p>
-                            {% endif %}
+                            <p>Текущий менеджер: {% for manager in account.managers.all %}
+                                <a href="{{ manager.get_absolute_url }}" target="_blank">
+                                    {{ manager }}
+                                </a>{% if not forloop.last %},{% endif %}
+                            {% empty %}
+                                Нет менеджера
+                            {% endfor %}</p>
                         </div>
                     </div>
                 {% endif %}
@@ -555,7 +555,7 @@
                                             <div class="right-info__block">
                                                 <h4>Партнерские данные</h4>
                                                 <div class="success__block"></div>
-                                                {% include "account/partials/partner_form.html" with partner=partner count=forloop.counter %}
+                                                {% include "account/partials/partner_form.html" with user=account partner=partner count=forloop.counter is_supervisor=request.user.is_partner_supervisor_or_high %}
                                             </div>
                                         </li>
                                     </ul>
@@ -894,24 +894,7 @@
         </div>
     </div>
 
-    <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
-        <div class="pop_cont">
-            <div class="top-text">
-                <h3>По данной сделке есть дубликаты</h3><span class="close_pop">×</span>
-            </div>
-            <div class="main-text">
-                <div class="top-pag">
-                    <div class="table__count"></div>
-                    <div class="pagination duplicate_users__pagination"></div>
-                </div>
-                <div id="table_duplicate" class="table-wrap clearfix"></div>
-            </div>
-            <div class="buttons">
-                <button class="close_pop">Отменить</button>
-                <button id="hard_create">Создать</button>
-            </div>
-        </div>
-    </div>
+{% include "partials/find_duplicate_deals.html" %}
 
     <div id="popup-create_partners" class="popap">
         <div class="pop_cont">

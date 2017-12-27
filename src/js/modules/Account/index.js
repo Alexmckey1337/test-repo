@@ -1,7 +1,6 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
-import getData, {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
 import {
@@ -116,111 +115,4 @@ export function initLocationSelect(config) {
             $citySelector.html(list);
         })
     });
-}
-
-export function btnNeed() {
-    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
-        $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select'),
-            btn = $(this).closest('.access_wrapper').find('#delete_access');
-        if ($(this).hasClass('active')) {
-            textArea.attr('readonly', false);
-            select.attr('readonly', false).attr('disabled', false);
-            btn.attr('disabled', false);
-        } else {
-            textArea.attr('readonly', true);
-            select.attr('readonly', true).attr('disabled', true);
-            btn.attr('disabled', true);
-        }
-    });
-
-    $('.a-note, .a-sdelki').find('.send_need').on('click', function () {
-        let partnerID = $(this).attr('data-partner'),
-            textArea = $(this).parent().siblings('textarea'),
-            need_text = textArea.val(),
-            url = URLS.partner.update_need(partnerID),
-            data = {'need_text': need_text};
-        if (!partnerID) {
-            showAlert('Пользователь не является партнёром в данном блоке');
-            return
-        }
-        postData(url, data, {method: 'PUT'}).then(() => {
-            showAlert('Нужда сохранена.');
-        }).catch(err => {
-            showAlert(err.detail);
-        });
-        $(this).siblings('.editText').removeClass('active');
-        textArea.attr('readonly', true);
-    });
-}
-
-export function renderDealTable(config = {}) {
-    let id = $('.partner_block_wrap.active').attr('data-partner');
-    getData(URLS.partner.last_deals(id), config).then(function (data) {
-        let rendered = makeDealTable(data);
-        $('.partner_block_wrap.active').find('.deals_content').html(rendered);
-        $('.preloader').css('display', 'none');
-    });
-}
-
-export function renderPaymentTable(config = {}) {
-    let id = $('.partner_block_wrap.active').attr('data-partner');
-    getData(URLS.partner.last_payments(id), config).then(function (data) {
-        let rendered = makePaymentTable(data);
-        $('.partner_block_wrap.active').find('.payments_content').html(rendered);
-        $('.preloader').css('display', 'none');
-    });
-}
-
-function makeDealTable(data) {
-    let table = `
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Дата сделки</th>
-                        <th>Менеджер</th>
-                        <th>Тип сделки</th>
-                        <th>Сумма</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        ${data.results.map(item => {
-                            return `<tr>
-                                    <td>${item.date_created}</td>
-                                    <td>${item.manager}</td>
-                                    <td>${item.type}</td>
-                                    <td>${item.value}</td>
-                                </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>`;
-
-    return table;
-}
-
-function makePaymentTable(data) {
-    let table = `
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Дата платежа</th>
-                        <th>Дата сделки</th>
-                        <th>Принял</th>
-                        <th>Сумма</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        ${data.results.map(item => {
-                            return `<tr>
-                                    <td>${item.sent_date}</td>
-                                    <td>${item.deal_date}</td>
-                                    <td>${item.manager}</td>
-                                    <td>${item.sum}</td>
-                                </tr>`;
-                        }).join('')}
-                    </tbody>
-                </table>`;
-
-    return table;
 }

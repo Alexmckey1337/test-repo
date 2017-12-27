@@ -1,0 +1,19 @@
+{% load static %}
+<div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
+    <div class="pop_cont">
+        <div class="top-text">
+            <h3>По данной сделке есть дубликаты</h3><span class="close_pop">×</span>
+        </div>
+        <div class="main-text">
+            <div class="top-pag">
+                <div class="table__count"></div>
+                <div class="pagination duplicate_users__pagination"></div>
+            </div>
+            <div id="table_duplicate" class="table-wrap clearfix"></div>
+        </div>
+        <div class="buttons">
+            <button class="close_pop">Отменить</button>
+            <button id="hard_create">Создать</button>
+        </div>
+    </div>
+</div>
