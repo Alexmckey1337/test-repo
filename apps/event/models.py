@@ -88,7 +88,7 @@ class Meeting(AbstractStatusModel):
     owner = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                               limit_choices_to={'hierarchy__level__gte': 1})
 
-    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT, verbose_name=_('Home Group'))
+    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.CASCADE, verbose_name=_('Home Group'))
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
@@ -154,7 +154,7 @@ class Meeting(AbstractStatusModel):
 class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                                limit_choices_to={'hierarchy__level__gte': 2})
-    church = models.ForeignKey('group.Church', on_delete=models.PROTECT,
+    church = models.ForeignKey('group.Church', on_delete=models.CASCADE,
                                verbose_name=_('Church'))
     date = models.DateField(_('Date'))
     count_people = models.IntegerField(_('Count People'), default=0)
@@ -274,7 +274,8 @@ class Week(models.Model):
 @python_2_unicode_compatible
 class Event(models.Model):
     week = models.ForeignKey(Week, on_delete=models.PROTECT, null=True, blank=True)
-    event_type = models.ForeignKey(EventType, on_delete=models.PROTECT, related_name='events', blank=True, null=True)
+    event_type = models.ForeignKey(EventType, on_delete=models.PROTECT,
+                                   related_name='events', blank=True, null=True)
     from_date = models.DateField(default=date.today)
     to_date = models.DateField(default=date.today)
     time = models.TimeField(default=timezone.now)

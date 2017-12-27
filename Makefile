@@ -12,9 +12,18 @@ docs:
 	cd docs && sphinx-build -b html -d build/doctrees source build/html
 	@xdg-open docs/build/html/index.html >& /dev/null || open docs/build/html/index.html >& /dev/null || true
 
-collectstatic:
+static:
+	rm -rf ./public/static/
 	python manage.py collectstatic --noinput --settings edem.settings.base
 	bower install
 	npm install
 	gulp build
 	npm run development
+	rm -rf ./node_modules/
+
+collectstatic:
+	rm -rf ./public/static/
+	bower install
+	npm install
+	npm run build
+	rm -rf ./node_modules/

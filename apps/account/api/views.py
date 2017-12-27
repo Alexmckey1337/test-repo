@@ -222,7 +222,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         user = self.get_object()
         manager = self._get_object_or_error(User, 'manager_id')
-        user.manager = manager
+        user.managers.add(manager)
         user.save()
 
         return Response({'detail': _('Менеджер назначен.')},
