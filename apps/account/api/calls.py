@@ -73,7 +73,8 @@ def get_response_data(response):
         calls_data = response.json().get('result')
     except Exception as e:
         print(e)
-        raise ServiceUnavailable({'detail': 'Can"t parse Asterisk Service response'})
+        raise ServiceUnavailable(
+            {'detail': 'Can"t parse Asterisk Service response'})
 
     return calls_data
 
@@ -84,12 +85,14 @@ def calls_to_user(request):
     try:
         user_id = int(request.query_params.get('user_id'))
     except (ValueError, TypeError):
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} required and must be integer'})
+        raise exceptions.ValidationError(
+            {'message': 'Parameter {user_id} required and must be integer'})
     user = get_object_or_404(User, id=user_id)
 
     phone_number = user.phone_number[-10:]
     if not phone_number:
-        raise exceptions.ValidationError({'message': 'This user not have a {phone_number}'})
+        raise exceptions.ValidationError(
+            {'message': 'This user not have a {phone_number}'})
 
     data['phone_number'] = phone_number
     data['range'] = request.query_params.get('range')
@@ -135,7 +138,8 @@ def asterisk_users(request):
         users = response.json().get('result')
     except Exception as e:
         print(e)
-        raise ServiceUnavailable({'detail': 'Can"t parse Asterisk Service response'})
+        raise ServiceUnavailable(
+            {'detail': 'Can"t parse Asterisk Service response'})
 
     users = prepare_asterisk_users(users)
     result = {'result': users}
@@ -149,7 +153,8 @@ def change_asterisk_user(request):
     try:
         user_id = int(request.data.get('user_id'))
     except (ValueError, TypeError):
-        raise exceptions.ValidationError({'message': 'Parameter {user_id} required and must be integer'})
+        raise exceptions.ValidationError(
+            {'message': 'Parameter {user_id} required and must be integer'})
     user = get_object_or_404(User, pk=user_id)
 
     data['extension'] = request.data.get('extension')  # {"user_id": 15287, "extension": "9002"}

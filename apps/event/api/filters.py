@@ -46,6 +46,18 @@ class MeetingCustomFilter(filters.BaseFilterBackend):
         return queryset
 
 
+class MeetingStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_submitted = request.query_params.get('is_submitted')
+
+        if is_submitted == 'true':
+            queryset = queryset.filter(status=Meeting.SUBMITTED)
+        if is_submitted == 'false':
+            queryset = queryset.filter(status__in=[Meeting.IN_PROGRESS, Meeting.EXPIRED])
+
+        return queryset
+
+
 class ChurchReportDepartmentFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         department = request.query_params.get('department')
