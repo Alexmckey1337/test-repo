@@ -467,6 +467,7 @@ $('document').ready(function () {
         e.preventDefault();
         let $edit = $('.edit');
         let exists = $edit.closest('form').find('ul').hasClass('exists');
+        console.log(exists);
         if (!exists) {
             console.log(exists);
         }
@@ -683,7 +684,6 @@ $('document').ready(function () {
             }
         });
     });
-
     $.validate({
         lang: 'ru',
         form: '#editContactForm',

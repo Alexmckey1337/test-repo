@@ -162,7 +162,6 @@ $('document').ready(function () {
     $('.accordion').find('.edit').on('click', function (e) {
         e.preventDefault();
         let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
-
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
@@ -179,24 +178,24 @@ $('document').ready(function () {
             });
             $(this).removeClass('active');
         } else {
-            makePastorList(department, '#editPastorSelect', pastor);
-            makeDepartmentList('#editDepartmentSelect', department).then(function () {
-                $('#editDepartmentSelect').on('change', function () {
-                    let id = parseInt($(this).val());
-                    makePastorList(id, '#editPastorSelect');
-                })
-            });
-            $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
-                $('.select2-search__field').focus();
-            });
-            $input.each(function () {
-                if (!$(this).hasClass('no__edit')) {
-                    if ($(this).attr('disabled')) {
-                        $(this).attr('disabled', false);
-                    }
-                    $(this).attr('readonly', false);
-                }
-            });
+            // makePastorList(department, '#editPastorSelect', pastor);
+            // makeDepartmentList('#editDepartmentSelect', department).then(function () {
+            //     $('#editDepartmentSelect').on('change', function () {
+            //         let id = parseInt($(this).val());
+            //         makePastorList(id, '#editPastorSelect');
+            //     })
+            // });
+            // $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
+            //     $('.select2-search__field').focus();
+            // });
+            // $input.each(function () {
+            //     if (!$(this).hasClass('no__edit')) {
+            //         if ($(this).attr('disabled')) {
+            //             $(this).attr('disabled', false);
+            //         }
+            //         $(this).attr('readonly', false);
+            //     }
+            // });
             $(this).addClass('active');
         }
     });
@@ -214,6 +213,18 @@ $('document').ready(function () {
         } else {
             pasteLink($('#web_site'), webLink);
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
+        }
+    });
+
+    $('#editNameBtn').on('click', function () {
+        if ($(this).hasClass('active')) {
+            $('#editNameBlock').css({
+                display: 'block',
+            });
+        } else {
+            $('#editNameBlock').css({
+                display: 'none',
+            });
         }
     });
 

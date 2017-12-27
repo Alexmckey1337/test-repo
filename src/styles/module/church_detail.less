@@ -1,8 +1,9 @@
 .a-church_sdelki {
-  .note_wrapper {
+
     #partnership_need {
       position: relative;
       width: 100%;
+      padding: 10px;
       .edit {
         position: absolute;
         padding: 0;
@@ -58,6 +59,7 @@
       }
       textarea {
         margin-top: 10px;
+        width: 100%;
       }
     }
     &:hover {
@@ -65,5 +67,55 @@
         opacity: .3;
       }
     }
+
+}
+
+.accordion {
+  .right-contentwrap {
+    .info-calc {
+      margin-top: 15px;
+      .popup_body{
+        display: flex;
+      }
+      .container_block {
+        width: 50%;
+        justify-content: flex-start;
+      }
+    }
+  }
+  .popup_body {
+    margin: 0;
+    border: none;
+    &.hidden {
+      display: none;
+    }
+    label {
+      //justify-content: center;
+      p {
+        &.count {
+          //width: auto;
+        }
+      }
+    }
+  }
+  #no_partners-link {
+    right: 20px;
+  }
+}
+
+.a-block {
+  overflow: hidden;
+  border: 1px solid #cdd0d4;
+  margin-top: 30px;
+  border-radius: 3px
+}
+#editPartnership{
+  .container{
+    width: 50%;
+  }
+}
+#editPartnership,#editPartnership{
+  form{
+    margin-top:20px;
   }
 }
