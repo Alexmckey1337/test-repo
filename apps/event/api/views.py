@@ -22,7 +22,7 @@ from common.parsers import MultiPartAndJsonParser
 from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter)
+    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter, ChurchReportStatusFilter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
     MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
