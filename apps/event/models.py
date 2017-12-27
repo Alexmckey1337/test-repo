@@ -88,7 +88,7 @@ class Meeting(AbstractStatusModel):
     owner = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                               limit_choices_to={'hierarchy__level__gte': 1})
 
-    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.PROTECT, verbose_name=_('Home Group'))
+    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.CASCADE, verbose_name=_('Home Group'))
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
