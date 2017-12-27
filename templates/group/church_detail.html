@@ -1,5 +1,7 @@
 {% extends "layout_main.html" %}
+{% load i18n %}
 {% load static %}
+{% load partner_tags %}
 
 {% block body_id %} id="database"{% endblock %}
 
@@ -119,95 +121,133 @@
         <h2 class="info-title">Сводная информация:</h2>
         <div class="info info-calc">
             <div class="popup_body">
-                        <div class="container container_block">
-                            <label>
-                                <span class="label_block">Прихожан:</span>
-                                <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Лидеров:</span>
-                                <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Отцов:</span>
-                                <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Юношей:</span>
-                                <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Младенцев:</span>
-                                <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Партнеров:</span>
-                                <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
-                            </label>
-                            <label>
-                                <span class="label_block">Не партнеров:</span>
-                                <p class="count"><span id="no_partners_count">{{ no_partners_count }}</span></p>
-                                <a href="{% url 'db:people' %}" target="_blank" id="no_partners-link">
-                                    <i class="fa fa-external-link" aria-hidden="true"></i>
-                                </a>
-                            </label>
-                        </div>
-                    </div>
+                <div class="container container_block">
+                    <label>
+                        <span class="label_block">Прихожан:</span>
+                        <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Лидеров:</span>
+                        <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Отцов:</span>
+                        <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Юношей:</span>
+                        <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Младенцев:</span>
+                        <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнеров:</span>
+                        <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
+                    </label>
+                    <label>
+                        <span class="label_block">Не партнеров:</span>
+                        <p class="count"><span id="no_partners_count">{{ no_partners_count }}</span></p>
+                        <a href="{% url 'db:people' %}" target="_blank" id="no_partners-link">
+                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </a>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
-    {% for partner in church.partners.all %}
-        <div class="a-sdelki a-church_sdelki">
-            <div class="partner_wrapper">
-                <ul class="right-info">
-                    <li id="editPartnership">
-                        <div class="right-info__block">
-                            <h4>Партнерские данные</h4>
-                            <div class="success__block"></div>
-                            {% include "account/partials/partner_form.html" with bla=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
-                        </div>
+    <div class="a-sdelki" id="Sdelki">
+        <div class="top-s">
+            <h3>Партнерство</h3>
+        </div>
+        <div class="tab-main_status">
+            <ul class="tab_main">
+                {% for partner in church.partners.all %}
+                    <li {% if forloop.first %}
+                        class="active"
+                    {% endif %}
+                        data-tab="{{ forloop.counter }}"
+                        data-partner="{{ partner.id }}">
+                        <button>
+                            {{ partner.title }}
+                        </button>
                     </li>
-                </ul>
-                <div id="editPartnershipNeed" class="note_wrapper">
-                    <form class="partnership_need" action="/" name="editPartnershipNeed" data-action="update-user"
-                          data-partner="{{ partner.id }}"
-                          id="partnership_need">
-                        <input type="hidden" data-id="user" value="{{ partner.id }}">
-                        <button class="edit" data-edit-block="editPartnershipNeed"></button>
-                        <button class="save__info" type="submit"></button>
-                        <label for="id_need_text">Молитвенная нужда</label>
-                        <textarea data-id="need_text" id="id_need_text" rows="7" cols="50"
+                {% endfor %}
+            </ul>
+            {% if user.is_partner_supervisor_or_high %}
+                <button id="addMorePartners">Добавить партнерскую анкету</button>
+            {% endif %}
+        </div>
+        {% for partner in church.partners.all %}
+            <div class="partner_block_wrap {% if forloop.first %} active {% endif %}"
+                 data-partner="{{ partner.id }}"
+                 data-main_tab="{{ forloop.counter }}">
+                <div class="partner_wrapper">
+                    <ul class="right-info">
+                        <li id="editPartnership{{ forloop.counter }}">
+                            <div class="right-info__block">
+                                <h4>Партнерские данные</h4>
+                                <div class="success__block"></div>
+                                {% include "account/partials/partner_form.html" with user=church partner=partner count=forloop.counter is_supervisor=request.user.is_partner_supervisor_or_high %}
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="note_wrapper">
+                        <label for="id_need_text{{ forloop.counter }}">Молитвенная нужда</label>
+                        {% if user.is_partner_manager_or_high %}
+                            <div class="btn-block">
+                                <button class="editText"></button>
+                                <button class="saveNote send_need"
+                                        data-type="CH"
+                                        data-partner="{{ partner.id }}">
+
+                                </button>
+                            </div>
+                        {% endif %}
+                        <textarea name="need_text" id="id_need_text{{ forloop.counter }}" rows="15"
+                                  cols="50"
                                   readonly>{{ partner.need_text }}</textarea>
-                    </form>
+                    </div>
+                </div>
+                <p class="payment_title">Сделки</p>
+                <div class="tab-status" id="tabStatus{{ forloop.counter }}">
+                    <ul class="tabs_deals">
+                        <li data-status="False"
+                            class="active">
+                            <button>Незавершённые</button>
+                        </li>
+                        <li data-status="True">
+                            <button>Завершённые</button>
+                        </li>
+                    </ul>
+                    <button data-currency="{{ partner.currency.short_name }}"
+                            data-partner="{{ partner.id }}"
+                            class="create_new_deal">
+                        Добавить сделку
+                    </button>
+                </div>
+                <div class="deals_content"></div>
+                <p class="payment_title">Платежи</p>
+                <div class="payments_content"></div>
+            </div>
+            {% empty %}
+            <div class="a-sdelki">
+                <div class="partner_wrapper">
+                    <ul class="right-info">
+                        <li id="editPartnership">
+                            <div class="right-info__block">
+                                <h4>Партнерские данные</h4>
+                                <div class="success__block"></div>
+                                {% include "account/partials/partner_form.html" with user=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-        {% empty %}
-        <div class="a-sdelki a-church_sdelki">
-            <div class="partner_wrapper">
-                <ul class="right-info">
-                    <li id="editPartnership">
-                        <div class="right-info__block">
-                            <h4>Партнерские данные</h4>
-                            <div class="success__block"></div>
-                            {% include "account/partials/partner_form.html" with bla=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
-                        </div>
-                    </li>
-                </ul>
-                <div id="editPartnershipNeed" class="note_wrapper">
-                    <form class="partnership_need" action="/" name="editPartnershipNeed" data-action="update-user"
-                          data-partner="{{ partner.id }}"
-                          id="partnership_need">
-                        <input type="hidden" data-id="user" value="{{ partner.id }}">
-                        <button class="edit" data-edit-block="editPartnershipNeed"></button>
-                        <button class="save__info" type="submit"></button>
-                        <label for="id_need_text">Молитвенная нужда</label>
-                        <textarea data-id="need_text" id="id_need_text" rows="7" cols="50"
-                                  readonly>{{ partner.need_text }}</textarea>
-                    </form>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    {% include "partner/partials/create_deal.html" %}
+    </div>
     <div class="container">
         <div class="col-12">
             <div class="top-panel tabs-panel">
@@ -317,6 +357,76 @@
                     <button type="submit" class="add-church">Создать</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <div id="popup-create_partners" class="popap">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление партнерской анкеты</h2>
+            </div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="church" value="{{ church.id }}">
+                    <label>
+                        <span class="label_block">Отдел партнерства:</span>
+                        {% get_partner_titles as titles %}
+                        <select class="department_partner selectdb" data-id="title">
+                            {% for t in titles %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тег:</span>
+                        <select class="group selectdb par__group" data-id="group">
+                            <option value="" selected disabled>Выберите тег</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners"
+                        data-type="CH"
+                >
+                    Создать
+                </button>
+            </div>
         </div>
     </div>
 {% endblock %}

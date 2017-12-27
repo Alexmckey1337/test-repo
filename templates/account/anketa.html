@@ -325,7 +325,7 @@
                         <li id="editPartnership">
                             <div class="right-info__block">
                                 <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" with bla=account is_supervisor=request.user.is_partner_supervisor_or_high %}
+                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}
                             </div>
                         </li>
                     {% endif %}
@@ -555,7 +555,7 @@
                                             <div class="right-info__block">
                                                 <h4>Партнерские данные</h4>
                                                 <div class="success__block"></div>
-                                                {% include "account/partials/partner_form.html" with partner=partner count=forloop.counter %}
+                                                {% include "account/partials/partner_form.html" with user=account partner=partner count=forloop.counter is_supervisor=request.user.is_partner_supervisor_or_high %}
                                             </div>
                                         </li>
                                     </ul>

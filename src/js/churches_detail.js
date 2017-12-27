@@ -6,10 +6,14 @@ import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import URLS from './modules/Urls/index';
-import {postFormData} from "./modules/Ajax/index";
+import {postData, postFormData} from "./modules/Ajax/index";
+import errorHandling from './modules/Error';
 import {
-    createChurchesDetailsTable, setOptionsToPotentialLeadersSelect,
-    makeUsersFromDatabaseList, reRenderTable, editChurches
+    createChurchesDetailsTable,
+    setOptionsToPotentialLeadersSelect,
+    makeUsersFromDatabaseList,
+    reRenderTable,
+    editChurches,
 } from "./modules/Church/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
@@ -20,6 +24,11 @@ import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
+import {
+    btnNeed,
+    btnPartners,
+    btnDeal,
+} from "./modules/Partnerships/index";
 
 $('document').ready(function () {
     const CHURCH_ID = $('#church').data('id');
@@ -37,6 +46,8 @@ $('document').ready(function () {
         autoClose: true
     });
 
+    $('.selectdb').select2();
+
 //    Events
     $('#addHomeGroupToChurch').on('click', function () {
         clearAddHomeGroupData();
@@ -45,14 +56,12 @@ $('document').ready(function () {
             setOptionsToPotentialLeadersSelect(CHURCH_ID);
         }
         setTimeout(function () {
-            //$('#addHomeGroup').css('display', 'block');
             $('#addHomeGroup').addClass('active');
             $('.bg').addClass('active');
         }, 100)
     });
 
     $('#addUserToChurch').on('click', function () {
-        // $('#addUser').css('display', 'block');
         initAddNewUser({
             getDepartments: false,
         });
@@ -62,17 +71,7 @@ $('document').ready(function () {
         document.querySelector('#searchUserFromDatabase').focus();
         $('#searchedUsers').css('height', 'auto');
         $('#chooseUserINBases').css('display', 'block');
-        //$('#chooseUserINBases').addClass('active');
-        //$('.bg').addClass('active');
     });
-
-    // $('#choose').on('click', function () {
-    //     $(this).closest('.popup').css('display', 'none');
-    //     $('#searchedUsers').html('');
-    //     $('#searchUserFromDatabase').val('');
-    //     $('.choose-user-wrap .splash-screen').removeClass('active');
-    //     $('#chooseUserINBases').css('display', 'block');
-    // });
 
     $('#addNewUser').on('click', function () {
         let department_id = $('#church').data('department_id');
@@ -80,7 +79,6 @@ $('document').ready(function () {
         let option = document.createElement('option');
         $(option).val(department_id).text(department_title).attr('selected', true).attr('required', false);
         $(this).closest('.popup').css('display', 'none');
-        //$('#addNewUserPopup').css('display', 'block');
         $('#addNewUserPopup').addClass('active');
         $('.bg').addClass('active');
         $('#chooseDepartment').html(option).attr('disabled', false);
@@ -152,7 +150,7 @@ $('document').ready(function () {
         autoClose: true
     });
 
-    $('#addHomeGroup').find('.pop_cont').on('click', function (e) {
+    $('#addHomeGroup, #popup-create_partners, #popup-create_deal').find('.pop_cont').on('click', function (e) {
         e.stopPropagation();
     });
 
@@ -227,13 +225,22 @@ $('document').ready(function () {
         addHomeGroup(event, this, createChurchesDetailsTable);
     });
 
-    //Partner block
-    $('.edit').on('click', function (e) {
+    $('#Sdelki').find('.edit').on('click', function (e) {
         e.preventDefault();
+        let $edit = $('.edit'),
+            noEdit = false;
+        $edit.each(function () {
+            if ($(this).hasClass('active')) {
+                noEdit = true;
+            }
+        });
         let $block = $('#' + $(this).data('edit-block'));
-        let $input = $block.find('input:not(.select2-search__field), select, textarea');
-        let $hiddenBlock = $('#partnershipBlock');
-        $hiddenBlock.removeClass('hidden');
+        let $input = $block.find('input:not(.select2-search__field), select');
+        let $hiddenBlock = $(this).parent().find('.hidden');
+        $hiddenBlock.each(function () {
+            $(this).removeClass('hidden');
+        });
+
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
@@ -250,22 +257,26 @@ $('document').ready(function () {
             });
             $(this).removeClass('active');
         } else {
-            $input.each(function () {
-                if (!$(this).hasClass('no__edit')) {
-                    if ($(this).attr('disabled')) {
-                        $(this).attr('disabled', false);
+            if (noEdit) {
+                showAlert("Сначала сохраните или отмените изменения в другом блоке")
+            } else {
+                $input.each(function () {
+                    if (!$(this).hasClass('no__edit')) {
+                        if ($(this).attr('disabled')) {
+                            $(this).attr('disabled', false);
+                        }
+                        $(this).attr('readonly', false);
+                        if ($(this).is('select') && $(this).is(':not(.no_select)')) {
+                            $(this).select2();
+                        }
                     }
-                    $(this).attr('readonly', false);
-                    if ($(this).is('select') && $(this).is(':not(.no_select)')) {
-                        $(this).select2();
-                    }
-                }
-            });
-            $(this).addClass('active');
+                });
+                $(this).addClass('active');
+            }
         }
     });
 
-    $('.save__info').on('click', function (e) {
+    $('#Sdelki').find('.save__info').on('click', function (e) {
         e.preventDefault();
         $(this).closest('form').find('.edit').removeClass('active');
         let thisForm = $(this).closest('form');
@@ -282,7 +293,7 @@ $('document').ready(function () {
         $newInput.each(function () {
             let id = $(this).data('id');
             if ($(this).hasClass('sel__date')) {
-                partnershipData.append( id, reverseDate($(this).val().trim(), '-') );
+                partnershipData.append(id, reverseDate($(this).val().trim(), '-'));
             } else if ($(this).hasClass('par__group')) {
                 if ($(this).val() != null) {
                     partnershipData.append(id, $(this).val());
@@ -305,23 +316,38 @@ $('document').ready(function () {
                 }
             }
         });
-        if (!partner && thisForm.hasClass('partnership_need')) {
-            showAlert('Церковь не является партнером');
-            return;
-        }
         postFormData(url, partnershipData, config).then(data => {
             let id = data.id;
             $('form#partnership').attr('data-partner', id);
             showAlert(msg);
         }).catch(err => {
-            console.log(err);
-            showAlert('При отправке произошла ошибка');
+            errorHandling(err);
         });
     });
+
+    btnNeed();
 
     $('.sel__date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
     });
+
+    //Tabs
+    $('.tab_main').find('button').on('click', function () {
+        let li = $(this).parent(),
+            tabID = li.attr('data-tab');
+        if (li.hasClass('active')) {
+            return
+        }
+        $('.tab_main').find('li').removeClass('active');
+        li.addClass('active');
+        $('.a-sdelki').find('.partner_block_wrap').removeClass('active');
+        $('.a-sdelki').find(`.partner_block_wrap[data-main_tab="${tabID}"]`).addClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li').removeClass('active');
+        $('.partner_block_wrap.active').find(".tabs_deals").find('li:first-child').addClass('active');
+    });
+
+    btnPartners();
+    btnDeal();
 
 });

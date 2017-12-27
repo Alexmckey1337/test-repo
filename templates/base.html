@@ -91,7 +91,7 @@
             <tr>
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'fullname') { %>
+                        <% if (key === 'fullname' || key === 'user.fullname') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="/account/<%= results[index].id %>"
                                                     title="<%= results[index][key] %>"
@@ -119,6 +119,14 @@
                         <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else if (key === 'church.get_title' ) { %>
+                            <% if (results[index][key] != null ) { %>
+                                <td>
+                                    <a href="<%= results[index].church.link %>"><%= results[index][key] %></a>
+                                </td>
                             <% } else { %>
                                 <td></td>
                             <% } %>

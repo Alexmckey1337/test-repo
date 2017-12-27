@@ -29,13 +29,17 @@ import {
     changeLessonStatus,
     initLocationSelect,
     sendNote,
-    btnNeed,
     renderDealTable,
     renderPaymentTable,
 } from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
+import {
+    btnNeed,
+    btnPartners,
+    btnDeal,
+} from "./modules/Partnerships/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -236,23 +240,10 @@ $('document').ready(function () {
         $('#popup-change_password').css('display', 'none');
     });
 
-    $("#close-deal").on('click', function () {
-        $('#popup-create_deal').css('display', 'none');
-    });
     $("#popup-create_deal .top-text span").on('click', function (el) {
         $('#new_deal_sum').val('');
         $('#popup-create_deal textarea').val('');
         $('#popup-create_deal').css('display', '');
-    });
-
-    $(".create_new_deal").on('click', function () {
-        let partnerID = $(this).attr('data-partner'),
-            currency = $(this).attr('data-currency'),
-            popup = $('#popup-create_deal');
-        $('#send_new_deal').prop('disabled', false);
-        $('#send_new_deal').attr('data-partner', partnerID);
-        popup.find('.currency').val(currency);
-        popup.css('display', 'block');
     });
 
     function clearDeal() {
@@ -834,48 +825,9 @@ $('document').ready(function () {
         $('#delete_access').attr('disabled', true);
     });
 
-
-    // $('label[for="master"]').on('click', function () {
-    //     let id = $('#selectResponsible').find('option:selected').val();
-    //     if(id) {
-    //         window.location.href = `/account/${id}`;
-    //     }
-    // })
-
-    $('#addMorePartners').on('click', function () {
-        $('#popup-create_partners').css('display', 'block');
-    });
-
-    $('#close_addPartners').on('click', function () {
-        $('#popup-create_partners').css('display', 'none');
-    });
-
-    $('#send_addPartners').on('click', function () {
-        let popup = $('#popup-create_partners'),
-            checkBox = popup.find('.partnershipCheck'),
-            partnershipData = {};
-        partnershipData.is_active = checkBox.is(':checked');
-        let $input = popup.find('input:not(.select2-search__field), select').filter(":not(':checkbox')");
-        $input.each(function () {
-            let id = $(this).data('id');
-            if ($(this).hasClass('sel__date')) {
-                partnershipData[id] = $(this).val().trim().split('.').reverse().join('-');
-            } else if ($(this).hasClass('par__group')) {
-                if ($(this).val() != null) {
-                    partnershipData[id] = $(this).val();
-                }
-            } else {
-                partnershipData[id] = $(this).val();
-            }
-        });
-        postData(URLS.partner.list(), partnershipData).then(() => {
-            location.reload();
-        }).catch( data => {
-            errorHandling(data);
-        })
-    });
-
     btnNeed();
+    btnPartners();
+    btnDeal();
 
     $('.tab_main').find('button').on('click', function () {
         let li = $(this).parent(),

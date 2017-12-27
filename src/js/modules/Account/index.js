@@ -1,7 +1,7 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
-import getData, {postData} from "../Ajax/index";
+import getData from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
 import {
@@ -115,43 +115,6 @@ export function initLocationSelect(config) {
             let list = makeCityList(data, selectCity);
             $citySelector.html(list);
         })
-    });
-}
-
-export function btnNeed() {
-    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
-        $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select'),
-            btn = $(this).closest('.access_wrapper').find('#delete_access');
-        if ($(this).hasClass('active')) {
-            textArea.attr('readonly', false);
-            select.attr('readonly', false).attr('disabled', false);
-            btn.attr('disabled', false);
-        } else {
-            textArea.attr('readonly', true);
-            select.attr('readonly', true).attr('disabled', true);
-            btn.attr('disabled', true);
-        }
-    });
-
-    $('.a-note, .a-sdelki').find('.send_need').on('click', function () {
-        let partnerID = $(this).attr('data-partner'),
-            textArea = $(this).parent().siblings('textarea'),
-            need_text = textArea.val(),
-            url = URLS.partner.update_need(partnerID),
-            data = {'need_text': need_text};
-        if (!partnerID) {
-            showAlert('Пользователь не является партнёром в данном блоке');
-            return
-        }
-        postData(url, data, {method: 'PUT'}).then(() => {
-            showAlert('Нужда сохранена.');
-        }).catch(err => {
-            showAlert(err.detail);
-        });
-        $(this).siblings('.editText').removeClass('active');
-        textArea.attr('readonly', true);
     });
 }
 
