@@ -334,7 +334,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        ChurchReportDepartmentFilter,
                        FieldSearchFilter,
                        filters.OrderingFilter,
-                       ChurchReportPaymentStatusFilter,)
+                       ChurchReportPaymentStatusFilter,
+                       ChurchReportStatusFilter,)
 
     filter_class = ChurchReportFilter
 
