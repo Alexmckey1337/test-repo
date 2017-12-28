@@ -69,7 +69,8 @@ class PartnershipViewSet(
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
-                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title')
+                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
+                       'user__department',)
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),

@@ -79,12 +79,11 @@ class UserChurchFilter(rest_framework.DjangoFilterBackend):
 
         if church_id in ['any', 'nothing']:
             if church_id == 'any':
-                return queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
+                queryset = queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
             else:
-                return queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
-
-        if isinstance(church_id, int):
-            return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+                queryset = queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
+        else:
+            queryset = queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
 
         return queryset
 
