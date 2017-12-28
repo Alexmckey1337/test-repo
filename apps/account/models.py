@@ -86,6 +86,9 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     marker = models.ManyToManyField('UserMarker', related_name='users',
                                     verbose_name=_('User Marker'), blank=True)
 
+    is_dead = models.BooleanField(_('Is Dead'), default=False)
+    is_stable = models.BooleanField(_('Is Stable'), default=True)
+
     objects = CustomUserManager()
 
     tracking_fields = (
