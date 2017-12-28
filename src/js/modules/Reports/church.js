@@ -17,7 +17,7 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 
-export function ChurchReportsTable(config) {
+export function ChurchReportsTable(config={}) {
     Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
         makeChurchReportsTable(data);

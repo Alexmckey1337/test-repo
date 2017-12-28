@@ -17,7 +17,7 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 
-export function HomeReportsTable(config) {
+export function HomeReportsTable(config = {}) {
     getHomeReports(config).then(data => {
         makeHomeReportsTable(data);
     });

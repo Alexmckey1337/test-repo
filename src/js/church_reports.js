@@ -17,6 +17,9 @@ import {createChurchPayment} from "./modules/Reports/church";
 import reverseDate from './modules/Date/index';
 
 $('document').ready(function () {
+    const USER_ID = $('body').data('user'),
+        urlPastors = URLS.church.available_pastors(),
+        urlChurch = URLS.church.for_select();
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -25,15 +28,7 @@ $('document').ready(function () {
         $departmentsFilter = $('#departments_filter'),
         $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter'),
-        $churchFilter = $('#church_filter');
-    const USER_ID = $('body').data('user'),
-          urlPastors = URLS.church.available_pastors(),
-          urlChurch = URLS.church.for_select();
-    $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
-    let configData = {
-        from_date: reverseDate(thisMonday, '-'),
-        to_date: reverseDate(thisSunday, '-'),
-    },
+        $churchFilter = $('#church_filter'),
         init = false,
         path = window.location.href.split('?')[1];
 
@@ -140,7 +135,7 @@ $('document').ready(function () {
     }
 
     if (path == undefined) {
-        ChurchReportsTable(configData);
+        ChurchReportsTable();
         filterChange();
     }
 
