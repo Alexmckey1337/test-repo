@@ -127,7 +127,10 @@ export function btnDeal() {
         let description = $('#popup-create_deal textarea').val(),
             value = $('#new_deal_sum').val(),
             date = $('#new_deal_date').val(),
-            type = $('#new_deal_type').val();
+            type = $('#new_deal_type').val(),
+            block = $('.partner_block_wrap.active'),
+            typeDeal = block.attr('data-type'),
+            url = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
 
         if (value && date) {
             let dateFormat = date.trim().split('.').reverse().join('-'),
@@ -145,7 +148,7 @@ export function btnDeal() {
                     'type': type,
                 };
             $(this).prop('disabled', true);
-            getData(URLS.deal.check_duplicates(), checkDeal).then(data => {
+            getData(url, checkDeal).then(data => {
                 if (data.results) {
                     $('.preloader').css('display', 'block');
                     $('#send_new_deal').prop('disabled', false);
@@ -178,7 +181,10 @@ export function btnDeal() {
 }
 
 function createDeal(config) {
-    postData(URLS.deal.list(), config).then(() => {
+    let block = $('.partner_block_wrap.active'),
+        typeDeal = block.attr('data-type'),
+        url = (typeDeal === 'CH') ? URLS.church_deal.list() : URLS.deal.list();
+    postData(url, config).then(() => {
         showAlert('Сделка создана.');
         clearDeal();
         renderDealTable({done: 'False'});

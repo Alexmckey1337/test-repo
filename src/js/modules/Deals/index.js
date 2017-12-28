@@ -252,7 +252,10 @@ export function createDealsPayment(id, sum, description) {
 //     }
 // }
 export function makeDuplicateDeals(config = {}) {
-    getData(URLS.deal.check_duplicates(), config).then(data => {
+    let block = $('.partner_block_wrap.active'),
+        typeDeal = block.attr('data-type'),
+        url = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
+    getData(url, config).then(data => {
         let table = `<table>
                         <thead>
                             <tr>
