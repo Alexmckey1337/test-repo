@@ -132,6 +132,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" id="isDead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" id="isDead" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -432,7 +442,17 @@
                                                     <option value="">Выберите домашнюю группу</option>
                                                 </select>
                                             </label>
+                                            <label>
+                                                <span class="label_block">Стабильный</span>
+                                                {% if account.is_stable %}
+                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>
+                                                {% else %}
+                                                    <input type="checkbox" id="isStable" readonly disabled>
+                                                {% endif %}
+                                                <div></div>
+                                            </label>
                                         {% endif %}
+
                                     </div>
                                 </div>
                             </form>
