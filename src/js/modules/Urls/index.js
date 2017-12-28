@@ -14,6 +14,7 @@ const USER = {
     set_partner_role: (id) => `/api/v1.0/users/${id}/set_partner_role/`,
     update_partner_role: (id) => `/api/v1.0/users/${id}/update_partner_role/`,
     delete_partner_role: (id) => `/api/v1.0/users/${id}/delete_partner_role/`,
+    managers: () => `/api/v1.1/users/partner_managers/`,
 };
 
 const SUMMIT = {
@@ -143,6 +144,7 @@ const PAYMENT = {
     deals: () => `/api/v1.0/payments/deal/`,
     edit_payment: (id) => `/api/v1.0/payments/${id}/`,
     payment_detail: (id) => `/api/v1.0/payments/${id}/detail/`,
+    supervisors: () => `/api/v1.0/payments/supervisors/`,
 };
 
 const URLS = {

@@ -132,6 +132,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" id="isDead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" id="isDead" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -432,7 +442,17 @@
                                                     <option value="">Выберите домашнюю группу</option>
                                                 </select>
                                             </label>
+                                            <label>
+                                                <span class="label_block">Стабильный</span>
+                                                {% if account.is_stable %}
+                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>
+                                                {% else %}
+                                                    <input type="checkbox" id="isStable" readonly disabled>
+                                                {% endif %}
+                                                <div></div>
+                                            </label>
                                         {% endif %}
+
                                     </div>
                                 </div>
                             </form>
@@ -445,7 +465,7 @@
         <div class="right-contentwrap">
             <div class="right-content">
                 {% if request.user.is_superuser %}
-                    <div class="a-manager">
+                    <div class="a-block a-manager">
                         <div class="manager-wrap">
                             <label for="manager_select">Менеджер:</label>
                             <select name="manager" id="manager_select" class="select2"></select>
@@ -460,7 +480,7 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="a-mail">
+                <div class="a-block a-mail">
                     {% for profile in account.active_summit_profiles %}
                         <h1>{{ profile.summit }}: {{ profile.reg_code }}
                             <button class="send_email_with_code"
@@ -472,7 +492,7 @@
                     {% endif %}
                 {% endfor %}
                 </div>
-                <div class="a-note">
+                <div class="a-block a-note">
                     <div class="top-s">
                         <h3>Примечания</h3>
                     </div>
@@ -504,7 +524,7 @@
                 </div>
                 {% if user.is_partner_manager_or_high and account.is_partner %}
                     {% for partner in account.partners.all %}
-                        <div class="a-sdelki" id="Sdelki">
+                        <div class="a-block a-sdelki" id="Sdelki">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
                             </div>
@@ -630,7 +650,7 @@
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
-                    <div class="a-sammits">
+                    <div class="a-block a-sammits">
                         <div class="top-s">
                             <h3>Саммиты</h3>
                         </div>
@@ -949,4 +969,7 @@
 
 {% block extra_scripts %}
     <script src="{% static "js/account.bundle.js" %}"></script>
+    <script id="iptelScript">
+
+    </script>
 {% endblock %}
