@@ -181,31 +181,34 @@ $('document').ready(function () {
             });
             $(this).removeClass('active');
         } else {
-            // makePastorList(department, '#editPastorSelect', pastor);
-            // makeDepartmentList('#editDepartmentSelect', department).then(function () {
-            //     $('#editDepartmentSelect').on('change', function () {
-            //         let id = parseInt($(this).val());
-            //         makePastorList(id, '#editPastorSelect');
-            //     })
-            // });
-            // $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
-            //     $('.select2-search__field').focus();
-            // });
-            // $input.each(function () {
-            //     if (!$(this).hasClass('no__edit')) {
-            //         if ($(this).attr('disabled')) {
-            //             $(this).attr('disabled', false);
-            //         }
-            //         $(this).attr('readonly', false);
-            //     }
-            // });
+            if($(this).attr('data-edit-block') === 'editDepartment'){
+                makePastorList(department, '#editPastorSelect', pastor);
+                makeDepartmentList('#editDepartmentSelect', department).then(function () {
+                $('#editDepartmentSelect').on('change', function () {
+                    let id = parseInt($(this).val());
+                    makePastorList(id, '#editPastorSelect');
+                })
+            });
+            }else if($(this).attr('data-edit-block') === 'editCurrency'){
+                $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
+                $('.select2-search__field').focus();
+            });
+            }
+            $input.each(function () {
+                if (!$(this).hasClass('no__edit')) {
+                    if ($(this).attr('disabled')) {
+                        $(this).attr('disabled', false);
+                    }
+                    $(this).attr('readonly', false);
+                }
+            });
             $(this).addClass('active');
         }
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
-        let idChurch = $(this).closest('form').attr('data-id');
+        let idChurch = $('.accordion').attr('data-id');
         editChurches($(this), idChurch);
         let pastorLink = '/account/' + $(this).closest('form').find('#editPastorSelect').val();
         pasteLink($('#editPastorSelect'), pastorLink);

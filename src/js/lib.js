@@ -1108,7 +1108,7 @@ function createChurchesUsersTable(id, config = {}) {
             callback: createChurchesUsersTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
     })
@@ -1151,7 +1151,8 @@ function createChurchesDetailsTable(config = {}, id, link) {
             callback: createChurchesDetailsTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
+
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
@@ -1347,7 +1348,7 @@ function createChurchesTable(config = {}) {
             callback: createChurchesTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesTable, ".table-wrap th");

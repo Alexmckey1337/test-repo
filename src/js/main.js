@@ -171,6 +171,12 @@ $(document).ready(function () {
         $('.popap_slide').removeClass('active');
     });
 
+    $('.menu__item').hover(function () {
+        $(this).parent().children('.sidebar-submenu').addClass('active');
+    },function () {
+        $(this).parent().children('.sidebar-submenu').removeClass('active');
+    });
+
 });
 
 window.onload = function () {
