@@ -3,12 +3,14 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import URLS from './modules/Urls';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
 import {createPaymentsTable} from "./modules/Payment/index";
 import {deleteDealsPayment, updateDealsPayment, cleanUpdateDealsPayment} from "./modules/Payment/index";
+import makeSelect from './modules/MakeAjaxSelect';
 
 $(document).ready(function () {
     createPaymentsTable({});
@@ -138,6 +140,37 @@ $(document).ready(function () {
             $('#complete-payment').prop('disabled', false);
             showAlert(res, 'Ошибка');
         });
-    }, 500))
+    }, 500));
+
+    function parse(data, params) {
+        params.page = params.page || 1;
+        const results = [];
+        results.push({
+            id: '',
+            text: 'ВСЕ',
+        });
+        data.results.forEach(function makeResults(element, index) {
+            results.push({
+                id: element.id,
+                text: element.title,
+            });
+        });
+        return {
+            results: results,
+            pagination: {
+                more: (params.page * 100) < data.count
+            }
+        };
+    }
+
+    function formatRepo(data) {
+        if (data.id === '') {
+            return 'ВСЕ';
+        }
+        return `<option value="${data.id}">${data.text}</option>`;
+    }
+
+    makeSelect($('#manager'), URLS.payment.supervisors(), parse, formatRepo);
+    makeSelect($('#search_purpose_manager_fio'), URLS.user.managers(), parse, formatRepo);
 
 });
