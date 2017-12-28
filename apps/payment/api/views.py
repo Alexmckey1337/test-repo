@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 from django_filters import rest_framework
 from rest_framework import mixins, filters
 from rest_framework.generics import GenericAPIView
@@ -8,11 +10,10 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from apps.account.api.serializers import UserForSelectSerializer
+from apps.account.models import CustomUser
 from apps.analytics.decorators import log_perform_update, log_perform_destroy
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
-from common.filters import FieldSearchFilter
-from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin
 from apps.payment.api.filters import (
     PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
     FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
@@ -23,6 +24,10 @@ from apps.payment.api.serializers import (
     PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer, PaymentChurchReportShowSerializer)
 from apps.payment.models import Payment
 from apps.payment.resources import PaymentResource
+from common.filters import FieldSearchFilter
+from common.pagination import ForSelectPagination
+from common.test_helpers.utils import get_real_user
+from common.views_mixins import ExportViewSetMixin
 
 COMMON_PAYMENTS_ORDERING_FIELDS = ('sum', 'effective_sum', 'currency_sum__name', 'currency_rate__name', 'created_at',
                                    'sent_date', 'manager__last_name', 'description',)
@@ -185,3 +190,26 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
     def get_queryset(self):
         user = self.request.user
         return self.queryset.for_user_by_church_report(user).add_church_report_info()
+
+
+class PaymentSupervisorListView(mixins.ListModelMixin, GenericAPIView):
+    serializer_class = UserForSelectSerializer
+    pagination_class = ForSelectPagination
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return CustomUser.objects.filter(checks__isnull=False).annotate(
+            full_name=Concat('last_name', V(' '),
+                             'first_name', V(' '),
+                             'middle_name')
+        ).order_by('last_name').distinct("id", "last_name")
+
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('without_pagination', None) is not None:
+            return None
+        return super().paginate_queryset(queryset)

@@ -64,7 +64,7 @@ class ChurchReportStatusFilter(filters.BaseFilterBackend):
         if is_submitted == 'true':
             queryset = queryset.filter(status=ChurchReport.SUBMITTED)
         if is_submitted == 'false':
-            queryset = queryset.filter(status__in=[ChurchReport.SUBMITTED, ChurchReport.IN_PROGRESS])
+            queryset = queryset.filter(status__in=[ChurchReport.EXPIRED, ChurchReport.IN_PROGRESS])
 
         return queryset
 

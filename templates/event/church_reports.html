@@ -58,8 +58,8 @@
         <div class="container-full">
         <div class="tab-status tab-home-stats">
             <a class="stats_lider" href="{% url 'events:reports_summary' %}">По пастору</a>
-            <button class="week week_all">Все</button>
-            <button class="week week_now active">Текущая неделя</button>
+            <button class="week week_all active">Все</button>
+            <button class="week week_now">Текущая неделя</button>
             <button class="week week_prev">Прошедшая неделя</button>
             <div class="set-date">
                 <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
@@ -72,13 +72,10 @@
             <div class="tab-status">
                 <ul id="statusTabs">
                     <li class="current">
-                        <button data-status="1">Отчёты к заполнению</button>
+                        <button data-is_submitted="false">Отчёты к заполнению</button>
                     </li>
                     <li>
-                        <button data-status="2">Заполненные отчёты</button>
-                    </li>
-                    <li>
-                        <button data-status="3">Просроченные отчёты</button>
+                        <button data-is_submitted="true">Заполненные отчёты</button>
                     </li>
                 </ul>
             </div>
@@ -222,7 +219,10 @@
                 </thead>
                 <tbody>
                 <% for( var index in results) { %>
-                <tr>
+                <tr  <% if (results[index].status === 3) { %>
+                    class="tr_red"
+            <% } %>
+            >
                     <% for( var key in table_columns) { %>
                     <% if(table_columns[key].active) { %>
                     <% if(key == 'id') { %>

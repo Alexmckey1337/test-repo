@@ -24,6 +24,7 @@ custom_urls = [
 
 custom_v1_1_urls = [
     url(r'^users/for_select/$', views.UserForSelectView.as_view(), name="users-select"),
+    url(r'^users/partner_managers/$', views.PartnerManagersView.as_view(), name="users-select"),
     url(r'^calls_to_user/$', calls_views.calls_to_user, name='calls_to_user'),
     url(r'^all_calls/$', calls_views.all_calls, name='all_calls'),
     url(r'^asterisk_users/$', calls_views.asterisk_users, name='asterisk_users'),
