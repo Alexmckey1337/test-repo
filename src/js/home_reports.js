@@ -15,6 +15,11 @@ import updateSettings from './modules/UpdateSettings/index';
 import reverseDate from './modules/Date/index';
 
 $('document').ready(function () {
+    const USER_ID = $('body').data('user'),
+        urlPastors = URLS.church.available_pastors(),
+        urlChurches = URLS.church.for_select(),
+        urlHGleaders = URLS.home_group.leaders(),
+        urlHG = URLS.home_group.for_select();
     let dateReports = new Date(),
         thisMonday = (moment(dateReports).day() === 1) ? moment(dateReports).format('DD.MM.YYYY') : (moment(dateReports).day() === 0) ? moment(dateReports).subtract(6, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).format('DD.MM.YYYY'),
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
@@ -24,17 +29,7 @@ $('document').ready(function () {
         $treeFilter = $('#master_tree_filter'),
         $churchFilter = $('#church_filter'),
         $homeGroupFilter = $('#home_group_filter'),
-        $liderFilter = $('#masters_filter');
-    const USER_ID = $('body').data('user'),
-        urlPastors = URLS.church.available_pastors(),
-        urlChurches = URLS.church.for_select(),
-        urlHGleaders = URLS.home_group.leaders(),
-        urlHG = URLS.home_group.for_select();
-    $('.set-date').find('input').val(`${thisMonday}-${thisSunday}`);
-    let configData = {
-            from_date: reverseDate(thisMonday, '-'),
-            to_date: reverseDate(thisSunday, '-'),
-        },
+        $liderFilter = $('#masters_filter'),
         init = false,
         path = window.location.href.split('?')[1];
 
@@ -54,9 +49,9 @@ $('document').ready(function () {
             $('#tabs').find('li').removeClass('active');
             $('#tabs').find(`button[data-id='0']`).parent().addClass('active');
         }
-        if (set.status) {
+        if (set.is_submitted) {
             $('#statusTabs').find('li').removeClass('current');
-            $('#statusTabs').find(`button[data-status='${set.status}']`).parent().addClass('current');
+            $('#statusTabs').find(`button[data-is_submitted='${set.is_submitted}']`).parent().addClass('current');
         }
         $departmentsFilter.val(set.department).trigger('change');
         (async () => {
@@ -199,7 +194,7 @@ $('document').ready(function () {
     }
 
     if (path == undefined) {
-        HomeReportsTable(configData);
+        HomeReportsTable();
         filterChange();
     }
 
@@ -207,9 +202,9 @@ $('document').ready(function () {
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
         $('.preloader').css('display', 'block');
-        let status = $(this).attr('data-status');
+        let is_submitted = $(this).attr('data-is_submitted');
         let config = {
-            status: status
+            is_submitted
         };
         Object.assign(config, getFilterParam());
         Object.assign(config, getSearch('search_title'));

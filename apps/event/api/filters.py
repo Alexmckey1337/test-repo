@@ -39,9 +39,32 @@ class MeetingCustomFilter(filters.BaseFilterBackend):
 
         if department:
             queryset = queryset.filter(home_group__church__department__id=department)
-
         if church:
             queryset = queryset.filter(home_group__church__id=church)
+
+        return queryset
+
+
+class MeetingStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_submitted = request.query_params.get('is_submitted')
+
+        if is_submitted == 'true':
+            queryset = queryset.filter(status=Meeting.SUBMITTED)
+        if is_submitted == 'false':
+            queryset = queryset.filter(status__in=[Meeting.IN_PROGRESS, Meeting.EXPIRED])
+
+        return queryset
+
+
+class ChurchReportStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        is_submitted = request.query_params.get('is_submitted')
+
+        if is_submitted == 'true':
+            queryset = queryset.filter(status=ChurchReport.SUBMITTED)
+        if is_submitted == 'false':
+            queryset = queryset.filter(status__in=[ChurchReport.EXPIRED, ChurchReport.IN_PROGRESS])
 
         return queryset
 

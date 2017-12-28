@@ -14,7 +14,7 @@ const gulp = require('gulp'),
     changed = require('gulp-changed');
 
 const paths = {
-    styles: './src/styles/**/*less',
+    styles: './src/styles/*.less',
     scripts: './src/js/**/*.js',
     images: './src/img/**/*',
     fonts: './src/fonts/**/*'

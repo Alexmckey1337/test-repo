@@ -19,6 +19,12 @@
 {% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
 {% block header.search %}
 
+    {% get_partner_titles as titles %}
+    <select name="sasa" id="sasa">
+    {% for t in titles %}
+        <option value="{{ t.0 }}">{{ t.1 }}</option>
+    {% endfor %}
+    </select>
 {% endblock %}
 
 {% block header.buttons.add %}
@@ -444,13 +450,13 @@
                             <label for="manager_select">Менеджер:</label>
                             <select name="manager" id="manager_select" class="select2"></select>
                             <button id="set_manager" data-user="{{ account.id }}">Set</button>
-                            {% if account.manager %}
-                                <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
-                                    {{ account.manager }}
-                                </a></p>
-                            {% else %}
-                                <p>Текущий менеджер: Нет менеджера</p>
-                            {% endif %}
+                            <p>Текущий менеджер: {% for manager in account.managers.all %}
+                                <a href="{{ manager.get_absolute_url }}" target="_blank">
+                                    {{ manager }}
+                                </a>{% if not forloop.last %},{% endif %}
+                            {% empty %}
+                                Нет менеджера
+                            {% endfor %}</p>
                         </div>
                     </div>
                 {% endif %}
