@@ -24,7 +24,7 @@ import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
 import {changeLessonStatus, initLocationSelect, sendNote} from './modules/Account/index';
-import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
+import {addUserToChurch, addUserToHomeGroup, stableUser} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {makeDuplicateDeals} from "./modules/Deals/index";
 
@@ -701,11 +701,24 @@ $('document').ready(function () {
             }
         } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
+            let userId = $('body').attr('data-user');
+            let url = '/api/v1.1/users/'+userId+'/';
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
+            let stable;
+            if($('#isStable').is(':checked')){
+                stable = true;
+            }else {
+                stable = false;
+            }
+            let data = {
+                "is_stable": stable
+            }
+            console.log(url,userId)
+            postData(url,data,{method:'PATCH'});
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id, noExist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id,stable, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -717,7 +730,7 @@ $('document').ready(function () {
                     showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id, noExist).then(function (data) {
+                addUserToChurch(ID, church_id,stable, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
