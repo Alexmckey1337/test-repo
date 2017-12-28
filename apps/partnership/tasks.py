@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.db.models import OuterRef, Exists
 
 from edem.settings.celery import app
-from apps.partnership.models import Partnership, Deal
+from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +69,17 @@ def create_new_deals():
         .exclude(value=Decimal(0))
     for partnership in partnerships_without_deals:
         Deal.objects.create(partnership=partnership, value=partnership.value)
+    exists_deals = ChurchDeal.objects.filter(
+        partnership=OuterRef('pk'),
+        date_created__month=current_month,
+        date_created__year=current_year)
+    partnerships_without_deals = ChurchPartner.objects \
+        .annotate(deal_exist=Exists(exists_deals)) \
+        .filter(is_active=True) \
+        .exclude(deal_exist=True) \
+        .exclude(value=Decimal(0))
+    for partnership in partnerships_without_deals:
+        ChurchDeal.objects.create(partnership=partnership, value=partnership.value)
 
 
 @app.task(name='deals_to_expired')
