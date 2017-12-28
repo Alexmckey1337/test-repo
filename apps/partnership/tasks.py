@@ -69,17 +69,17 @@ def create_new_deals():
         .exclude(value=Decimal(0))
     for partnership in partnerships_without_deals:
         Deal.objects.create(partnership=partnership, value=partnership.value)
-    exists_deals = ChurchDeal.objects.filter(
+    church_exists_deals = ChurchDeal.objects.filter(
         partnership=OuterRef('pk'),
         date_created__month=current_month,
         date_created__year=current_year)
-    partnerships_without_deals = ChurchPartner.objects \
-        .annotate(deal_exist=Exists(exists_deals)) \
+    church_partnerships_without_deals = ChurchPartner.objects \
+        .annotate(deal_exist=Exists(church_exists_deals)) \
         .filter(is_active=True) \
         .exclude(deal_exist=True) \
         .exclude(value=Decimal(0))
-    for partnership in partnerships_without_deals:
-        ChurchDeal.objects.create(partnership=partnership, value=partnership.value)
+    for church_partner in church_partnerships_without_deals:
+        ChurchDeal.objects.create(partnership=church_partner, value=church_partner.value)
 
 
 @app.task(name='deals_to_expired')
@@ -91,3 +91,7 @@ def deals_to_expired():
     expired_deals = Deal.objects.filter(date_created__lt=date(current_year, current_month, 1), expired=False,
                                         done=False)
     expired_deals.update(expired=True)
+
+    church_expired_deals = ChurchDeal.objects.filter(date_created__lt=date(current_year, current_month, 1), expired=False,
+                                              done=False)
+    church_expired_deals.update(expired=True)
