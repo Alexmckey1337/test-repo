@@ -206,10 +206,10 @@ class UserUpdateSerializer(BaseUserSerializer):
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
 
-        if user.cchurch and user.cchurch.department not in user.departments.all():
-            user.hhome_group = None
-            user.cchurch = None
-            user.save()
+            if user.cchurch and user.cchurch.department not in user.departments.all():
+                user.hhome_group = None
+                user.cchurch = None
+                user.save()
 
         for profile in user.summit_profiles.all():
             profile.save()
