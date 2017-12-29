@@ -23,7 +23,7 @@ from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.partnership.api.filters import (
-    FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
+    FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
     PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge)
 from apps.partnership.api.mixins import (
     PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
@@ -197,7 +197,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                        'partnership__user__last_name',
                        'date_created',
                        'done', 'type')
-    filter_class = DateAndValueFilter
+    filter_class = DealDateAndValueFilter
     search_fields = ('partnership__user__first_name',
                      'partnership__user__last_name',
                      'partnership__user__search_name',
