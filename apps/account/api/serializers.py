@@ -41,6 +41,7 @@ BASE_USER_FIELDS = (
     'departments', 'divisions',
     # read_only
     'fullname',
+    'is_dead', 'is_stable'
 )
 
 

@@ -25,7 +25,7 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.group.api.filters import FilterChurchPartnerMasterTree
 from apps.partnership.api.filters import (
-    FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
+    FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
     PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge,
     ChurchDateAndValueFilter, ChurchPartnerFilter, LastDealFilter, LastChurchDealFilter)
 from apps.partnership.api.mixins import (
@@ -83,7 +83,8 @@ class PartnershipViewSet(
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
-                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title')
+                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
+                       'user__department',)
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -428,7 +429,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                        'partnership__user__last_name',
                        'date_created',
                        'done', 'type')
-    filter_class = DateAndValueFilter
+    filter_class = DealDateAndValueFilter
     search_fields = ('partnership__user__first_name',
                      'partnership__user__last_name',
                      'partnership__user__search_name',

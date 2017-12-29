@@ -8,13 +8,14 @@ import {dataURLtoBlob} from "../Avatar/index";
 import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
 
-export function addUserToHomeGroup(user_id, hg_id, exist = false) {
+export function addUserToHomeGroup(user_id, hg_id,stable, exist = false) {
     let url = URLS.user.set_home_group(user_id);
     let config = {
         url: url,
         method: "POST",
         data: {
-            home_group_id: hg_id
+            home_group_id: hg_id,
+            is_stable: stable
         }
     };
     return new Promise(function (resolve, reject) {
@@ -30,13 +31,15 @@ export function addUserToHomeGroup(user_id, hg_id, exist = false) {
     });
 }
 
-export function addUserToChurch(user_id, id, exist = false) {
+
+export function addUserToChurch(user_id, id,stable, exist = false) {
     let url = URLS.user.set_church(user_id);
     let config = {
         url: url,
         method: "POST",
         data: {
-            church_id: id
+            church_id: id,
+            is_stable: stable
         }
     };
     return new Promise(function (resolve, reject) {
