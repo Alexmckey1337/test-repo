@@ -9,6 +9,7 @@ import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import OrderTable from '../Ordering/index';
 import {makeDataTable} from "../Table/index";
+import getData from "../Ajax/index";
 
 export function getPartners(config) {
     Object.assign(config, getSearch('search_fio'));
@@ -70,12 +71,14 @@ function getPartnersList(data) {
     };
     Object.assign(config, data);
     return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.partner.list(), config, function (data) {
+
+        getData(URLS.partner.list(), config).then(function (data) {
+            console.log(config)
             if (data) {
                 resolve(data);
             } else {
-                reject("Ошибка")
+                reject("Ошибка");
             }
-        })
-    })
+        });
+    });
 }
