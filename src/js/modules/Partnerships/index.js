@@ -128,8 +128,7 @@ export function btnDeal() {
             value = $('#new_deal_sum').val(),
             date = $('#new_deal_date').val(),
             type = $('#new_deal_type').val(),
-            block = $('.partner_block_wrap.active'),
-            typeDeal = block.attr('data-type'),
+            typeDeal = $('.partner_block_wrap').first().attr('data-type'),
             url = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
 
         if (value && date) {
@@ -181,8 +180,7 @@ export function btnDeal() {
 }
 
 function createDeal(config) {
-    let block = $('.partner_block_wrap.active'),
-        typeDeal = block.attr('data-type'),
+    let typeDeal = $('.partner_block_wrap').first().attr('data-type'),
         url = (typeDeal === 'CH') ? URLS.church_deal.list() : URLS.deal.list();
     postData(url, config).then(() => {
         showAlert('Сделка создана.');
