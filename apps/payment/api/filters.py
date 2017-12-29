@@ -8,7 +8,7 @@ from django.utils import six
 from django_filters import rest_framework, STRICTNESS
 from rest_framework.filters import BaseFilterBackend
 
-from apps.partnership.models import Deal
+from apps.partnership.models import Deal, PartnerGroup
 from apps.payment.models import Payment
 from apps.event.models import ChurchReport
 
@@ -33,11 +33,13 @@ class PaymentFilter(rest_framework.FilterSet):
     create_from = django_filters.DateFilter(name="created_at", lookup_expr='gte')
     sent_to = django_filters.DateFilter(name="sent_date", lookup_expr='lte')
     sent_from = django_filters.DateFilter(name="sent_date", lookup_expr='gte')
+    group = django_filters.ModelMultipleChoiceFilter(name="partners__group", queryset=PartnerGroup.objects.all())
 
     class Meta:
         model = Payment
         fields = ['sum_from', 'sum_to', 'eff_sum_from', 'eff_sum_to', 'currency_sum',
-                  'currency_rate', 'create_from', 'create_to', 'sent_from', 'sent_to', 'manager']
+                  'currency_rate', 'create_from', 'create_to', 'sent_from', 'sent_to', 'manager',
+                  'group']
 
     # TODO its hell
     @property
