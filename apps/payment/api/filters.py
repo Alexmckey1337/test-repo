@@ -33,7 +33,8 @@ class PaymentFilter(rest_framework.FilterSet):
     create_from = django_filters.DateFilter(name="created_at", lookup_expr='gte')
     sent_to = django_filters.DateFilter(name="sent_date", lookup_expr='lte')
     sent_from = django_filters.DateFilter(name="sent_date", lookup_expr='gte')
-    group = django_filters.ModelMultipleChoiceFilter(name="partners__group", queryset=PartnerGroup.objects.all())
+    group = django_filters.ModelMultipleChoiceFilter(name="deals__partnership__group",
+                                                     queryset=PartnerGroup.objects.all())
 
     class Meta:
         model = Payment
