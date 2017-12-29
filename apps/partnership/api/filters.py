@@ -19,7 +19,8 @@ class DealDateAndValueFilter(django_filters.FilterSet):
         model = Deal
         fields = ['partnership__responsible', 'currency_id', 'responsible',
                   'value', 'date_created', 'date',
-                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
+                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value',
+                  'group']
 
 
 class ChurchDateAndValueFilter(django_filters.FilterSet):
@@ -32,8 +33,7 @@ class ChurchDateAndValueFilter(django_filters.FilterSet):
         model = ChurchDeal
         fields = ['partnership__responsible', 'currency_id', 'responsible',
                   'value', 'date_created', 'date',
-                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value',
-                  'group']
+                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
 
 
 class DealFilterByPaymentStatus(filters.BaseFilterBackend):
