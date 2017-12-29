@@ -73,7 +73,7 @@ class GroupUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'link', 'master') + BASE_GROUP_USER_FIELDS
+        fields = ('id', 'link',) + BASE_GROUP_USER_FIELDS
 
 
 class HomeGroupDetailSerializer(serializers.ModelSerializer):
