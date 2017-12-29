@@ -609,7 +609,7 @@ $('document').ready(function () {
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
         if (action === 'update-user') {
-            if ($input.is(':checkbox')) {  // it is partner form
+            if ($input.is(':checkbox') && !$input.is('#is_dead')) {  // it is partner form
                 let partnershipData = new FormData();
                 partnershipData.append('is_active', !!$input.is(':checked'));
                 let $newInput = $input.filter(":not(':checkbox')");
@@ -672,6 +672,12 @@ $('document').ready(function () {
                                     } else {
                                         formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
                                     }
+                                }else if($val.hasClass('is_dead')){
+                                    if ($val.is(':checked')) {
+                                        formData.append(id, "true");
+                                    } else {
+                                        formData.append(id, "false");
+                                    }
                                 } else {
                                     formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                                 }
@@ -686,6 +692,7 @@ $('document').ready(function () {
                     }
                 });
                 updateUser(ID, formData, success).then(function (data) {
+                    console.log(data);
                     if (formName === 'editHierarchy') {
                         $('.is-hidden__after-edit').html('');
                     }
@@ -715,7 +722,6 @@ $('document').ready(function () {
             let data = {
                 "is_stable": stable
             }
-            console.log(url,userId)
             postData(url,data,{method:'PATCH'});
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id,stable, noExist).then(function (data) {

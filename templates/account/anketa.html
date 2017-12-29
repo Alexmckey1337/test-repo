@@ -132,16 +132,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
-{#                                        <label class="userDead">#}
-{#                                            <span class="label_block">Архив (умер)</span>#}
-{#                                            {% if account.is_dead %}#}
-{#                                                <input type="checkbox" id="isDead" data-block="account" checked#}
-{#                                                       disabled>#}
-{#                                            {% else %}#}
-{#                                                <input type="checkbox" id="isDead" readonly disabled>#}
-{#                                            {% endif %}#}
-{#                                            <div></div>#}
-{#                                        </label>#}
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" class="is_dead" value="{{ account.is_dead }}" id="is_dead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" class="is_dead" id="is_dead" value="{{ account.is_dead }}" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
