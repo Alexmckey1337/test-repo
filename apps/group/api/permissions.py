@@ -104,6 +104,13 @@ def can_create_church(user):
     return user.is_main_bishop_or_high or user.is_staff
 
 
+def can_delete_church(user):
+    """
+    Checking that the ``user`` has the right to delete church
+    """
+    return user.is_main_bishop_or_high or user.is_staff
+
+
 def can_edit_church(user, church):
     """
     Checking that the ``user`` has the right to edit ``church``
@@ -166,6 +173,13 @@ def can_see_home_group(user, home_group):
 def can_create_home_group(user):
     """
     Checking that the ``user`` has the right to create home group
+    """
+    return user.is_main_bishop_or_high or user.is_staff
+
+
+def can_delete_home_group(user):
+    """
+    Checking that the ``user`` has the right to delete home group
     """
     return user.is_main_bishop_or_high or user.is_staff
 
