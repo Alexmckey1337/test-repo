@@ -231,7 +231,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         Set church for user
         """
         user = self.get_object()
-        church = self._get_object_or_error(Church, 'church_id')
+        if request.data.get('church_id') == 'null':
+            church = None
+        else:
+            church = self._get_object_or_error(Church, 'church_id')
+
         user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Церковь установлена.')},
