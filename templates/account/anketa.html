@@ -65,7 +65,12 @@
                         <div class="right-info-r">
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
-                                <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% if account.is_dead %}
+                                    <h3 id="fullName">{{ account.fullname }} </h3>
+                                {% else %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% endif %}
+{#                                <h3 id="fullName">{{ account.fullname }}</h3>#}
                                 <h3 id="searchName">
                                     {% if account.search_name %}{{ account.search_name }}{% endif %}</h3>
                             </hgroup>

@@ -722,7 +722,6 @@ $('document').ready(function () {
             let data = {
                 "is_stable": stable
             }
-            postData(url,data,{method:'PATCH'});
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id,stable, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
@@ -748,7 +747,7 @@ $('document').ready(function () {
                     showAlert(JSON.parse(data.responseText));
                 });
             }
-
+            postData(url,data,{method:'PATCH'});
         }
 
         $input.each(function () {
