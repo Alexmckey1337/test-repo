@@ -38,7 +38,7 @@ class MeetingAttend(models.Model):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='attends',
                              verbose_name=_('User'))
 
-    meeting = models.ForeignKey('event.Meeting', on_delete=models.PROTECT, related_name='attends',
+    meeting = models.ForeignKey('event.Meeting', on_delete=models.CASCADE, related_name='attends',
                                 verbose_name=_('Meeting'))
 
     attended = models.BooleanField(_('Attended'), default=False)
