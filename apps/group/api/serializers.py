@@ -69,7 +69,6 @@ class HomeGroupListSerializer(HomeGroupSerializer):
 class GroupUserSerializer(serializers.ModelSerializer):
     spiritual_level = ReadOnlyChoiceField(
         choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
-    master = UserNameWithLinkSerializer()
 
     class Meta:
         model = CustomUser
