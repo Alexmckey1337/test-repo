@@ -522,6 +522,7 @@ $('document').ready(function () {
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
         $(option).val('').text('Выберите церковь').attr('selected', true);
+        $(option).attr('value','null');
         makeChurches();
         $('#home_groups_list').html(option);
     });

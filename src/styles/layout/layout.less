@@ -17,7 +17,7 @@
   overflow: scroll;
 }
 
-#sidebar{
+#sidebar {
   //width: var(--lsb_width);
   width: 90px;
   height: 100vh;
@@ -26,11 +26,11 @@
   //overflow: hidden;
   z-index: 9;
   transition: width 0.3s;
-  .toggle-sidebar{
-    .logo{
-      div{
+  .toggle-sidebar {
+    .logo {
+      div {
         padding-top: 0;
-        &:nth-child(2){
+        &:nth-child(2) {
           font-size: 2em;
         }
       }
@@ -38,19 +38,19 @@
   }
   #move-sidebar {
     width: 100%;
-    height:90px;
+    height: 90px;
     background-color: #444b56;
     border-top: 1px solid #555b65;
     transition: width .3s, color .3s;
     position: relative;
     &.active {
-          & button {
-            color: transparent;
-            &:before {
-              content: '\f101 ';
-            }
-          }
+      & button {
+        color: transparent;
+        &:before {
+          content: '\f101 ';
         }
+      }
+    }
     button {
       text-align: left;
       display: block;
@@ -69,14 +69,14 @@
       }
     }
   }
-  ul{
-    flex:1;
-    li{
+  ul {
+    flex: 1;
+    li {
       box-sizing: border-box;
       position: relative;
       border-top: 1px solid #555b65;
       list-style-type: none;
-      &:before{
+      &:before {
         content: '';
         position: absolute;
         top: 40px;
@@ -87,22 +87,22 @@
         background-color: #3caeda;
         transition: all .7s ease;
       }
-      a{
-      display: block;
-      width: 100%;
-      font-size: 1.2em;
-      color: #fff;
-      text-decoration: none;
-      transition: color .1s ease;
-      padding: 35px 0px 40px 0px;
-      background: transparent;
-      &:hover{
-        &+.sidebar-submenu{
-          display: block;
-        }
+      a {
+        display: block;
+        width: 100%;
+        font-size: 1.2em;
+        color: #fff;
+        text-decoration: none;
+        transition: color .1s ease;
+        padding: 35px 0px 40px 0px;
+        background: transparent;
+        &:hover {
+          & + .sidebar-submenu {
+            display: block;
+          }
 
+        }
       }
-    }
 
       & a, #sidebar & button {
         &:before {
@@ -146,32 +146,32 @@
           }
         }
       }
-      &:not(:last-child){
-        &.active{
-          &:before{
+      &:not(:last-child) {
+        &.active {
+          &:before {
             top: 0;
             height: 100%;
           }
         }
       }
-      &:hover{
-        &:before{
+      &:hover {
+        &:before {
           top: 0;
           height: 100%;
         }
       }
     }
-    &>li{
-      &:hover{
-        .sidebar-submenu{
+    & > li {
+      &:hover {
+        .sidebar-submenu {
           display: block;
         }
       }
     }
   }
-  .sidebar-submenu{
+  .sidebar-submenu {
     position: absolute;
-    top:0;
+    top: 0;
     right: 0;
     z-index: 20;
     width: 300%;
@@ -179,9 +179,9 @@
     background-color: #434a55;
     display: none;
     border-left: 1px solid #555b65;
-    li{
+    li {
       border-top: none;
-      &.menu__item_title{
+      &.menu__item_title {
         padding: 30px 30px 0px 30px;
         color: #e6e9ee;
         font-size: 18px;
@@ -189,12 +189,12 @@
         height: 75px;
         box-sizing: border-box;
         border-bottom: 1px solid #555b65;
-        &::before{
+        &::before {
           display: none;
         }
       }
     }
-    a{
+    a {
       width: auto;
       padding: 15px 30px 15px 30px;
       transition: color .4s ease;
@@ -228,10 +228,10 @@
   //}
 }
 
-
-.sidebar-submenu{
+.sidebar-submenu {
   display: none;
 }
+
 .menu__item {
   text-transform: uppercase;
 }
@@ -249,6 +249,7 @@
 #sidebar .scrollbar-macosx > .scroll-element.scroll-x {
   display: none !important;
 }
+
 ///////////////////////////////////////////////////////////
 
 #filter_button::before {
@@ -269,7 +270,7 @@
   //padding-top: .7em;
   opacity: .5;
   position: absolute;
-  bottom:0;
+  bottom: 0;
   transform: translateY(120%);
 }
 
@@ -297,17 +298,19 @@
 #sdelki {
   overflow: hidden;
 }
+
 #ohoho {
   margin-bottom: 40px;
   padding: 0 30px;
-  h2{
-    margin-bottom:10px;
+  h2 {
+    margin-bottom: 10px;
   }
 }
+
 #create_pop,
 #create_duplicate_pop,
-#create_special_pop{
-  .pop_cont{
+#create_special_pop {
+  .pop_cont {
     height: auto;
     left: 50%;
     top: 50%;
@@ -317,6 +320,7 @@
     margin: 0;
   }
 }
+
 button#completeDelete {
   position: relative;
 }
@@ -326,8 +330,7 @@ button#save::before,
 .rows-wrap button::before,
 button#complete::before,
 button#completeDelete::before,
-.splash-battons button:last-child::before
-{
+.splash-battons button:last-child::before {
   display: block;
   content: '\f00c';
   font: 1.2em FontAwesome;
@@ -371,7 +374,6 @@ button#completeDelete::before,
   top: 13px;
   background-position: -20px -1px;
 }
-
 
 #add_user_parners {
   display: block
