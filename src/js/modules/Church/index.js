@@ -315,6 +315,7 @@ export function makeUsersFromDatabaseList(config = {}) {
                             <tr>
                                 <th>ФИО</th>
                                 <th>Страна/город</th>
+                                <th>Ответственный</th>
                                 <th>Действие</th>
                             </tr>
                         </thead>
@@ -325,6 +326,7 @@ export function makeUsersFromDatabaseList(config = {}) {
                             </a>
                         </td>
                         <td>${item.country}/${item.city}</td>
+                        <td>${item.master.fullname}</td>
                         <td>
                             <button data-id="${item.id}"
                                     ${(!item.can_add) && 'disabled'}>
