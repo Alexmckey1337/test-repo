@@ -55,6 +55,12 @@ class GroupUserPermission(models.Model):
         """
         return permissions.can_create_church(self)
 
+    def can_delete_church(self):
+        """
+        Checking that the ``self`` has the right to delete church
+        """
+        return permissions.can_delete_church(self)
+
     def can_edit_church(self, church):
         """
         Checking that the ``self`` has the right to edit ``church``
@@ -102,6 +108,12 @@ class GroupUserPermission(models.Model):
         Checking that the ``self`` has the right to create home group
         """
         return permissions.can_create_home_group(self)
+
+    def can_delete_home_group(self):
+        """
+        Checking that the ``self`` has the right to delete home group
+        """
+        return permissions.can_delete_home_group(self)
 
     def can_edit_home_group(self, home_group):
         """

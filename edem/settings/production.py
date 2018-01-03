@@ -64,21 +64,21 @@ ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['vocrm.net', '127.0.2.
 
 INSTALLED_APPS += ('gunicorn', )
 
-# # STORAGE CONFIGURATION
-# # ------------------------------------------------------------------------------
-# # Uploaded Media Files
-# # ------------------------
-# # See: http://django-storages.readthedocs.io/en/latest/index.html
-# INSTALLED_APPS += (
-#     'storages',
-# )
+# STORAGE CONFIGURATION
+# ------------------------------------------------------------------------------
+# Uploaded Media Files
+# ------------------------
+# See: http://django-storages.readthedocs.io/en/latest/index.html
+# INSTALLED_APPS += ('storages', )
 #
 # AWS_ACCESS_KEY_ID = env('DJANGO_AWS_ACCESS_KEY_ID')
 # AWS_SECRET_ACCESS_KEY = env('DJANGO_AWS_SECRET_ACCESS_KEY')
 # AWS_STORAGE_BUCKET_NAME = env('DJANGO_AWS_STORAGE_BUCKET_NAME')
 # AWS_AUTO_CREATE_BUCKET = True
 # AWS_QUERYSTRING_AUTH = False
-# AWS_S3_CALLING_FORMAT = OrdinaryCallingFormat()
+# AWS_S3_HOST = 's3-eu-central-1.amazonaws.com'
+# AWS_S3_REGION_NAME = 'eu-central-1'
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
 #
 # # AWS cache settings, don't change unless you know what you're doing:
 # AWS_EXPIRY = 60 * 60 * 24 * 7
@@ -86,27 +86,33 @@ INSTALLED_APPS += ('gunicorn', )
 # # TODO See: https://github.com/jschneier/django-storages/issues/47
 # # Revert the following and use str after the above-mentioned bug is fixed in
 # # either django-storage-redux or boto
+# control = 'max-age=%d, s-maxage=%d, must-revalidate' % (AWS_EXPIRY, AWS_EXPIRY)
 # AWS_HEADERS = {
-#     'Cache-Control': six.b('max-age=%d, s-maxage=%d, must-revalidate' % (
-#         AWS_EXPIRY, AWS_EXPIRY))
+#     'Cache-Control': bytes(control, encoding='latin-1')
 # }
 #
 # # URL that handles the media served from MEDIA_ROOT, used for managing
 # # stored files.
 #
 # #  See:http://stackoverflow.com/questions/10390244/
-# from storages.backends.s3boto import S3BotoStorage
-# StaticRootS3BotoStorage = lambda: S3BotoStorage(location='static')
-# MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
-# DEFAULT_FILE_STORAGE = 'config.settings.production.MediaRootS3BotoStorage'
+# from storages.backends.s3boto3 import S3Boto3Storage
 #
-# MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
+# StaticRootS3BotoStorage = lambda: S3Boto3Storage(location='static')  # noqa
+# MediaRootS3BotoStorage = lambda: S3Boto3Storage(location='media', file_overwrite=False)  # noqa
+#
+# MEDIA_URL = 'https://s3.%s.amazonaws.com/%s/media/' % (
+#     AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME)
 #
 # # Static Assets
 # # ------------------------
 #
-# STATIC_URL = 'https://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
-# STATICFILES_STORAGE = 'config.settings.production.StaticRootS3BotoStorage'
+# STATIC_ROOT = str(BASE_DIR.path('ztatic'))
+# STATICFILES_DIRS = (str(BASE_DIR.path('public/static')),)
+# # STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+#
+# STATIC_URL = 'https://s3.%s.amazonaws.com/%s/static/' % (
+#     AWS_S3_REGION_NAME, AWS_STORAGE_BUCKET_NAME)
+# STATICFILES_STORAGE = 'edem.settings.production.StaticRootS3BotoStorage'
 # # See: https://github.com/antonagestam/collectfast
 # # For Django 1.7+, 'collectfast' should come before
 # # 'django.contrib.staticfiles'

@@ -252,7 +252,10 @@ export function createDealsPayment(id, sum, description) {
 //     }
 // }
 export function makeDuplicateDeals(config = {}) {
-    getData(URLS.deal.check_duplicates(), config).then(data => {
+    let typeDeal = $('.partner_block_wrap').first().attr('data-type'),
+        popup = $('#create_duplicate_deal_pop'),
+        url = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
+    getData(url, config).then(data => {
         let table = `<table>
                         <thead>
                             <tr>
@@ -281,10 +284,10 @@ export function makeDuplicateDeals(config = {}) {
                 callback: makeDuplicateDeals
             };
         makePagination(paginationConfig);
-        $('.pop-up_duplicate__table').find('.table__count').text(text);
-        $('#table_duplicate').html('').append(table);
+        popup.find('.table__count').text(text);
+        $('#table_duplicate_deal').html('').append(table);
         $('.preloader').css('display', 'none');
-        $('.pop-up_duplicate__table').css('display', 'block');
+        popup.css('display', 'block');
     });
 }
 

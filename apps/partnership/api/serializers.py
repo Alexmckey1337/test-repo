@@ -223,6 +223,14 @@ class DealDuplicateSerializer(serializers.ModelSerializer):
         fields = ('id', 'full_name', 'value', 'date_created')
 
 
+class ChurchDealDuplicateSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = ChurchDeal
+        fields = ('id', 'full_name', 'value', 'date_created')
+
+
 class LastDealSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='get_type_display')
     manager = serializers.CharField(source='responsible_name')

@@ -45,7 +45,7 @@ class UserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ['master', 'hierarchy', 'department', 'repentance_date_from', 'repentance_date_to',
-                  'spiritual_level']
+                  'spiritual_level', 'is_dead', 'is_stable']
 
 
 class ShortUserFilter(django_filters.FilterSet):
@@ -79,12 +79,11 @@ class UserChurchFilter(rest_framework.DjangoFilterBackend):
 
         if church_id in ['any', 'nothing']:
             if church_id == 'any':
-                return queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
+                queryset = queryset.filter(Q(cchurch__isnull=False) | Q(hhome_group__church__isnull=False))
             else:
-                return queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
-
-        if isinstance(church_id, int):
-            return queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
+                queryset = queryset.filter(Q(cchurch__isnull=True) & Q(hhome_group__church__isnull=True))
+        else:
+            queryset = queryset.filter(Q(cchurch_id=church_id) | Q(hhome_group__church_id=church_id))
 
         return queryset
 

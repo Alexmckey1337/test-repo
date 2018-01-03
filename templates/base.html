@@ -90,7 +90,7 @@
             <tr>
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
-                        <% if (key === 'fullname' || key === 'user.fullname') { %>
+                        <% if (key === 'fullname') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="/account/<%= results[index].id %>"
                                                     title="<%= results[index][key] %>"
@@ -103,6 +103,18 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+                        <% } else if (key === 'user.fullname') { %>
+                        <% if (results[index][key] != null) { %>
+                        <td class="edit"><a href="/account/<%= results[index].user.id %>"
+                                            title="<%= results[index][key] %>"
+                                            data-id="<%=results[index].user.id %>"
+                            <% if(results[index].user.ankets_id) { %>
+                            data-ankets="<%= results[index].user.ankets_id %>"
+                            <% } %>><%= results[index][key] %></a>
+                        </td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
                         <% } else if(key == 'get_title') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"></span></td>

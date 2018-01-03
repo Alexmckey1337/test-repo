@@ -62,7 +62,7 @@
   padding: 2em 3.2em;
   background: #fff;
   border: 1px solid #f3f3f3;
-  z-index: 9999;
+  z-index: 999;
   border-radius: 3px;
   margin: 0 auto;    display: flex;
   flex-direction: column;
@@ -221,7 +221,9 @@
               position: relative;
               width: 250px;
               float: right;
-              height: 25px;
+              height: 18px;
+              margin-top: 3px;
+              padding-left: 5px;
               background: #fff;
               filter: grayscale(100%);
               &::after{
@@ -238,7 +240,7 @@
                 content: '';
                 position: absolute;
                 top: 1px;
-                left: 2px;
+                left: 7px;
                 z-index:2;
                 width: 15px;
                 height: 15px;
@@ -252,7 +254,8 @@
               &+div{
                 filter: grayscale(0%);
                 &::before{
-                  left: 26px;
+                  left: 31px;
+
                 }
               }
             }
@@ -1599,6 +1602,7 @@ button{
 }
 
 #create_duplicate_pop.pop-up__table .pop_cont,
+#create_duplicate_deal_pop.pop-up__table .pop_cont,
 #create_special_pop.pop-up__table .pop_cont{
   width: 900px;
 }
@@ -1668,7 +1672,8 @@ button{
     padding-left: 0;
 }
 
-#create_duplicate_pop {
+#create_duplicate_pop,
+#create_duplicate_deal_pop {
   .buttons {
     padding-top: 25px;
     display: flex;

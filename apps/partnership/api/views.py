@@ -25,7 +25,7 @@ from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.group.api.filters import FilterChurchPartnerMasterTree
 from apps.partnership.api.filters import (
-    FilterByPartnerBirthday, DateAndValueFilter, FilterPartnerMasterTreeWithSelf,
+    FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
     PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge,
     ChurchDateAndValueFilter, ChurchPartnerFilter, LastDealFilter, LastChurchDealFilter)
 from apps.partnership.api.mixins import (
@@ -49,7 +49,7 @@ from apps.partnership.api.serializers import (
     ChurchDealSerializer,
     ChurchPartnerCreateSerializer, ChurchPartnerUpdateSerializer,
     PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
-    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer)
+    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer, ChurchDealDuplicateSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
     ChurchPartner, \
     ChurchPartnerLog, ChurchDeal
@@ -83,7 +83,8 @@ class PartnershipViewSet(
                        'user__address', 'user__skype', 'user__phone_number',
                        'user__email', 'user__hierarchy__level',
                        'user__facebook',
-                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title')
+                       'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
+                       'user__department',)
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -428,7 +429,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
                        'partnership__user__last_name',
                        'date_created',
                        'done', 'type')
-    filter_class = DateAndValueFilter
+    filter_class = DealDateAndValueFilter
     search_fields = ('partnership__user__first_name',
                      'partnership__user__last_name',
                      'partnership__user__search_name',
@@ -723,7 +724,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         return Response({'message': 'Сделка успещно удалена.'}, status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
+                serializer_class=ChurchDealDuplicateSerializer,
                 pagination_class=DealDuplicatePagination, )
     def check_duplicates(self, request):
         data = request.query_params
@@ -732,8 +733,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
             value = data.get('value')
             partnership_id = data.get('partnership_id')
             try:
-                year = date_created.split('-')[0]
-                month = date_created.split('-')[1]
+                year, month, *_ = date_created.split('-')
             except IndexError:
                 return Response({'message': 'Param {date_created} must be in "YYYY-MM-DD" format'})
         else:
@@ -756,7 +756,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         return Response(deals.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
+                serializer_class=ChurchDealDuplicateSerializer,
                 pagination_class=DealDuplicatePagination, )
     def get_duplicates(self, request):
         query = """
@@ -765,8 +765,8 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
                 p.id,
                 d.value,
                 to_char(d.date_created, 'YYYY.MM')
-                FROM partnership_deal d
-                JOIN partnership_partnership p ON d.partnership_id = p.id
+                FROM partnership_churchdeal d
+                JOIN partnership_churchpartner p ON d.partnership_id = p.id
                 GROUP BY p.id, d.value, to_char(d.date_created, 'YYYY.MM')
                 HAVING count(*) > 1
                 ORDER BY count(*) DESC;
@@ -777,9 +777,8 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
             data = cursor.fetchall()
 
         deal_ids = []
-        for value in data:
-            for _id in value[0]:
-                deal_ids.append(_id)
+        for ids, *_ in data:
+            deal_ids.extend(ids)
 
         deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
 

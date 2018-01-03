@@ -8,17 +8,19 @@ from apps.partnership.models import Deal, Partnership, PartnerGroup, ChurchDeal,
 from rest_framework import filters
 
 
-class DateAndValueFilter(django_filters.FilterSet):
+class DealDateAndValueFilter(django_filters.FilterSet):
     from_date = django_filters.DateFilter(name="date_created", lookup_expr='gte')
     to_date = django_filters.DateFilter(name="date_created", lookup_expr='lte')
     from_value = django_filters.NumberFilter(name="value", lookup_expr='gte')
     to_value = django_filters.NumberFilter(name="value", lookup_expr='lte')
+    group = django_filters.ModelMultipleChoiceFilter(name="partnership__group", queryset=PartnerGroup.objects.all())
 
     class Meta:
         model = Deal
         fields = ['partnership__responsible', 'currency_id', 'responsible',
                   'value', 'date_created', 'date',
-                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value']
+                  'expired', 'done', 'to_date', 'from_date', 'from_value', 'to_value',
+                  'group']
 
 
 class ChurchDateAndValueFilter(django_filters.FilterSet):
