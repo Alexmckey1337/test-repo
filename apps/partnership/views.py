@@ -110,6 +110,7 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
         ctx['currencies'] = Currency.objects.all()
+        ctx['partner_groups'] = PartnerGroup.objects.all()
         # ctx['supervisors'] = CustomUser.objects.filter(
         #     checks__isnull=False).order_by('last_name').distinct("id", "last_name")
         # ctx['managers'] = CustomUser.objects.filter(
@@ -127,5 +128,6 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
         ctx['currencies'] = Currency.objects.all()
+        ctx['partner_groups'] = PartnerGroup.objects.all()
 
         return ctx

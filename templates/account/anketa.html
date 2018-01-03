@@ -65,7 +65,12 @@
                         <div class="right-info-r">
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
-                                <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% if account.is_dead %}
+                                    <h3 id="fullName">{{ account.fullname }} </h3>
+                                {% else %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% endif %}
+{#                                <h3 id="fullName">{{ account.fullname }}</h3>#}
                                 <h3 id="searchName">
                                     {% if account.search_name %}{{ account.search_name }}{% endif %}</h3>
                             </hgroup>
@@ -132,16 +137,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
-{#                                        <label class="userDead">#}
-{#                                            <span class="label_block">Архив (умер)</span>#}
-{#                                            {% if account.is_dead %}#}
-{#                                                <input type="checkbox" id="isDead" data-block="account" checked#}
-{#                                                       disabled>#}
-{#                                            {% else %}#}
-{#                                                <input type="checkbox" id="isDead" readonly disabled>#}
-{#                                            {% endif %}#}
-{#                                            <div></div>#}
-{#                                        </label>#}
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" class="is_dead" value="{{ account.is_dead }}" id="is_dead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" class="is_dead" id="is_dead" value="{{ account.is_dead }}" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -451,7 +456,7 @@
                                             <label>
                                                 <span class="label_block">Церковь</span>
                                                 <select type="text" id="church_list" name="churches_title" value="" readonly disabled>
-                                                    <option value="">Выберите церковь</option>
+                                                    <option value="null">Выберите церковь</option>
                                                 </select>
                                             </label>
                                             <label>
