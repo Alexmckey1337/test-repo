@@ -24,7 +24,6 @@ export default function getData(url, options = {}, config = {}) {
             }
 
         });
-        console.log(url);
     }
     let initConfig = Object.assign({}, defaultOption, config);
     if (typeof url === "string") {

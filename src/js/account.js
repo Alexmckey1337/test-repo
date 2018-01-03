@@ -375,6 +375,24 @@ $('document').ready(function () {
         $('#home_groups_list').html(option);
     });
     makeChurches();
+    $("#isStable").on('change', function () {
+        console.log('checkbox');
+        let userId = $('body').attr('data-user'),
+            url = '/api/v1.1/users/' + userId + '/',
+            stable,
+            data;
+
+        if ($('#isStable').is(':checked')) {
+            stable = true;
+        } else {
+            stable = false;
+        }
+        data = {
+            "is_stable": stable
+        };
+
+        postData(url, data, {method: "PATCH"});
+    })
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit');
@@ -562,6 +580,7 @@ $('document').ready(function () {
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
+            let stableId = $('#isStable').is(':checked');
             let stable;
             if($('#isStable').is(':checked')){
                 stable = true;
@@ -571,8 +590,14 @@ $('document').ready(function () {
             let data = {
                 "is_stable": stable
             }
+            console.log('churchID: ' + church_id);
+            console.log('homeGroupID: ' + home_groups_id);
+            $('#isStable').on('change', function () {
+              console.log('stableId: ' + stableId);
+              postData(url,data,{method:"PATCH"});
+            });
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id,stable, noExist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -580,11 +605,12 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
+                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id,stable, noExist).then(function (data) {
+                addUserToChurch(ID, church_id,stable,url, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -592,11 +618,11 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
+                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
             }
-            postData(url,data,{method:'PATCH'});
         }
 
         $input.each(function () {
