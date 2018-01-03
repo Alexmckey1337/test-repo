@@ -204,7 +204,7 @@ export function makeCaption(data) {
     let dateContainer = document.createElement('p');
     let dateTitle = document.createElement('label');
     let dateData = document.createElement('input');
-    $(dateTitle).text('Дата отчёта: ');
+    $(dateTitle).text('Дата служения: ');
     let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
         thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
         thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
