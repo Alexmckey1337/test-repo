@@ -1,5 +1,8 @@
 .PHONY: install install_local docs collectstatic
 
+APP?=vocrm
+CONTAINER_IMAGE?=reg.sobsam.com/${APP}
+
 install:
 	pip install -r requirements/production.txt
 
@@ -27,3 +30,9 @@ collectstatic:
 	npm install
 	npm run build
 	rm -rf ./node_modules/
+
+build: collectstatic
+	docker build -t $(CONTAINER_IMAGE):latest .
+
+push: build
+	docker push $(CONTAINER_IMAGE):latest
