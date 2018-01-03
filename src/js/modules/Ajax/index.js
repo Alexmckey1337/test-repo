@@ -14,8 +14,17 @@ export default function getData(url, options = {}, config = {}) {
     if (keys.length) {
         url += '?';
         keys.forEach(item => {
-            url += item + '=' + options[item] + "&"
+            if (typeof(options[item]) === 'object') {
+                for (let i = 0; i < options[item].length; i++) {
+                    url += item + '=' + options[item][i] + "&";
+                }
+
+            } else {
+                url += item + '=' + options[item] + "&";
+            }
+
         });
+        console.log(url);
     }
     let initConfig = Object.assign({}, defaultOption, config);
     if (typeof url === "string") {

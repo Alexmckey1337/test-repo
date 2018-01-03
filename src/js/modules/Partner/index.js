@@ -68,19 +68,21 @@ export function getPartners(config = {}) {
     });
 }
 
-// function getPartnersList(data) {
-//     let config = {
-//         search: "",
-//         page: 1
-//     };
-//     Object.assign(config, data);
-//     return new Promise(function (resolve, reject) {
-//         ajaxRequest(URLS.partner.list(), config, function (data) {
-//             if (data) {
-//                 resolve(data);
-//             } else {
-//                 reject("Ошибка")
-//             }
-//         })
-//     })
-// }
+function getPartnersList(data) {
+    let config = {
+        search: "",
+        page: 1
+    };
+    Object.assign(config, data);
+    return new Promise(function (resolve, reject) {
+
+        getData(URLS.partner.list(), config).then(function (data) {
+            console.log(config)
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    });
+}

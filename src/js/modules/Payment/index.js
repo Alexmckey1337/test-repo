@@ -295,26 +295,39 @@ export function createPaymentsTable(config = {}) {
     });
 }
 
-function getPaymentsDeals(config) {
+function getPaymentsDeals(data) {
     return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.payment.deals(),
-            method: 'GET',
-            data: config,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        let config = {
+            search: "",
+            page: 1
         };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
+        Object.assign(config, data);
+        getData(URLS.payment.deals(), config).then(function (data) {
+            console.log(config)
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
             }
-
-        };
-        newAjaxRequest(data, status, reject)
+        });
+        // let data = {
+        //     url: URLS.payment.deals(),
+        //     method: 'GET',
+        //     data: config,
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        // };
+        // let status = {
+        //     200: function (req) {
+        //         resolve(req)
+        //     },
+        //     403: function () {
+        //         reject('Вы должны авторизоватся')
+        //     }
+        //
+        // };
+        // newAjaxRequest(data, status, reject)
     });
 }
 
