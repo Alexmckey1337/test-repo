@@ -692,7 +692,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_deal_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -712,7 +715,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_church_deal_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -732,7 +738,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_payment_sum_by_months(month, type=None, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -756,7 +765,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_church_payment_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
