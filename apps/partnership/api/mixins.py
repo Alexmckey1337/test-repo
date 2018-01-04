@@ -306,8 +306,7 @@ class StatsByManagersMixin:
           select u.user_ptr_id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
           pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
-          d.type = {type} and (d.date_created BETWEEN '{year}-01-01' and '{year}-12-31') and
-          extract('month' from d.date_created) = {month} )) sum
+          d.type = {type} and to_char(d.date_created, 'YYYY-MM') = '{year}-{month:02d}')) sum
           from account_customuser u
           WHERE u.user_ptr_id in (
               SELECT uu.user_ptr_id from account_customuser uu
@@ -336,8 +335,7 @@ class StatsByManagersMixin:
           select u.user_ptr_id,
           (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 100 and
           pay.object_id in (select d.id from partnership_churchdeal d where d.responsible_id = u.user_ptr_id and
-          (d.date_created BETWEEN '{year}-01-01' and '{year}-12-31') and
-          extract('month' from d.date_created) = {month} )) sum
+          to_char(d.date_created, 'YYYY-MM') = '{year}-{month:02d}')) sum
           from account_customuser u
           WHERE u.user_ptr_id in (
               SELECT uu.user_ptr_id from account_customuser uu
@@ -692,7 +690,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_deal_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -712,7 +713,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_church_deal_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -732,7 +736,10 @@ class StatsByMonthsMixin:
     @staticmethod
     @func_time
     def _get_payment_sum_by_months(month, type=None, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -753,10 +760,91 @@ class StatsByMonthsMixin:
             result = connect.fetchall()
         return {date: sum for date, sum in result}
 
+    def _get_start_data(self):
+        year = int(self.request.query_params.get('year', datetime.now().year))
+        month = int(self.request.query_params.get('month', datetime.now().month))
+
+        manager_ids = CustomUser.objects.filter(Q(partner_role__isnull=False) | Q(
+            disciples_deals__isnull=False)).distinct().values_list('id', flat=True)
+
+        managers = CustomUser.objects.filter(id__in=manager_ids).order_by('pk')
+
+        plan = self._get_managers_plan(managers)
+        partners = Partnership.objects.all()
+
+        if year != datetime.now().year or month != datetime.now().month:
+            next_month = self.get_next_month(year, month)
+            partners = self.get_logged_partners(next_month)
+            managers, plan = self.get_logged_managers(next_month)
+        return managers, partners, plan
+
+    def _order_managers(self, managers):
+        ordering = self.request.query_params.get('ordering', 'manager')
+        ordering_fields = ['manager', 'sum_deals', 'total_partners', 'active_partners',
+                           'potential_sum', 'sum_pay', 'manager_plan', 'sum_pay_tithe']
+
+        if ordering.strip('-') in ordering_fields:
+            managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
+        return managers
+
+    @staticmethod
+    def _get_partners(queryset):
+        return queryset.annotate(full_name=Concat(
+            'last_name', V(' '), 'first_name', V(' '), 'middle_name')).values(
+            'full_name', 'id').order_by('pk')
+
+    """
+    Making queries from Partnership model
+    """
+
+    def _get_sum_pay(self, year, month, deal_type):
+        raw = """
+          select u.user_ptr_id,
+          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
+          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
+          d.type = {type} and d.date_created = '{year}-{month:02d}')) sum
+          from account_customuser u
+          WHERE u.user_ptr_id in (
+              SELECT uu.user_ptr_id from account_customuser uu
+              LEFT OUTER JOIN partnership_deal d ON (uu.user_ptr_id = d.responsible_id)
+              LEFT OUTER JOIN partnership_partnerrolelog pr ON (uu.user_ptr_id = pr.user_id and pr.id IN (
+                SELECT DISTINCT ON (user_id) (
+                  SELECT pl.id
+                  FROM partnership_partnerrolelog pl
+                  WHERE p.user_id = pl.user_id and pl.log_date < '{next_month}-01'
+                  ORDER BY pl.log_date DESC LIMIT 1
+                ) FROM partnership_partnerrolelog p) and pr.deleted = false)
+              WHERE pr.id IS NOT NULL OR d.id IS NOT NULL)
+          ORDER BY u.user_ptr_id;
+          """.format(type=deal_type, year=year, month=month, next_month=self.get_next_month(year, month))
+
+        with connection.cursor() as connect:
+            connect.execute(raw)
+            result = connect.fetchall()
+
+        for k in result:
+            yield k[1]
+
+    @staticmethod
+    def _get_sum_deals(queryset, year, month):
+        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
+            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
+
+        return queryset.annotate(
+            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
+            'sum_deals', flat=True)
+
+    """
+    Making queries from PartnershipLogs model if requested period not in this month
+    """
+
     @staticmethod
     @func_time
     def _get_church_payment_sum_by_months(month, manager=None):
-        month = '{}-{}'.format(month // 12, month % 12)
+        if month % 12:
+            month = '{}-{}'.format(month // 12, month % 12)
+        else:
+            month = '{}-{}'.format(month // 12 - 1, 12)
         manager = 'AND d.responsible_id = {}'.format(manager.id) if manager else ''
         raw = """
             SELECT
@@ -809,6 +897,12 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+    def get_export_fields(self, data):
+        fields = self.str_to_list_by_comma(data.get('fields', '')) or None
+        for f in fields:
+            f0, *lst = f.split('.')
+            yield lst[0] if lst else f0
 
 
 class ChurchPartnerExportViewSetMixin(ExportViewSetMixin):

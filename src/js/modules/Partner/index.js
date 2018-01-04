@@ -1,7 +1,6 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
-// import ajaxRequest from '../Ajax/ajaxRequest';
 import getData from '../Ajax/index';
 import getSearch from '../Search/index';
 import {getFilterParam} from "../Filter/index";
@@ -67,20 +66,3 @@ export function getPartners(config = {}) {
         new OrderTable().sort(getPartners, ".table-wrap th");
     });
 }
-
-// function getPartnersList(data) {
-//     let config = {
-//         search: "",
-//         page: 1
-//     };
-//     Object.assign(config, data);
-//     return new Promise(function (resolve, reject) {
-//         ajaxRequest(URLS.partner.list(), config, function (data) {
-//             if (data) {
-//                 resolve(data);
-//             } else {
-//                 reject("Ошибка")
-//             }
-//         })
-//     })
-// }

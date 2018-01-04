@@ -3,12 +3,9 @@ celery==3.1.25
 channels
 django>=1.10,<1.12
 django-allauth
-django-celery==3.1.17
 django-cors-middleware
-django-db-mailer
 django-environ==0.4.4
 django-filebrowser
-django-grappelli==2.10.1
 django-import-export==0.6.1
 django-redis==4.8.0
 django-redis-cache==1.7.1

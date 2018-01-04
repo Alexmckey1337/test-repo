@@ -57,7 +57,12 @@
                         <div class="right-info-r">
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
-                                <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% if account.is_dead %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% else %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% endif %}
+{#                                <h3 id="fullName">{{ account.fullname }}</h3>#}
                                 <h3 id="searchName">
                                     {% if account.search_name %}{{ account.search_name }}{% endif %}</h3>
                             </hgroup>
@@ -125,16 +130,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
-{#                                        <label class="userDead">#}
-{#                                            <span class="label_block">Архив (умер)</span>#}
-{#                                            {% if account.is_dead %}#}
-{#                                                <input type="checkbox" id="isDead" data-block="account" checked#}
-{#                                                       disabled>#}
-{#                                            {% else %}#}
-{#                                                <input type="checkbox" id="isDead" readonly disabled>#}
-{#                                            {% endif %}#}
-{#                                            <div></div>#}
-{#                                        </label>#}
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" class="is_dead" value="{{ account.is_dead }}" id="is_dead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" class="is_dead" id="is_dead" value="{{ account.is_dead }}" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -400,15 +405,15 @@
                                                 <span class="label_block">Лидер</span>
                                                 <p class="output__block">{{ account.hhome_group.leader.fullname }}</p>
                                             </label>
-                                            <label>
-                                                <span class="label_block">Стабильный</span>
-                                                {% if account.is_stable %}
-                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>
-                                                {% else %}
-                                                    <input type="checkbox" id="isStable" readonly disabled>
-                                                {% endif %}
-                                                <div></div>
-                                            </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% elif account.cchurch %}
                                             <label>
                                                 <span class="label_block">Церковь</span>
@@ -428,15 +433,15 @@
                                                 <span class="label_block">Пастор</span>
                                                 <p class="output__block">{{ account.cchurch.pastor.fullname }}</p>
                                             </label>
-                                            <label>
-                                                <span class="label_block">Стабильный</span>
-                                                {% if account.is_stable %}
-                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>
-                                                {% else %}
-                                                    <input type="checkbox" id="isStable" readonly disabled>
-                                                {% endif %}
-                                                <div></div>
-                                            </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% else %}
                                             <label>
                                                 <p class="label_block_important">Пользователь не состоит ни в церкви ни в домашней группе</p>
@@ -444,7 +449,7 @@
                                             <label>
                                                 <span class="label_block">Церковь</span>
                                                 <select type="text" id="church_list" name="churches_title" value="" readonly disabled>
-                                                    <option value="">Выберите церковь</option>
+                                                    <option value="null">Выберите церковь</option>
                                                 </select>
                                             </label>
                                             <label>
@@ -453,17 +458,37 @@
                                                     <option value="">Выберите домашнюю группу</option>
                                                 </select>
                                             </label>
-                                            <label>
-                                                <span class="label_block">Стабильный</span>
-                                                {% if account.is_stable %}
-                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>
-                                                {% else %}
-                                                    <input type="checkbox" id="isStable" readonly disabled>
-                                                {% endif %}
-                                                <div></div>
-                                            </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% endif %}
 
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editStable">
+                        <div class="right-info__block">
+                            <div class="success__block"></div>
+                            <form action="/" name="editStable" id="editStable" data-action="update-user">
+                                <div class="popup_body{% if account.hhome_group or account.cchurch %} exists{% endif %}">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Стабильный</span>
+                                            {% if account.is_stable %}
+                                                <input type="checkbox" id="isStable" data-block="account" checked>
+                                            {% else %}
+                                                <input type="checkbox" id="isStable" >
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>

@@ -209,6 +209,15 @@
                             <option value="3">Нет</option>
                         </select>
                     </label>
+                    <label>
+                        <span class="label_block">База</span>
+                        <select class="selectdb" data-filter="group" id="group_filter" multiple="multiple">
+{#                            <option value="">ВСЕ</option>#}
+                            {% for group in partner_groups %}
+                                <option value="{{ group.id }}">{{ group.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="container">
