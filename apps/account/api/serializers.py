@@ -183,6 +183,7 @@ class UserUpdateSerializer(BaseUserSerializer):
 
     def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        divisions = validated_data.pop('divisions', None)
         master = validated_data.get('master', None)
         move_to_master = validated_data.pop('move_to_master', None)
 
@@ -209,6 +210,8 @@ class UserUpdateSerializer(BaseUserSerializer):
                 user.hhome_group = None
                 user.cchurch = None
                 user.save()
+        if divisions:
+            user.divisions.set(divisions)
 
         for profile in user.summit_profiles.all():
             profile.save()

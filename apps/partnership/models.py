@@ -374,7 +374,7 @@ class PartnershipLogs(PartnershipAbstractModel):
 
 
 class ChurchPartner(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
-    church = models.ForeignKey('group.Church', related_name='partners')
+    church = models.ForeignKey('group.Church', on_delete=models.PROTECT, related_name='partners')
 
     responsible = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, verbose_name=_('Responsible'),
                                     related_name='church_partner_disciples', null=True, blank=True)
@@ -390,8 +390,8 @@ class ChurchPartner(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
 
 
 class ChurchDeal(AbstractDeal, LogModel, AbstractPaymentPurpose):
-    partnership = models.ForeignKey('partnership.ChurchPartner', related_name="deals")
-    responsible = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE,
+    partnership = models.ForeignKey('partnership.ChurchPartner', on_delete=models.PROTECT, related_name="deals")
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL,
                                     related_name='partner_disciples_deals', editable=False,
                                     verbose_name=_('Responsible of partner'), null=True, blank=True)
 
