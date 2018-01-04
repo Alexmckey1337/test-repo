@@ -64,7 +64,6 @@ THIRD_PARTY_APPS = (
 
     'rest_auth',
     'corsheaders',
-    'dbmail',
     'tinymce',
     # 'rest_auth.registration',
     'channels',
