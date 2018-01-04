@@ -1,6 +1,8 @@
 'use strict';
 
 export default function fixedTableHead() {
+    $('#container').scrollTop(0).unbind("scroll");
+    $('.table').scrollLeft(0).unbind("scroll");
     let $tableOffset = $("#table-1").offset().top,
         $header = $("#table-1 > thead").clone(),
         $fixedHeader = $("#header-fixed").append($header),
@@ -20,7 +22,7 @@ export default function fixedTableHead() {
         })
     });
 
-    $(".table").scroll(function () {
+    $(".table").bind('scroll', function () {
         let offset = $(this).scrollLeft(),
             sidebar = $('#sidebar').outerWidth();
         $('#header-fixed').css('left', (sidebar - offset));

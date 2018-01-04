@@ -4,7 +4,7 @@ import {postExport} from "../Ajax/index";
 import {getFilterParam} from "../Filter/index";
 import {showAlert, showPromt} from "../ShowNotifications/index";
 
-export default function exportTableData(el, additionalFilter = {}, search = 'search_fio') {
+export default function exportTableData(el, additionalFilter = {}, search = 'search_fio', urlExp = '') {
     let url, filter, filterKeys, items, count;
     showPromt('Экспорт', 'Введите имя файла', 'File_default', (evt, value) => {
         let perVal = value.replace(/^\s+|\s+$/g, '');
@@ -13,8 +13,9 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
             return;
         }
         showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
-        url = $(el).attr('data-export-url');
+        url = ($(el).attr('data-export-url')) ? $(el).attr('data-export-url') : urlExp;
         filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
+        console.log('Filter -->', filter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
@@ -22,13 +23,20 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
             count = 0;
             filterKeys.forEach(function (key) {
                 count++;
-                url += key + '=' + filter[key];
-                if (count != items) {
-                    url += '&';
+                if (Array.isArray(filter[key])) {
+                    if (filter[key].length < 1) {
+                        return
+                    }
+                    let filterItemValues = Object.values(filter[key]);
+                    filterItemValues.forEach(value => {
+                        url += `${key}=${value}&`;
+                    })
+                } else {
+                    url += `${key}=${filter[key]}&`;
                 }
             })
         }
-        (Object.keys(filter).length == 0) ? url += `?file_name=${value.trim()}` : url += `&file_name=${value.trim()}`;
+        (Object.keys(filter).length == 0) ? url += `?file_name=${value.trim()}` : url += `file_name=${value.trim()}`;
         let data = {
             fields: getDataTOExport().join(',')
         };

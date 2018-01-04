@@ -9,7 +9,7 @@ volumes:
 services:
   postgres:
     container_name: postgres_dev
-    image: reg.sobsam.com/postgres:9.6
+    image: reg.sobsam.com/postgres:10
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
       - postgres_backup_dev:/backups

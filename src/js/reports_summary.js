@@ -79,7 +79,7 @@ $('document').ready(function () {
     // Sort table
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(ChurchPastorReportsTable);
+        updateSettings(ChurchPastorReportsTable, 'report_summary');
     });
 
     //Filter

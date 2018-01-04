@@ -3,26 +3,47 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import moment from 'moment/min/moment.min.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import URLS from './modules/Urls/index';
+import {postData} from "./modules/Ajax/index";
 import {
     DealsTable,
     updateDealsTable,
-    createDealsPayment,
     dealsTable,
-    updateDeal,
     makeDuplicateDealsWithCustomPagin,
     deleteDeal,
 } from './modules/Deals/index';
 import updateSettings from './modules/UpdateSettings/index';
+import reverseDate from './modules/Date/index';
 
 $(document).ready(function () {
+        let date = new Date(),
+        thisMonthStart = moment(date).startOf('month').format('DD.MM.YYYY'),
+        thisMonthEnd = moment(date).endOf('month').format('DD.MM.YYYY'),
+        lastMonthStart = moment(date).subtract(1, 'months').startOf('month').format('DD.MM.YYYY'),
+        lastMonthEnd = moment(date).subtract(1, 'months').endOf('month').format('DD.MM.YYYY'),
+        configData = {
+        from_date: reverseDate(thisMonthStart, '-'),
+        to_date: reverseDate(thisMonthEnd, '-'),
+    };
+
     $('.preloader').css('display', 'block');
-    DealsTable();
+    DealsTable(configData);
+
+    $('#statusTabs').on('click', 'button', function () {
+        $('#statusTabs').find('li').each(function () {
+            $(this).removeClass('current');
+        });
+        $(this).parent().addClass('current');
+        $('.preloader').css('display', 'block');
+        dealsTable();
+    });
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(dealsTable);
+        updateSettings(dealsTable, 'deal');
     });
 
     $("#close-payment").on('click', function (e) {
@@ -56,9 +77,17 @@ $(document).ready(function () {
         e.preventDefault();
         $(this).prop('disabled', true);
         let id = $(this).attr('data-id'),
-            sum = $('#new_payment_sum').val(),
-            description = $('#popup-create_payment textarea').val();
-        createDealsPayment(id, sum, description).then(function () {
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-create_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+                "operation": $('#operation').val()
+            },
+            type = $('#statusTabs').find('.current button').attr('data-type'),
+            url = (type === 'people') ? URLS.deal.create_uah_payment(id) : URLS.church_deal.create_uah_payment(id);
+
+        postData(url, data).then(function () {
             updateDealsTable();
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
@@ -90,6 +119,39 @@ $(document).ready(function () {
         autoClose: true
     });
 
+        // Events
+    $('#date_range').datepicker({
+        dateFormat: 'dd.mm.yyyy',
+        range: true,
+        autoClose: true,
+        multipleDatesSeparator: '-',
+        onSelect: function (date) {
+            if (date.length > 10) {
+                $('.preloader').css('display', 'block');
+                dealsTable();
+                $('.tab-home-stats').find('.week').removeClass('active');
+            } else if (date == '') {
+                $('.preloader').css('display', 'block');
+                dealsTable();
+                $('.tab-home-stats').find('.week').removeClass('active');
+            }
+        }
+    });
+
+    $('.tab-home-stats').find('.week').on('click', function () {
+        $('.preloader').css('display', 'block');
+        $(this).closest('.tab-home-stats').find('.week').removeClass('active');
+        $(this).addClass('active');
+        if ($(this).hasClass('week_now')) {
+            $('.set-date').find('input').val(`${thisMonthStart}-${thisMonthEnd}`);
+        } else if ($(this).hasClass('week_prev')) {
+            $('.set-date').find('input').val(`${lastMonthStart}-${lastMonthEnd}`);
+        } else {
+            $('.set-date').find('input').val('');
+        }
+        dealsTable();
+    });
+
     $('#filter_button').on('click', function () {
         //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
@@ -98,12 +160,6 @@ $(document).ready(function () {
 
     $('.selectdb').select2().on('select2:open', function () {
         $('.select2-search__field').focus();
-    });
-
-    $('.select_date_filter').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
     });
     
     $('.apply-filter').on('click', function () {
@@ -149,10 +205,12 @@ $(document).ready(function () {
             'value': value,
             'description': description,
             'type': type,
-        };
+        },
+        typeTable = $('#statusTabs').find('.current button').attr('data-type');
 
     if (value && date) {
-        updateDeal(id, data).then(() => {
+        let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
+        postData(url, data, {method: 'PATCH'}).then(() => {
             let page = $('#sdelki').find('.pagination__input').val();
             $('.preloader').css('display', 'block');
             dealsTable({page:page});
@@ -182,8 +240,10 @@ $(document).ready(function () {
     $('#delete_deal').on('click', function () {
        let id = $(this).attr('data-id'),
            pageCount = $('#sdelki').find('.pagination__input').first().val();
-        deleteDeal(id, pageCount, DealsTable);
+        deleteDeal(id, pageCount, dealsTable);
     });
+
+    $('#date_range').val(`${thisMonthStart}-${thisMonthEnd}`);
 
 });
 

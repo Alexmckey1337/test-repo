@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from apps.account.models import CustomUser
-from apps.partnership.models import Partnership, Deal
+from apps.partnership.models import Partnership, Deal, ChurchDeal
 from apps.payment.models import Payment, Currency
 from apps.summit.models import SummitAnket
 from apps.event.models import ChurchReport
@@ -48,6 +48,8 @@ class PurposeRelatedField(serializers.RelatedField):
     def to_representation(self, value):
         if isinstance(value, Deal):
             return reverse('deal-detail', kwargs={'pk': value.id})
+        elif isinstance(value, ChurchDeal):
+            return reverse('churchdeal-detail', kwargs={'pk': value.id})
         elif isinstance(value, Partnership):
             return reverse('partner-detail', kwargs={'pk': value.id})
         elif isinstance(value, SummitAnket):

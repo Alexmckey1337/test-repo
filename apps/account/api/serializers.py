@@ -18,7 +18,6 @@ from apps.account.models import CustomUser as User, CustomUser
 from common.fields import ReadOnlyChoiceField
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
-from apps.navigation.models import Table
 from apps.partnership.models import Partnership
 from apps.status.models import Division
 from apps.summit.models import SummitAnket, Summit
@@ -184,6 +183,7 @@ class UserUpdateSerializer(BaseUserSerializer):
 
     def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        divisions = validated_data.pop('divisions', None)
         master = validated_data.get('master', None)
         move_to_master = validated_data.pop('move_to_master', None)
 
@@ -210,6 +210,8 @@ class UserUpdateSerializer(BaseUserSerializer):
                 user.hhome_group = None
                 user.cchurch = None
                 user.save()
+        if divisions:
+            user.divisions.set(divisions)
 
         for profile in user.summit_profiles.all():
             profile.save()
@@ -292,18 +294,18 @@ class UserCreateSerializer(BaseUserSerializer):
         except TypeError:
             tb = traceback.format_exc()
             msg = (
-                'Got a `TypeError` when calling `%s.objects.create()`. '
-                'This may be because you have a writable field on the '
-                'serializer class that is not a valid argument to '
-                '`%s.objects.create()`. You may need to make the field '
-                'read-only, or override the %s.create() method to handle '
-                'this correctly.\nOriginal exception was:\n %s' %
-                (
-                    ModelClass.__name__,
-                    ModelClass.__name__,
-                    self.__class__.__name__,
-                    tb
-                )
+                    'Got a `TypeError` when calling `%s.objects.create()`. '
+                    'This may be because you have a writable field on the '
+                    'serializer class that is not a valid argument to '
+                    '`%s.objects.create()`. You may need to make the field '
+                    'read-only, or override the %s.create() method to handle '
+                    'this correctly.\nOriginal exception was:\n %s' %
+                    (
+                        ModelClass.__name__,
+                        ModelClass.__name__,
+                        self.__class__.__name__,
+                        tb
+                    )
             )
             raise TypeError(msg)
 
@@ -335,21 +337,22 @@ class UserTableSerializer(UserSingleSerializer):
     get_church = ChurchNameSerializer(read_only=True)
 
     class Meta(UserSingleSerializer.Meta):
+        fields = BASE_USER_FIELDS + ('get_church',)
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
-        if self.context.get('request', None):
-            user = self.context['request'].user
-            if hasattr(user, 'table') and isinstance(user.table, Table):
-                columns = user.table.columns.filter(
-                    columnType__category__title="Общая информация",
-                    active=True).order_by('number').values_list('columnType__title', flat=True)
-            else:
-                columns = list()
-            if 'social' in columns:
-                columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
-            return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
+        # if self.context.get('request', None):
+        #     user = self.context['request'].user
+        #     if hasattr(user, 'table') and isinstance(user.table, Table):
+        #         columns = user.table.columns.filter(
+        #             columnType__category__title="Общая информация",
+        #             active=True).order_by('number').values_list('columnType__title', flat=True)
+        #     else:
+        #         columns = list()
+        #     if 'social' in columns:
+        #         columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
+        #     return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
         return getattr(self.Meta, 'fields', None)
 
 

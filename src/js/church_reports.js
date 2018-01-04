@@ -196,7 +196,7 @@ $('document').ready(function () {
     // Sort table
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(churchReportsTable);
+        updateSettings(churchReportsTable, 'church_report');
     });
 
     //Filter

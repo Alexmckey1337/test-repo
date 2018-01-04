@@ -51,7 +51,8 @@ from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
-from apps.navigation.table_fields import user_table
+from apps.navigation.table_columns import get_table
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +78,7 @@ class UserPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': user_table(self.request.user),
+            'user_table': get_table('user', self.request.user.id),
             'results': data
         })
 
@@ -241,9 +242,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'],
-                  serializer_class=ManagerIdSerializer,
-                  permission_classes=(IsSuperUser,))
+    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
     def set_manager(self, request, pk):
         """
         Set manager for user
@@ -324,8 +323,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
-        pass
-        # new_obj = kwargs.get('new_obj')
+        return kwargs.get('new_obj')
         # self._update_divisions(new_obj)
 
     @log_perform_create

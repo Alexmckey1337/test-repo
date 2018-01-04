@@ -59,15 +59,35 @@ export function deleteData(url, config = {}) {
 export function postData(url, data = {}, config = {}) {
     let postConfig = {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: (data === null) ? null : JSON.stringify(data),
         },
         initConfig = Object.assign({}, defaultOption, postConfig, config);
-    console.log(initConfig);
     if (typeof url === "string") {
 
         return fetch(url, initConfig).then(resp => {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp.json();
+            } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
+    }
+}
+
+export function postFormData(url, data = {}, config = {}) {
+    let postConfig = {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: data,
+        },
+        initConfig = Object.assign({}, postConfig, config);
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp;
             } else {
                 return resp.json().then(err => {
                     throw err;

@@ -90,9 +90,9 @@
             <tr>
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
-                        <% if (key == 'fullname') { %>
+                        <% if (key === 'fullname') { %>
                             <% if (results[index][key] != null) { %>
-                                <td class="edit"><a href="<%= results[index].link %>"
+                                <td class="edit"><a href="/account/<%= results[index].id %>"
                                                     title="<%= results[index][key] %>"
                                                     data-link="<%= results[index].link %>"
                                                     data-id="<%=results[index].id %>"
@@ -103,6 +103,18 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+                        <% } else if (key === 'user.fullname') { %>
+                        <% if (results[index][key] != null) { %>
+                        <td class="edit"><a href="/account/<%= results[index].user.id %>"
+                                            title="<%= results[index][key] %>"
+                                            data-id="<%=results[index].user.id %>"
+                            <% if(results[index].user.ankets_id) { %>
+                            data-ankets="<%= results[index].user.ankets_id %>"
+                            <% } %>><%= results[index][key] %></a>
+                        </td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
                         <% } else if(key == 'get_title') { %>
                             <% if (results[index][key] != null) { %>
                                 <td class="edit"><a href="<%= results[index].link %>" data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%= results[index][key] %></a><span class="quick-edit"></span></td>
@@ -121,7 +133,15 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
-                        <% }  else if (key == 'get_church' ) { %>
+                        <% }  else if (key === 'church.get_title' ) { %>
+                            <% if (results[index][key] != null ) { %>
+                                <td>
+                                    <a href="<%= results[index].church.link %>"><%= results[index][key] %></a>
+                                </td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        <% }  else if (key == 'get_church' || key == 'user.get_church') { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>
                             <% } else { %>
@@ -133,7 +153,7 @@
                                 <% } else { %>
                                 <td></td>
                                 <% } %>
-                            <% }else if (key == 'departments' || key == 'divisions') { %>
+                            <% }else if (key == 'departments' || key == 'user.departments' || key == 'divisions' || key == 'user.divisions') { %>
                             <% if ( Array.isArray(results[index][key]) && results[index][key].length != 0) { %>
                                 <% if (results[index][key].length == 1) { %>
                                     <td><%= results[index][key][0].title %></td>
@@ -172,7 +192,7 @@
             <% } else { %>
                 disable
             <% } %> >
-            <input type="checkbox" id="<%=key%>" data-editable="<%= user[1][key].editable %>" <% if(user[1][key].active) { %>
+            <input type="checkbox" id="<%=key%>" data-key="<%=key%>" data-editable="<%= user[1][key].editable %>" <% if(user[1][key].active) { %>
             checked
             <% }%> value="<%=user[1][key].id %>">
             <label for="<%=key%>"><%=user[1][key].title%></label>

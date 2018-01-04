@@ -34,18 +34,6 @@ class TestPartnership:
 
         assert responsible.disciples_deals.count() == 2
 
-    def test_partner_payments_without_deal_payments(self, partner, payment_factory):
-        payment_factory.create_batch(11, purpose=partner)
-        assert partner.payments.count() == 11
-
-    def test_partner_payments_with_deal_payments(self, partner, payment_factory, deal_factory):
-        deal1 = deal_factory(partnership=partner)
-        deal2 = deal_factory(partnership=partner)
-        payment_factory.create_batch(11, purpose=partner)  # count +11, = 11
-        payment_factory.create_batch(2, purpose=deal1)  # count +2, = 13
-        payment_factory.create_batch(3, purpose=deal2)  # count +3, = 16
-        assert partner.payments.count() == 16
-
     def test_partner_deal_payments_with_deal_payments(self, partner, payment_factory, deal_factory):
         deal1 = deal_factory(partnership=partner)
         deal2 = deal_factory(partnership=partner)

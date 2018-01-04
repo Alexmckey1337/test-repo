@@ -3,27 +3,52 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
 import {createPaymentsTable} from "./modules/Payment/index";
-import {deleteDealsPayment, updateDealsPayment, cleanUpdateDealsPayment} from "./modules/Payment/index";
+import {
+    deleteDealsPayment,
+    updateDealsPayment,
+    cleanUpdateDealsPayment,
+    getPreFilterParam
+} from "./modules/Payment/index";
 import makeSelect from './modules/MakeAjaxSelect';
 
 $(document).ready(function () {
-    createPaymentsTable({});
+    let date = new Date(),
+        thisMonth = moment(date).startOf('month').format('DD.MM.YYYY'),
+        lastMonth = moment(date).subtract(1, 'months').startOf('month').format('DD.MM.YYYY');
+
+    $('#date_deal').val(thisMonth);
+    createPaymentsTable();
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
         $('.preloader').css('display', 'block');
-        createPaymentsTable({});
+        createPaymentsTable();
     }, 500));
 
     $('#export_table').on('click', function () {
         let search = 'search_purpose_fio',
-            config = {};
+            config = getPreFilterParam();
         exportTableData(this, config, search);
+    });
+
+    $('.tab-home-stats').find('.week').on('click', function () {
+        $('.preloader').css('display', 'block');
+        $(this).closest('.tab-home-stats').find('.week').removeClass('active');
+        $(this).addClass('active');
+        if ($(this).hasClass('week_now')) {
+            $('#date_deal').val(thisMonth);
+        } else if ($(this).hasClass('week_prev')) {
+            $('#date_deal').val(lastMonth);
+        } else {
+            $('#date_deal').val('');
+        }
+        createPaymentsTable();
     });
 
     $('#filter_button').on('click', ()=> {
@@ -52,19 +77,17 @@ $(document).ready(function () {
         autoClose: true,
         position: "left top",
     });
-    $('#purpose_date_from').datepicker({
-        dateFormat: 'yyyy-mm-dd',
+
+    $('#date_deal').datepicker({
+        dateFormat: 'dd.mm.yyyy',
         autoClose: true,
         view: 'months',
         minView: 'months',
-        position: "left top",
-    });
-    $('#purpose_date_to').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        view: 'months',
-        minView: 'months',
-        position: "left top",
+        onSelect: function () {
+            $('.preloader').css('display', 'block');
+            createPaymentsTable();
+            $('.tab-home-stats').find('.week').removeClass('active');
+        }
     });
 
     $('#payment_sent_date').datepicker({
@@ -78,7 +101,7 @@ $(document).ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createPaymentsTable);
+        updateSettings(createPaymentsTable, 'deal_payment');
     });
 
     //Filter

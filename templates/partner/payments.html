@@ -56,6 +56,17 @@
 {% endblock %}
 
 {% block main.content %}
+    <div class="container-full">
+        <div class="tab-status tab-home-stats">
+            <button class="week week_all">Все</button>
+            <button class="week week_now active">Текущий месяц</button>
+            <button class="week week_prev">Прошедший месяц</button>
+            <div class="set-date">
+                <input type="text" placeholder="Месяц сделки" id="date_deal">
+                <div class="cal-icon"></div>
+            </div>
+        </div>
+    </div>
     <div class="content">
         <div class="top-pag">
             <div class="table__count"></div>
@@ -112,13 +123,13 @@
                             <input type="text" placeholder="до" data-filter="create_to" id="date_to" class="select_to_filter">
                         </p>
                     </label>
-                    <label>
-                        <span class="label_block">Дата сделки</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from" class="select_from_filter">
-                            <input type="text" placeholder="до" data-filter="purpose_date_to" id="purpose_date_to" class="select_to_filter">
-                        </p>
-                    </label>
+{#                    <label>#}
+{#                        <span class="label_block">Дата сделки</span>#}
+{#                        <p class="birthday">#}
+{#                            <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from" class="select_from_filter">#}
+{#                            <input type="text" placeholder="до" data-filter="purpose_date_to" id="purpose_date_to" class="select_to_filter">#}
+{#                        </p>#}
+{#                    </label>#}
                     <label>
                         <span class="label_block">Супервайзер</span>
                         <select data-filter="manager" id="manager">

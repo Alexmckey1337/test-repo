@@ -240,7 +240,7 @@ $('document').ready(function () {
     // Sort table
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(homeReportsTable);
+        updateSettings(homeReportsTable, 'meeting');
     });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {

@@ -9,6 +9,7 @@ from django.views.generic.base import ContextMixin
 from apps.account.models import CustomUser
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
+from apps.partnership.models import PartnerGroup
 from apps.payment.models import Currency
 
 
@@ -148,6 +149,7 @@ class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
                 hhome_group__church_id=church.id, partners__isnull=False).count(),
             'no_partners_count': church.uusers.filter(partners__isnull=True).count() + CustomUser.objects.filter(
                 hhome_group__church_id=church.id, partners__isnull=True).count(),
+            'partner_groups': PartnerGroup.objects.all(),
         }
         ctx.update(extra_context)
 

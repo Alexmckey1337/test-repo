@@ -1,9 +1,9 @@
-from django.utils import timezone
 from decimal import Decimal
 from json import dumps
 
 from channels import Group
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework import status
@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from apps.partnership.models import Partnership, Deal
+from apps.partnership.models import Deal, ChurchDeal
 from apps.payment.models import Currency
 from apps.payment.api.permissions import PaymentPermission
 from apps.payment.api.serializers import PaymentCreateSerializer, PaymentShowSerializer
@@ -38,20 +38,17 @@ class PaymentCheckPermissionMixin:
         return [permission() for permission in self.payment_permission_classes]
 
     def check_payment_permissions(self, request, purpose):
-        if isinstance(purpose, (Partnership, Deal)):
-            method_name = 'has_object_permission'
+        if isinstance(purpose, (ChurchDeal, Deal)):
             args = (request, self, purpose)
         elif isinstance(purpose, SummitAnket):
-            method_name = 'has_object_permission'
             args = (request, self, purpose.summit)
         elif isinstance(purpose, ChurchReport):
-            method_name = 'has_object_permission'
             args = (request, self, purpose)
         else:  # pragma: no cover
             raise exceptions.PermissionDenied(detail=self.payment_permission_invalid_object_message)
 
         for permission in self.get_payment_permissions():
-            if not getattr(permission, method_name)(*args):
+            if not permission.has_object_permission(*args):
                 raise exceptions.PermissionDenied(
                     detail=getattr(permission, 'message', self.payment_permission_message))
 
@@ -112,7 +109,7 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
             'sum': payment.effective_sum_str,
         }
         # if purpose_model not in
-        if not isinstance(purpose, ChurchReport):
+        if not isinstance(purpose, ChurchReport) and not isinstance(purpose, ChurchDeal):
             Group("payments_{}".format(purpose.user.id)).send({'text': dumps(data)})
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

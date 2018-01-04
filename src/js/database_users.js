@@ -73,7 +73,7 @@ $('document').ready(function () {
     }, 500));
 
     $('#sort_save').on('click', function () {
-        updateSettings(createUsersTable);
+        updateSettings(createUsersTable, 'user');
     });
 
     $('#export_table').on('click', function () {

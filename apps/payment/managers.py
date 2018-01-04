@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 
@@ -26,13 +27,15 @@ class PaymentQuerySet(models.query.QuerySet):
         )
 
     def for_user_by_deal(self, user):
-        from apps.partnership.models import Deal
+        from apps.partnership.models import Deal, ChurchDeal
         if not user.is_authenticated:
             return self.none()
         deal_ids = Deal.objects.for_user(user).values_list('id', flat=True)
+        church_deal_ids = ChurchDeal.objects.for_user(user).values_list('id', flat=True)
 
         return self.filter(
-            (Q(content_type__model='deal') & Q(object_id__in=deal_ids))
+            (Q(content_type__model='deal') & Q(object_id__in=deal_ids)) |
+            (Q(content_type__model='churchdeal') & Q(object_id__in=church_deal_ids))
         )
 
     def for_user_by_summit_anket(self, user):
@@ -62,6 +65,8 @@ class PaymentQuerySet(models.query.QuerySet):
     """
 
     def add_deal_fio(self):
+        deal_id = ContentType.objects.get(app_label='partnership', model='deal').id
+        church_deal_id = ContentType.objects.get(app_label='partnership', model='churchdeal').id
         return self.extra(
             select={
                 'purpose_fio': '''
@@ -74,7 +79,18 @@ class PaymentQuerySet(models.query.QuerySet):
                     JOIN account_customuser ON partnership_partnership.user_id = account_customuser.user_ptr_id
                     JOIN auth_user ON account_customuser.user_ptr_id = auth_user.id
 
-                    WHERE partnership_deal.id = payment_payment.object_id'''
+                    WHERE partnership_deal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    UNION ALL
+                    SELECT
+                    group_church.title as purpose_fio
+                    FROM partnership_churchdeal
+
+                    JOIN partnership_churchpartner ON
+                    partnership_churchdeal.partnership_id = partnership_churchpartner.id
+                    JOIN group_church ON partnership_churchpartner.church_id = group_church.id
+
+                    WHERE partnership_churchdeal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    '''.format(deal_id, church_deal_id)
             }).extra(
             select={
                 'purpose_date': '''
@@ -82,7 +98,14 @@ class PaymentQuerySet(models.query.QuerySet):
                     partnership_deal.date_created AS purpose_date
                     FROM partnership_deal
 
-                    WHERE partnership_deal.id = payment_payment.object_id'''
+                    WHERE partnership_deal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    UNION ALL
+                    SELECT
+                    partnership_churchdeal.date_created as purpose_date
+                    FROM partnership_churchdeal
+
+                    WHERE partnership_churchdeal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    '''.format(deal_id, church_deal_id)
             }).extra(
             select={
                 'purpose_manager_fio': '''
@@ -93,7 +116,52 @@ class PaymentQuerySet(models.query.QuerySet):
                     JOIN account_customuser a2 ON partnership_deal.responsible_id = a2.user_ptr_id
                     JOIN auth_user au2 ON a2.user_ptr_id = au2.id
 
-                    WHERE partnership_deal.id = payment_payment.object_id'''
+                    WHERE partnership_deal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    UNION ALL
+                    SELECT
+                    CONCAT(au2.last_name, ' ', au2.first_name, ' ', a2.middle_name) as purpose_manager_fio
+                    FROM partnership_churchdeal
+
+                    JOIN account_customuser a2 on partnership_churchdeal.responsible_id = a2.user_ptr_id
+                    JOIN auth_user au2 ON a2.user_ptr_id = au2.id
+
+                    WHERE partnership_churchdeal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    '''.format(deal_id, church_deal_id)
+            }).extra(
+            select={
+                'purpose_type': '''
+                    SELECT
+                    partnership_deal.type as purpose_type
+                    FROM partnership_deal
+
+                    WHERE partnership_deal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    UNION ALL
+                    SELECT
+                    partnership_churchdeal.type as purpose_type
+                    FROM partnership_churchdeal
+
+                    WHERE partnership_churchdeal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    '''.format(deal_id, church_deal_id)
+            }).extra(
+            select={
+                'purpose_id': '''
+                    SELECT
+                    partnership_partnership.user_id as purpose_id
+                    FROM partnership_deal
+
+                    JOIN partnership_partnership ON partnership_deal.partnership_id = partnership_partnership.id
+
+                    WHERE partnership_deal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    UNION ALL
+                    SELECT
+                    partnership_churchpartner.church_id as purpose_id
+                    FROM partnership_churchdeal
+
+                    JOIN partnership_churchpartner ON
+                    partnership_churchdeal.partnership_id = partnership_churchpartner.id
+
+                    WHERE partnership_churchdeal.id = payment_payment.object_id and payment_payment.content_type_id = {}
+                    '''.format(deal_id, church_deal_id)
             })
 
     def annotate_manager_name(self):

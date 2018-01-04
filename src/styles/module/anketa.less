@@ -794,7 +794,7 @@
 .a-block{
   overflow: hidden;
   border: 1px solid #cdd0d4;
-  margin-top: 30px;
+  margin-top: 15px;
   border-radius: 3px;
 }
 .a-mail{
@@ -973,12 +973,16 @@
   }
   .rows {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin: 0;
     border-radius: 0;
     border: 0;
     border-bottom: 1px solid #cdd0d4;
     background-color: transparent;
+    .payment_title{
+      width:100%;
+    }
     p {
       //width: 33%;
     }
@@ -1178,11 +1182,19 @@
 .a-sdelki .access_wrapper {
   padding-top: 15px;
   padding-bottom: 5px;
+  justify-content: flex-start;
+  &>label,& input{
+    margin-right:20px;
+    margin-bottom:0;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 25px;
+  }
 }
 
 .access_wrapper {
   .access_select_wrapper {
-    width: 100%;
+    //width: 100%;
   }
   #access_select {
     width: 250px !important;
@@ -1211,6 +1223,32 @@
       color: #97a2b0;
     }
   }
+}
+
+#addMorePartners {
+  margin: 15px 0 0;
+}
+
+.a-sdelki {
+  .partner_block_wrap {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+  .rows{
+    &:hover{
+      background-color: transparent;
+    }
+  }
+  input{
+      border: 1px solid #cdd0d4;
+      height: 25px;
+      padding: 6px 5px;
+      border-radius: 3px;
+      width: 250px;
+      box-sizing: border-box;
+    }
 }
 .userDead{
   margin-top: 10px;
