@@ -898,6 +898,12 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
+    def get_export_fields(self, data):
+        fields = self.str_to_list_by_comma(data.get('fields', '')) or None
+        for f in fields:
+            f0, *lst = f.split('.')
+            yield lst[0] if lst else f0
+
 
 class ChurchPartnerExportViewSetMixin(ExportViewSetMixin):
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportChurchPartnerList,))
