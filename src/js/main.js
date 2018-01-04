@@ -126,6 +126,8 @@ $('.tabs-nav li').click(function (e) {
 $(".tabs-nav li a:first").click();
 
 $(document).ready(function () {
+
+
     $('.editprofile input').keypress(function (el) {
         if (el.charCode == '32' && el.currentTarget.id != 'extra_phone_numbers' && el.currentTarget.id != 'address' && el.currentTarget.id != 'search_name') {
             return false
@@ -242,6 +244,18 @@ $(document).ready(function () {
             messageHover.style.display = 'none';
             photoHover.style.display = 'none';
             hideFilter();
+        }
+    });
+
+    $('.top-s').on('click',function () {
+        let block = $(this).parent().children('.accordion-block');
+        if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
+            $(block).slideDown(300);
+
+        } else {
+            $(this).addClass('active');
+            $(block).slideUp(300);
         }
     });
 

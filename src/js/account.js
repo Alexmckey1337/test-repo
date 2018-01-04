@@ -759,6 +759,7 @@ $('document').ready(function () {
         $('#delete_access').attr('disabled', true);
     });
 
+
     btnNeed();
     btnPartners();
     btnDeal();

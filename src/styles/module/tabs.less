@@ -993,8 +993,21 @@
   background-color: #fff;
 }
 
-.tabs_deals li.active button {
-  color: #333;
+.tabs_deals,.tab_main{
+ li{
+   &.active{
+     button{
+       color: #333;
+     }
+   }
+ } 
+}
+.tab_main{
+  li{
+    &.active{
+      border-bottom:none;
+    }
+  }
 }
 
 .partner_block_wrap {
@@ -1029,27 +1042,27 @@
     justify-content: space-between;
     align-items: center;
     height: 50px;
-    .tab_main {
-      display: flex;
-      justify-content: flex-start;
-      height: 100%;
-      button {
-        height: 100%;
-        border-radius: 0;
-        padding: 0 10px;
-        background-color: transparent;
-        color: #000;
-      }
-      li {
-        border-radius: 8px 8px 0 0;
-        border: 1px solid #cdd0d4;
-        border-left: none;
-        border-bottom: none;
-        &.active {
-          background-color: #e4e4e4;
-        }
-      }
-    }
+    //.tab_main {
+    //  display: flex;
+    //  justify-content: flex-start;
+    //  height: 100%;
+    //  button {
+    //    height: 100%;
+    //    border-radius: 0;
+    //    padding: 0 10px;
+    //    background-color: transparent;
+    //    color: #000;
+    //  }
+    //  li {
+    //    border-radius: 8px 8px 0 0;
+    //    border: 1px solid #cdd0d4;
+    //    border-left: none;
+    //    border-bottom: none;
+    //    &.active {
+    //      background-color: #e4e4e4;
+    //    }
+    //  }
+    //}
   }
 }
 

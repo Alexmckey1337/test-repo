@@ -117,21 +117,23 @@ $('document').ready(function () {
         } else {
             let leaderId = $('#homeGroupLeader').val(),
                 churchId = $('#editHomeGroupForm').attr('data-departament_id');
-
-             getPotentialLeadersForHG({church: churchId}).then(function (res) {
-                    return res.map(function (leader) {
-                        return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
-                    });
-                }).then(function (data) {
-                    $('#homeGroupLeader').html(data).prop('disabled', false).select2();
-                });
             $input.each(function (i, el) {
+                console.log($(this).is('#homeGroupLeader'));
                 if (!$(this).hasClass('no__edit')) {
                     if ($(this).attr('disabled')) {
                         $(this).attr('disabled', false);
                     }
                     if (!$(el).is('#church')) {
                         $(this).attr('readonly', false);
+                    }
+                    if ($(el).is('#homeGroupLeader')) {
+                        getPotentialLeadersForHG({church: churchId}).then(function (res) {
+                            return res.map(function (leader) {
+                                return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
+                            });
+                        }).then(function (data) {
+                            $('#homeGroupLeader').html(data).prop('disabled', false).select2();
+                        });
                     }
                 }
             });
@@ -141,7 +143,7 @@ $('document').ready(function () {
 
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
-        let idHomeGroup = $(this).closest('form').attr('data-id');
+        let idHomeGroup = $('.accordion').attr('data-id');
         editHomeGroups($(this), idHomeGroup);
         let liderLink = '/account/' + $('#homeGroupLeader').val();
         pasteLink($('#homeGroupLeader'), liderLink);

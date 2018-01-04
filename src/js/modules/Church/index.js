@@ -485,7 +485,7 @@ export function editChurches(el, id) {
         address: $($(el).closest('ul').find('#address')).val(),
         report_currency: $($(el).closest('ul').find('#report_currency')).val()
     };
-    saveChurchData(data, id).then(function (data) {
+    saveChurchData(data, id).then(function () {
         $(el).closest('form').find('.edit').removeClass('active');
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
         $input.each(function (i, elem) {

@@ -204,12 +204,22 @@
     height: 0;
     transform: translateY(50%);
     margin-left:15px;
-    img {
+    background-color: #fff;
+    img,i{
       position: absolute;
       left: 0;
       top: 0;
       border-radius: 50%;
-      background-color: #e6e9ee;
+    }
+    i{
+      font-size: 7em;
+      color: #dedede;
+      top:50%;
+      left:50%;
+      transform: translate(-50%,-50%);
+      &.user{
+        font-size: 18em;
+      }
     }
   }
 }
@@ -263,6 +273,9 @@
         position: relative;
         border: 1px solid transparent;
         border-radius: 7px;
+        .count{
+          background-color: transparent;
+        }
         //padding-top: 1.7em;
         h4 {
           //position: absolute;
@@ -810,8 +823,11 @@
 .a-block{
   overflow: hidden;
   border: 1px solid #cdd0d4;
-  margin-top: 15px;
+  margin-top: 30px;
   border-radius: 3px;
+  .tab-status{
+    margin-top: 0;
+  }
 }
 .a-mail{
   padding: 18px 10px;
@@ -1058,10 +1074,33 @@
 
 .top-s {
   h3 {
-    padding: .5em 0 1.5em .5em;
-    text-transform: uppercase;
+    padding: .8em 0 1em .5em;
+    //text-transform: uppercase;
     color: #333;
   }
+  border-bottom: 1px solid #cdd0d4;
+  cursor: pointer;
+  background-color: #f2f5fa;
+  position: relative;
+  &::before {
+    content: '\f107';
+    font-family: FontAwesome;
+    color: #333;
+    font-size: 2em;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    transform: rotate(180deg);
+    transition: .3s transform;
+  }
+  &.active{
+    &::before{
+      transform: rotate(360deg);
+    }
+  }
+}
+.accordion-block{
+  margin-top: 1em;
 }
 
 .summit_wrapper, .sdelki-content {
@@ -1092,6 +1131,9 @@
 .summit_wrapper {
   .summits-title {
     background-color: #f2f5fa;
+    &__title{
+      border-bottom:1px dashed #656d78;
+    }
   }
   .rows {
     &.note-box {
