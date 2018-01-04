@@ -174,7 +174,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports', on_delete=models.PROTECT)
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
-                                 default=get_default_currency(), null=True)
+                                 default=get_default_currency, null=True)
     done = models.BooleanField(default=False)
 
     objects = ChurchReportManager()
