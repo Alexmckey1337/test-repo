@@ -80,9 +80,6 @@ class Summit(models.Model):
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
     #: Template for sending tickets.
-    mail_template = models.ForeignKey('dbmail.MailTemplate', on_delete=models.SET_NULL, related_name='summits',
-                                      verbose_name=_('Mail template'),
-                                      null=True, blank=True)
     zmail_template = models.ForeignKey('zmail.ZMailTemplate', on_delete=models.SET_NULL, related_name='summits',
                                        verbose_name=_('Mail template'),
                                        null=True, blank=True)
