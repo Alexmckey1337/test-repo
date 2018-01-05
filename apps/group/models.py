@@ -47,7 +47,7 @@ class Church(CommonGroup):
                                on_delete=models.PROTECT, verbose_name=_('Pastor'))
     country = models.CharField(_('Country'), max_length=50)
     is_open = models.BooleanField(default=False)
-    report_currency = models.IntegerField(default=get_default_currency(), verbose_name=_('Report Currency'))
+    report_currency = models.IntegerField(default=get_default_currency, verbose_name=_('Report Currency'))
 
     objects = ChurchManager()
 
@@ -68,6 +68,10 @@ class Church(CommonGroup):
 
     def get_absolute_url(self):
         return reverse('church_detail', args=(self.id,))
+
+    @property
+    def link(self):
+        return self.get_absolute_url()
 
     @property
     def owner_name(self):

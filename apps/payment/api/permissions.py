@@ -13,15 +13,15 @@ class PaymentPermission(BasePermission):
             return (
                 (request.user.is_summit_consultant_or_high(purpose) and request.method in SAFE_METHODS) or
                 request.user.is_summit_supervisor_or_high(purpose))
-        if content_type.app_label == 'partnership' and content_type.model == 'partnership':
-            return (
-                (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
-                 request.user.is_partner_responsible_of(purpose.user)) or
-                request.user.is_partner_supervisor_or_high)
         if content_type.app_label == 'partnership' and content_type.model == 'deal':
             return (
                 (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
                  request.user.is_partner_responsible_of(purpose.partnership.user)) or
+                request.user.is_partner_supervisor_or_high)
+        if content_type.app_label == 'partnership' and content_type.model == 'churchdeal':
+            return (
+                (request.user.is_partner_manager_or_high and request.method in SAFE_METHODS and
+                 request.user.is_partner_responsible_of_church(purpose.partnership.church)) or
                 request.user.is_partner_supervisor_or_high)
 
         if content_type.model in ('churchreport',):

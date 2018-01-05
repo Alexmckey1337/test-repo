@@ -3,8 +3,16 @@ import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
-import {getCountries, getRegions, getCities} from '../GetList/index';
-import {makeCountriesList, makeRegionsList, makeCityList} from '../MakeList/index';
+import {
+    getCountries,
+    getRegions,
+    getCities
+} from '../GetList/index';
+import {
+    makeCountriesList,
+    makeRegionsList,
+    makeCityList
+} from '../MakeList/index';
 
 export function sendNote(profileId, text, box) {
     let data = {

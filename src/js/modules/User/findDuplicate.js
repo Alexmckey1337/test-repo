@@ -44,7 +44,8 @@ export function makeDuplicateUsers(config = {}) {
     let firstName = $('#first_name').val() || null,
         middleName = $('#middle_name').val() || null,
         lastName = $('#last_name').val() || null,
-        phoneNumber = $('#phoneNumber').val() || null;
+        phoneNumber = $('#phoneNumber').val() || null,
+        popup = $('#create_duplicate_pop');
     (firstName != null) && (config.first_name = firstName);
     (middleName != null) && (config.middle_name = middleName);
     (lastName != null) && (config.last_name = lastName);
@@ -87,11 +88,11 @@ export function makeDuplicateUsers(config = {}) {
                 callback: makeDuplicateUsers
             };
         makePagination(paginationConfig);
-        $('.pop-up_duplicate__table').find('.table__count').text(text);
+        popup.find('.table__count').text(text);
         $('#table_duplicate').html('').append(table);
         $('#createUser').find('._preloader').css('opacity', '0');
         $('.preloader').css('display', 'none');
-        $('.pop-up_duplicate__table').css('display', 'block');
+        popup.css('display', 'block');
     });
 }
 

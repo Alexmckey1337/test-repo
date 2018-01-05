@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.db.models import Value as V, F
+from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django_filters import rest_framework
 from rest_framework import mixins, filters
@@ -132,11 +132,13 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        FilterByDealManager,
                        FilterByDealType,
                        filters.OrderingFilter,)
-    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('deals__partnership__user__last_name',
-                                                         'deals__date_created',
-                                                         'deals__partnership__responsible__last_name',
-                                                         'deals__responsible__last_name',
-                                                         'deals__type')
+    ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + (
+        # 'deals__partnership__user__last_name',
+        # 'deals__date_created',
+        # 'deals__partnership__responsible__last_name',
+        # 'deals__responsible__last_name',
+        # 'deals__type'
+    )
 
     field_search_fields = {
         'search_description': ('description',),
@@ -150,8 +152,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
 
     def get_queryset(self):
         user = self.request.user
-        return self.queryset.for_user_by_deal(user).add_deal_fio().annotate(
-            purpose_type=F('deals__type')).annotate(purpose_id=F('deals__partnership__user_id'))
+        return self.queryset.for_user_by_deal(user).add_deal_fio()
 
     def post(self, request, *args, **kwargs):
         """For export/import to excel"""

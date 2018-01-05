@@ -20,6 +20,14 @@ class CanExportPartnerList(BasePermission):
         return can_export_partner_list(request.user)
 
 
+class CanExportChurchPartnerList(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to export list of church partners
+        """
+        return can_export_church_partner_list(request.user)
+
+
 class CanSeeDeals(BasePermission):
     def has_permission(self, request, view):
         """
@@ -56,6 +64,74 @@ class CanUpdateDeals(BasePermission):
         Checking that the ``request.user`` has the right to update ``deal``
         """
         return can_update_deal(request.user, deal)
+
+
+class CanSeeChurchPartners(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of church partners
+        """
+        return can_see_partners(request.user)
+
+
+class CanUpdateChurchPartner(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to update church partners
+        """
+        return request.user.is_partner_manager_or_high
+
+    def has_object_permission(self, request, view, church_partner):
+        """
+        Checking that the ``request.user`` has the right to update ``church_partner``
+        """
+        return can_update_church_partner(request.user, church_partner.church)
+
+
+class CanSeeChurchDeals(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of church deals
+        """
+        return can_see_church_deals(request.user)
+
+
+class CanUpdateChurchDeals(BasePermission):
+    def has_object_permission(self, request, view, church_deal):
+        """
+        Checking that the ``request.user`` has the right to update ``church_deal``
+        """
+        return can_update_church_deal(request.user, church_deal)
+
+
+class CanCreateChurchDeals(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create new church_deal
+        """
+        return request.user.is_partner_manager_or_high
+
+
+class CanCreateChurchPartnerPayment(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to create payment by church partnership
+        """
+        return can_create_church_partner_payments(request.user)
+
+    def has_object_permission(self, request, view, church_partner):
+        """
+        Checking that the ``request.user`` has the right to create payment for certain ``church_partner``
+        """
+        return can_create_payment_for_church_partner(request.user, church_partner)
+
+
+class CanSeeChurchDealPayments(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the ``request.user`` has the right to see list of payments by church deals
+        """
+        return can_see_church_deal_payments(request.user)
 
 
 class CanSeeDealPayments(BasePermission):
@@ -179,6 +255,13 @@ def can_export_partner_list(user):
     return user.is_partner_manager_or_high
 
 
+def can_export_church_partner_list(user):
+    """
+    Checking that the ``user`` has the right to export list of church partners
+    """
+    return user.is_partner_manager_or_high
+
+
 def can_see_deals(user):
     """
     Checking that the ``user`` has the right to see list of deals
@@ -200,7 +283,21 @@ def can_see_deal_payments(user):
     return user.is_partner_manager_or_high
 
 
+def can_see_church_deal_payments(user):
+    """
+    Checking that the ``user`` has the right to see list of payments by church deals
+    """
+    return user.is_partner_manager_or_high
+
+
 def can_close_partner_deals(user):
+    """
+    Checking that the ``request.user`` has the right to close deals of partnership
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_close_church_partner_deals(user):
     """
     Checking that the ``request.user`` has the right to close deals of partnership
     """
@@ -215,6 +312,20 @@ def can_create_partner_payments(user):
 
 
 def can_create_payment_for_partner(user, partner):
+    """
+    Checking that the ``request.user`` has the right to create payment for certain ``partner``
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_create_church_partner_payments(user):
+    """
+    Checking that the ``request.user`` has the right to create payments by church deals
+    """
+    return user.is_partner_supervisor_or_high
+
+
+def can_create_payment_for_church_partner(user, church_partner):
     """
     Checking that the ``request.user`` has the right to create payment for certain ``partner``
     """
@@ -246,6 +357,31 @@ def can_update_partner(user, partner_user):
     if user.is_partner_supervisor_or_high:
         return True
     return user.is_partner_manager and user.partner_disciples.filter(user=partner_user).exists()
+
+
+def can_update_church_partner(user, church):
+    """
+    Checking that the ``user`` has the right to update partnership of ``church_partner``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    return user.is_partner_manager and user.church_partner_disciples.filter(church=church).exists()
+
+
+def can_create_church_deal_for_partner(user, church_partner):
+    """
+    Checking that the ``user`` has the right to create deal for certain ``partner``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    return user.is_partner_manager and user.church_partner_disciples.filter(id=church_partner.id).exists()
+
+
+def can_see_church_partners(user):
+    """
+    Checking that the ``user`` has the right to see list of church partners
+    """
+    return user.is_partner_manager_or_high
 
 
 def can_edit_partner_block(current_user, user):
@@ -286,6 +422,23 @@ def can_update_deal(user, deal):
         return True
     partner = deal.partnership
     return user.is_partner_manager and user.partner_disciples.filter(id=partner.id).exists()
+
+
+def can_see_church_deals(user):
+    """
+    Checking that the ``user`` has the right to see list of church deals
+    """
+    return user.is_partner_manager_or_high
+
+
+def can_update_church_deal(user, church_deal):
+    """
+    Checking that the ``user`` has the right to update ``church_deal``
+    """
+    if user.is_partner_supervisor_or_high:
+        return True
+    partner = church_deal.partnership
+    return user.is_partner_manager and user.church_partner_disciples.filter(id=partner.id).exists()
 
 
 def can_see_partner_payments(user):

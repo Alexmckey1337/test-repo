@@ -1,0 +1,119 @@
+.a-church_sdelki {
+
+    #partnership_need {
+      position: relative;
+      width: 100%;
+      padding: 10px;
+      .edit {
+        position: absolute;
+        padding: 0;
+        background: 0 0;
+        border: 0;
+        top: 0;
+        width: 1em;
+        height: 1em;
+        font-size: 1.5em;
+        opacity: .3;
+        z-index: 3;
+        right: 0;
+        &::before {
+          content: '\f040';
+          color: #656d78;
+          font: normal 1em FontAwesome;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+        &.active {
+          right: 1.25em;
+          &::before {
+            content: '\f00d';
+          }
+        }
+        &:hover {
+          opacity: 1;
+        }
+      }
+      .save__info {
+        position: absolute;
+        right: 0;
+        width: 1em;
+        height: 1em;
+      }
+      .edit + .save__info {
+        display: none;
+      }
+      .edit.active + .save__info {
+        display: block;
+        &:hover {
+          opacity: 1;
+        }
+        &::before {
+          content: '\f00c';
+          color: #656d78;
+          font: normal 1.1em FontAwesome;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+      }
+      textarea {
+        margin-top: 10px;
+        width: 100%;
+      }
+    }
+    &:hover {
+      .save__info {
+        opacity: .3;
+      }
+    }
+
+}
+
+.accordion {
+  .right-contentwrap {
+    .info-calc {
+      margin-top: 15px;
+      .popup_body{
+        display: flex;
+      }
+      .container_block {
+        width: 50%;
+        justify-content: flex-start;
+      }
+    }
+  }
+  .popup_body {
+    margin: 0;
+    border: none;
+    &.hidden {
+      display: none;
+    }
+    label {
+      //justify-content: center;
+      p {
+        &.count {
+          //width: auto;
+        }
+      }
+    }
+  }
+  #no_partners-link {
+    right: 20px;
+  }
+}
+
+#editPartnership{
+  .container{
+    width: 50%;
+  }
+}
+#editPartnership,#editPartnership{
+  form{
+    margin-top:20px;
+  }
+}
+
+#Sdelki{
+  border:none;
+}

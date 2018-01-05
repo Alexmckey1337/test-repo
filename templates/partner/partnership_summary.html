@@ -43,10 +43,16 @@
     <div class="content">
         <div class="container-full">
             <div class="prefilter-group tab-status tab-home-stats">
-                <button class="month month_now active">Текущий месяц</button>
-                <button class="month month_prev">Предыдущий месяц</button>
                 <div class="set-date">
-                    <input type='text' id="date_field_stats" placeholder="Выберите дату"/>
+                    <input type='text' id="date_field_stats" placeholder="Выберите дату" readonly/>
+                    <div class="cal-icon"></div>
+                </div>
+                <div class="checkbox_style">
+                    <input type="checkbox" id="showCompare"/>
+                    <label for="showCompare">Сравнить</label>
+                </div>
+                <div class="set-date">
+                    <input type='text' id="date_field_compare" placeholder="Выберите дату"  readonly disabled/>
                     <div class="cal-icon"></div>
                 </div>
             </div>
@@ -86,7 +92,7 @@
                 <th data-order="<%=table_columns[key].ordering_title%>" data-order_type="letter"><%=table_columns[key].title %></th>
                 <% } else { %>
                 <th data-order="<%=table_columns[key].ordering_title%>"
-                <% if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
                 class="cell__red"
                 <% } %>
                 ><%=table_columns[key].title %></th>
@@ -118,10 +124,8 @@
                 <% if (results[index][key] != null) { %>
                 <td class="edit edit-plan">
                     {% if user.is_partner_director %}
-                        <% if (results[index].manager == 'СУММАРНО:') { %>
+                        <% if (results[index].manager === 'СУММАРНО:' || !flag) { %>
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
-                        <% } else if (!flag) { %>
-                            <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                         <% } else { %>
                         <form name="plan_form" class="editPlanForm">
                             <input name="plan_sum" class="edit_plan" type="text" data-id="<%=results[index].user_id %>"
@@ -140,7 +144,7 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe') { %>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="cell__red <%= key %>">
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
@@ -148,6 +152,12 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
+                <% } else if (key == 'total_partners') { %>
+                <td>
+                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    (<%= String(results[index].active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> /
+                    <%= String(results[index].not_active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>)
+                </td>
                 <% } else if (key == 'percent_of_plan') { %>
                 <% if (results[index][key] != null) { %>
                 <td class="<%= key %>">
@@ -159,6 +169,143 @@
                 <% } else { %>
                 <td><% if (results[index][key] != null ) { %>
                     <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    <% } %>
+                </td>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+        <table id="header-fixed"></table>
+    </script>
+    <script type="text/template" id="databaseCompareSummary">
+        <table id="table-1">
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if( (key == 'manager') ) { %>
+                <th><%=table_columns[key].title %></th>
+                <% } else { %>
+                <th colspan="2"
+                <% if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
+                class="cell__red"
+                <% } %>
+                ><%=table_columns[key].title %>
+                </th>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if( (key == 'manager') ) { %>
+                <th></th>
+                <% } else { %>
+                <th <% if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
+                class="cell__red"
+                <% } %>
+                ><%= firstDate %>
+                </th>
+                <th <% if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
+                class="cell__red"
+                <% } %>
+                ><%= secondDate %>
+                </th>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+            <% for( var index in result) { %>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if (key == 'manager') { %>
+                <td>
+                <% if (result[index][key] != null) { %>
+                    <% if (result[index][key] == 'СУММАРНО:') { %>
+                    <%= result[index][key] %>
+                    <% } else { %>
+                        <a href="/partner/summary/<%=result[index].user_id %>"
+                            title="<%= result[index][key] %>">
+                            <%= result[index][key] %></a>
+                    <% } %>
+                <% } %>
+                </td>
+                <% } else if (key == 'plan') { %>
+                <td class="edit edit-plan">
+                <% if (result[index][key] != null) { %>
+                    {% if user.is_partner_director %}
+                        <% if (result[index].manager === 'СУММАРНО:' || !flag) { %>
+                        <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                        <% } else { %>
+                        <form name="plan_form" class="editPlanForm">
+                            <input name="plan_sum" class="edit_plan" type="text" data-id="<%=result[index].user_id %>"
+                                   value="<%= result[index][key] %>" readonly disabled>
+                            <div class="btn-block">
+                                <button class="send_plan">ОК</button>
+                                <button class="cancel_plan">Отмена</button>
+                            </div>
+                        </form>
+                        <button class="edit_btn"></button>
+                        <% } %>
+                    {% else %}
+                        <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    {% endif %}
+                <% } %>
+                </td>
+                <td>
+                <% if (resultCompare[index][key] != null) { %>
+                    <%= String(resultCompare[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                <% } %>
+                </td>
+                <% } else if (key == 'sum_pay' || key == 'sum_pay_tithe' || key == 'sum_pay_church') { %>
+                <td class="cell__red <%= key %>">
+                <% if (result[index][key] != null) { %>
+                    <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                <% } %>
+                </td>
+                <td class="cell__red">
+                    <% if (resultCompare[index][key] != null) { %>
+                    <%= String(resultCompare[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    <% } %>
+                </td>
+                <% } else if (key == 'total_partners') { %>
+                <td>
+                    <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    (<%= String(result[index].active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> /
+                    <%= String(result[index].not_active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>)
+                </td>
+                <td>
+                    <%= String(resultCompare[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    (<%= String(resultCompare[index].active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> /
+                    <%= String(resultCompare[index].not_active_partners).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>)
+                </td>
+                <% } else if (key == 'percent_of_plan') { %>
+                <td class="<%= key %>">
+                <% if (result[index][key] != null) { %>
+                    <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> %
+                <% } %>
+                </td>
+                <td>
+                <% if (resultCompare[index][key] != null) { %>
+                    <%= String(resultCompare[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %> %
+                <% } %>
+                </td>
+                <% } else { %>
+                <td>
+                    <% if (result[index][key] != null ) { %>
+                    <%= String(result[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (resultCompare[index][key] != null ) { %>
+                    <%= String(resultCompare[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                     <% } %>
                 </td>
                 <% } %>

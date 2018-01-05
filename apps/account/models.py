@@ -133,9 +133,9 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     def link(self):
         return self.get_absolute_url()
 
-    # @property
-    # def get_church(self):
-    #     return self.cchurch or self.hhome_group.church
+    @property
+    def get_church(self):
+        return self.cchurch or self.hhome_group.church if self.hhome_group else None
 
     @property
     def column_table(self):

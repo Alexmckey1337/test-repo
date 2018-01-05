@@ -79,6 +79,11 @@ class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
     search = 'pastor_id__in'
 
 
+class FilterChurchPartnerMasterTree(CommonGroupMasterTreeFilter):
+    level = 2
+    search = 'church__pastor_id__in'
+
+
 class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
     level = 1
     search = 'leader_id__in'

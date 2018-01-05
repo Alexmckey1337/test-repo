@@ -93,8 +93,6 @@ class ChurchPastorRelatedField(serializers.PrimaryKeyRelatedField):
 
 
 class ChurchSerializer(serializers.ModelSerializer):
-    count_groups = serializers.IntegerField(read_only=True)
-    count_users = serializers.IntegerField(read_only=True)
     link = serializers.CharField(read_only=True)
     pastor = ChurchPastorRelatedField(queryset=CustomUser.objects.filter(
         hierarchy__level__gte=2))
@@ -103,7 +101,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'count_groups', 'count_users', 'report_currency')
+                  'phone_number', 'report_currency')
 
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')
@@ -122,6 +120,12 @@ class ChurchSerializer(serializers.ModelSerializer):
 class ChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
+
+    class Meta:
+        model = Church
+        fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
+                  'department', 'pastor', 'country', 'city', 'address', 'website',
+                  'phone_number', 'report_currency')
 
 
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):

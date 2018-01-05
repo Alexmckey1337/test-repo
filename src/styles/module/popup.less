@@ -223,7 +223,6 @@
               float: right;
               height: 18px;
               margin-top: 3px;
-              padding-left: 5px;
               background: #fff;
               filter: grayscale(100%);
               &::after{
@@ -240,7 +239,7 @@
                 content: '';
                 position: absolute;
                 top: 1px;
-                left: 7px;
+                left: 2px;
                 z-index:2;
                 width: 15px;
                 height: 15px;
@@ -254,7 +253,7 @@
               &+div{
                 filter: grayscale(0%);
                 &::before{
-                  left: 31px;
+                  left: 26px;
 
                 }
               }
@@ -344,14 +343,19 @@
               color: #3caeda;
             }
           }
-          #payment_value{
+          #payment_value,
+          .payment_value {
             width: 65%!important;
             float: left;
           }
-          #payment_currency{
+          #payment_currency,
+          .payment_currency {
             width: 60px !important;
             float: left !important;
             height: 25px;
+          }
+          .payment_currency + .select2 {
+            width: 83px !important;
           }
         }
         .birthday{
@@ -414,7 +418,7 @@
         }
       }
     }
-    &#partnershipBlock{
+    &.partnershipBlock{
       input,.select2,select,.input{
           width: 200px !important;
         }
@@ -1597,6 +1601,7 @@ button{
 }
 
 #create_duplicate_pop.pop-up__table .pop_cont,
+#create_duplicate_deal_pop.pop-up__table .pop_cont,
 #create_special_pop.pop-up__table .pop_cont{
   width: 900px;
 }
@@ -1666,7 +1671,8 @@ button{
     padding-left: 0;
 }
 
-#create_duplicate_pop {
+#create_duplicate_pop,
+#create_duplicate_deal_pop {
   .buttons {
     padding-top: 25px;
     display: flex;

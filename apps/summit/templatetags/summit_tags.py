@@ -29,8 +29,8 @@ def is_consultant_for_user(context, summit, user_to, user_from=None):
     user_from_anket = SummitAnket.objects.filter(
         user=user_from, summit=summit, role__gte=SummitAnket.CONSULTANT)
     is_consultant = (
-            user_from_anket.exists() and
-            SummitUserConsultant.objects.filter(consultant=user_from_anket, user__user=user_to, summit=summit).exists())
+            user_from_anket.exists() and user_from_anket.count() == 1 and
+            SummitUserConsultant.objects.filter(consultant=user_from_anket.get(), user__user=user_to, summit=summit).exists())
 
     return is_consultant
 
