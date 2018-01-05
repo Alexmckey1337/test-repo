@@ -352,12 +352,14 @@ export function deleteDeal(id, pageCount, callback) {
         deleteData(url).then(() => {
             showAlert('Сделка удалена');
             callback({page: pageCount});
+            $('#popup-create_deal').css('display', 'none');
         }).catch(err => {
             showConfirm('Подтверждение удаления', err.message, function () {
                 let force = JSON.stringify({"force": true});
                 deleteData(url, {body: force}).then(() => {
                     showAlert('Сделка удалена');
                     callback({page: pageCount});
+                    $('#popup-create_deal').css('display', 'none');
                 }).catch(err => {
                     showAlert('При удалении сделки произошла ошибка');
                     console.log(err);
