@@ -502,7 +502,7 @@ export function editChurches(el, id) {
             }
         });
         $(el).removeClass('active');
-        let success = $($(el).closest('form').find('.success__block'));
+        let success = $($(el).closest('form').closest('div').find('.success__block'));
         $(success).text('Сохранено');
         setTimeout(function () {
             $(success).text('');

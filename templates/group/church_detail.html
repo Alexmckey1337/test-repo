@@ -291,7 +291,7 @@
                     </div>
                     <div class="a-sdelki accordion-block" id="Sdelki">
                         <div class="tab-main_status tab-status">
-                            <ul class="tab_main ">
+                            <ul class="tab_main church-tabs">
                                 {% for partner in church.partners.all %}
                                     <li {% if forloop.first %}
                                         class="active"
@@ -299,7 +299,7 @@
                                         data-tab="{{ forloop.counter }}"
                                         data-partner="{{ partner.id }}">
                                         <button>
-                                            {{ partner.title }}
+                                            <span>{{ partner.title }}</span>
                                         </button>
                                     </li>
                                 {% endfor %}
@@ -342,13 +342,13 @@
                                 </div>
                                 <p class="payment_title">Сделки</p>
                                 <div class="tab-status" id="tabStatus{{ forloop.counter }}">
-                                    <ul class="tabs_deals">
+                                    <ul class="tabs_deals church-tabs">
                                         <li data-status="False"
                                             class="active">
-                                            <button>Незавершённые</button>
+                                            <button><span>Незавершённые</span></button>
                                         </li>
                                         <li data-status="True">
-                                            <button>Завершённые</button>
+                                            <button><span>Завершённые</span></button>
                                         </li>
                                     </ul>
                                     <button data-currency="{{ partner.currency.short_name }}"
@@ -365,11 +365,12 @@
                             <div class="a-sdelki">
                                 <div class="partner_wrapper">
                                     <ul class="right-info">
+{#                                        <li>Не партнер</li>#}
                                         <li id="editPartnership">
                                             <div class="right-info__block">
-                                                <h4>Партнерские данные</h4>
-                                                <div class="success__block"></div>
-                                                {% include "account/partials/partner_form.html" with user=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}
+                                                <h4>Не партнер</h4>
+{#                                                <div class="success__block"></div>#}
+{#                                                {% include "account/partials/partner_form.html" with user=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}#}
                                             </div>
                                         </li>
                                     </ul>
@@ -386,24 +387,24 @@
                     <div class="accordion-block">
                         <div class="top-panel tabs-panel">
                             <div class="tabs">
-                                <ul class="tabs_link">
+                                <ul class="tabs_link church-tabs">
                                     <li class="mb get_info">
                                         <button data-link="home_groups"
                                                 data-export-url="{% url "church-export-groups" pk=church.id %}"
-                                                data-editable="false">Количество Домашних групп: <span
-                                                id="home_groups_count">{{ home_groups_count }}</span></button>
+                                                data-editable="false"><span>Количество Домашних групп: <span
+                                                id="home_groups_count">{{ home_groups_count }}</span></span></button>
                                     </li>
                                     <li class="get_info">
                                         <button data-link="all_users"
                                                 data-export-url="{% url "church-export-all-users" pk=church.id %}"
-                                                data-editable="false">Общее количество людей: <span
-                                                id="church_all_users">{{ church_all_users }}</span></button>
+                                                data-editable="false"><span>Общее количество людей: <span
+                                                id="church_all_users">{{ church_all_users }}</span></span></button>
                                     </li>
                                     <li class="mb get_info">
                                         <button class="active"
                                                 data-export-url="{% url "church-export-users" pk=church.id %}"
-                                                data-link="users" data-editable="true">Люди не в домашних группах: <span
-                                                id="church_users">{{ church_users }}</span></button>
+                                                data-link="users" data-editable="true"><span>Люди не в домашних группах: <span
+                                                id="church_users">{{ church_users }}</span></span></button>
                                     </li>
                                 </ul>
                             </div>

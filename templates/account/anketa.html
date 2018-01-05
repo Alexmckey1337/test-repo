@@ -562,11 +562,11 @@
                     </div>
                 </div>
                 {% if user.is_partner_manager_or_high and account.is_partner %}
-                        <div class="a-block a-sdelki" id="Sdelki">
+                        <div class="a-block">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
                             </div>
-                            <div class="accordion-block">
+                            <div class="a-sdelki accordion-block" id="Sdelki">
                                 <div class="access_wrapper note_wrapper">
                                     <label for="access_select">Права доступа</label>
                                     <div class="access_select_wrapper">
@@ -598,7 +598,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-main_status">
-                                    <ul class="tab_main">
+                                    <ul class="tab_main church-tabs">
                                         {% for partner in account.partners.all %}
                                             <li {% if forloop.first %}
                                                 class="active"
@@ -606,7 +606,7 @@
                                                 data-tab="{{ forloop.counter }}"
                                                 data-partner="{{ partner.id }}">
                                                 <button>
-                                                    {{ partner.title }}
+                                                    <span>{{ partner.title }}</span>
                                                 </button>
                                             </li>
                                         {% endfor %}
@@ -646,13 +646,13 @@
                                         </div>
                                         <p class="payment_title">Сделки</p>
                                         <div class="tab-status" id="tabStatus{{ forloop.counter }}">
-                                            <ul class="tabs_deals">
+                                            <ul class="tabs_deals church-tabs">
                                                 <li data-status="False"
                                                     class="active">
-                                                    <button>Незавершённые</button>
+                                                    <button><span>Незавершённые</span></button>
                                                 </li>
                                                 <li data-status="True">
-                                                    <button>Завершённые</button>
+                                                    <button><span>Завершённые</span></button>
                                                 </li>
                                             </ul>
                                             <button data-currency="{{ partner.currency.short_name }}"
@@ -678,10 +678,9 @@
                         </div>
                         <div class="accordion-block">
                             <div class="tab-status">
-                                <ul id="tabs2">
+                                <ul id="tabs2" class="church-tabs">
                                     {% for anket in ankets %}
-                                        <li data-tab='{{ anket.grouper.id }}'><a href="#">{{ anket.grouper.title }}</a>
-                                        </li>
+                                        <li data-tab='{{ anket.grouper.id }}'><a href="#"><span>{{ anket.grouper.title }}</span></a></li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -702,18 +701,18 @@
                                         </div>
 
                                         <div class="summits-block">
-                                            <div class="rows rows-tabs">
+                                            <div class="rows rows-tabs church-tabs">
                                                 <div class="active" data-tabs-id="1">
-                                                    <p>Примечания</p>
+                                                    <p><span>Примечания</span></p>
                                                 </div>
                                                 {% if anket.summit.lessons.exists %}
                                                     <div data-tabs-id="2">
-                                                        <p>Уроки</p>
+                                                        <p><span>Уроки</span></p>
                                                     </div>
                                                 {% endif %}
                                                 {% if anket.emails.exists %}
                                                     <div data-tabs-id="3">
-                                                        <p>EMAIL</p>
+                                                        <p><span>EMAIL</span></p>
                                                     </div>
                                                 {% endif %}
                                             </div>
