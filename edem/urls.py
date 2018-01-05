@@ -2,10 +2,9 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.conf.urls import url, include
+from django.urls import include, path
+from django.conf.urls import url
 from django.contrib import admin
-from django.core.files.storage import get_storage_class
-from filebrowser.sites import FileBrowserSite
 from rest_framework import exceptions
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator as BaseSchemaGenerator
@@ -45,15 +44,8 @@ class SwaggerSchemaView(APIView):
         return Response(schema)
 
 
-class FileBrowserStorage(get_storage_class()):
-    pass
-
-
-site = FileBrowserSite(name='filebrowser', storage=FileBrowserStorage(base_url='https://vocrm.net/media/'))
-
 urlpatterns = [
-    url(r'^admin/filebrowser/', include(site.urls)),
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
