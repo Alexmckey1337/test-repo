@@ -195,37 +195,37 @@ $(document).ready(function () {
 
     $('#send_new_deal').on('click', _.debounce(function () {
         $(this).prop('disabled', true);
-    let id = $(this).attr('data-id'),
-        description = $('#popup-create_deal textarea').val(),
-        value = $('#new_deal_sum').val(),
-        date = $('#new_deal_date').val().trim().split('.').reverse().join('-'),
-        type = $('#new_deal_type').val(),
-        data = {
-            'date_created': date,
-            'value': value,
-            'description': description,
-            'type': type,
-        },
-        typeTable = $('#statusTabs').find('.current button').attr('data-type');
+        let id = $(this).attr('data-id'),
+            description = $('#popup-create_deal textarea').val(),
+            value = $('#new_deal_sum').val(),
+            date = $('#new_deal_date').val().trim().split('.').reverse().join('-'),
+            type = $('#new_deal_type').val(),
+            data = {
+                'date_created': date,
+                'value': value,
+                'description': description,
+                'type': type,
+            },
+            typeTable = $('#statusTabs').find('.current button').attr('data-type');
 
-    if (value && date) {
-        let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
-        postData(url, data, {method: 'PATCH'}).then(() => {
-            let page = $('#sdelki').find('.pagination__input').val();
-            $('.preloader').css('display', 'block');
-            dealsTable({page:page});
-            showAlert('Редактирование сделки прошло успешно');
-            clearDealForm();
-            $('#send_new_deal').prop('disabled', false);
-            $('#popup-create_deal').css('display', 'none');
-        }).catch((err) => {
-            $('#send_new_deal').prop('disabled', false);
-            showAlert(err);
-        });
-    } else {
-        showAlert('Заполните поле суммы и дату.');
-    }
-}, 500));
+        if (value && date) {
+            let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
+            postData(url, data, {method: 'PATCH'}).then(() => {
+                let page = $('#sdelki').find('.pagination__input').val();
+                $('.preloader').css('display', 'block');
+                dealsTable({page:page});
+                showAlert('Редактирование сделки прошло успешно');
+                clearDealForm();
+                $('#send_new_deal').prop('disabled', false);
+                $('#popup-create_deal').css('display', 'none');
+            }).catch((err) => {
+                $('#send_new_deal').prop('disabled', false);
+                showAlert(err);
+            });
+        } else {
+            showAlert('Заполните поле суммы и дату.');
+        }
+    }, 500));
 
     //Find duplicates
     $('#duplicates').on('click', function () {

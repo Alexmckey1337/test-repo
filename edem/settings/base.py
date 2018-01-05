@@ -298,6 +298,7 @@ CELERYBEAT_SCHEDULE = {
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'apps.account.api.serializers.UserSerializer',
+    'LOGIN_SERIALIZER': 'apps.account.api.serializers.RestAuthLoginSerializer'
 }
 OLD_PASSWORD_FIELD_ENABLED = True
 
