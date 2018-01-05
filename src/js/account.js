@@ -45,9 +45,13 @@ $('document').ready(function () {
     const USER_ID = $('body').data('user'),
           PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
           ID = getLastId();
-    let managerSelect = $('#manager_select');
-    renderDealTable({done: 'False'});
-    renderPaymentTable();
+    let managerSelect = $('#manager_select'),
+        userIsPartner = $('.left-contentwrap').attr('data-partner');
+
+    if (userIsPartner === 'True') {
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
+    }
 
     function parseFunc(data, params) {
         params.page = params.page || 1;

@@ -30,7 +30,7 @@ export function makeHomeLiderReportsTable(data, config = {}) {
         let url = e.target.getAttribute('data-url'),
             type = e.target.getAttribute('data-type'),
             nameId = e.target.getAttribute('data-id');
-        window.location = `${url}?status=${type}&owner=${nameId}`;
+        window.location = `${url}?is_submitted=${type}&owner=${nameId}`;
     });
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);

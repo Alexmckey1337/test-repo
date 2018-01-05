@@ -6,8 +6,10 @@ import os
 import traceback
 
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from rest_auth.serializers import LoginSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import raise_errors_on_nested_writes
@@ -425,3 +427,80 @@ class DuplicatesAvoidedSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'last_name', 'first_name', 'middle_name', 'phone_number',
                   'master', 'city', 'link')
+
+
+class RestAuthLoginSerializer(LoginSerializer):
+    email = serializers.CharField(required=False, allow_blank=True)
+
+    def _validate_user_id(self, user_id, password):
+        user = None
+
+        if user_id and password:
+            user = authenticate(user_id=user_id, password=password)
+        else:
+            msg = _('Must include "email" and "password".')
+            raise ValidationError(msg)
+
+        return user
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        user = None
+
+        if 'allauth' in settings.INSTALLED_APPS:
+            from allauth.account import app_settings
+
+            # Authentication through email
+            if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.EMAIL:
+                user = self._validate_email(email, password)
+
+            # Authentication through username
+            if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.USERNAME:
+                user = self._validate_username(username, password)
+
+            # Authentication through either username or email
+            else:
+                user = self._validate_username_email(username, email, password)
+
+        else:
+            # Authentication without using allauth
+            if email and email.isdigit():
+                user = self._validate_user_id(email, password)
+            elif email:
+                try:
+                    username = CustomUser.objects.get(email__iexact=email, can_login=True).get_username()
+                except CustomUser.DoesNotExist:
+                    if CustomUser.objects.filter(email__iexact=email).exists():
+                        msg = _('Вы не имеете право для входа на сайт.')
+                        raise ValidationError(msg)
+                    msg = _('Пользователя с таким email не существует.')
+                    raise ValidationError(msg)
+                except CustomUser.MultipleObjectsReturned:
+                    msg = _('Есть несколько пользователей с таким email.')
+                    raise ValidationError(msg)
+
+            if username:
+                user = self._validate_username_email(username, '', password)
+
+        # Did we get back an active user?
+        if user:
+            if not user.is_active:
+                msg = _('User account is disabled.')
+                raise ValidationError(msg)
+        else:
+            msg = _('Unable to log in with provided credentials.')
+            raise ValidationError(msg)
+
+        # If required, is the email verified?
+        if 'rest_auth.registration' in settings.INSTALLED_APPS:
+            from allauth.account import app_settings
+            if app_settings.EMAIL_VERIFICATION == app_settings.EmailVerificationMethod.MANDATORY:
+                email_address = user.emailaddress_set.get(email=user.email)
+                if not email_address.verified:
+                    raise serializers.ValidationError(_('E-mail is not verified.'))
+
+        attrs['user'] = user
+        return attrs

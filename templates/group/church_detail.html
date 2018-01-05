@@ -39,7 +39,7 @@
 
 {% block main.content %}
     <div class="content content_anketa">
-        <div class="left-contentwrap accordion" data-id="{{ church.id }}">
+        <div class="left-contentwrap accordion" data-id="{{ church.id }}" data-partner="{{ church.partners.exists }}">
             <div class="left-content">
                 <div class="user-fiowrap">
                     <div class="user-fio">
@@ -272,9 +272,11 @@
                                     </label>
                                     <label>
                                         <span class="label_block">Не партнеров:</span>
-                                        <p class="count"><a href="{% url 'db:people' %}" target="_blank">
-                                            <span id="no_partners_count">{{ no_partners_count }}</span>
-                                        </a></p>
+                                        <p class="count">
+                                            <a href="{% url 'db:people' %}" id="no_partners-link">
+                                            <span>{{ no_partners_count }}</span>
+                                        </a>
+                                        </p>
                                     </label>
                                 </div>
                             </div>

@@ -32,6 +32,7 @@ SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
 ASTERISK_SERVICE_ADDRESS = 'http://asterisk:8080'
 VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
+
 APP_DEVICE_ID_FIELD = 'HTTP_DEVICE_ID'
 APP_DEVICE_ID_EXPIRE = 30 * 24 * 60 * 60  # 30 days
 
@@ -298,6 +299,7 @@ CELERYBEAT_SCHEDULE = {
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'apps.account.api.serializers.UserSerializer',
+    'LOGIN_SERIALIZER': 'apps.account.api.serializers.RestAuthLoginSerializer'
 }
 OLD_PASSWORD_FIELD_ENABLED = True
 

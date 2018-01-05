@@ -1,14 +1,14 @@
 # -*- coding: utf-8
+import json
+import requests
 from rest_framework.decorators import api_view
 from django.core.exceptions import ObjectDoesNotExist
 from apps.account.models import CustomUser as User
-from datetime import datetime
-import json
-import requests
 from rest_framework.response import Response
 from rest_framework import status, exceptions
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from datetime import datetime
 
 
 class ServiceUnavailable(exceptions.APIException):
@@ -173,8 +173,3 @@ def change_asterisk_user(request):
     result = {'result': result}
 
     return Response(result, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def users_without_calls(request):
-    pass
