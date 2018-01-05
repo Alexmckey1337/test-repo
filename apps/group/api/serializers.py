@@ -58,7 +58,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
         model = HomeGroup
         fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
                   'church', 'leader', 'address', 'phone_number', 'get_title',
-                  'website', 'count_users')
+                  'website', 'count_users', 'image')
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
@@ -101,7 +101,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'report_currency')
+                  'phone_number', 'report_currency', 'image')
 
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')

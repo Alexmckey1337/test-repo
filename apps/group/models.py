@@ -49,6 +49,8 @@ class Church(CommonGroup):
     is_open = models.BooleanField(default=False)
     report_currency = models.IntegerField(default=get_default_currency, verbose_name=_('Report Currency'))
 
+    image = models.ImageField(_('Church Image'), upload_to='churches/', blank=True, null=True)
+
     objects = ChurchManager()
 
     def save(self, *args, **kwargs):
@@ -84,6 +86,8 @@ class HomeGroup(CommonGroup):
     church = models.ForeignKey('Church', related_name='home_group',
                                on_delete=models.PROTECT, verbose_name=_('Church'))
     active = models.BooleanField(default=True)
+
+    image = models.ImageField(_('Home Group Image'), upload_to='home_groups/', blank=True, null=True)
 
     objects = HomeGroupManager()
 
