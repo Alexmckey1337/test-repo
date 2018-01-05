@@ -209,7 +209,7 @@ $('document').ready(function () {
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
         let idChurch = $('.accordion').attr('data-id');
-        editCh1urches($(this), idChurch);
+        editChurches($(this), idChurch);
         let pastorLink = '/account/' + $(this).closest('form').find('#editPastorSelect').val();
         pasteLink($('#editPastorSelect'), pastorLink);
         let webLink = $(this).closest('form').find('#web_site').val();
