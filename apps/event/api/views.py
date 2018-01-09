@@ -150,11 +150,11 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
     @staticmethod
     def validate_to_submit(meeting, data):
-        # if Meeting.objects.filter(owner=meeting.owner, status=Meeting.EXPIRED).exists() and \
-        #                 meeting.status == Meeting.IN_PROGRESS:
-        #     raise exceptions.ValidationError({
-        #         'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
-        #     })
+        if Meeting.objects.filter(owner=meeting.owner, status=Meeting.EXPIRED).exists() and \
+                        meeting.status == Meeting.IN_PROGRESS:
+            raise exceptions.ValidationError({
+                'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
+            })
         data._mutable = True
 
         if meeting.type.code == 'service' and data.get('total_sum'):
