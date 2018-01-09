@@ -17,4 +17,5 @@ urlpatterns = [
 
     url(r'^', include('apps.status.api.urls')),
     url(r'^', include('apps.summit.api.urls')),
+    url(r'^', include('apps.controls.api.urls')),
 ]
