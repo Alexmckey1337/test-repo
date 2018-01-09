@@ -14,6 +14,7 @@ const USER = {
     set_partner_role: (id) => `/api/v1.0/users/${id}/set_partner_role/`,
     update_partner_role: (id) => `/api/v1.0/users/${id}/update_partner_role/`,
     delete_partner_role: (id) => `/api/v1.0/users/${id}/delete_partner_role/`,
+    managers: () => `/api/v1.1/users/partner_managers/`,
 };
 
 const SUMMIT = {
@@ -84,6 +85,8 @@ const EVENT = {
 const PARTNER = {
     detail: (partnerId) => `/api/v1.1/partnerships/${partnerId}/`,
     list: () => `/api/v1.1/partnerships/`,
+    church_detail: (partnerId) => `/api/v1.0/church_partners/${partnerId}/`,
+    church_list: () => `/api/v1.0/church_partners/`,
     create_payment: (partnerId) => `/api/v1.1/partnerships/${partnerId}/create_payment/`,
     stats_payment: () => `/api/v1.1/partnerships/stats_payments/`,
     stats_deal: () => `/api/v1.1/partnerships/stat_deals/`,
@@ -92,6 +95,10 @@ const PARTNER = {
     managers_summary: () => `/api/v1.1/partnerships/managers_summary/`,
     manager_summary: (id) => `/api/v1.1/partnerships/${id}/manager_summary/`,
     set_managers_plan: (id) => `/api/v1.1/partnerships/${id}/set_plan/`,
+    last_deals: (id) => `/api/v1.0/partners/${id}/last_deals/`,
+    last_payments: (id) => `/api/v1.0/partners/${id}/last_payments/`,
+    church_last_deals: (id) => `/api/v1.0/church_partners/${id}/last_deals/`,
+    church_last_payments: (id) => `/api/v1.0/church_partners/${id}/last_payments/`,
 };
 
 const DEAL = {
@@ -143,6 +150,12 @@ const PAYMENT = {
     deals: () => `/api/v1.0/payments/deal/`,
     edit_payment: (id) => `/api/v1.0/payments/${id}/`,
     payment_detail: (id) => `/api/v1.0/payments/${id}/detail/`,
+    supervisors: () => `/api/v1.0/payments/supervisors/`,
+};
+
+const EXPORT = {
+    partners: () => `/api/v1.1/partnerships/export/`,
+    church_partners: () => `/api/v1.0/church_partners/export/`,
 };
 
 const PHONE = {
@@ -186,6 +199,7 @@ const URLS = {
     church: CHURCH,
     home_group: HOME_GROUP,
     phone: PHONE,
+    export: EXPORT,
 };
 
 export default URLS;

@@ -12,7 +12,7 @@ services:
     image: reg.sobsam.com/postgres:10
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-      - postgres_backup_dev:/backups
+      - /Users/volodimir/Downloads/:/backups
     environment:
       - POSTGRES_USER=crm_user
       - POSTGRES_DB=crm_db
@@ -64,7 +64,6 @@ services:
     links:
       - postgres
       - redis
-      - es
 
   celeryworker:
     container_name: celeryworker_dev

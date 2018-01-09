@@ -317,16 +317,17 @@ export function makeUsersFromDatabaseList(config = {}, id) {
 
 export function editHomeGroups(el, id) {
     let data = {
-        leader: $($(el).closest('form').find('#homeGroupLeader')).val(),
-        phone_number: $($(el).closest('form').find('#phone_number')).val(),
-        website: ($(el).closest('form').find('#web_site')).val(),
-        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
-        city: $($(el).closest('form').find('#city')).val(),
-        address: $($(el).closest('form').find('#address')).val()
+        leader: $($(el).closest('ul').find('#homeGroupLeader')).val(),
+        phone_number: $($(el).closest('ul').find('#phone_number')).val(),
+        website: ($(el).closest('ul').find('#web_site')).val(),
+        opening_date: $($(el).closest('ul').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        city: $($(el).closest('ul').find('#city')).val(),
+        address: $($(el).closest('ul').find('#address')).val()
     };
 
     saveHomeGroupsData(data, id).then(function () {
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
+        console.log($input);
         $input.each(function (i, elem) {
             $(this).attr('disabled', true);
             $(this).attr('readonly', true);
@@ -340,7 +341,7 @@ export function editHomeGroups(el, id) {
         });
         $(el).removeClass('active');
         $(el).closest('form').find('.edit').removeClass('active');
-        let success = $($(el).closest('form').find('.success__block'));
+        let success = $($(el).closest('form').closest('div').find('.success__block'));
         $(success).text('Сохранено');
         setTimeout(function () {
             $(success).text('');

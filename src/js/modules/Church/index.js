@@ -68,7 +68,7 @@ export function createChurchesTable(config = {}) {
             callback: createChurchesTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesTable, ".table-wrap th");
@@ -250,7 +250,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
             callback: createChurchesDetailsTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
@@ -315,6 +315,7 @@ export function makeUsersFromDatabaseList(config = {}) {
                             <tr>
                                 <th>ФИО</th>
                                 <th>Страна/город</th>
+                                <th>Ответственный</th>
                                 <th>Действие</th>
                             </tr>
                         </thead>
@@ -325,6 +326,7 @@ export function makeUsersFromDatabaseList(config = {}) {
                             </a>
                         </td>
                         <td>${item.country}/${item.city}</td>
+                        <td>${item.master.fullname}</td>
                         <td>
                             <button data-id="${item.id}"
                                     ${(!item.can_add) && 'disabled'}>
@@ -449,7 +451,7 @@ function createChurchesUsersTable(id, config = {}) {
             callback: createChurchesUsersTable
         };
         makePagination(paginationConfig);
-        fixedTableHead();
+        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
     })
@@ -474,18 +476,18 @@ export function reRenderTable(config) {
 
 export function editChurches(el, id) {
     let data = {
-        pastor: $($(el).closest('form').find('#editPastorSelect')).val(),
-        department: $($(el).closest('form').find('#editDepartmentSelect')).val(),
-        phone_number: $($(el).closest('form').find('#phone_number')).val(),
-        website: ($(el).closest('form').find('#web_site')).val(),
-        opening_date: $($(el).closest('form').find('#opening_date')).val().split('.').reverse().join('-') || null,
+        pastor: $($(el).closest('ul').find('#editPastorSelect')).val(),
+        department: $($(el).closest('ul').find('#editDepartmentSelect')).val(),
+        phone_number: $($(el).closest('ul').find('#phone_number')).val(),
+        website: ($(el).closest('ul').find('#web_site')).val(),
+        opening_date: $($(el).closest('ul').find('#opening_date')).val().split('.').reverse().join('-') || null,
         is_open: $('#is_open_church').is(':checked'),
-        country: $($(el).closest('form').find('#country')).val(),
-        city: $($(el).closest('form').find('#city')).val(),
-        address: $($(el).closest('form').find('#address')).val(),
-        report_currency: $($(el).closest('form').find('#report_currency')).val()
+        country: $($(el).closest('ul').find('#country')).val(),
+        city: $($(el).closest('ul').find('#city')).val(),
+        address: $($(el).closest('ul').find('#address')).val(),
+        report_currency: $($(el).closest('ul').find('#report_currency')).val()
     };
-    saveChurchData(data, id).then(function (data) {
+    saveChurchData(data, id).then(function () {
         $(el).closest('form').find('.edit').removeClass('active');
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
         $input.each(function (i, elem) {
@@ -500,7 +502,7 @@ export function editChurches(el, id) {
             }
         });
         $(el).removeClass('active');
-        let success = $($(el).closest('form').find('.success__block'));
+        let success = $($(el).closest('form').closest('div').find('.success__block'));
         $(success).text('Сохранено');
         setTimeout(function () {
             $(success).text('');

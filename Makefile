@@ -1,5 +1,8 @@
 .PHONY: install install_local docs collectstatic
 
+APP?=vocrm
+CONTAINER_IMAGE?=reg.sobsam.com/${APP}
+
 install:
 	pip install -r requirements/production.txt
 
@@ -12,9 +15,24 @@ docs:
 	cd docs && sphinx-build -b html -d build/doctrees source build/html
 	@xdg-open docs/build/html/index.html >& /dev/null || open docs/build/html/index.html >& /dev/null || true
 
-collectstatic:
+static:
+	rm -rf ./public/static/
 	python manage.py collectstatic --noinput --settings edem.settings.base
 	bower install
 	npm install
 	gulp build
 	npm run development
+	rm -rf ./node_modules/
+
+collectstatic:
+	rm -rf ./public/static/
+	bower install
+	npm install
+	npm run build
+	rm -rf ./node_modules/
+
+build: collectstatic
+	docker build -t $(CONTAINER_IMAGE):latest .
+
+push: build
+	docker push $(CONTAINER_IMAGE):latest

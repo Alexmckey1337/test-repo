@@ -30,8 +30,9 @@ FILEBROWSER_DIRECTORY = 'uploads'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
-ASTERISK_SERVICE_ADDRESS = 'http://localhost:8080'
+ASTERISK_SERVICE_ADDRESS = 'http://asterisk:8080'
 VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
+
 APP_DEVICE_ID_FIELD = 'HTTP_DEVICE_ID'
 APP_DEVICE_ID_EXPIRE = 30 * 24 * 60 * 60  # 30 days
 
@@ -44,9 +45,6 @@ ALLOWED_HOSTS = ['vocrm.net']
 # Application definition
 DJANGO_APPS = (
     'django.contrib.contenttypes',
-    'grappelli.dashboard',
-    'grappelli',
-    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sessions',
@@ -59,12 +57,10 @@ THIRD_PARTY_APPS = (
     'import_export',
     'rest_framework',
     # 'rest_framework.authtoken',
-    'djcelery',
     'django_filters',
 
     'rest_auth',
     'corsheaders',
-    'dbmail',
     'tinymce',
     # 'rest_auth.registration',
     'channels',
@@ -85,6 +81,7 @@ LOCAL_APPS = (
     'apps.status.apps.StatusConfig',
     'apps.summit.apps.SummitConfig',
     'apps.task.apps.TaskConfig',
+    'apps.zmail.apps.ZMailConfig',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -96,7 +93,6 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'common.middleware.HardAuthenticationMiddleware',
     'common.middleware.ManagerAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -194,9 +190,6 @@ USE_TZ = False
 
 LOCALE_PATHS = (str(BASE_DIR.path('locale')),)
 
-GRAPPELLI_SWITCH_USER = True
-GRAPPELLI_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 MEDIA_ROOT = str(BASE_DIR.path('public/media'))
@@ -258,8 +251,6 @@ DEFAULT_FROM_EMAIL = 'testzormail@gmail.com'
 
 #  CELERY
 INSTALLED_APPS += ('edem.settings.celery.CeleryConfig',)
-# if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
-INSTALLED_APPS += ('kombu.transport.django',)
 BROKER_URL = env('CELERY_BROKER_URL', default='django://')
 if BROKER_URL == 'django://':
     CELERY_RESULT_BACKEND = 'redis://'
@@ -306,12 +297,9 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
-import djcelery
-
-djcelery.setup_loader()
-
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'apps.account.api.serializers.UserSerializer',
+    'LOGIN_SERIALIZER': 'apps.account.api.serializers.RestAuthLoginSerializer'
 }
 OLD_PASSWORD_FIELD_ENABLED = True
 

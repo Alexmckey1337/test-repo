@@ -3,6 +3,7 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import URLS from './modules/Urls/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
@@ -14,7 +15,9 @@ $(document).ready(function () {
     let $treeFilter = $("#tree_filter");
 
     $('#export_table').on('click', function () {
-        exportTableData(this);
+        let type = $('#statusTabs').find('.current button').attr('data-type'),
+            url = (type === 'people') ? URLS.export.partners() : URLS.export.church_partners();
+        exportTableData(this, {}, 'search_fio', url);
     });
 
     $('#accountable').select2().on('select2:open', function () {
@@ -26,11 +29,11 @@ $(document).ready(function () {
         getPartners({page: 1});
     }, 500));
 
-    getPartners({});
+    getPartners();
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(getPartners);
+        updateSettings(getPartners, 'partner',);
     });
 
     $('#filter_button').on('click', function () {
@@ -124,7 +127,6 @@ $(document).ready(function () {
     $('.selectdb').select2().on('select2:open', function () {
         $('.select2-search__field').focus();
     });
-
     $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         selectOtherYears: false,
@@ -140,6 +142,16 @@ $(document).ready(function () {
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
+    });
+
+    //Tabs
+    $('#statusTabs').on('click', 'button', function () {
+        $('#statusTabs').find('li').each(function () {
+            $(this).removeClass('current');
+        });
+        $(this).parent().addClass('current');
+        $('.preloader').css('display', 'block');
+        getPartners();
     });
 
 });

@@ -1,6 +1,7 @@
 'use strict';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import getData from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import {showAlert} from "../ShowNotifications/index";
@@ -13,6 +14,7 @@ import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import OrderTable from '../Ordering/index';
 import fixedTableHead from '../FixedHeadTable/index';
+import reverseDate from '../Date/index';
 
 export function createPayment(data, id) {
     let resData = {
@@ -227,8 +229,9 @@ export function deleteDealsPayment(id) {
     }
 }
 
-export function showPayments(id) {
-    getPayment(id).then(function (data) {
+export function showPayments(id, type) {
+    let url = (type === 'people') ? URLS.deal.payments(id) : URLS.church_deal.payments(id);
+    getData(url).then(function (data) {
         let payments_table = '';
         let sum, date_time, manager;
         data.forEach(function (payment) {
@@ -242,25 +245,26 @@ export function showPayments(id) {
     })
 }
 
-function getPayment(id) {
-    return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.deal.payments(id), null, function (data) {
-            resolve(data);
-        }, 'GET', true, {
-            'Content-Type': 'application/json'
-        }, {
-            403: function (data) {
-                data = data.responseJSON;
-                reject();
-                showAlert(data.detail)
-            }
-        })
-    })
-}
+// function getPayment(id) {
+//     return new Promise(function (resolve, reject) {
+//         ajaxRequest(URLS.deal.payments(id), null, function (data) {
+//             resolve(data);
+//         }, 'GET', true, {
+//             'Content-Type': 'application/json'
+//         }, {
+//             403: function (data) {
+//                 data = data.responseJSON;
+//                 reject();
+//                 showAlert(data.detail)
+//             }
+//         })
+//     })
+// }
 
-export function createPaymentsTable(config) {
+export function createPaymentsTable(config = {}) {
     Object.assign(config, getSearch('search_purpose_fio'));
     Object.assign(config, getFilterParam());
+    Object.assign(config, getPreFilterParam());
     Object.assign(config, getOrderingData());
     getPaymentsDeals(config).then(function (data) {
         let count = data.count,
@@ -291,25 +295,49 @@ export function createPaymentsTable(config) {
     });
 }
 
-function getPaymentsDeals(config) {
+function getPaymentsDeals(data) {
     return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.payment.deals(),
-            method: 'GET',
-            data: config,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        let config = {
+            search: "",
+            page: 1
         };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
+        Object.assign(config, data);
+        getData(URLS.payment.deals(), config).then(function (data) {
+            console.log(config)
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
             }
-
-        };
-        newAjaxRequest(data, status, reject)
+        });
+        // let data = {
+        //     url: URLS.payment.deals(),
+        //     method: 'GET',
+        //     data: config,
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        // };
+        // let status = {
+        //     200: function (req) {
+        //         resolve(req)
+        //     },
+        //     403: function () {
+        //         reject('Вы должны авторизоватся')
+        //     }
+        //
+        // };
+        // newAjaxRequest(data, status, reject)
     });
+}
+
+export function getPreFilterParam() {
+    let data = {},
+        rangeDate = $('#date_deal').val();
+    if (rangeDate) {
+        data.purpose_date_from = reverseDate(rangeDate, '-');
+        data.purpose_date_to = reverseDate(rangeDate, '-');
+    }
+
+    return data
 }

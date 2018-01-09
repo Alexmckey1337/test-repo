@@ -79,10 +79,10 @@ class Summit(models.Model):
     #: Currency of full_cost and special_cost
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
-    #: Template for sending tickets. This template using in dbmail.
-    mail_template = models.ForeignKey('dbmail.MailTemplate', related_name='summits',
-                                      verbose_name=_('Mail template'),
-                                      null=True, blank=True)
+    #: Template for sending tickets.
+    zmail_template = models.ForeignKey('zmail.ZMailTemplate', on_delete=models.SET_NULL, related_name='summits',
+                                       verbose_name=_('Mail template'),
+                                       null=True, blank=True)
     OPEN, CLOSE = 'open', 'close'
     STATUSES = (
         (OPEN, _('Open')),
@@ -423,6 +423,10 @@ class AnketEmail(models.Model):
     error_message = models.TextField(_('Error message'), blank=True)
     is_success = models.BooleanField(_('Is success'), default=True)
     attach = models.FileField(_('Attach'), upload_to='tickets', null=True, blank=True)
+    #: Template for sending tickets.
+    zmail_template = models.ForeignKey('zmail.ZMailTemplate', on_delete=models.SET_NULL, related_name='profile_emails',
+                                       verbose_name=_('Mail template'),
+                                       null=True, blank=True)
 
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
 

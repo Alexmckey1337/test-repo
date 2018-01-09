@@ -174,11 +174,11 @@
                 <td class="url"
                     data-url="{% url 'events:church_report_list' %}"
                     <% if (key == 'reports_expired') { %>
-                        data-type="3"
+                        data-type="false"
                     <% } else if (key == 'reports_in_progress') { %>
-                        data-type="1"
+                        data-type="false"
                     <% } else { %>
-                        data-type="2"
+                        data-type="true"
                     <% } %>
                     <% if (results[index].id != null) { %>
                         data-id="<%=results[index].id%>">

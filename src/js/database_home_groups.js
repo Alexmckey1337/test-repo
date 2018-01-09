@@ -133,7 +133,7 @@ $('document').ready(function () {
 
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(createHomeGroupsTable);
+        updateSettings(createHomeGroupsTable, 'home_group');
     });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
@@ -220,7 +220,7 @@ $('document').ready(function () {
         showConfirm('Удаление', 'Вы действительно хотите удалить данную дом. группу?', function () {
             deleteData(URLS.home_group.detail(id)).then(() => {
                 showAlert('Домашняя группа успешно удалена!');
-                $('#quickEditCartPopup').css('display', 'none');
+                $('#quickEditCartPopup').removeClass('active');
                 $('.bg').removeClass('active');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
@@ -234,7 +234,7 @@ $('document').ready(function () {
                         let force = JSON.stringify({"force": true});
                         deleteData(URLS.home_group.detail(id), {body: force}).then(() => {
                             showAlert('Домашняя группа успешно удалена!');
-                            $('#quickEditCartPopup').css('display', 'none');
+                            $('#quickEditCartPopup').removeClass('active');
                             $('.bg').removeClass('active');
                             $('.preloader').css('display', 'block');
                             let page = $('.pagination__input').val();

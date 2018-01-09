@@ -38,7 +38,7 @@ services:
       - nginx_vhost:/etc/nginx/vhost.d
       - nginx_html:/usr/share/nginx/html
       - "./compose/nginx/certs:/etc/nginx/certs:ro"
-      - "./compose/nginx/templates/500.html:/etc/nginx/templates/500.html:ro"
+      - "./compose/nginx/templates/502.html:/etc/nginx/templates/502.html:ro"
       - nginx_data:/app/public
     depends_on:
       - django

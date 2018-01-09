@@ -37,22 +37,22 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="content content_anketa accordion">
-        <div class="left-contentwrap">
+    <div class="content content_anketa">
+        <div class="left-contentwrap accordion" data-id="{{ church.id }}" data-partner="{{ church.partners.exists }}">
             <div class="left-content">
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
+                            {#                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>#}
                             <hgroup>
                                 <h3 id="fullName">{{ church.get_title }}</h3>
                             </hgroup>
                         </div>
                         <div class="anketa-photo">
                             {% if church.image %}
-                                <img src="{{ account.image.url }}" alt="photo">
+                                <img src="{{ church.image.url }}" alt="photo">
                             {% else %}
-                                <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                                <i class="fa fa-picture-o" aria-hidden="true"></i>
                             {% endif %}
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                 <ul class="right-info">
                     <li class="hidden" id="editNameBlock" data-edit="editNameBtn">
                         <div class="right-info__block">
-                            <h4>Пользовательские данные</h4>
+                            <h4>Данные церкви</h4>
                             <div class="success__block"></div>
                             <form action="/" name="editName" data-action="update-user">
                                 <button class="save__info after__hidden" type="submit"></button>
@@ -122,7 +122,8 @@
                                                    data-validation="email" data-validation-optional="true" readonly>
                                         </label>
                                         <label>
-                                            <span class="label_block"><i class="fa fa-globe" aria-hidden="true"></i></span>
+                                            <span class="label_block"><i class="fa fa-globe"
+                                                                         aria-hidden="true"></i></span>
                                             <input type="text" name="skype" value="{{ church.website }}" readonly>
                                         </label>
                                     </div>
@@ -130,310 +131,307 @@
                             </form>
                         </div>
                     </li>
-                </ul>
-            </div>
-            <h2 class="info-title">Основная информация:</h2>
-            <div class="info">
-                <form action="/" id="editChurchForm" name="editChurch" data-id="{{ church.id }}">
-                    <button class="edit"></button>
-                    <button class="save__info" type="submit"></button>
-                    <div class="success__block"></div>
-                    <div class="popup_body">
-                        <div class="container container_block">
-                            <label>
-                                <span class="label_block">Открыта</span>
-                                <div class="input">
-                                    <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %}
-                                           readonly disabled="disabled">
-                                    <div></div>
+                    <li id="editOpen">
+                        <div class="right-info__block">
+                            <h4>Контактные данные</h4>
+                            <div class="success__block"></div>
+                            <form action="/" id="editOpenForm" name="editOpen" data-action="update-user">
+                                <button class="edit" data-edit-block="editOpen"></button>
+                                <button class="save__info" type="submit"></button>
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Открыта</span>
+                                            <input type="checkbox" id="is_open_church"
+                                                   {% if church.is_open %}checked{% endif %}
+                                                   readonly disabled="disabled">
+                                            <div></div>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Дата открытия</span>
+                                            <div class="input">
+                                                <input type="text" class="date" id="opening_date"
+                                                       value="{{ church.opening_date }}"
+                                                       disabled="disabled" readonly>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
-                            </label>
-                            <label>
-                                <span class="label_block">Дата открытия</span>
-                                <div class="input">
-                                    <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}"
-                                           disabled="disabled" readonly>
-                                </div>
-                            </label>
-                            <label>
-                                <span class="label_block">Отдел:</span>
-                                <select name="" id="editDepartmentSelect" readonly="readonly" disabled="disabled">
-                                    <option value="{{ church.department.id }}">{{ church.department }}</option>
-                                </select>
-                            </label>
-                            <label>
-                                <span class="label_block">Пастор:</span>
-                                <div class="input">
-                                    <select name="" id="editPastorSelect" readonly="readonly" disabled="disabled">
-                                        <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>
-                                    </select>
-                                    <a href="{{ church.pastor.get_absolute_url }}" target="_blank">
-                                        <i class="fa fa-external-link" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </label>
-                            <label>
-                                <span class="label_block">Страна:</span>
-                                <input type="text" id="country" value="{{ church.country }}" readonly>
-                            </label>
-                            <label>
-                                <span class="label_block">Город:</span>
-                                <input type="text" id="city" value="{{ church.city }}" readonly>
-                            </label>
-                            <label>
-                                <span class="label_block">Адрес:</span>
-                                <input type="text" id="address" value="{{ church.address }}" readonly>
-                            </label>
-                            <label>
-                                <span class="label_block">Телефон:</span>
-                                <input type="text" id="phone_number" value="{{ church.phone_number }}" readonly>
-                            </label>
-                            <label>
-                                <span class="label_block">Сайт:</span>
-                                <div class="input">
-                                    <input type="text" id="web_site" value="{{ church.website }}" readonly>
-                                    <a href="{{ church.website }}" target="_blank" id="site-link"
-                                       {% if not church.website %}class="link-hide"{% endif %}>
-                                        <i class="fa fa-external-link" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </label>
-                            <label>
-                                <span class="label_block">Валюта:</span>
-                                <div class="input">
-                                    <select id="report_currency" readonly="readonly" disabled="disabled">
-                                        {% for currency in currencies %}
-                                            <option value="{{ currency.id }}"
-                                                    {% if currency.id == church.report_currency %}selected{% endif %}>{{ currency.short_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </label>
+                            </form>
                         </div>
-                    </div>
-                </form>
+                    </li>
+                    <li id="editDepartment">
+                        <div class="right-info__block">
+                            <h4>Контактные данные</h4>
+                            <div class="success__block"></div>
+                            <form action="/" id="editDepartmentForm" name="editDepartment" data-action="update-user">
+                                <button class="edit" data-edit-block="editDepartment"></button>
+                                <button class="save__info" type="submit"></button>
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Отдел:</span>
+                                            <select name="" id="editDepartmentSelect" readonly="readonly"
+                                                    disabled="disabled">
+                                                <option value="{{ church.department.id }}">{{ church.department }}</option>
+                                            </select>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Пастор:</span>
+                                            <div class="input">
+                                                <select name="" id="editPastorSelect" readonly="readonly"
+                                                        disabled="disabled">
+                                                    <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>
+                                                </select>
+                                                <a href="{{ church.pastor.get_absolute_url }}" target="_blank">
+                                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editAddress">
+                        <div class="right-info__block">
+                            <h4>Контактные данные</h4>
+                            <div class="success__block"></div>
+                            <form action="/" id="editAddressForm" name="editAddress" data-action="update-user">
+                                <button class="edit" data-edit-block="editAddress"></button>
+                                <button class="save__info" type="submit"></button>
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Страна:</span>
+                                            <input type="text" id="country" value="{{ church.country }}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Город:</span>
+                                            <input type="text" id="city" value="{{ church.city }}" readonly>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editCurrency">
+                        <div class="right-info__block">
+                            <h4>Валюта</h4>
+                            <div class="success__block"></div>
+                            <form action="/" id="editCurrencyForm" name="editCurrency" data-action="update-user">
+                                <button class="edit" data-edit-block="editCurrency"></button>
+                                <button class="save__info" type="submit"></button>
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Валюта:</span>
+                                            <div class="input">
+                                                <select id="report_currency" readonly="readonly" disabled="disabled">
+                                                    {% for currency in currencies %}
+                                                        <option value="{{ currency.id }}"
+                                                                {% if currency.id == church.report_currency %}selected{% endif %}>{{ currency.short_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="right-info__block">
+                            <div class="popup_body">
+                                <div class="container">
+                                    <label>
+                                        <span class="label_block">Прихожан:</span>
+                                        <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span>
+                                        </p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Лидеров:</span>
+                                        <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Отцов:</span>
+                                        <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Юношей:</span>
+                                        <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Младенцев:</span>
+                                        <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Партнеров:</span>
+                                        <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
+                                    </label>
+                                    <label>
+                                        <span class="label_block">Не партнеров:</span>
+                                        <p class="count">
+                                            <a href="{% url 'db:people' %}" id="no_partners-link">
+                                            <span>{{ no_partners_count }}</span>
+                                        </a>
+                                        </p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="right-contentwrap">
             <div class="right-content">
                 <div class="a-block">
                     <div class="top-s">
-                        <h3>Сводная информация</h3>
+                        <h3>Партнерство</h3>
                     </div>
-                    <h2 class="info-title">Сводная информация:</h2>
-                    <div class="info info-calc">
-                        <div class="popup_body">
-                            <div class="container container_block">
-                                <label>
-                                    <span class="label_block">Прихожан:</span>
-                                    <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Лидеров:</span>
-                                    <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Отцов:</span>
-                                    <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Юношей:</span>
-                                    <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Младенцев:</span>
-                                    <p class="count"><span id="babies_count">{{ babies_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Партнеров:</span>
-                                    <p class="count"><span id="partners_count">{{ partners_count }}</span></p>
-                                </label>
-                                <label>
-                                    <span class="label_block">Не партнеров:</span>
-                                    <p class="count"><span id="no_partners_count">{{ no_partners_count }}</span></p>
-                                    <a href="{% url 'db:people' %}" target="_blank" id="no_partners-link">
-                                        <i class="fa fa-external-link" aria-hidden="true"></i>
-                                    </a>
-                                </label>
+                    <div class="a-sdelki accordion-block" id="Sdelki">
+                        <div class="tab-main_status tab-status">
+                            <ul class="tab_main church-tabs">
+                                {% for partner in church.partners.all %}
+                                    <li {% if forloop.first %}
+                                        class="active"
+                                    {% endif %}
+                                        data-tab="{{ forloop.counter }}"
+                                        data-partner="{{ partner.id }}">
+                                        <button>
+                                            <span>{{ partner.title }}</span>
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if user.is_partner_supervisor_or_high %}
+                                <button id="addMorePartners">Добавить партнерскую анкету</button>
+                            {% endif %}
+                        </div>
+                        {% for partner in church.partners.all %}
+                            <div class="partner_block_wrap {% if forloop.first %} active {% endif %}"
+                                 data-partner="{{ partner.id }}"
+                                 data-type="CH"
+                                 data-main_tab="{{ forloop.counter }}">
+                                <div class="partner_wrapper">
+                                    <ul class="right-info">
+                                        <li id="editPartnership{{ forloop.counter }}">
+                                            <div class="right-info__block">
+                                                <h4>Партнерские данные</h4>
+                                                <div class="success__block"></div>
+                                                {% include "account/partials/partner_form.html" with user=church partner=partner count=forloop.counter is_supervisor=request.user.is_partner_supervisor_or_high %}
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div class="note_wrapper">
+                                        <label for="id_need_text{{ forloop.counter }}">Молитвенная нужда</label>
+                                        {% if user.is_partner_manager_or_high %}
+                                            <div class="btn-block">
+                                                <button class="editText"></button>
+                                                <button class="saveNote send_need"
+                                                        data-type="CH"
+                                                        data-partner="{{ partner.id }}">
+
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                        <textarea name="need_text" id="id_need_text{{ forloop.counter }}" rows="15"
+                                                  cols="50"
+                                                  readonly>{{ partner.need_text }}</textarea>
+                                    </div>
+                                </div>
+                                <p class="payment_title">Сделки</p>
+                                <div class="tab-status" id="tabStatus{{ forloop.counter }}">
+                                    <ul class="tabs_deals church-tabs">
+                                        <li data-status="False"
+                                            class="active">
+                                            <button><span>Незавершённые</span></button>
+                                        </li>
+                                        <li data-status="True">
+                                            <button><span>Завершённые</span></button>
+                                        </li>
+                                    </ul>
+                                    <button data-currency="{{ partner.currency.short_name }}"
+                                            data-partner="{{ partner.id }}"
+                                            class="create_new_deal">
+                                        Добавить сделку
+                                    </button>
+                                </div>
+                                <div class="deals_content"></div>
+                                <p class="payment_title">Платежи</p>
+                                <div class="payments_content"></div>
+                            </div>
+                            {% empty %}
+                            <div class="a-sdelki">
+                                <div class="partner_wrapper">
+                                    <ul class="right-info">
+{#                                        <li>Не партнер</li>#}
+                                        <li id="editPartnership">
+                                            <div class="right-info__block">
+                                                <h4>Не партнер</h4>
+{#                                                <div class="success__block"></div>#}
+{#                                                {% include "account/partials/partner_form.html" with user=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}#}
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% include "partner/partials/create_deal.html" %}
+                    </div>
+                </div>
+                <div class="a-block">
+                    <div class="top-s">
+                        <h3>Таблица</h3>
+                    </div>
+                    <div class="accordion-block">
+                        <div class="top-panel tabs-panel">
+                            <div class="tabs">
+                                <ul class="tabs_link church-tabs">
+                                    <li class="mb get_info">
+                                        <button data-link="home_groups"
+                                                data-export-url="{% url "church-export-groups" pk=church.id %}"
+                                                data-editable="false"><span>Количество Домашних групп: <span
+                                                id="home_groups_count">{{ home_groups_count }}</span></span></button>
+                                    </li>
+                                    <li class="get_info">
+                                        <button data-link="all_users"
+                                                data-export-url="{% url "church-export-all-users" pk=church.id %}"
+                                                data-editable="false"><span>Общее количество людей: <span
+                                                id="church_all_users">{{ church_all_users }}</span></span></button>
+                                    </li>
+                                    <li class="mb get_info">
+                                        <button class="active"
+                                                data-export-url="{% url "church-export-users" pk=church.id %}"
+                                                data-link="users" data-editable="true"><span>Люди не в домашних группах: <span
+                                                id="church_users">{{ church_users }}</span></span></button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
+                        <div class="top-pag">
+                            <div class="table__count"></div>
+                            <div class="pagination users__pagination"><!--pagination -->
+                            </div><!--End pagination -->
+                        </div>
+                        <div class="table-wrap clearfix can_edit" id="church" data-id="{{ church.id }}"
+                             data-department_id="{{ church.department.id }}"
+                             data-department_title="{{ church.department }}">
+                            <!--Table -->
+                            <div class="table scrollbar-inner" id="tableUserINChurches"></div>
+                            <div class="query-none">
+                                <p></p>
+                            </div>
+                        </div><!--End Table -->
+                        <div class="table__count"></div>
+                        <div class="pagination users__pagination"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="accordion">
-        {#        <h2 class="info-title">Основная информация:</h2>#}
-        {#        <div class="info">#}
-        {#            <form action="/" id="editChurchForm" name="editChurch" data-id="{{ church.id }}">#}
-        {#                <button class="edit"></button>#}
-        {#                <button class="save__info" type="submit"></button>#}
-        {#                <div class="success__block"></div>#}
-        {#                <div class="popup_body">#}
-        {#                    <div class="container container_block">#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Открыта</span>#}
-        {#                            <div class="input">#}
-        {#                                <input type="checkbox" id="is_open_church" {% if church.is_open %}checked{% endif %}#}
-        {#                                       readonly disabled="disabled">#}
-        {#                                <div></div>#}
-        {#                            </div>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Дата открытия</span>#}
-        {#                            <div class="input">#}
-        {#                                <input type="text" class="date" id="opening_date" value="{{ church.opening_date }}"#}
-        {#                                       disabled="disabled" readonly>#}
-        {#                            </div>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Отдел:</span>#}
-        {#                            <select name="" id="editDepartmentSelect" readonly="readonly" disabled="disabled">#}
-        {#                                <option value="{{ church.department.id }}">{{ church.department }}</option>#}
-        {#                            </select>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Пастор:</span>#}
-        {#                            <div class="input">#}
-        {#                                <select name="" id="editPastorSelect" readonly="readonly" disabled="disabled">#}
-        {#                                    <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>#}
-        {#                                </select>#}
-        {#                                <a href="{{ church.pastor.get_absolute_url }}" target="_blank">#}
-        {#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-        {#                                </a>#}
-        {#                            </div>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Страна:</span>#}
-        {#                            <input type="text" id="country" value="{{ church.country }}" readonly>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Город:</span>#}
-        {#                            <input type="text" id="city" value="{{ church.city }}" readonly>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Адрес:</span>#}
-        {#                            <input type="text" id="address" value="{{ church.address }}" readonly>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Телефон:</span>#}
-        {#                            <input type="text" id="phone_number" value="{{ church.phone_number }}" readonly>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Сайт:</span>#}
-        {#                            <div class="input">#}
-        {#                                <input type="text" id="web_site" value="{{ church.website }}" readonly>#}
-        {#                                <a href="{{ church.website }}" target="_blank" id="site-link"#}
-        {#                                   {% if not church.website %}class="link-hide"{% endif %}>#}
-        {#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-        {#                                </a>#}
-        {#                            </div>#}
-        {#                        </label>#}
-        {#                        <label>#}
-        {#                            <span class="label_block">Валюта:</span>#}
-        {#                            <div class="input">#}
-        {#                                <select id="report_currency" readonly="readonly" disabled="disabled">#}
-        {#                                    {% for currency in currencies %}#}
-        {#                                        <option value="{{ currency.id }}"#}
-        {#                                                {% if currency.id == church.report_currency %}selected{% endif %}>{{ currency.short_name }}</option>#}
-        {#                                    {% endfor %}#}
-        {#                                </select>#}
-        {#                            </div>#}
-        {#                        </label>#}
-        {#                    </div>#}
-        {#                </div>#}
-        {#            </form>#}
-        {#        </div>#}
-        {#        <h2 class="info-title">Сводная информация:</h2>#}
-        {#        <div class="info info-calc">#}
-        {#            <div class="popup_body">#}
-        {#                        <div class="container container_block">#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Прихожан:</span>#}
-        {#                                <p class="count"><span id="parishioners_count">{{ parishioners_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Лидеров:</span>#}
-        {#                                <p class="count"><span id="leaders_count">{{ leaders_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Отцов:</span>#}
-        {#                                <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Юношей:</span>#}
-        {#                                <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Младенцев:</span>#}
-        {#                                <p class="count"><span id="babies_count">{{ babies_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Партнеров:</span>#}
-        {#                                <p class="count"><span id="partners_count">{{ partners_count }}</span></p>#}
-        {#                            </label>#}
-        {#                            <label>#}
-        {#                                <span class="label_block">Не партнеров:</span>#}
-        {#                                <p class="count"><span id="no_partners_count">{{ no_partners_count }}</span></p>#}
-        {#                                <a href="{% url 'db:people' %}" target="_blank" id="no_partners-link">#}
-        {#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-        {#                                </a>#}
-        {#                            </label>#}
-        {#                        </div>#}
-        {#                    </div>#}
-        {#        </div>#}
-    </div>
-    <div class="container">
-        <div class="col-12">
-            <div class="top-panel tabs-panel">
-                <div class="tabs">
-                    <ul class="tabs_link">
-                        <li class="mb get_info">
-                            <button data-link="home_groups"
-                                    data-export-url="{% url "church-export-groups" pk=church.id %}"
-                                    data-editable="false">Количество Домашних групп: <span
-                                    id="home_groups_count">{{ home_groups_count }}</span></button>
-                        </li>
-                        <li class="get_info">
-                            <button data-link="all_users"
-                                    data-export-url="{% url "church-export-all-users" pk=church.id %}"
-                                    data-editable="false">Общее количество людей: <span
-                                    id="church_all_users">{{ church_all_users }}</span></button>
-                        </li>
-                        <li class="mb get_info">
-                            <button class="active" data-export-url="{% url "church-export-users" pk=church.id %}"
-                                    data-link="users" data-editable="true">Люди не в домашних группах: <span
-                                    id="church_users">{{ church_users }}</span></button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% block pagination_top %}
-        <div class="top-pag">
-            <div class="table__count"></div>
-            <div class="pagination users__pagination"><!--pagination -->
-            </div><!--End pagination -->
-        </div>
-    {% endblock %}
-
-    {% block table %}
-        <div class="table-wrap clearfix can_edit" id="church" data-id="{{ church.id }}"
-             data-department_id="{{ church.department.id }}" data-department_title="{{ church.department }}">
-            <!--Table -->
-            <div class="table scrollbar-inner" id="tableUserINChurches"></div>
-            <div class="query-none">
-                <p></p>
-            </div>
-        </div><!--End Table -->
-    {% endblock %}
-
-    {% block pagination_bottom %}
-        <div class="table__count"></div>
-        <div class="pagination users__pagination"></div>
-    {% endblock %}
 {% endblock %}
 
 {% block create_user %}
@@ -494,6 +492,73 @@
             </form>
         </div>
     </div>
+    <div id="popup-create_partners" class="popap">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление партнерской анкеты</h2>
+            </div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="church" value="{{ church.id }}">
+                    <label>
+                        <span class="label_block">Отдел партнерства:</span>
+                        {% get_partner_titles as titles %}
+                        <select class="department_partner selectdb" data-id="title">
+                            {% for t in titles %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тег:</span>
+                        <select class="group selectdb par__group" data-id="group">
+                            <option value="" selected disabled>Выберите тег</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners" data-type="CH">Создать</button>
+            </div>
+        </div>
+    </div>
+    {% include "partials/find_duplicate_deals.html" %}
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>

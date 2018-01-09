@@ -15,8 +15,9 @@ import {btnDeals} from "../Deals/index";
 import {completeChurchPayment, showChurchPayments} from '../Payment/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
+import reverseDate from '../Date';
 
-export function ChurchReportsTable(config) {
+export function ChurchReportsTable(config={}) {
     Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
         makeChurchReportsTable(data);
@@ -24,9 +25,9 @@ export function ChurchReportsTable(config) {
 }
 
 function getChurchReports(config = {}) {
-    if (!config.status) {
-        let status = parseInt($('#statusTabs').find('.current').find('button').data('status'));
-        config.status = status || 1;
+    if (!config.is_submitted) {
+        let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
+        config.is_submitted = is_submitted || 'false';
     }
     return new Promise(function (resolve, reject) {
         let data = {
@@ -50,7 +51,14 @@ function getChurchReports(config = {}) {
 }
 
 function makeChurchReportsTable(data, config = {}) {
-    let tmpl = $('#databaseChurchReports').html();
+        let tmpl = $('#databaseChurchReports').html();
+    _.map(data.results, item => {
+        let date = new Date(reverseDate(item.date, '-')),
+            weekNumber = moment(date).isoWeek(),
+            startDate = moment(date).startOf('isoWeek').format('DD.MM.YY'),
+            endDate = moment(date).endOf('isoWeek').format('DD.MM.YY');
+        item.date = `${weekNumber} нед. (${startDate} - ${endDate})`;
+    });
     let rendered = _.template(tmpl)(data);
     $('#churchReports').html(rendered);
     let count = data.count;
@@ -99,8 +107,8 @@ function makeChurchReportsTable(data, config = {}) {
 }
 
 export function churchReportsTable(config = {}) {
-    let status = $('#statusTabs').find('.current').find('button').data('status');
-    config.status = status;
+    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
+    config.is_submitted = is_submitted;
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getTabsFilterParam());
@@ -196,7 +204,7 @@ export function makeCaption(data) {
     let dateContainer = document.createElement('p');
     let dateTitle = document.createElement('label');
     let dateData = document.createElement('input');
-    $(dateTitle).text('Дата отчёта: ');
+    $(dateTitle).text('Дата служения: ');
     let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
         thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
         thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();

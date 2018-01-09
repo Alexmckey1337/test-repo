@@ -3,11 +3,19 @@ import moment from 'moment/min/moment.min.js';
 import WavPlayer from 'webaudio-wav-stream-player';
 import 'howler';
 import URLS from '../Urls/index';
+import getData,{getDataPhone} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
-import getData,{getDataPhone} from "../Ajax/index";
-import {getCountries, getRegions, getCities} from '../GetList/index';
-import {makeCountriesList, makeRegionsList, makeCityList} from '../MakeList/index';
+import {
+    getCountries,
+    getRegions,
+    getCities
+} from '../GetList/index';
+import {
+    makeCountriesList,
+    makeRegionsList,
+    makeCityList
+} from '../MakeList/index';
 
 export function sendNote(profileId, text, box) {
     let data = {

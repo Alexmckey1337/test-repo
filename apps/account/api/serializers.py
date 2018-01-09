@@ -6,8 +6,10 @@ import os
 import traceback
 
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from rest_auth.serializers import LoginSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import raise_errors_on_nested_writes
@@ -18,7 +20,6 @@ from apps.account.models import CustomUser as User, CustomUser
 from common.fields import ReadOnlyChoiceField
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
-from apps.navigation.models import Table
 from apps.partnership.models import Partnership
 from apps.status.models import Division
 from apps.summit.models import SummitAnket, Summit
@@ -42,6 +43,7 @@ BASE_USER_FIELDS = (
     'departments', 'divisions',
     # read_only
     'fullname',
+    'is_dead', 'is_stable'
 )
 
 
@@ -102,10 +104,11 @@ class PartnershipSerializer(serializers.ModelSerializer):
 class AddExistUserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
     can_add = serializers.BooleanField(read_only=True)
+    master = MasterNameSerializer(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'city', 'country', 'full_name', 'can_add')
+        fields = ('id', 'city', 'country', 'full_name', 'can_add', 'master')
 
 
 def exist_users_with_level_not_in_levels(users, levels):
@@ -182,6 +185,8 @@ class UserUpdateSerializer(BaseUserSerializer):
 
     def update(self, user, validated_data):
         departments = validated_data.pop('departments', None)
+        divisions = validated_data.pop('divisions', None)
+        markers = validated_data.pop('marker', None)
         master = validated_data.get('master', None)
         move_to_master = validated_data.pop('move_to_master', None)
 
@@ -203,6 +208,16 @@ class UserUpdateSerializer(BaseUserSerializer):
 
         if departments is not None and isinstance(departments, (list, tuple)):
             user.departments.set(departments)
+
+            if user.cchurch and user.cchurch.department not in user.departments.all():
+                user.hhome_group = None
+                user.cchurch = None
+                user.save()
+        if divisions is not None:
+            user.divisions.set(divisions)
+        if markers is not None:
+            user.marker.set(markers)
+
         for profile in user.summit_profiles.all():
             profile.save()
         SummitAnket.objects.filter(
@@ -284,18 +299,18 @@ class UserCreateSerializer(BaseUserSerializer):
         except TypeError:
             tb = traceback.format_exc()
             msg = (
-                'Got a `TypeError` when calling `%s.objects.create()`. '
-                'This may be because you have a writable field on the '
-                'serializer class that is not a valid argument to '
-                '`%s.objects.create()`. You may need to make the field '
-                'read-only, or override the %s.create() method to handle '
-                'this correctly.\nOriginal exception was:\n %s' %
-                (
-                    ModelClass.__name__,
-                    ModelClass.__name__,
-                    self.__class__.__name__,
-                    tb
-                )
+                    'Got a `TypeError` when calling `%s.objects.create()`. '
+                    'This may be because you have a writable field on the '
+                    'serializer class that is not a valid argument to '
+                    '`%s.objects.create()`. You may need to make the field '
+                    'read-only, or override the %s.create() method to handle '
+                    'this correctly.\nOriginal exception was:\n %s' %
+                    (
+                        ModelClass.__name__,
+                        ModelClass.__name__,
+                        self.__class__.__name__,
+                        tb
+                    )
             )
             raise TypeError(msg)
 
@@ -327,21 +342,22 @@ class UserTableSerializer(UserSingleSerializer):
     get_church = ChurchNameSerializer(read_only=True)
 
     class Meta(UserSingleSerializer.Meta):
+        fields = BASE_USER_FIELDS + ('get_church',)
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
         # fields = getattr(self.Meta, 'fields', None)
-        if self.context.get('request', None):
-            user = self.context['request'].user
-            if hasattr(user, 'table') and isinstance(user.table, Table):
-                columns = user.table.columns.filter(
-                    columnType__category__title="Общая информация",
-                    active=True).order_by('number').values_list('columnType__title', flat=True)
-            else:
-                columns = list()
-            if 'social' in columns:
-                columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
-            return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
+        # if self.context.get('request', None):
+        #     user = self.context['request'].user
+        #     if hasattr(user, 'table') and isinstance(user.table, Table):
+        #         columns = user.table.columns.filter(
+        #             columnType__category__title="Общая информация",
+        #             active=True).order_by('number').values_list('columnType__title', flat=True)
+        #     else:
+        #         columns = list()
+        #     if 'social' in columns:
+        #         columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
+        #     return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
         return getattr(self.Meta, 'fields', None)
 
 
@@ -411,3 +427,80 @@ class DuplicatesAvoidedSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'last_name', 'first_name', 'middle_name', 'phone_number',
                   'master', 'city', 'link')
+
+
+class RestAuthLoginSerializer(LoginSerializer):
+    email = serializers.CharField(required=False, allow_blank=True)
+
+    def _validate_user_id(self, user_id, password):
+        user = None
+
+        if user_id and password:
+            user = authenticate(user_id=user_id, password=password)
+        else:
+            msg = _('Must include "email" and "password".')
+            raise ValidationError(msg)
+
+        return user
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        user = None
+
+        if 'allauth' in settings.INSTALLED_APPS:
+            from allauth.account import app_settings
+
+            # Authentication through email
+            if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.EMAIL:
+                user = self._validate_email(email, password)
+
+            # Authentication through username
+            if app_settings.AUTHENTICATION_METHOD == app_settings.AuthenticationMethod.USERNAME:
+                user = self._validate_username(username, password)
+
+            # Authentication through either username or email
+            else:
+                user = self._validate_username_email(username, email, password)
+
+        else:
+            # Authentication without using allauth
+            if email and email.isdigit():
+                user = self._validate_user_id(email, password)
+            elif email:
+                try:
+                    username = CustomUser.objects.get(email__iexact=email, can_login=True).get_username()
+                except CustomUser.DoesNotExist:
+                    if CustomUser.objects.filter(email__iexact=email).exists():
+                        msg = _('Вы не имеете право для входа на сайт.')
+                        raise ValidationError(msg)
+                    msg = _('Пользователя с таким email не существует.')
+                    raise ValidationError(msg)
+                except CustomUser.MultipleObjectsReturned:
+                    msg = _('Есть несколько пользователей с таким email.')
+                    raise ValidationError(msg)
+
+            if username:
+                user = self._validate_username_email(username, '', password)
+
+        # Did we get back an active user?
+        if user:
+            if not user.is_active:
+                msg = _('User account is disabled.')
+                raise ValidationError(msg)
+        else:
+            msg = _('Unable to log in with provided credentials.')
+            raise ValidationError(msg)
+
+        # If required, is the email verified?
+        if 'rest_auth.registration' in settings.INSTALLED_APPS:
+            from allauth.account import app_settings
+            if app_settings.EMAIL_VERIFICATION == app_settings.EmailVerificationMethod.MANDATORY:
+                email_address = user.emailaddress_set.get(email=user.email)
+                if not email_address.verified:
+                    raise serializers.ValidationError(_('E-mail is not verified.'))
+
+        attrs['user'] = user
+        return attrs

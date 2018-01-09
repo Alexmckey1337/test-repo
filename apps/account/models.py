@@ -64,8 +64,8 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
                                   on_delete=models.SET_NULL, verbose_name=_('Hierarchy'), db_index=True)
     master = models.ForeignKey('self', related_name='disciples', null=True, blank=True, verbose_name=_('Master'),
                                on_delete=models.PROTECT, db_index=True)
-    manager = models.ForeignKey('self', related_name='skins', null=True, blank=True, verbose_name=_('Manager'),
-                                on_delete=models.PROTECT, db_index=True)
+    managers = models.ManyToManyField('self', related_name='skins', blank=True, verbose_name=_('Manager'),
+                                      symmetrical=False)
 
     extra_phone_numbers = ArrayField(
         models.CharField(_('Number'), max_length=255),
@@ -85,6 +85,9 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
 
     marker = models.ManyToManyField('UserMarker', related_name='users',
                                     verbose_name=_('User Marker'), blank=True)
+
+    is_dead = models.BooleanField(_('Is Dead'), default=False)
+    is_stable = models.BooleanField(_('Is Stable'), default=True)
 
     objects = CustomUserManager()
 
@@ -130,9 +133,9 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     def link(self):
         return self.get_absolute_url()
 
-    # @property
-    # def get_church(self):
-    #     return self.cchurch or self.hhome_group.church
+    @property
+    def get_church(self):
+        return self.cchurch or self.hhome_group.church if self.hhome_group else None
 
     @property
     def column_table(self):

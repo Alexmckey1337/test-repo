@@ -19,8 +19,9 @@
 }
 
 .tabs-panel {
-  margin-top: 3em;
-  background-color: #f2f5fa;
+  //margin-top: 3em;
+  //background-color: #f2f5fa;
+  overflow: hidden;
   & .tabs_link li {
     width: auto;
     height: auto;
@@ -394,8 +395,8 @@
     box-sizing: border-box;
     text-align: center;
     border-bottom: 1px solid #cdd0d4;
-    border-top: 1px solid #cdd0d4;
-    border-right: 1px solid #cdd0d4;
+    //border-top: 1px solid #cdd0d4;
+    //border-right: 1px solid #cdd0d4;
     &.current {
       a{
         color: #656d78;
@@ -917,7 +918,8 @@
   }
 }
 
-#sdelki .tab-status {
+#sdelki .tab-status,
+#partners .tab-status {
   border-bottom: 1px solid #cdd0d4;
 }
 
@@ -975,6 +977,173 @@
     input:checked + label {
       &::before {
         content: '\f0ce';
+      }
+    }
+  }
+}
+
+.prefilter-group {
+  .checkbox_style {
+    margin: 0 10px 0 15px;
+  }
+}
+
+//Anketa
+.a-sdelki .tabs_deals li.active button {
+  background-color: #fff;
+}
+
+.tabs_deals,.tab_main{
+ li{
+   &.active{
+     button{
+       color: #333;
+     }
+   }
+ } 
+}
+.tab_main{
+  li{
+    &.active{
+      border-bottom:none;
+    }
+  }
+}
+
+.partner_block_wrap {
+  .tab-status {
+    border-bottom: 1px solid #cdd0d4;
+    .tabs_deals{
+      position: relative;
+      li {
+        border-bottom: none;
+        position: relative;
+        &:not(:last-child){
+          &::before {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: block;
+            height: 75%;
+            width: 1px;
+            background-color: #cdd0d4;
+            content: '';
+            z-index: 1;
+          }
+        }
+        //&::after {
+        //    position: absolute;
+        //    left: 0;
+        //    bottom: -1px;
+        //    display: block;
+        //    width: 100%;
+        //    height: 1px;
+        //    background-color: #fff;
+        //    content: '';
+        //    z-index: 1;
+        //  }
+        &.active {
+          position: relative;
+          //button{
+          //  color: #3caeda;
+          //}
+        }
+      }
+    }
+  }
+}
+
+.a-sdelki {
+  .tab-main_status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    .tab_main {
+      position: relative;
+    }
+    //.tab_main {
+    //  display: flex;
+    //  justify-content: flex-start;
+    //  height: 100%;
+    //  button {
+    //    height: 100%;
+    //    border-radius: 0;
+    //    padding: 0 10px;
+    //    background-color: transparent;
+    //    color: #000;
+    //  }
+    //  li {
+    //    border-radius: 8px 8px 0 0;
+    //    border: 1px solid #cdd0d4;
+    //    border-left: none;
+    //    border-bottom: none;
+    //    &.active {
+    //      background-color: #e4e4e4;
+    //    }
+    //  }
+    //}
+  }
+}
+
+#addMorePartners {
+  background-color: #fff;
+  font-size: 1.5em;
+  color: #3caeda;
+}
+
+///////church anketa ////
+.church-tabs{
+  &,&:hover{
+    border:none !important;
+  }
+  li,div{
+    border:none !important;
+    position: relative;
+    background-color: transparent !important;
+    &:not(:last-child) {
+      &::before{
+        position: absolute;
+        right: 0;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        display: block;
+        height: 50%;
+        width: 1px;
+        background-color: #cdd0d4;
+        content: '';
+        z-index: 1;
+      }
+    }
+    button,a,p{
+      border:none !important;
+      background-color: transparent !important;
+      font-size: 1.1em !important;
+      font-weight: 600 !important;
+      color: #3caeda !important;
+      transition: none;
+      padding: 15px 10px;
+      &.active{
+        color: #333 !important;
+        & > span {
+          border-bottom: 1px dotted transparent;
+        }
+      }
+      & > span {
+        border-bottom: 1px dotted #3caeda;
+      }
+    }
+    &.active{
+      &::after{
+        display: none !important;
+      }
+      button,a,p{
+        color: #333 !important;
+        &>span{
+          border-bottom:1px dotted transparent;
+        }
       }
     }
   }

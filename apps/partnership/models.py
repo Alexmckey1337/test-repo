@@ -7,20 +7,18 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q, Sum, Value
+from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from apps.analytics.decorators import log_change_payment
 from apps.analytics.models import LogModel
-from apps.partnership.managers import DealManager, PartnerManager
+from apps.partnership.managers import DealManager, PartnerManager, ChurchDealManager
 from apps.payment.models import Payment, get_default_currency, AbstractPaymentPurpose
 
 
-@python_2_unicode_compatible
 class PartnerRole(models.Model):
     user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT, related_name='partner_role')
 
@@ -41,7 +39,6 @@ class PartnerRole(models.Model):
         return '[{}] {}'.format(self.get_level_display(), self.user.fullname)
 
 
-@python_2_unicode_compatible
 class PartnerRoleLog(models.Model):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='partner_role_logs',
                              editable=False)
@@ -74,9 +71,14 @@ class PartnerRoleLog(models.Model):
         )
 
 
-@python_2_unicode_compatible
 class PartnerGroup(models.Model):
     title = models.CharField(_('Partner group'), max_length=255)
+    USER, CHURCH = 'user', 'church'
+    TYPES = (
+        (USER, _('User')),
+        (CHURCH, _('Church')),
+    )
+    type = models.CharField(_('Type'), choices=TYPES, max_length=255, default=USER)
 
     def __str__(self):
         return self.title
@@ -125,7 +127,6 @@ class PartnershipAbstractModel(models.Model):
         return self.currency.output_format.format(**format_data)
 
 
-@python_2_unicode_compatible
 class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='partners')
     #: Payments of the current partner that do not relate to deals of partner
@@ -166,10 +167,7 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
 
         :return: QuerySet
         """
-        return Payment.objects.filter((Q(content_type__model='deal') &
-                                       Q(object_id__in=self.deals.values_list('id', flat=True))) |
-                                      (Q(content_type__model='partnership') &
-                                       Q(object_id=self.id)))
+        return self.deal_payments
 
     def can_user_edit_payment(self, user):
         """
@@ -180,9 +178,6 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
         """
         return (user.is_partner_supervisor_or_high or
                 (user.is_partner_manager and self.responsible == user))
-
-    def payment_page_url(self):
-        return reverse('payment-partner', kwargs={'pk': self.pk})
 
     @property
     def fullname(self):
@@ -225,8 +220,9 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
             .order_by('-date_created')
 
 
-@python_2_unicode_compatible
-class Deal(LogModel, AbstractPaymentPurpose):
+class AbstractDeal(models.Model):
+    partnership = None
+    responsible = None
     value = models.DecimalField(max_digits=12, decimal_places=0,
                                 default=Decimal('0'))
     #: Currency of value
@@ -235,12 +231,8 @@ class Deal(LogModel, AbstractPaymentPurpose):
                                  null=True,
                                  default=get_default_currency)
 
-    partnership = models.ForeignKey('partnership.Partnership', on_delete=models.PROTECT, related_name="deals")
-    responsible = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE,
-                                    related_name='disciples_deals', editable=False,
-                                    verbose_name=_('Responsible of partner'), null=True, blank=True)
     description = models.TextField(blank=True)
-    done = models.BooleanField(default=False)
+    done = models.BooleanField(default=False, help_text=_('Deal is done?'))
     expired = models.BooleanField(default=False)
 
     date_created = models.DateField(null=True, blank=True, default=date.today)
@@ -252,16 +244,10 @@ class Deal(LogModel, AbstractPaymentPurpose):
         (TITHE, _('Tithe'))
     )
 
-    type = models.PositiveSmallIntegerField(_('Deal type'), choices=DEAL_TYPE_CHOICES, default=1)
-
-    payments = GenericRelation('payment.Payment', related_query_name='deals')
-
-    objects = DealManager()
-
-    tracking_fields = ('done', 'value', 'currency', 'description', 'expired', 'date', 'date_created')
+    type = models.PositiveSmallIntegerField(_('Deal type'), choices=DEAL_TYPE_CHOICES, default=DONATION)
 
     class Meta:
-        ordering = ('-date_created',)
+        abstract = True
 
     def __str__(self):
         return "%s : %s" % (self.partnership, self.date_created)
@@ -270,18 +256,7 @@ class Deal(LogModel, AbstractPaymentPurpose):
         if not self.id and self.partnership:
             self.currency = self.partnership.currency
             self.responsible = self.partnership.responsible
-        super(Deal, self).save(*args, **kwargs)
-
-    @log_change_payment(['done'])
-    def update_after_cancel_payment(self, editor, payment):
-        self.done = False
-        self.save()
-
-    update_after_cancel_payment.alters_data = True
-
-    @property
-    def partner_link(self):
-        return self.partnership.user.link
+        super().save(*args, **kwargs)
 
     @property
     def value_str(self):
@@ -300,6 +275,39 @@ class Deal(LogModel, AbstractPaymentPurpose):
         format_data = self.currency.output_dict()
         format_data['value'] = self.value
         return self.currency.output_format.format(**format_data)
+
+    @log_change_payment(['done'])
+    def update_after_cancel_payment(self, editor, payment):
+        self.done = False
+        self.save()
+
+    update_after_cancel_payment.alters_data = True
+
+    @property
+    def month(self):
+        if self.date_created:
+            return '{}.{}'.format(self.date_created.year, self.date_created.month)
+        return ''
+
+
+class Deal(AbstractDeal, LogModel, AbstractPaymentPurpose):
+    partnership = models.ForeignKey('partnership.Partnership', on_delete=models.PROTECT, related_name="deals")
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE,
+                                    related_name='disciples_deals', editable=False,
+                                    verbose_name=_('Responsible of partner'), null=True, blank=True)
+
+    payments = GenericRelation('payment.Payment', related_query_name='deals')
+
+    objects = DealManager()
+
+    tracking_fields = ('done', 'value', 'currency', 'description', 'expired', 'date', 'date_created')
+
+    class Meta:
+        ordering = ('-date_created',)
+
+    @property
+    def partner_link(self):
+        return self.partnership.user.link
 
     def can_user_edit(self, user):
         """
@@ -322,12 +330,6 @@ class Deal(LogModel, AbstractPaymentPurpose):
 
     def payment_page_url(self):
         return reverse('payment-deal', kwargs={'pk': self.pk})
-
-    @property
-    def month(self):
-        if self.date_created:
-            return '{}.{}'.format(self.date_created.year, self.date_created.month)
-        return ''
 
     @property
     def total_payed(self):
@@ -355,6 +357,75 @@ class PartnershipLogs(PartnershipAbstractModel):
 
     def __str__(self):
         return 'Partner: %s. Log date: %s' % (self.partner, self.log_date.strftime('%Y.%m'))
+
+    @classmethod
+    def log_partner(cls, partner):
+        cls.objects.create(
+            value=partner.value,
+            currency=partner.currency,
+            date=partner.date,
+            need_text=partner.need_text,
+            is_active=partner.is_active,
+            responsible=partner.responsible,
+            group=partner.group,
+            title=partner.title,
+            partner=partner,
+        )
+
+
+class ChurchPartner(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
+    church = models.ForeignKey('group.Church', on_delete=models.PROTECT, related_name='partners')
+
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, verbose_name=_('Responsible'),
+                                    related_name='church_partner_disciples', null=True, blank=True)
+    group = models.ForeignKey('partnership.PartnerGroup', on_delete=models.PROTECT, verbose_name=_('Group'),
+                              related_name='church_partners', null=True, blank=True)
+
+    tracking_fields = (
+        'value', 'currency', 'date', 'need_text', 'is_active', 'responsible', 'group', 'title'
+    )
+
+    def __str__(self):
+        return '{} ({})'.format(self.church.get_title, self.title) if self.title else self.church.get_title
+
+
+class ChurchDeal(AbstractDeal, LogModel, AbstractPaymentPurpose):
+    partnership = models.ForeignKey('partnership.ChurchPartner', on_delete=models.PROTECT, related_name="deals")
+    responsible = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL,
+                                    related_name='partner_disciples_deals', editable=False,
+                                    verbose_name=_('Responsible of partner'), null=True, blank=True)
+
+    payments = GenericRelation('payment.Payment', related_query_name='church_deals')
+
+    objects = ChurchDealManager()
+
+    tracking_fields = ('done', 'value', 'currency', 'description', 'expired', 'date', 'date_created')
+
+    class Meta:
+        ordering = ('-date_created',)
+
+    @property
+    def partner_link(self):
+        return self.partnership.church.link
+
+
+class ChurchPartnerLog(PartnershipAbstractModel):
+    partner = models.ForeignKey('ChurchPartner', related_name='logs', on_delete=models.PROTECT,
+                                verbose_name=_('Partner'))
+    responsible = models.ForeignKey('account.CustomUser', related_name='church_partner_disciples_logs',
+                                    null=True, blank=True, on_delete=models.PROTECT)
+    group = models.ForeignKey('partnership.PartnerGroup', on_delete=models.PROTECT,
+                              related_name='church_partners_logs', null=True, blank=True)
+
+    log_date = models.DateTimeField(_('Log date'), auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _('Church Partner Log')
+        verbose_name_plural = _('Church Partner Logs')
+        ordering = ('-log_date',)
+
+    def __str__(self):
+        return 'Church partner: %s. Log date: %s' % (self.partner, self.log_date.strftime('%Y.%m'))
 
     @classmethod
     def log_partner(cls, partner):

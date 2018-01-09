@@ -48,10 +48,30 @@
 {% endblock %}
 
 {% block main.content %}
-
+    <div class="container-full">
+        <div class="tab-status tab-home-stats">
+            <button class="week week_all">Все</button>
+            <button class="week week_now active">Текущий месяц</button>
+            <button class="week week_prev">Прошедший месяц</button>
+            <div class="set-date">
+                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
+                <div class="cal-icon"></div>
+            </div>
+        </div>
+    </div>
     <div class="content">
         <div id="sdelki">
             <div class="top-pag">
+                <div class="tab-status">
+                    <ul id="statusTabs">
+                        <li class="current">
+                            <button data-type="people">По людям</button>
+                        </li>
+                        <li>
+                            <button data-type="church">По церквям</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="tabs-cont">
                 <div class="table__count"></div>
@@ -141,13 +161,13 @@
                             </select>
                         {% endif %}
                     </label>
-                    <label>
-                        <span class="label_block">Фильтр по дате сделки</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
-                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
-                        </p>
-                    </label>
+{#                    <label>#}
+{#                        <span class="label_block">Фильтр по дате сделки</span>#}
+{#                        <p class="birthday">#}
+{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">#}
+{#                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">#}
+{#                        </p>#}
+{#                    </label>#}
                     <label>
                         <span class="label_block">Фильтр по валюте</span>
                         <select id="payment_currency" class="selectdb" data-filter="currency_id">
@@ -187,6 +207,15 @@
                             <option value="">ВСЕ</option>
                             <option value="2">Да</option>
                             <option value="3">Нет</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">База</span>
+                        <select class="selectdb" data-filter="group" id="group_filter" multiple="multiple">
+{#                            <option value="">ВСЕ</option>#}
+                            {% for group in partner_groups %}
+                                <option value="{{ group.id }}">{{ group.title }}</option>
+                            {% endfor %}
                         </select>
                     </label>
                 </div>

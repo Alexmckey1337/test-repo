@@ -1,5 +1,5 @@
 'use strict';
-import 'air-datepicker';
+import  'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -13,10 +13,12 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
+import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
+import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
 import getData, {deleteData, postData} from "./modules/Ajax/index";
@@ -28,17 +30,25 @@ import {createPayment} from './modules/Payment/index';
 import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable,dataIptelMonth} from './modules/Account/index';
 import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
-import {makeDuplicateDeals} from "./modules/Deals/index";
+import {
+    btnNeed,
+    btnPartners,
+    btnDeal,
+    tabs,
+    renderDealTable,
+    renderPaymentTable,
+} from "./modules/Partnerships/index";
 
 $('document').ready(function () {
-    //////////////////////////////////////////////
-    // sorry for my code  -- start
-    //////////////////////////////////////////////
-    function formatRepo(data) {
-        if (data.id === '') {
-            return '-------';
-        }
-        return `<option value="${data.id}">${data.text}</option>`;
+    const USER_ID = $('body').data('user'),
+          PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
+          ID = getLastId();
+    let managerSelect = $('#manager_select'),
+        userIsPartner = $('.left-contentwrap').attr('data-partner');
+
+    if (userIsPartner === 'True') {
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
     }
 
     function parseFunc(data, params) {
@@ -58,76 +68,21 @@ $('document').ready(function () {
         };
     }
 
-    $('#manager_select').select2({
-        ajax: {
-            url: '/api/v1.1/users/for_select/',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    search: params.term,
-                    page: params.page
-                };
-            },
-            processResults: parseFunc,
-            cache: true
-        },
-        escapeMarkup: function (markup) {
-            return markup;
-        },
-        templateResult: formatRepo,
-        templateSelection: formatRepo
-    });
+    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
+
     $('#set_manager').on('click', function () {
         const userId = $(this).data('user');
-        let manager = $('#manager_select').val();
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: JSON.stringify({'manager_id': manager})
-        };
-        fetch(`${URLS.user.detail(userId)}set_manager/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        let manager = $('#manager_select').val(),
+            config = {'manager_id': manager};
+        postData(`${URLS.user.detail(userId)}set_manager/`, config)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
     $('.reset_device_id').on('click', function () {
         const profileId = $(this).data('id');
-        let options = {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
-            body: null
-        };
-        fetch(`/api/app/users/${profileId}/reset_device_id/`, options)
-            .then(res => {
-                if (res.status === 200) {
-                    window.location.reload()
-                } else {
-                    return res.json();
-                }
-            })
-            .then(data => {
-                showAlert(data.detail)
-            })
-            .catch(err => {
-                showAlert(JSON.parse(err));
-            });
+        postData(`/api/app/users/${profileId}/reset_device_id/`, null)
+            .then(() => window.location.reload())
+            .catch(err => errorHandling(err));
     });
     //////////////////////////////////////////////
     // sorry for my code  -- finish
@@ -306,9 +261,6 @@ $('document').ready(function () {
         $('#popup-change_password').css('display', 'none');
     });
 
-    $("#close-deal").on('click', function () {
-        $('#popup-create_deal').css('display', 'none');
-    });
     $("#popup-create_deal .top-text span").on('click', function (el) {
         $('#new_deal_sum').val('');
         $('#popup-create_deal textarea').val('');
@@ -524,14 +476,34 @@ $('document').ready(function () {
     $selectDepartment.on('change', function () {
         let option = document.createElement('option');
         $(option).val('').text('Выберите церковь').attr('selected', true);
+        $(option).attr('value','null');
         makeChurches();
         $('#home_groups_list').html(option);
     });
     makeChurches();
+    $("#isStable").on('change', function () {
+        console.log('checkbox');
+        let userId = $('body').attr('data-user'),
+            url = '/api/v1.1/users/' + userId + '/',
+            stable,
+            data;
+
+        if ($('#isStable').is(':checked')) {
+            stable = true;
+        } else {
+            stable = false;
+        }
+        data = {
+            "is_stable": stable
+        };
+
+        postData(url, data, {method: "PATCH"});
+    })
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit');
         let exists = $edit.closest('form').find('ul').hasClass('exists');
+        console.log(exists);
         if (!exists) {
             console.log(exists);
         }
@@ -604,7 +576,7 @@ $('document').ready(function () {
         let $block = $(this).closest('.right-info__block');
         let $input = $block.find('input:not(.select2-search__field), select');
         let thisForm = $(this).closest('form');
-        let success = $(this).closest('.right-info__block').find('.success__block');
+        let success = $(this).closest('form').closest('.right-info__block').find('.success__block');
         let formName = thisForm.attr('name');
         let action = thisForm.data('action');
         let partner = thisForm.data('partner');
@@ -612,7 +584,7 @@ $('document').ready(function () {
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
         if (action === 'update-user') {
-            if ($input.is(':checkbox')) {  // it is partner form
+            if ($input.is(':checkbox') && !$input.is('#is_dead')) {  // it is partner form
                 let partnershipData = new FormData();
                 partnershipData.append('is_active', !!$input.is(':checked'));
                 let $newInput = $input.filter(":not(':checkbox')");
@@ -628,11 +600,12 @@ $('document').ready(function () {
                         partnershipData.append(id, $(this).val());
                     }
                 });
+                console.log($(success));
                 updateOrCreatePartner(partner, partnershipData, success)
                     .then(function (data) {
                         let partnerId = data.id;
-                        let partnerForm = $('form#partnership');
-                        partnerForm.data('partner', partnerId);
+                        // let partnerForm = $('form#partnership');
+                        thisForm.attr('data-partner', partnerId);
                     })
                     .then(function (data) {
                         if (hidden) {
@@ -675,6 +648,12 @@ $('document').ready(function () {
                                     } else {
                                         formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
                                     }
+                                }else if($val.hasClass('is_dead')){
+                                    if ($val.is(':checked')) {
+                                        formData.append(id, "true");
+                                    } else {
+                                        formData.append(id, "false");
+                                    }
                                 } else {
                                     formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                                 }
@@ -689,6 +668,7 @@ $('document').ready(function () {
                     }
                 });
                 updateUser(ID, formData, success).then(function (data) {
+                    console.log($(success));
                     if (formName === 'editHierarchy') {
                         $('.is-hidden__after-edit').html('');
                     }
@@ -704,11 +684,29 @@ $('document').ready(function () {
             }
         } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
+            let userId = $('body').attr('data-user');
+            let url = '/api/v1.1/users/'+userId+'/';
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
+            let stableId = $('#isStable').is(':checked');
+            let stable;
+            if($('#isStable').is(':checked')){
+                stable = true;
+            }else {
+                stable = false;
+            }
+            let data = {
+                "is_stable": stable
+            }
+            console.log('churchID: ' + church_id);
+            console.log('homeGroupID: ' + home_groups_id);
+            $('#isStable').on('change', function () {
+              console.log('stableId: ' + stableId);
+              postData(url,data,{method:"PATCH"});
+            });
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id, noExist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -716,11 +714,12 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
+                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id, noExist).then(function (data) {
+                addUserToChurch(ID, church_id,stable,url, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -728,11 +727,11 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
+                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
             }
-
         }
         $input.each(function () {
             if (!$(this).attr('disabled')) {
@@ -748,7 +747,6 @@ $('document').ready(function () {
             }
         });
     });
-
     $.validate({
         lang: 'ru',
         form: '#editContactForm',
@@ -989,5 +987,8 @@ $('document').ready(function () {
     $('.close_pop').on('click',function () {
         $('#popupMonth').css('display', 'none');
     })
-
+      btnNeed();
+    btnPartners();
+    btnDeal();
+    tabs();
 });

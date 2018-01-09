@@ -17,9 +17,7 @@
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
 {% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
-{% block header.search %}
-
-{% endblock %}
+{% block header.search %}{% endblock %}
 
 {% block header.buttons.add %}
 {% endblock %}
@@ -52,14 +50,19 @@
 
 {% block main.content %}
     <div class="content content_anketa">
-        <div class="left-contentwrap">
+        <div class="left-contentwrap" data-partner="{{ account.partners.exists }}">
             <div class="left-content">
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
                             <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
-                                <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% if account.is_dead %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% else %}
+                                    <h3 id="fullName">{{ account.fullname }}</h3>
+                                {% endif %}
+{#                                <h3 id="fullName">{{ account.fullname }}</h3>#}
                                 <h3 id="searchName">
                                     {% if account.search_name %}{{ account.search_name }}{% endif %}</h3>
                             </hgroup>
@@ -86,7 +89,8 @@
                             {% if account.image %}
                                 <img src="{{ account.image.url }}" alt="photo">
                             {% else %}
-                                <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+{#                                <i class="fa fa-user-o" aria-hidden="true"></i>#}
+                                <i class="fa fa-user-circle-o user" aria-hidden="true"></i>
                             {% endif %}
                         </div>
                     </div>
@@ -126,6 +130,16 @@
                                         </label>
                                         <p>Размер файла не должен превышать 10 МБ.</p>
                                         <p>Типы файлов, которые поддерживаются: jpg, jpeg, png.</p>
+                                        <label class="userDead">
+                                            <span class="label_block">Архив (умер)</span>
+                                            {% if account.is_dead %}
+                                                <input type="checkbox" class="is_dead" value="{{ account.is_dead }}" id="is_dead" data-block="account" checked
+                                                       disabled>
+                                            {% else %}
+                                                <input type="checkbox" class="is_dead" id="is_dead" value="{{ account.is_dead }}" readonly disabled>
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -327,7 +341,7 @@
                         <li id="editPartnership">
                             <div class="right-info__block">
                                 <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" %}
+                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}
                             </div>
                         </li>
                     {% endif %}
@@ -391,6 +405,15 @@
                                                 <span class="label_block">Лидер</span>
                                                 <p class="output__block">{{ account.hhome_group.leader.fullname }}</p>
                                             </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% elif account.cchurch %}
                                             <label>
                                                 <span class="label_block">Церковь</span>
@@ -410,6 +433,15 @@
                                                 <span class="label_block">Пастор</span>
                                                 <p class="output__block">{{ account.cchurch.pastor.fullname }}</p>
                                             </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% else %}
                                             <label>
                                                 <p class="label_block_important">Пользователь не состоит ни в церкви ни в домашней группе</p>
@@ -417,7 +449,7 @@
                                             <label>
                                                 <span class="label_block">Церковь</span>
                                                 <select type="text" id="church_list" name="churches_title" value="" readonly disabled>
-                                                    <option value="">Выберите церковь</option>
+                                                    <option value="null">Выберите церковь</option>
                                                 </select>
                                             </label>
                                             <label>
@@ -426,7 +458,37 @@
                                                     <option value="">Выберите домашнюю группу</option>
                                                 </select>
                                             </label>
+{#                                            <label>#}
+{#                                                <span class="label_block">Стабильный</span>#}
+{#                                                {% if account.is_stable %}#}
+{#                                                    <input type="checkbox" id="isStable" data-block="account" checked disabled>#}
+{#                                                {% else %}#}
+{#                                                    <input type="checkbox" id="isStable" readonly disabled>#}
+{#                                                {% endif %}#}
+{#                                                <div></div>#}
+{#                                            </label>#}
                                         {% endif %}
+
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <li id="editStable">
+                        <div class="right-info__block">
+                            <div class="success__block"></div>
+                            <form action="/" name="editStable" id="editStable" data-action="update-user">
+                                <div class="popup_body{% if account.hhome_group or account.cchurch %} exists{% endif %}">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Стабильный</span>
+                                            {% if account.is_stable %}
+                                                <input type="checkbox" id="isStable" data-block="account" checked>
+                                            {% else %}
+                                                <input type="checkbox" id="isStable" >
+                                            {% endif %}
+                                            <div></div>
+                                        </label>
                                     </div>
                                 </div>
                             </form>
@@ -435,6 +497,7 @@
                 </ul>
             </div><!--End left-content -->
         </div>
+
         <div class="right-contentwrap">
             <div class="right-content">
                 {% if request.user.is_superuser %}
@@ -443,13 +506,13 @@
                             <label for="manager_select">Менеджер:</label>
                             <select name="manager" id="manager_select" class="select2"></select>
                             <button id="set_manager" data-user="{{ account.id }}">Set</button>
-                            {% if account.manager %}
-                                <p>Текущий менеджер: <a href="{{ account.manager.get_absolute_url }}" target="_blank">
-                                    {{ account.manager }}
-                                </a></p>
-                            {% else %}
-                                <p>Текущий менеджер: Нет менеджера</p>
-                            {% endif %}
+                            <p>Текущий менеджер: {% for manager in account.managers.all %}
+                                <a href="{{ manager.get_absolute_url }}" target="_blank">
+                                    {{ manager }}
+                                </a>{% if not forloop.last %},{% endif %}
+                            {% empty %}
+                                Нет менеджера
+                            {% endfor %}</p>
                         </div>
                     </div>
                 {% endif %}
@@ -469,30 +532,33 @@
                     <div class="top-s">
                         <h3>Примечания</h3>
                     </div>
-                    <div class="note_wrapper clearfix" id="markerWrapper">
-                        <label for="id_note_text">Маркер</label>
-                        <div class="btn-block">
-                            <button class="editText"></button>
-                            <button class="saveNote" id="sendMarker" data-id="{{ account.id }}"></button>
+                    <div class="accordion-block">
+                        <div class="note_wrapper clearfix" id="markerWrapper">
+                            <label for="id_note_text">Маркер</label>
+                            <div class="btn-block">
+                                <button class="editText"></button>
+                                <button class="saveNote" id="sendMarker" data-id="{{ account.id }}"></button>
+                            </div>
+                            <div class="select-wrapper">
+                                <select class="selectdb" type="text" id="markers-select" multiple readonly disabled>
+                                    {% for marker in markers %}
+                                        <option value="{{ marker.id }}" data-color="{{ marker.color }}"
+                                                data-hint="{{ marker.description }}"
+                                                data-search="{{ marker.title }}"
+                                                {% if marker in account.marker.all %}selected{% endif %}>{{ marker.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                        <div class="select-wrapper">
-                            <select class="selectdb" type="text" id="markers-select" multiple readonly disabled>
-                                {% for marker in markers %}
-                                    <option value="{{ marker.id }}" data-color="{{ marker.color }}"
-                                            data-hint="{{ marker.description }}"
-                                            data-search="{{ marker.title }}"
-                                            {% if marker in account.marker.all %}selected{% endif %}>{{ marker.title }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="note_wrapper clearfix" id="summitWrapper">
+                            <label for="id_note_text">Общее примечание</label>
+                            <div class="btn-block">
+                                <button class="editText"></button>
+                                <button class="saveNote" id="sendNote" data-id="{{ account.id }}"></button>
+                            </div>
+                            <textarea name="need_note" id="id_note_text" rows="5" cols="50"
+                                      readonly>{{ account.description }}</textarea>
                         </div>
-                    </div>
-                    <div class="note_wrapper clearfix" id="summitWrapper">
-                        <label for="id_note_text">Общее примечание</label>
-                        <div class="btn-block">
-                            <button class="editText"></button>
-                            <button class="saveNote" id="sendNote" data-id="{{ account.id }}"></button>
-                        </div>
-                        <textarea name="need_note" id="id_note_text" rows="5" cols="50" readonly>{{ account.description }}</textarea>
                     </div>
                 </div>
                 <div class="a-block a-iptel">
@@ -544,130 +610,113 @@
                 </div>
 
                 {% if user.is_partner_manager_or_high and account.is_partner %}
-                    {% for partner in account.partners.all %}
-                        <div class="a-block a-sdelki" id="Sdelki">
+                        <div class="a-block">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
                             </div>
-                            <div class="access_wrapper note_wrapper">
-                                <label for="access_select">Права доступа</label>
-                                <div class="btn-block">
-                                    {% if user.is_partner_supervisor_or_high %}
-                                        <button class="editText"></button>
-                                        <button class="saveNote" id="sendAccess"
-                                                data-access="{{ account.has_partner_role }}"
-                                                data-id="{{ account.id }}">
-                                        </button>
-                                    {% endif %}
-                                </div>
-                                <div class="access_select_wrapper">
-                                    <select id="access_select" readonly disabled>
-                                        <option value="" {% if account.has_partner_role == False %}selected{% endif %} disabled>
-                                            Права отсутствуют
-                                        </option>
-                                        {% for level in partner_levels %}
-                                            <option value="{{ level.id }}"
-                                                    {% if level.id == account.partner_role.level %}selected{% endif %}>
-                                                {{ level.title }}
+                            <div class="a-sdelki accordion-block" id="Sdelki">
+                                <div class="access_wrapper note_wrapper">
+                                    <label for="access_select">Права доступа</label>
+                                    <div class="access_select_wrapper">
+                                        <select id="access_select" readonly disabled>
+                                            <option value=""
+                                                    {% if account.has_partner_role == False %}selected{% endif %}
+                                                    disabled>
+                                                Без прав доступа
                                             </option>
+                                            {% for level in partner_levels %}
+                                                <option value="{{ level.id }}"
+                                                        {% if level.id == account.partner_role.level %}selected{% endif %}>
+                                                    {{ level.title }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if user.is_partner_supervisor_or_high %}
+                                            <button id="delete_access" data-id="{{ account.id }}" disabled></button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="btn-block">
+                                        {% if user.is_partner_supervisor_or_high %}
+                                            <button class="editText"></button>
+                                            <button class="saveNote" id="sendAccess"
+                                                    data-access="{{ account.has_partner_role }}"
+                                                    data-id="{{ account.id }}">
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="tab-main_status">
+                                    <ul class="tab_main church-tabs">
+                                        {% for partner in account.partners.all %}
+                                            <li {% if forloop.first %}
+                                                class="active"
+                                            {% endif %}
+                                                data-tab="{{ forloop.counter }}"
+                                                data-partner="{{ partner.id }}">
+                                                <button>
+                                                    <span>{{ partner.title }}</span>
+                                                </button>
+                                            </li>
                                         {% endfor %}
-                                    </select>
+                                    </ul>
                                     {% if user.is_partner_supervisor_or_high %}
-                                        <button id="delete_access" data-id="{{ account.id }}" disabled></button>
+                                        <button id="addMorePartners">Добавить партнерскую анкету</button>
                                     {% endif %}
                                 </div>
-                            </div>
-                            <div class="partner_wrapper">
-                                <ul class="right-info">
-                                    <li id="editPartnership">
-                                        <div class="right-info__block">
-                                            <h4>Партнерские данные</h4>
-                                            <div class="success__block"></div>
-                                            {% include "account/partials/partner_form.html" with partner=partner %}
+                                {% for partner in account.partners.all %}
+                                    <div class="partner_block_wrap {% if forloop.first %} active {% endif %}"
+                                         data-partner="{{ partner.id }}"
+                                         data-main_tab="{{ forloop.counter }}">
+                                        <div class="partner_wrapper">
+                                            <ul class="right-info">
+                                                <li id="editPartnership{{ forloop.counter }}">
+                                                    <div class="right-info__block">
+                                                        <h4>Партнерские данные</h4>
+                                                        <div class="success__block"></div>
+                                                        {% include "account/partials/partner_form.html" with user=account partner=partner count=forloop.counter is_supervisor=request.user.is_partner_supervisor_or_high %}
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div class="note_wrapper">
+                                                <label for="id_need_text{{ forloop.counter }}">Молитвенная нужда</label>
+                                                {% if user.is_partner_manager_or_high %}
+                                                    <div class="btn-block">
+                                                        <button class="editText"></button>
+                                                        <button class="saveNote send_need"
+                                                                data-partner="{{ partner.id }}"></button>
+                                                    </div>
+                                                {% endif %}
+                                                <textarea name="need_text" id="id_need_text{{ forloop.counter }}"
+                                                          rows="15"
+                                                          cols="50"
+                                                          readonly>{{ partner.need_text }}</textarea>
+                                            </div>
                                         </div>
-                                    </li>
-                                </ul>
-                                <div class="note_wrapper">
-                                    <label for="id_need_text">Молитвенная нужда</label>
-                                    <div class="btn-block">
-                                        <button class="editText"></button>
-                                        <button class="saveNote" id="send_need"
-                                                data-partner="{{ partner.id }}"></button>
-                                    </div>
-                                    <textarea name="need_text" id="id_need_text" rows="5" cols="50"
-                                              readonly>{{ partner.need_text }}</textarea>
-                                </div>
-                            </div>
-                            <div class="tab-status" id="tabStatus">
-                                <ul id="tabs1">
-                                    <li data-tab="1">
-                                        <button>Незавершённые (<span id="incomplete-count">
-                                        {% with count=partner.undone_deals_count %}
-                                            {% if count > 20 %}20 из {% endif %}{{ count }}
-                                        {% endwith %}
-                                    </span>)
-                                        </button>
-                                    </li>
-                                    <li data-tab="2">
-                                        <button href="#overdue">Просроченные(<span id="overdue-count">
-                                        {% with count=partner.expired_deals_count %}
-                                            {% if count > 20 %}20 из {% endif %}{{ count }}
-                                        {% endwith %}
-                                    </span>)
-                                        </button>
-                                    </li>
-                                    <li data-tab="3">
-                                        <button href="#completed">Завершённые(<span id="completed-count">
-                                        {% with count=partner.done_deals_count %}
-                                            {% if count > 20 %}20 из {% endif %}{{ count }}
-                                        {% endwith %}
-                                    </span>)
-                                        </button>
-                                    </li>
-                                </ul>
-                                <button data-currency-id="{{ partner.currency.id }}" id="create_new_deal">
-                                    Добавить сделку
-                                </button>
-                            </div>
-                            <div class="sdelki-content clearfix" data-tab-content="1">
-                                {% for deal in partner.undone_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                {% endfor %}
-                            </div>
-                            <div class="sdelki-content clearfix" data-tab-content="2">
-                                {% for deal in partner.expired_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum }}/{{ deal.value }}₴</span></p></div>
-                                {% endfor %}
-                            </div>
-                            <div class="sdelki-content clearfix" data-tab-content="3">
-                                {% for deal in partner.done_deals|slice:":20" %}
-                                    <div class="rows">
-                                        <p>{{ account.fullname }}</p>
-                                        <p>Дата создания: <span>{{ deal.date_created }}</span></p>
-                                        <p>Сумма: <span>{{ deal.total_sum|cut:".000" }}/{{ deal.value }}₴</span></p>
+                                        <p class="payment_title">Сделки</p>
+                                        <div class="tab-status" id="tabStatus{{ forloop.counter }}">
+                                            <ul class="tabs_deals church-tabs">
+                                                <li data-status="False"
+                                                    class="active">
+                                                    <button><span>Незавершённые</span></button>
+                                                </li>
+                                                <li data-status="True">
+                                                    <button><span>Завершённые</span></button>
+                                                </li>
+                                            </ul>
+                                            <button data-currency="{{ partner.currency.short_name }}"
+                                                    data-partner="{{ partner.id }}"
+                                                    class="create_new_deal">
+                                                Добавить сделку
+                                            </button>
+                                        </div>
+                                        <div class="deals_content"></div>
+                                        <p class="payment_title">Платежи</p>
+                                        <div class="payments_content"></div>
                                     </div>
                                 {% endfor %}
                             </div>
-                            <div class="rows" data-summit-id="{{ anket_group.grouper.id }}">
-                                <p class="payment_title">Платежи за сделки</p>
-                            </div>
-                            {% for payment in partner.deal_payments.all %}
-                                <div class="rows">
-                                    <p>{{ payment.effective_sum_str|cut:".000" }} —
-                                        {{ payment.created_at|date:"d.m.Y H:i:s" }}
-                                        — Принял: {{ payment.manager.fullname }}
-                                    </p>
-                                </div>
-                            {% endfor %}
                         </div>
-                        {% include "partner/partials/create_deal.html" with partnership=partner.id currency=partner.currency %}
-                    {% endfor %}
+                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -675,118 +724,126 @@
                         <div class="top-s">
                             <h3>Саммиты</h3>
                         </div>
-                        <div class="tab-status">
-                            <ul id="tabs2">
-                                {% for anket in ankets %}
-                                    <li data-tab='{{ anket.grouper.id }}'><a href="#">{{ anket.grouper.title }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                        <div class="accordion-block">
+                            <div class="tab-status">
+                                <ul id="tabs2" class="church-tabs">
+                                    {% for anket in ankets %}
+                                        <li data-tab='{{ anket.grouper.id }}'><a href="#"><span>{{ anket.grouper.title }}</span></a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="summit_wrapper clearfix" id="summitWrapper">
+                                {% for anket_group in ankets %}
+                                    {% for anket in anket_group.list %}
 
-                        <div class="summit_wrapper clearfix" id="summitWrapper">
-                            {% for anket_group in ankets %}
-                                {% for anket in anket_group.list %}
-
-                                    <div class="rows summits-title" data-summit-id="{{ anket_group.grouper.id }}"
-                                         style="display:none;">
-                                        <p class="summits-title__title">{{ anket.summit }}</p>
-                                        <p>{{ anket.summit.description|default:"Комментарий не указан" }}
-                                            (Code: <a href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
-                                                {{ anket.code }}
-                                            </a>)
-                                        </p>
-                                        <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
-                                    </div>
-
-                                    <div class="summits-block">
-                                        <div class="rows rows-tabs">
-                                            <div class="active" data-tabs-id="1">
-                                                <p>Примечания</p>
-                                            </div>
-                                            {% if anket.summit.lessons.exists %}
-                                                <div data-tabs-id="2">
-                                                    <p>Уроки</p>
-                                                </div>
-                                            {% endif %}
-                                            {% if anket.emails.exists %}
-                                                <div data-tabs-id="3">
-                                                    <p>EMAIL</p>
-                                                </div>
-                                            {% endif %}
+                                        <div class="rows summits-title" data-summit-id="{{ anket_group.grouper.id }}"
+                                             style="display:none;">
+                                            <p class="summits-title__title">{{ anket.summit }}</p>
+                                            <p>{{ anket.summit.description|default:"Комментарий не указан" }}
+                                                (Code: <a
+                                                        href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
+                                                    {{ anket.code }}
+                                                </a>)
+                                            </p>
+                                            <p>Сумма<span> {{ anket.total_payed }} ₴</span></p>
                                         </div>
-                                        <div class="wrapp wrapp-1">
-                                            {% for note in anket.notes.all %}
-                                                <div class="rows">
-                                                    <div>
-                                                        <p>{{ note.text }} — {{ note.date_created|date:"d.m.Y H:i:s" }}
-                                                            — Author: {{ note.owner.fullname }}
+
+                                        <div class="summits-block">
+                                            <div class="rows rows-tabs church-tabs">
+                                                <div class="active" data-tabs-id="1">
+                                                    <p><span>Примечания</span></p>
+                                                </div>
+                                                {% if anket.summit.lessons.exists %}
+                                                    <div data-tabs-id="2">
+                                                        <p><span>Уроки</span></p>
+                                                    </div>
+                                                {% endif %}
+                                                {% if anket.emails.exists %}
+                                                    <div data-tabs-id="3">
+                                                        <p><span>EMAIL</span></p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="wrapp wrapp-1">
+                                                {% for note in anket.notes.all %}
+                                                    <div class="rows">
+                                                        <div>
+                                                            <p>{{ note.text }} —
+                                                                {{ note.date_created|date:"d.m.Y H:i:s" }}
+                                                                — Author: {{ note.owner.fullname }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+
+                                                <div class="rows note-box">
+                                                    <form action="/" data-anket-id="{{ anket.id }}">
+                                                        <p>Написать примечание</p>
+                                                        <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
+                                                                     class="js-add_note" cols="50" rows="5"></textarea>
                                                         </p>
-                                                    </div>
+                                                        <p>
+                                                            <button class="send_note" type="submit">Отправить примечание
+                                                            </button>
+                                                        </p>
+                                                    </form>
                                                 </div>
-                                            {% endfor %}
-
-                                            <div class="rows note-box">
-                                                <form action="/" data-anket-id="{{ anket.id }}">
-                                                    <p>Написать примечание</p>
-                                                    <p><textarea name="add_note" data-anket-id="{{ anket.id }}"
-                                                                 class="js-add_note" cols="50" rows="5"></textarea></p>
-                                                    <p>
-                                                        <button class="send_note" type="submit">Отправить примечание
-                                                        </button>
-                                                    </p>
-                                                </form>
+                                            </div>
+                                            <div class="wrapp wrapp-2">
+                                                {% if anket.summit.lessons.exists %}
+                                                    {% is_consultant_for_user anket.summit anket.user as is_consultant %}
+                                                    {% for lesson in anket.summit.lessons.all %}
+                                                        <div class="rows">
+                                                            <div>
+                                                                <p>
+                                                                    {% if is_consultant %}
+                                                                        <input id="lesson{{ lesson.id }}"
+                                                                               class="js-lesson"
+                                                                               type="checkbox"
+                                                                               data-anket-id="{{ anket.id }}"
+                                                                               data-lesson-id="{{ lesson.id }}"
+                                                                                {% if anket in lesson.viewers.all %}
+                                                                               checked{% endif %}>
+                                                                        {{ lesson.name }}
+                                                                    {% else %}
+                                                                        <input id="lesson{{ lesson.id }}"
+                                                                               type="checkbox"
+                                                                               data-anket-id="{{ anket.id }}"
+                                                                               data-lesson-id="{{ lesson.id }}"
+                                                                                {% if anket in lesson.viewers.all %}
+                                                                               checked{% endif %} disabled>
+                                                                        <span style="color:{% if anket in lesson.viewers.all %}darkgreen{% else %}darkred{% endif %}">{{ lesson.name }}</span>
+                                                                    {% endif %}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="wrapp wrapp-3">
+                                                {% if anket.emails.exists %}
+                                                    {% for email in anket.emails.all %}
+                                                        <div class="rows">
+                                                            <div>
+                                                                <p> Отправлено на email: {{ email.recipient }} —
+                                                                    Дата отправки:
+                                                                    {{ email.created_at|date:"d.m.Y H:i:s" }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
                                             </div>
                                         </div>
-                                        <div class="wrapp wrapp-2">
-                                            {% if anket.summit.lessons.exists %}
-                                                {% is_consultant_for_user anket.summit anket.user as is_consultant %}
-                                                {% for lesson in anket.summit.lessons.all %}
-                                                    <div class="rows">
-                                                        <div>
-                                                            <p>
-                                                                {% if is_consultant %}
-                                                                    <input id="lesson{{ lesson.id }}" class="js-lesson"
-                                                                           type="checkbox"
-                                                                           data-anket-id="{{ anket.id }}"
-                                                                           data-lesson-id="{{ lesson.id }}"
-                                                                            {% if anket in lesson.viewers.all %}
-                                                                           checked{% endif %}>
-                                                                    {{ lesson.name }}
-                                                                {% else %}
-                                                                    <input id="lesson{{ lesson.id }}" type="checkbox"
-                                                                           data-anket-id="{{ anket.id }}"
-                                                                           data-lesson-id="{{ lesson.id }}"
-                                                                            {% if anket in lesson.viewers.all %}
-                                                                           checked{% endif %} disabled>
-                                                                    <span style="color:{% if anket in lesson.viewers.all %}darkgreen{% else %}darkred{% endif %}">{{ lesson.name }}</span>
-                                                                {% endif %}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </div>
-                                        <div class="wrapp wrapp-3">
-                                            {% if anket.emails.exists %}
-                                                {% for email in anket.emails.all %}
-                                                    <div class="rows">
-                                                        <div>
-                                                            <p> Отправлено на email: {{ email.recipient }} —
-                                                                Дата отправки: {{ email.created_at|date:"d.m.Y H:i:s" }}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </div>
-                                    </div>
+                                    {% endfor %}
                                 {% endfor %}
-                            {% endfor %}
+                            </div>
                         </div>
                     </div>
                 {% endif %}
             </div>
         </div>
+
     </div>
     {% if account.skins.all %}
         <div class="clearfix"></div>
@@ -963,7 +1020,8 @@
             </div>
         </div>
     </div>
-{#    <div id="playerPopup" class="pop-up__table">#}
+    {% include "partials/find_duplicate_deals.html" %}
+    {#    <div id="playerPopup" class="pop-up__table">#}
 {#        <div class="pop_cont">#}
 {#            <div class="top-text">#}
 {#                <h3>Прослушать запись</h3><span class="close_pop">×</span>#}
@@ -995,19 +1053,68 @@
     </div>
     <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
         <div class="pop_cont">
-            <div class="top-text">
-                <h3>По данной сделке есть дубликаты</h3><span class="close_pop">×</span>
+            <div class="popup_text">
+                <h2>Добавление партнерской анкеты</h2>
             </div>
-            <div class="main-text">
-                <div class="top-pag">
-                    <div class="table__count"></div>
-                    <div class="pagination duplicate_users__pagination"></div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="user" value="{{ account.id }}">
+                    <label>
+                        <span class="label_block">Отдел партнерства:</span>
+                        {% get_partner_titles as titles %}
+                        <select class="department_partner selectdb" data-id="title">
+                            {% for t in titles %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тег:</span>
+                        <select class="group selectdb par__group" data-id="group">
+                            <option value="" selected disabled>Выберите тег</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                 </div>
                 <div id="table_duplicate" class="table-wrap clearfix"></div>
             </div>
-            <div class="buttons">
-                <button class="close_pop">Отменить</button>
-                <button id="hard_create">Создать</button>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners">Создать</button>
             </div>
         </div>
     </div>
@@ -1017,7 +1124,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static "js/Player.bundle.js" %}"></script>
     <script src="{% static "js/account.bundle.js" %}"></script>
     <script id="iptelScript">
 

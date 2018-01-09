@@ -1,15 +1,14 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import json
 import logging
 
-import requests
+from django.conf import settings
 from django.contrib.auth import logout as django_logout
 from django.contrib.postgres.search import TrigramSimilarity
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
-from django.db.models import Value as V
+from django.db.models import Value as V, Q
 from django.db.models.functions import Concat
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
@@ -17,7 +16,6 @@ from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import filters
 from rest_framework import status, mixins, exceptions
-from rest_framework.decorators import api_view
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -53,7 +51,8 @@ from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
-from apps.navigation.table_fields import user_table
+from apps.navigation.table_columns import get_table
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,7 @@ class UserPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': user_table(self.request.user),
+            'user_table': get_table('user', self.request.user.id),
             'results': data
         })
 
@@ -119,6 +118,31 @@ class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
     def get_queryset(self):
         return self.queryset.annotate(
             full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+
+    def paginate_queryset(self, queryset):
+        if self.request.query_params.get('without_pagination', None) is not None:
+            return None
+        return super().paginate_queryset(queryset)
+
+
+class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):
+    queryset = User.objects.order_by('last_name', 'first_name', 'middle_name')
+
+    serializer_class = UserForSelectSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ForSelectPagination
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('first_name', 'last_name', 'middle_name')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name')).filter(
+            Q(partner_role__level__lte=settings.PARTNER_LEVELS['manager']) |
+            Q(disciples_deals__isnull=False)).distinct("id", "last_name", "first_name", "middle_name")
 
     def paginate_queryset(self, queryset):
         if self.request.query_params.get('without_pagination', None) is not None:
@@ -208,22 +232,24 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         Set church for user
         """
         user = self.get_object()
-        church = self._get_object_or_error(Church, 'church_id')
+        if request.data.get('church_id') == 'null':
+            church = None
+        else:
+            church = self._get_object_or_error(Church, 'church_id')
+
         user.set_church_and_log(church, get_real_user(request))
 
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'],
-                  serializer_class=ManagerIdSerializer,
-                  permission_classes=(IsSuperUser,))
+    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
     def set_manager(self, request, pk):
         """
         Set manager for user
         """
         user = self.get_object()
         manager = self._get_object_or_error(User, 'manager_id')
-        user.manager = manager
+        user.managers.add(manager)
         user.save()
 
         return Response({'detail': _('Менеджер назначен.')},
@@ -297,8 +323,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
-        pass
-        # new_obj = kwargs.get('new_obj')
+        return kwargs.get('new_obj')
         # self._update_divisions(new_obj)
 
     @log_perform_create
