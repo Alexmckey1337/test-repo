@@ -36,11 +36,14 @@ import {
 $('document').ready(function () {
     const CHURCH_ID = $('#church').data('id');
     const D_ID = $('#added_home_group_church').data('department');
-    let responsibleList = false;
-    let link = $('.get_info .active').data('link');
+    let responsibleList = false,
+        link = $('.get_info .active').data('link'),
+        ChIsPartner = $('.left-contentwrap').attr('data-partner');
 
-    renderDealTable({done: 'False'});
-    renderPaymentTable();
+    if (ChIsPartner === 'True') {
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
+    }
     createChurchesDetailsTable({}, CHURCH_ID, link);
 
     $('#added_home_group_pastor').select2().on('select2:open', function () {

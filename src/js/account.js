@@ -45,9 +45,13 @@ $('document').ready(function () {
     const USER_ID = $('body').data('user'),
           PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
           ID = getLastId();
-    let managerSelect = $('#manager_select');
-    renderDealTable({done: 'False'});
-    renderPaymentTable();
+    let managerSelect = $('#manager_select'),
+        userIsPartner = $('.left-contentwrap').attr('data-partner');
+
+    if (userIsPartner === 'True') {
+        renderDealTable({done: 'False'});
+        renderPaymentTable();
+    }
 
     function parseFunc(data, params) {
         params.page = params.page || 1;
@@ -470,7 +474,7 @@ $('document').ready(function () {
         let $block = $(this).closest('.right-info__block');
         let $input = $block.find('input:not(.select2-search__field), select');
         let thisForm = $(this).closest('form');
-        let success = $(this).closest('.right-info__block').find('.success__block');
+        let success = $(this).closest('form').closest('.right-info__block').find('.success__block');
         let formName = thisForm.attr('name');
         let action = thisForm.data('action');
         let partner = thisForm.data('partner');
@@ -494,6 +498,7 @@ $('document').ready(function () {
                         partnershipData.append(id, $(this).val());
                     }
                 });
+                console.log($(success));
                 updateOrCreatePartner(partner, partnershipData, success)
                     .then(function (data) {
                         let partnerId = data.id;
@@ -561,7 +566,7 @@ $('document').ready(function () {
                     }
                 });
                 updateUser(ID, formData, success).then(function (data) {
-                    console.log(data);
+                    console.log($(success));
                     if (formName === 'editHierarchy') {
                         $('.is-hidden__after-edit').html('');
                     }

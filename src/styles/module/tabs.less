@@ -19,7 +19,7 @@
 }
 
 .tabs-panel {
-  margin-top: 3em;
+  //margin-top: 3em;
   //background-color: #f2f5fa;
   overflow: hidden;
   & .tabs_link li {
@@ -395,8 +395,8 @@
     box-sizing: border-box;
     text-align: center;
     border-bottom: 1px solid #cdd0d4;
-    border-top: 1px solid #cdd0d4;
-    border-right: 1px solid #cdd0d4;
+    //border-top: 1px solid #cdd0d4;
+    //border-right: 1px solid #cdd0d4;
     &.current {
       a{
         color: #656d78;
@@ -1017,19 +1017,37 @@
       position: relative;
       li {
         border-bottom: none;
-        &.active {
-          position: relative;
-          &::after {
+        position: relative;
+        &:not(:last-child){
+          &::before {
             position: absolute;
-            left: 0;
-            bottom: -1px;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
             display: block;
-            width: 100%;
-            height: 1px;
-            background-color: #fff;
+            height: 75%;
+            width: 1px;
+            background-color: #cdd0d4;
             content: '';
             z-index: 1;
           }
+        }
+        //&::after {
+        //    position: absolute;
+        //    left: 0;
+        //    bottom: -1px;
+        //    display: block;
+        //    width: 100%;
+        //    height: 1px;
+        //    background-color: #fff;
+        //    content: '';
+        //    z-index: 1;
+        //  }
+        &.active {
+          position: relative;
+          //button{
+          //  color: #3caeda;
+          //}
         }
       }
     }
@@ -1073,4 +1091,60 @@
   background-color: #fff;
   font-size: 1.5em;
   color: #3caeda;
+}
+
+///////church anketa ////
+.church-tabs{
+  &,&:hover{
+    border:none !important;
+  }
+  li,div{
+    border:none !important;
+    position: relative;
+    background-color: transparent !important;
+    &:not(:last-child) {
+      &::before{
+        position: absolute;
+        right: 0;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        display: block;
+        height: 50%;
+        width: 1px;
+        background-color: #cdd0d4;
+        content: '';
+        z-index: 1;
+      }
+    }
+    button,a,p{
+      border:none !important;
+      background-color: transparent !important;
+      font-size: 1.1em !important;
+      font-weight: 600 !important;
+      color: #3caeda !important;
+      transition: none;
+      padding: 15px 10px;
+      &.active{
+        color: #333 !important;
+        & > span {
+          border-bottom: 1px dotted transparent;
+        }
+      }
+      & > span {
+        border-bottom: 1px dotted #3caeda;
+      }
+    }
+    &.active{
+      &::after{
+        display: none !important;
+      }
+      button,a,p{
+        color: #333 !important;
+        &>span{
+          border-bottom:1px dotted transparent;
+        }
+      }
+    }
+  }
 }
