@@ -8,15 +8,22 @@ from rest_framework import status, exceptions, mixins, viewsets
 from django.db import transaction, IntegrityError
 from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
+from common.filters import FieldSearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAdminUser
 
 
 class DatabaseAccessViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = CustomUser.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
-    )
+    ).order_by('last_name', 'first_name', 'middle_name')
 
+    permission_classes = (IsAdminUser,)
     serializer_class = DatabaseAccessSerializer
+
+    filter_backends = (DjangoFilterBackend,
+                       FieldSearchFilter)
 
     @list_route(methods=['POST'])
     def submit(self, request):
