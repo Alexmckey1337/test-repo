@@ -87,7 +87,7 @@ $('document').ready(function () {
     //////////////////////////////////////////////
     // sorry for my code  -- finish
     //////////////////////////////////////////////
-    const ID = getLastId();
+    // const ID = getLastId();
 
     function AddColorMarkers() {
         let options = $('#markers-select').find('option:selected'),
