@@ -337,14 +337,14 @@
                             </form>
                         </div>
                     </li>
-                    {% if not account.is_partner %}
-                        <li id="editPartnership">
-                            <div class="right-info__block">
-                                <div class="success__block"></div>
-                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}
-                            </div>
-                        </li>
-                    {% endif %}
+{#                    {% if not account.is_partner %}#}
+{#                        <li id="editPartnership">#}
+{#                            <div class="right-info__block">#}
+{#                                <div class="success__block"></div>#}
+{#                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}#}
+{#                            </div>#}
+{#                        </li>#}
+{#                    {% endif %}#}
                     <li id="editVisit">
                         <div class="right-info__block">
                             <h4>Духовный уровень</h4>
@@ -561,7 +561,7 @@
                         </div>
                     </div>
                 </div>
-                {% if user.is_partner_manager_or_high and account.is_partner %}
+{#                {% if user.is_partner_manager_or_high and account.is_partner %}#}
                         <div class="a-block">
                             <div class="top-s">
                                 <h3>Партнерство</h3>
@@ -665,11 +665,26 @@
                                         <p class="payment_title">Платежи</p>
                                         <div class="payments_content"></div>
                                     </div>
+                                    {% empty %}
+                                    <div class="a-sdelki">
+                                        <div class="partner_wrapper">
+                                            <ul class="right-info">
+        {#                                        <li>Не партнер</li>#}
+                                                <li id="editPartnership">
+                                                    <div class="right-info__block">
+                                                        <h4>Не партнер</h4>
+        {#                                                <div class="success__block"></div>#}
+        {#                                                {% include "account/partials/partner_form.html" with user=church partner=partner is_supervisor=request.user.is_partner_supervisor_or_high %}#}
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 {% endfor %}
                             </div>
                         </div>
                         {% include "partner/partials/create_deal.html" %}
-                {% endif %}
+{#                {% endif %}#}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
                     <div class="a-block a-sammits">
