@@ -15,8 +15,8 @@ from apps.status.models import Division
 
 
 @login_required(login_url='entry')
-def account(request, id):
-    user = get_object_or_404(CustomUser, pk=id)
+def account(request, user_id=None):
+    user = get_object_or_404(CustomUser, pk=user_id)
     currencies = Currency.objects.all()
     if not request.user.can_see_account_page(user):
         raise PermissionDenied
@@ -28,11 +28,11 @@ def account(request, id):
         'currencies': currencies,
         'churches': Church.objects.all(),
         'log_messages': LogRecord.objects.filter(
-            object_id=id,
+            object_id=user_id,
             content_type=ContentType.objects.get_for_model(user)
         ),
         'log_messages_iam': LogRecord.objects.filter(
-            user_id=id,
+            user_id=user_id,
             content_type=ContentType.objects.get_for_model(user)
         ),
         'partner_log_messages': LogRecord.objects.filter(
@@ -40,7 +40,7 @@ def account(request, id):
             content_type=ContentType.objects.get_for_model(Partnership)
         ),
         'partner_log_messages_iam': LogRecord.objects.filter(
-            user_id=id,
+            user_id=user_id,
             content_type=ContentType.objects.get_for_model(Partnership)
         ),
         'markers': UserMarker.objects.all(),

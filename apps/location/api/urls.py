@@ -1,13 +1,13 @@
-from django.conf.urls import url, include
+from django.urls import path, include
 from rest_framework import routers
 
 from apps.location.api import views
 
 router_v1_0 = routers.DefaultRouter()
-router_v1_0.register(r'countries', views.CountryViewSet)
-router_v1_0.register(r'regions', views.RegionViewSet)
-router_v1_0.register(r'cities', views.CityViewSet)
+router_v1_0.register('countries', views.CountryViewSet)
+router_v1_0.register('regions', views.RegionViewSet)
+router_v1_0.register('cities', views.CityViewSet)
 
 urlpatterns = [
-    url(r'^v1.0/', include(router_v1_0.urls)),
+    path('v1.0/', include(router_v1_0.urls)),
 ]

@@ -1,12 +1,12 @@
-from django.conf.urls import url
+from django.urls import path
 
 from apps.account import views
 
 app_name = 'account'
 
 urlpatterns = [
-    url(r'^(\d+)/$', views.account, name='detail'),
-    url(r'^(?P<user_id>\d+)/logs/$', views.UserLogsListView.as_view(), name='logs'),
-    url(r'^(?P<user_id>\d+)/owner_logs/$', views.OwnerLogsListView.as_view(), name='owner_logs'),
-    url(r'^logs/(?P<log_id>\d+)/$', views.UserLogDetailView.as_view(), name='log-detail'),
+    path('<int:user_id>/', views.account, name='detail'),
+    path('<int:user_id>/logs/', views.UserLogsListView.as_view(), name='logs'),
+    path('<int:user_id>/owner_logs/', views.OwnerLogsListView.as_view(), name='owner_logs'),
+    path('logs/<int:log_id>/', views.UserLogDetailView.as_view(), name='log-detail'),
 ]

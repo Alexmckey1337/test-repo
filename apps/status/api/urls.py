@@ -1,12 +1,12 @@
-from django.conf.urls import url, include
+from django.urls import path, include
 from rest_framework import routers
 
 from apps.status.api import views
 
 router_v1_0 = routers.DefaultRouter()
-router_v1_0.register(r'statuses', views.StatusViewSet)
-router_v1_0.register(r'divisions', views.DivisionViewSet)
+router_v1_0.register('statuses', views.StatusViewSet)
+router_v1_0.register('divisions', views.DivisionViewSet)
 
 urlpatterns = [
-    url(r'^v1.0/', include(router_v1_0.urls)),
+    path('v1.0/', include(router_v1_0.urls)),
 ]

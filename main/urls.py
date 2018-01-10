@@ -2,11 +2,10 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, path, include
 
 from main import views
 
@@ -19,37 +18,37 @@ def redirect_to_churches(request):
 
 database_patterns = (
     [
-        url(r'^$', login_required(redirect_to_churches, login_url='entry'), name='main'),
-        url(r'^people/$', views.PeopleListView.as_view(), name='people'),
-        url(r'^churches/$', views.ChurchListView.as_view(), name='churches'),
-        url(r'^home_groups/$', views.HomeGroupListView.as_view(), name='home_groups'),
+        path('', login_required(redirect_to_churches, login_url='entry'), name='main'),
+        path('people/', views.PeopleListView.as_view(), name='people'),
+        path('churches/', views.ChurchListView.as_view(), name='churches'),
+        path('home_groups/', views.HomeGroupListView.as_view(), name='home_groups'),
     ], 'db')
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^entry/$', views.entry, name='entry'),
-    url(r'^entry/restore/$', views.restore, name='restore'),
-    url(r'^password_view/(?P<activation_key>\w+)/$', views.edit_pass, name='password_view'),
+    path('', views.index, name='index'),
+    path('entry/', views.entry, name='entry'),
+    path('entry/restore/', views.restore, name='restore'),
+    path('password_view/<str:activation_key>/', views.edit_pass, name='password_view'),
 
-    url(r'^account/', include('apps.account.urls', namespace='account')),
-    url(r'^db/', include(database_patterns, namespace='db')),
-    url(r'^events/', include('apps.event.urls', namespace='events')),
-    url(r'^partner/', include('apps.partnership.urls', namespace='partner')),
-    url(r'^payment/', include('apps.payment.urls', namespace='payment')),
-    url(r'^summits/', include('apps.summit.urls', namespace='summit')),
-    url(r'^tasks/', include('apps.task.urls', namespace='tasks')),
+    path('account/', include('apps.account.urls', namespace='account')),
+    path('db/', include(database_patterns, namespace='db')),
+    path('events/', include('apps.event.urls', namespace='events')),
+    path('partner/', include('apps.partnership.urls', namespace='partner')),
+    path('payment/', include('apps.payment.urls', namespace='payment')),
+    path('summits/', include('apps.summit.urls', namespace='summit')),
+    path('tasks/', include('apps.task.urls', namespace='tasks')),
 
-    url(r'^churches/(?P<pk>\d+)/$', views.ChurchDetailView.as_view(), name='church_detail'),
-    url(r'^home_groups/(?P<pk>\d+)/$', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
+    path('churches/<int:pk>/', views.ChurchDetailView.as_view(), name='church_detail'),
+    path('home_groups/<int:pk>/', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
 
-    url(r'^privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
-    url(r'^ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
-    url(r'^structure/$', views.structure, name='structure-top'),
-    url(r'^structure/(?P<pk>\d+)/$', views.structure, name='structure-detail'),
-    url(r'^structure/(?P<pk>\d+)/(?P<name>.+)\.pdf$', views.structure_to_pdf, name='structure_to_pdf-detail'),
-    url(r'^structure/top\.pdf$', views.structure_to_pdf, name='structure_to_pdf-top'),
-    url(r'^calls', views.calls, name='calls'),
-    url(r'^controls/', include('apps.controls.urls', namespace='controls')),
+    path('privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
+    path('ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
+    path('structure/', views.structure, name='structure-top'),
+    path('structure/<int:pk>/', views.structure, name='structure-detail'),
+    path('structure/<int:pk>/<str:name>.pdf', views.structure_to_pdf, name='structure_to_pdf-detail'),
+    path('structure/top.pdf', views.structure_to_pdf, name='structure_to_pdf-top'),
+    path('calls', views.calls, name='calls'),
+    path('controls/', include('apps.controls.urls', namespace='controls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

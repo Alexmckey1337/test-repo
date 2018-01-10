@@ -1,11 +1,11 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.conf.urls import url, include
+from django.urls import path, include
 
 from apps.payment import views
 
 urlpatterns = [
-    url(r'^payment/deal/(?P<pk>\d+)/$', views.DealPaymentView.as_view(), name='payment-deal'),
-    url(r'^', include('edem.urls'))
+    path('payment/deal/<int:pk>/', views.DealPaymentView.as_view(), name='payment-deal'),
+    path('', include('edem.urls'))
 ]
