@@ -922,7 +922,7 @@ $('document').ready(function () {
     // })
     function createUrl() {
         let idUser = $('body').attr('data-user'),
-            url = '/api/v1.1/calls_to_user/?user_id='+ idUser + '&range=last_3';
+            url = '/api/v1.1/calls_to_user/?user_id='+ currentUser + '&range=last_3';
         dataIptelTable(url);
     }
     createUrl();
@@ -947,11 +947,13 @@ $('document').ready(function () {
         //         src: [response.url]
         //     }).play();
         // });
+        console.log($(this));
         if($(this).find('.btnPlay').hasClass('active')){
             $(this).find('.btnPlay').removeClass('active');
             $(this).find('.btnStop').addClass('active');
             console.log('play');
             fetch(url, defaultOption).then(function (response) {
+                console.log(response.url);
                 player.play(response.url);
             })
         }else{
@@ -967,8 +969,7 @@ $('document').ready(function () {
         onSelect: function (formattedDate, date, inst) {
             $('.preloader').css('display', 'block');
             let dateMonth = moment(date).format("YYYY-MM"),
-                idUser = $('body').attr('data-user'),
-                url = '/api/v1.1/calls_to_user/?user_id='+idUser+'&range=month&month_date='+dateMonth;
+                url = '/api/v1.1/calls_to_user/?user_id='+ currentUser +'&range=month&month_date='+dateMonth;
             $('#tableMonthIptel').html('');
             dataIptelMonth(url);
         }
@@ -977,7 +978,7 @@ $('document').ready(function () {
         e.preventDefault;
         let idUser = $('body').attr('data-user'),
            todayDate = moment().locale('ru'),
-           url = '/api/v1.1/calls_to_user/?user_id='+idUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
+           url = '/api/v1.1/calls_to_user/?user_id='+currentUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
         $('#tableMonthIptel').html('');
        $('.preloader').css('display', 'block');
        $('#popupMonth').css('display', 'block');

@@ -153,7 +153,7 @@ export function makeIptelTable(data,block) {
                                 <th>Дата</th>
                                 <th>Номер оператора</th>
                                 <th>Назначение</th>                                        
-                                <th>Длительность</th>
+                                <th>Длительность(сек)</th>
                                 <th>Запись</th>
                             </tr>
                         </thead>

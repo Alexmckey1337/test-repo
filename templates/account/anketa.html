@@ -563,7 +563,7 @@
                 </div>
                 <div class="a-block a-iptel">
                     <div class="top-s">
-                        <h3>звонки</h3>
+                        <h3>Звонки</h3>
                         <span id="monthBtn">Звонки за месяц</span>
                     </div>
                     <div class="a-iptel__wrap accordion-block">
@@ -1124,6 +1124,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
+    <script>var currentUser = {{ account.id }}</script>
     <script src="{% static "js/account.bundle.js" %}"></script>
     <script id="iptelScript">
 

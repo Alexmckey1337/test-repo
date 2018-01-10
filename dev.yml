@@ -20,6 +20,14 @@ services:
     ports:
       - "4321:5432"
 
+  asterisk:
+      container_name: asterisk
+      image: reg.sobsam.com/asterisk:latest
+      environment:
+        - ASTERISK_CDR_HOST=192.168.240.47
+        - ASTERISK_USERS_HOST=192.168.240.47
+      command: gunicorn -c gunicorn.conf main:app
+
   redis:
     container_name: redis_dev
     image: redis:latest
