@@ -1,21 +1,21 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from django.conf.urls import url, include
+from django.urls import path, include
 from apps.payment.api import views
 
 payment_urlpatterns = [
-    url(r'^payments/(?P<pk>\d+)/$', views.PaymentUpdateDestroyView.as_view(), name='payment-delete'),
-    url(r'^payments/(?P<pk>\d+)/$', views.PaymentUpdateDestroyView.as_view(), name='payment-update'),
-    url(r'^payments/(?P<pk>\d+)/detail/$', views.PaymentDetailView.as_view(), name='payment-detail'),
-    url(r'^payments/$', views.PaymentListView.as_view(), name='payment-list'),
-    url(r'^payments/deal/$', views.PaymentDealListView.as_view(), name='payment-deal-list'),
-    url(r'^payments/church_report/$', views.PaymentChurchReportListView.as_view(), name='payment-church_report-list'),
-    url(r'^payments/(?P<pk>\d+)/detail/$', views.PaymentDetailView.as_view(), name='payment-detail'),
-    url(r'^payments/export/$', views.PaymentDealListView.as_view(), name='payment-export'),
-    url(r'^payments/supervisors/$', views.PaymentSupervisorListView.as_view(), name='payment-supervisors'),
+    path('payments/<int:pk>/', views.PaymentUpdateDestroyView.as_view(), name='payment-delete'),
+    path('payments/<int:pk>/', views.PaymentUpdateDestroyView.as_view(), name='payment-update'),
+    path('payments/<int:pk>/detail/', views.PaymentDetailView.as_view(), name='payment-detail'),
+    path('payments/', views.PaymentListView.as_view(), name='payment-list'),
+    path('payments/deal/', views.PaymentDealListView.as_view(), name='payment-deal-list'),
+    path('payments/church_report/', views.PaymentChurchReportListView.as_view(), name='payment-church_report-list'),
+    path('payments/<int:pk>/detail/', views.PaymentDetailView.as_view(), name='payment-detail'),
+    path('payments/export/', views.PaymentDealListView.as_view(), name='payment-export'),
+    path('payments/supervisors/', views.PaymentSupervisorListView.as_view(), name='payment-supervisors'),
 ]
 
 urlpatterns = [
-    url(r'^v1.0/', include(payment_urlpatterns)),
+    path('', include(payment_urlpatterns)),
 ]

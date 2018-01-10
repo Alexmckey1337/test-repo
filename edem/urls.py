@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.urls import include, path
-from django.conf.urls import url
+from django.urls import include, path, re_path
 from django.contrib import admin
 from rest_framework import exceptions
 from rest_framework.response import Response
@@ -46,14 +45,14 @@ class SwaggerSchemaView(APIView):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^tinymce/', include('tinymce.urls')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('tinymce/', include('tinymce.urls')),
+    path('rest-auth/', include('rest_auth.urls')),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    url(r'^api/$', SwaggerSchemaView.as_view()),
-    url(r'^api/', include('edem.api_urls')),
-    url(r'^', include('main.urls')),
-    url(r'^', include('django.contrib.auth.urls')),
+    path('api/', SwaggerSchemaView.as_view()),
+    re_path(r'^api/(v1\.0/|v1\.1/)?', include('edem.api_urls')),
+    path('', include('main.urls')),
+    path('', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:
@@ -61,7 +60,7 @@ if settings.DEBUG:
         import debug_toolbar
 
         urlpatterns += [
-            url(r'^__debug__/', include(debug_toolbar.urls)),
+            path('__debug__/', include(debug_toolbar.urls)),
         ]
     except ImportError:
         pass

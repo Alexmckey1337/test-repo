@@ -1,21 +1,21 @@
-from django.conf.urls import url, include
+from django.urls import include, path
 
 
 urlpatterns = [
-    url(r'^', include('apps.account.api.urls')),
-    url(r'^', include('apps.event.api.urls')),
-    url(r'^', include('apps.task.api.urls')),
-    url(r'^', include('apps.hierarchy.api.urls')),
-    url(r'^', include('apps.location.api.urls')),
-    url(r'^', include('apps.navigation.api.urls')),
-    url(r'^', include('apps.notification.api.urls')),
-    url(r'^', include('apps.partnership.api.urls')),
-    url(r'^', include('apps.payment.api.urls')),
-    url(r'^', include('apps.report.api.urls')),
+    path('', include('apps.account.api.urls')),
+    path('events/', include('apps.event.api.urls')),
+    path('', include('apps.task.api.urls')),
+    path('', include('apps.hierarchy.api.urls')),
+    path('', include('apps.location.api.urls')),
+    path('', include('apps.navigation.api.urls')),
+    path('', include('apps.notification.api.urls')),
+    path('', include('apps.partnership.api.urls')),
+    path('', include('apps.payment.api.urls')),
+    path('', include('apps.report.api.urls')),
 
-    url(r'^', include('apps.group.api.urls')),
+    path('', include('apps.group.api.urls')),
 
-    url(r'^', include('apps.status.api.urls')),
-    url(r'^', include('apps.summit.api.urls')),
-    url(r'^', include('apps.controls.api.urls')),
+    path('', include('apps.status.api.urls')),
+    path('', include('apps.summit.api.urls')),
+    path('controls/', include('apps.controls.api.urls')),
 ]

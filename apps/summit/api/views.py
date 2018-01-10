@@ -583,7 +583,7 @@ class SummitTicketViewSet(viewsets.GenericViewSet):
 
 
 @api_view(['GET'])
-def generate_code(request):
+def generate_code(request, filename=''):
     code = request.query_params.get('code', '00000000')
 
     pdf = generate_ticket(code)

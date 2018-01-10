@@ -34,7 +34,7 @@ from apps.account.api.permissions import (
     EditUserPermission, ExportUserListPermission, IsSuperUser)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer, ManagerIdSerializer)
+    HomeGroupIdSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -52,9 +52,12 @@ from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
 from apps.navigation.table_columns import get_table
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+
+def is_list_of_ints(lst):
+    return isinstance(lst, (list, tuple)) and all([isinstance(i, int) or (isinstance(i, str) and i.isdigit()) for i in lst])
 
 
 def get_reverse_fields(cls, obj):
@@ -242,17 +245,110 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
-    def set_manager(self, request, pk):
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def set_managers(self, request, pk):
         """
-        Set manager for user
+        Add manager for user
+        """
+        user = self.get_object()
+        managers = request.data.get('managers', None)
+        if managers is None or not is_list_of_ints(managers):
+            raise exceptions.ValidationError(_('"managers" must be list of ints.'))
+        user.managers.set(managers)
+        user.save()
+
+        return Response({'detail': _('Менеджер добавлен.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def set_skins(self, request, pk):
+        """
+        Add skin for user
+        """
+        user = self.get_object()
+        skins = request.data.get('skins', None)
+        if skins is None or not is_list_of_ints(skins):
+            raise exceptions.ValidationError(_('"skins" must be list of ints.'))
+        user.skins.set(skins)
+        user.save()
+
+        return Response({'detail': _('Добавлено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def add_manager(self, request, pk):
+        """
+        Add manager for user
         """
         user = self.get_object()
         manager = self._get_object_or_error(User, 'manager_id')
         user.managers.add(manager)
         user.save()
 
-        return Response({'detail': _('Менеджер назначен.')},
+        return Response({'detail': _('Менеджер добавлен.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def add_skin(self, request, pk):
+        """
+        Add skin for user
+        """
+        user = self.get_object()
+        skin = self._get_object_or_error(User, 'skin_id')
+        user.skins.add(skin)
+        user.save()
+
+        return Response({'detail': _('Добавлено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def delete_manager(self, request, pk):
+        """
+        Delete manager of user
+        """
+        user = self.get_object()
+        manager = self._get_object_or_error(User, 'manager_id')
+        user.managers.remove(manager)
+        user.save()
+
+        return Response({'detail': _('Менеджер удален.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def delete_skin(self, request, pk):
+        """
+        Delete skin of user
+        """
+        user = self.get_object()
+        skin = self._get_object_or_error(User, 'skin_id')
+        user.skins.remove(skin)
+        user.save()
+
+        return Response({'detail': _('Удалено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def clear_managers(self, request, pk):
+        """
+        Clear managers of user
+        """
+        user = self.get_object()
+        user.managers.clear()
+        user.save()
+
+        return Response({'detail': _('Менеджеры удалены.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def clear_skins(self, request, pk):
+        """
+        Clear skins of user
+        """
+        user = self.get_object()
+        user.skins.clear()
+        user.save()
+
+        return Response({'detail': _('Удалено.')},
                         status=status.HTTP_200_OK)
 
     # TODO tmp

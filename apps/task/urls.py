@@ -1,7 +1,6 @@
-from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, path
 
 from apps.task import views
 
@@ -15,6 +14,6 @@ def redirect_to_tasks(request):
 
 
 urlpatterns = [
-    url(r'^$', login_required(redirect_to_tasks, login_url='entry'), name='main'),
-    url(r'^all/$', views.task_list, name='task_list'),
+    path('', login_required(redirect_to_tasks, login_url='entry'), name='main'),
+    path('all/', views.task_list, name='task_list'),
 ]
