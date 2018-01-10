@@ -244,20 +244,20 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
     @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
     def set_manager(self, request, pk):
         """
-        Set manager for user
+        Add manager for user
         """
         user = self.get_object()
         manager = self._get_object_or_error(User, 'manager_id')
         user.managers.add(manager)
         user.save()
 
-        return Response({'detail': _('Менеджер назначен.')},
+        return Response({'detail': _('Менеджер добавлен.')},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
     def set_skin(self, request, pk):
         """
-        Set skin for user
+        Add skin for user
         """
         user = self.get_object()
         skin = self._get_object_or_error(User, 'skin_id')
@@ -265,6 +265,56 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         user.save()
 
         return Response({'detail': _('Добавлено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def delete_manager(self, request, pk):
+        """
+        Delete manager of user
+        """
+        user = self.get_object()
+        manager = self._get_object_or_error(User, 'manager_id')
+        user.managers.remove(manager)
+        user.save()
+
+        return Response({'detail': _('Менеджер удален.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def delete_skin(self, request, pk):
+        """
+        Delete skin of user
+        """
+        user = self.get_object()
+        skin = self._get_object_or_error(User, 'skin_id')
+        user.skins.remove(skin)
+        user.save()
+
+        return Response({'detail': _('Удалено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def clear_managers(self, request, pk):
+        """
+        Clear managers of user
+        """
+        user = self.get_object()
+        user.managers.clear()
+        user.save()
+
+        return Response({'detail': _('Менеджеры удалены.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def clear_skins(self, request, pk):
+        """
+        Clear skins of user
+        """
+        user = self.get_object()
+        user.skins.clear()
+        user.save()
+
+        return Response({'detail': _('Удалено.')},
                         status=status.HTTP_200_OK)
 
     # TODO tmp
