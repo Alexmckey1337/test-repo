@@ -50,7 +50,9 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     path('api/', SwaggerSchemaView.as_view()),
-    re_path(r'^api/(v1\.0/|v1\.1/)?', include('edem.api_urls')),
+    path('api/', include('edem.api_urls')),
+    path('api/v1.0/', include('edem.api_urls')),
+    path('api/v1.1/', include('edem.api_urls')),
     path('', include('main.urls')),
     path('', include('django.contrib.auth.urls')),
 ]
