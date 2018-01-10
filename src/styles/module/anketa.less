@@ -1318,3 +1318,41 @@
 #editChurches{
   border-bottom: none;
 }
+.manager-item{
+  form{
+    .popup_body{
+      label {
+        .input {
+          height: auto;
+          background-color: transparent;
+          &-wrap {
+            display: none;
+            align-items: center;
+            justify-content: flex-start;
+            .select2 {
+              width: 200px !important;
+            }
+          }
+          select {
+            width: 200px;
+          }
+          button {
+            width: 25px;
+            position: static;
+            color: #333;
+          }
+        }
+        ul {
+          &>li {
+            padding-left: 0;
+            justify-content: flex-start !important;
+            a {
+              position: static !important;
+              margin-left: 0 !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
