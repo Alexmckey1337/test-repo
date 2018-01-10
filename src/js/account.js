@@ -46,6 +46,7 @@ $('document').ready(function () {
           PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
           ID = getLastId();
     let managerSelect = $('#manager_select'),
+        userManagerSelect = $('#user_manager_select'),
         userIsPartner = $('.left-contentwrap').attr('data-partner');
 
     if (userIsPartner === 'True') {
@@ -69,17 +70,14 @@ $('document').ready(function () {
             }
         };
     }
-
-    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
-
-    $('#set_manager').on('click', function () {
-        const userId = $(this).data('user');
-        let manager = $('#manager_select').val(),
-            config = {'manager_id': manager};
-        postData(`${URLS.user.detail(userId)}set_manager/`, config)
-            .then(() => window.location.reload())
-            .catch(err => errorHandling(err));
-    });
+    // $('#set_manager').on('click', function () {
+    //     const userId = $(this).data('user');
+    //     let manager = $('#manager_select').val(),
+    //         config = {'manager_id': manager};
+    //     postData(`${URLS.user.detail(userId)}set_manager/`, config)
+    //         .then(() => window.location.reload())
+    //         .catch(err => errorHandling(err));
+    // });
     $('.reset_device_id').on('click', function () {
         const profileId = $(this).data('id');
         postData(`/api/app/users/${profileId}/reset_device_id/`, null)
@@ -395,18 +393,46 @@ $('document').ready(function () {
         data = {
             "is_stable": stable
         };
-
         postData(url, data, {method: "PATCH"});
     })
+    $('.set_user').on('click', function (e) {
+        e.preventDefault();
+        const userId = $(this).data('user');
+        let managerText = $('#manager_select').parent('div').find('.select2-selection__rendered').text(),
+            userManagerText = $('#user_manager_select').parent('div').find('.select2-selection__rendered').text(),
+            userManager = $('#user_manager_select').val(),
+            manager = $('#manager_select').val(),
+            form = $(this).closest('form').attr('name'),
+            list = $(this).closest('form').find('ul'),
+            item = document.createElement('li'),
+            config;
+        if (form === 'editUserManager') {
+            config = {'skin_id': userManager};
+            $(item).text(userManagerText);
+            postData(`${URLS.user.detail(userId)}set_skin/`, config)
+                .then(() => {
+                    list[0].prepend(item);
+                    $('#user_manager_select').val('').trigger('change');
+                })
+                .catch(err => errorHandling(err));
+        } else if (form === 'editManager') {
+            config = {'manager_id': manager};
+            $(item).text(managerText);
+            postData(`${URLS.user.detail(userId)}set_manager/`, config)
+                .then(() => {
+                    list[0].prepend(item);
+                    $('#manager_select').val('').trigger('change');
+                })
+                .catch(err => errorHandling(err));
+        }
+    });
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit');
         let exists = $edit.closest('form').find('ul').hasClass('exists');
-        console.log(exists);
-        if (!exists) {
-            console.log(exists);
-        }
         let noEdit = false;
+        let action = $(this).closest('form').data('action');
+        let inputWrap = $(this).closest('form').find('.input-wrap');
         $edit.each(function () {
             if ($(this).hasClass('active')) {
                 noEdit = true;
@@ -435,6 +461,9 @@ $('document').ready(function () {
                     }
                 }
             });
+            if (action === 'update-manager') {
+                $(inputWrap).css('display', 'none');
+            }
             $(this).removeClass('active');
         } else {
             if (noEdit) {
@@ -451,6 +480,11 @@ $('document').ready(function () {
                         }
                     }
                 });
+                if(action === 'update-manager'){
+                    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
+                    makeSelect(userManagerSelect, URLS.user.list_user(), parseFunc);
+                    $(inputWrap).css('display','flex');
+                }
                 $(this).addClass('active');
             }
         }
@@ -479,6 +513,7 @@ $('document').ready(function () {
         let action = thisForm.data('action');
         let partner = thisForm.data('partner');
         let form = document.forms[formName];
+        let inputWrap = $(this).closest('form').find('.input-wrap');
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
         if (action === 'update-user') {
@@ -587,22 +622,6 @@ $('document').ready(function () {
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
-            let stableId = $('#isStable').is(':checked');
-            let stable;
-            if($('#isStable').is(':checked')){
-                stable = true;
-            }else {
-                stable = false;
-            }
-            let data = {
-                "is_stable": stable
-            }
-            console.log('churchID: ' + church_id);
-            console.log('homeGroupID: ' + home_groups_id);
-            $('#isStable').on('change', function () {
-              console.log('stableId: ' + stableId);
-              postData(url,data,{method:"PATCH"});
-            });
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
@@ -612,7 +631,6 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
-                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
@@ -629,6 +647,10 @@ $('document').ready(function () {
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
+            }
+        } else if (action === 'update-manager') {
+            if (action === 'update-manager') {
+                $(inputWrap).css('display', 'none');
             }
         }
 
@@ -725,7 +747,6 @@ $('document').ready(function () {
             $img.cropper("destroy");
         });
     });
-
     $('#divisions').select2();
     $('#departments').select2();
     $('.selectdb').select2();

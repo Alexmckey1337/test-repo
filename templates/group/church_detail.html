@@ -44,7 +44,7 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            {#                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>#}
+                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
                                 <h3 id="fullName">{{ church.get_title }}</h3>
                             </hgroup>
@@ -68,23 +68,8 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
-                                            <span class="label_block">Имя</span>
+                                            <span class="label_block">Название</span>
                                             <input type="text" name="first_name" value="{{ account.first_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Фамилия</span>
-                                            <input type="text" name="last_name" value="{{ account.last_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Отчество</span>
-                                            <input type="text" name="middle_name" value="{{ account.middle_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Имя на родном языке</span>
-                                            <input type="text" name="search_name" value="{{ account.search_name }}"
                                                    readonly>
                                         </label>
                                         <label>
@@ -116,11 +101,6 @@
                                                        value="{{ church.phone_number }}" readonly>
                                                 <span class="comment"></span>
                                             </div>
-                                        </label>
-                                        <label>
-                                            <span class="label_block"><i class="fa fa-envelope"></i></span>
-                                            <input type="email" name="email" value="{{ church.address }}"
-                                                   data-validation="email" data-validation-optional="true" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block"><i class="fa fa-globe"
@@ -210,6 +190,10 @@
                                         <label>
                                             <span class="label_block">Город:</span>
                                             <input type="text" id="city" value="{{ church.city }}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Адрес:</span>
+                                            <input type="text" value="{{ church.address }}" readonly>
                                         </label>
                                     </div>
                                 </div>
