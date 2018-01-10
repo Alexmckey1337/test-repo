@@ -1,0 +1,129 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Звонки</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="add-phone"><i class="fa fa-mobile" aria-hidden="true"></i></button>
+                </li>
+                <li>
+                    <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="table__count"></div>
+        <div class="pagination reports__pagination"><!--pagination -->
+        </div><!--End pagination -->
+    {% endblock %}
+
+    {% block table %}
+        <!--Table -->
+            <div class="table table-wrap clearfix" id="tablePhone">
+                <div class="table scrollbar-inner" id="tablePhoneWrap"></div>
+            </div>
+        <!--End Table -->
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination reports__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap popap_slide" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <label>
+                        <span class="label_block">Тип</span>
+                        <select class="selectdb" data-filter="type">
+                            <option value="">ВСЕ</option>
+                            {% for type in types %}
+                                {% for key,value in  type.items %}
+                                    <option value="{{ key }}">{{ value }}</option>
+                                {% endfor %}
+
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Статус</span>
+                        <select class="selectdb" data-filter="disposition">
+                            <option value="">ВСЕ</option>
+                            {% for dispositon in dispositions %}
+                                {% for key,value in  dispositon.items %}
+                                    <option value="{{ key }}">{{ value }}</option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Номер оператора</span>
+                        <input type="number" data-filter="src">
+                    </label>
+                    <label>
+                        <span class="label_block">Назначение</span>
+                        <input type="number" data-filter="dst">
+                    </label>
+                    <label>
+                        <span class="label_block">Длительность</span>
+                        <p class="birthday">
+                            <input type="number" placeholder="от" data-filter="duration_from"
+                                   class="select_from_filter">
+                            <input type="number" placeholder="до" data-filter="duration_to"
+                                   class="select_to_filter">
+                        </p>
+                    </label>
+                    <label>
+                        <span class="label_block">Дата</span>
+                        <p class="birthday">
+                            <input type="text" placeholder="от" data-filter="date_from" id="sum_from"
+                                   class="date_filter">
+                            <input type="text" placeholder="до" data-filter="date_to" id="sum_to"
+                                   class="date_filter">
+                        </p>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+    <div class="pop-up__table popup__month" id="popupAddUserToPhone">
+        <div class="pop_cont">
+            <div class="top-text">
+                <h3>Добавить ...</h3>
+                <span class="close_pop">×</span>
+            </div>
+            <div class="main-text">
+                <div class="iptel-month" id="tableAddUserToPhone"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "js/phone.bundle.js" %}"></script>
+{% endblock %}
+
+

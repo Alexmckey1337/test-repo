@@ -651,6 +651,54 @@
                         </div>
                     </div>
                 </div>
+                <div class="a-block a-iptel">
+                    <div class="top-s">
+                        <h3>Звонки</h3>
+                        <span id="monthBtn">Звонки за месяц</span>
+                    </div>
+                    <div class="a-iptel__wrap accordion-block">
+                        <div id="iptelBlock"></div>
+                        <div class="iptelPlayer">
+                            <!-- Top Info -->
+                            <div id="title">
+                                <span id="track"></span>
+                                <div id="timer">0:00</div>
+                                <div id="duration">0:00</div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="controlsOuter">
+                                <div class="controlsInner">
+                                    <div id="loading"></div>
+                                    <div class="btn" id="playBtn"></div>
+                                    <div class="btn" id="pauseBtn"></div>
+                                    <div class="btn" id="prevBtn"></div>
+                                    <div class="btn" id="nextBtn"></div>
+                                </div>
+                                <div class="btn" id="playlistBtn"></div>
+                                <div class="btn" id="volumeBtn"></div>
+                            </div>
+
+                            <!-- Progress -->
+                            <div id="waveform"></div>
+                            <div id="bar"></div>
+                            <div id="progress"></div>
+
+                            <!-- Playlist -->
+                            <div id="playlist">
+                                <div id="list"></div>
+                            </div>
+
+                            <!-- Volume -->
+                            <div id="volume" class="fadeout">
+                                <div id="barFull" class="bar"></div>
+                                <div id="barEmpty" class="bar"></div>
+                                <div id="sliderBtn"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {% if user.is_partner_manager_or_high and account.is_partner %}
                         <div class="a-block">
                             <div class="top-s">
@@ -1053,10 +1101,38 @@
             </div>
         </div>
     </div>
-
-{% include "partials/find_duplicate_deals.html" %}
-
-    <div id="popup-create_partners" class="popap">
+    {% include "partials/find_duplicate_deals.html" %}
+    {#    <div id="playerPopup" class="pop-up__table">#}
+{#        <div class="pop_cont">#}
+{#            <div class="top-text">#}
+{#                <h3>Прослушать запись</h3><span class="close_pop">×</span>#}
+{#            </div>#}
+{#            <div class="musicPlayer">#}
+{#                <audio controls>#}
+{#                  <source src="http://192.168.240.47:7000/file/?file_name=out-0687774566-1119-20171023-133344-1508754824.286.wav" type="audio/wav">#}
+{#                </audio>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="pop-up__table popup__month" id="popupMonth">
+        <div class="pop_cont">
+            <div class="top-text">
+                <h3>Звонки за</h3>
+                <input type="text"
+                   class="iptel-month"
+                   id="monthInput"
+                   data-language='en'
+                   data-min-view="months"
+                   data-view="months"
+                   data-date-format="MM yyyy" />
+                <span class="close_pop">×</span>
+            </div>
+            <div class="main-text">
+                <div class="iptel-month" id="tableMonthIptel"></div>
+            </div>
+        </div>
+    </div>
+    <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
         <div class="pop_cont">
             <div class="popup_text">
                 <h2>Добавление партнерской анкеты</h2>
@@ -1115,6 +1191,7 @@
                         </select>
                     </label>
                 </div>
+                <div id="table_duplicate" class="table-wrap clearfix"></div>
             </div>
             <div class="container">
                 <button id="close_addPartners">Отменить</button>
@@ -1128,5 +1205,9 @@
 {% endblock %}
 
 {% block extra_scripts %}
+    <script>var currentUser = {{ account.id }}</script>
     <script src="{% static "js/account.bundle.js" %}"></script>
+    <script id="iptelScript">
+
+    </script>
 {% endblock %}

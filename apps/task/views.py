@@ -18,4 +18,4 @@ def task_list(request):
         'types': TaskType.objects.all()
     }
 
-    return render(request, 'tasks/task_list.html', context=ctx)
+    return render(request, 'tasks/index.html', context=ctx)

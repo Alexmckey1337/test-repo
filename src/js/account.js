@@ -14,6 +14,8 @@ import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import errorHandling from './modules/Error';
+import moment from 'moment';
+import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
@@ -25,12 +27,8 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {
-    changeLessonStatus,
-    initLocationSelect,
-    sendNote,
-} from './modules/Account/index';
-import {addUserToChurch, addUserToHomeGroup, stableUser} from './modules/User/addUser';
+import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable,dataIptelMonth} from './modules/Account/index';
+import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {
     btnNeed,
@@ -84,6 +82,10 @@ $('document').ready(function () {
             .then(() => window.location.reload())
             .catch(err => errorHandling(err));
     });
+    //////////////////////////////////////////////
+    // sorry for my code  -- finish
+    //////////////////////////////////////////////
+    // const ID = getLastId();
 
     function AddColorMarkers() {
         let options = $('#markers-select').find('option:selected'),
@@ -110,6 +112,32 @@ $('document').ready(function () {
         let user = $(this).data('user-id');
         setCookie('hard_user_id', user, {path: '/'});
         window.location.reload();
+    });
+
+    $("#tabs1 li").on('click', function () {
+        let id_tab = $(this).attr('data-tab');
+        $('[data-tab-content]').hide();
+        $('[data-tab-content="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $('#send_need').on('click', function () {
+        let need_text = $('#id_need_text').val();
+        let url = URLS.partner.update_need($(this).data('partner'));
+        let need = JSON.stringify({'need_text': need_text});
+        ajaxRequest(url, need, function () {
+            showAlert('Нужда сохранена.');
+        }, 'PUT', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                showAlert(data.detail);
+            }
+        });
+        $(this).siblings('.editText').removeClass('active');
+        $(this).parent().siblings('textarea').attr('readonly', true);
     });
 
     $('.send_email_with_code').on('click', function () {
@@ -236,10 +264,83 @@ $('document').ready(function () {
         $('#popup-create_deal textarea').val('');
         $('#popup-create_deal').css('display', '');
     });
+    $("#create_new_deal").on('click', function () {
+        $('#send_new_deal').prop('disabled', false);
+        $('#popup-create_deal').css('display', 'block');
+    });
+
+    function clearDeal() {
+        $('#popup-create_deal textarea').val('');
+        $('#new_deal_sum').val('');
+        $('#new_deal_date').val('');
+        $('#popup-create_deal').css('display', 'none');
+    }
+
+    function createDeal(config) {
+        postData(URLS.deal.list(), config).then(() => {
+            showAlert('Сделка создана.');
+            clearDeal();
+        }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
+    }
+
+    $('#send_new_deal').on('click', function () {
+        let description = $('#popup-create_deal textarea').val(),
+            value = $('#new_deal_sum').val(),
+            date = $('#new_deal_date').val(),
+            type = $('#new_deal_type').val();
+
+        if (value && date) {
+            let dateFormat = date.trim().split('.').reverse().join('-'),
+                id = $(this).data('partner'),
+                checkDeal = {
+                    'date_created': dateFormat,
+                    'value': value,
+                    'partnership_id': id,
+                },
+                deal = {
+                    'date_created': dateFormat,
+                    'value': value,
+                    'description': description,
+                    'partnership': id,
+                    'type': type,
+                };
+            $(this).prop('disabled', true);
+            getData(URLS.deal.check_duplicates(), checkDeal).then( data => {
+                if (data.results) {
+                    $('.preloader').css('display', 'block');
+                    $('#send_new_deal').prop('disabled', false);
+                    makeDuplicateDeals(checkDeal);
+                    $('#hard_create').attr('data-date_created', dateFormat)
+                                     .attr('data-value', value)
+                                     .attr('data-description', description)
+                                     .attr('data-partnership', id)
+                                     .attr('data-type', type);
+                } else {
+                    createDeal(deal);
+                }
+            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
+        } else {
+            showAlert('Заполните все поля.');
+        }
+    });
+
+    $('#hard_create').on('click', function () {
+        let deal = {
+                    'date_created': $(this).attr('data-date_created'),
+                    'value': $(this).attr('data-value'),
+                    'description': $(this).attr('data-description'),
+                    'partnership': $(this).attr('data-partnership'),
+                    'type': $(this).attr('data-type'),
+                };
+        createDeal(deal);
+        $('.pop-up_duplicate__table').css('display', 'none');
+    });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up_duplicate__table').css('display', 'none');
     });
+
+    $("#tabs1 li").click();
 
     $("#id_deal_date").datepicker({
         dateFormat: "yy-mm-dd",
@@ -496,6 +597,7 @@ $('document').ready(function () {
 
             return;
         }
+        console.log('Valid-->', $('#phone_number').inputmask("isComplete"));
 
         if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete"))) {
             showAlert('Введите коректный номер телефона');
@@ -653,7 +755,6 @@ $('document').ready(function () {
                 $(inputWrap).css('display', 'none');
             }
         }
-
         $input.each(function () {
             if (!$(this).attr('disabled')) {
                 $(this).attr('disabled', true);
@@ -768,6 +869,22 @@ $('document').ready(function () {
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
     });
 
+    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
+        $(this).toggleClass('active');
+        let textArea = $(this).parent().siblings('textarea'),
+            select = $(this).closest('.note_wrapper').find('select'),
+            btn = $(this).closest('.access_wrapper').find('#delete_access');
+        if ($(this).hasClass('active')) {
+            textArea.attr('readonly', false);
+            select.attr('readonly', false).attr('disabled', false);
+            btn.attr('disabled', false);
+        } else {
+            textArea.attr('readonly', true);
+            select.attr('readonly', true).attr('disabled', true);
+            btn.attr('disabled', true);
+        }
+    });
+
     AddColorMarkers();
 
     $('#phone_number').inputmask('phone', {
@@ -818,9 +935,82 @@ $('document').ready(function () {
     });
 
 
-    btnNeed();
+    // $('label[for="master"]').on('click', function () {
+    //     let id = $('#selectResponsible').find('option:selected').val();
+    //     if(id) {
+    //         window.location.href = `/account/${id}`;
+    //     }
+    // })
+    function createUrl() {
+        let idUser = $('body').attr('data-user'),
+            url = '/api/v1.1/calls_to_user/?user_id='+ currentUser + '&range=last_3';
+        dataIptelTable(url);
+    }
+    createUrl();
+
+    $('.recordIptel').on('click',function () {
+        let defaultOption = {
+            method: 'GET',
+            credentials: 'same-origin',
+            mode: 'cors',
+            headers: new Headers({
+                'Content-Type': 'text / html',
+                'Access-Control-Allow-Origin':'*',
+                'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
+            })
+        },
+        target = $(this).find('p').text().trim(),
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
+        player = new WavPlayer();
+        // fetch(url, defaultOption).then(function (response) {
+        //     console.log(response.url);
+        //     var sound = new Howl({
+        //         src: [response.url]
+        //     }).play();
+        // });
+        console.log($(this));
+        if($(this).find('.btnPlay').hasClass('active')){
+            $(this).find('.btnPlay').removeClass('active');
+            $(this).find('.btnStop').addClass('active');
+            console.log('play');
+            fetch(url, defaultOption).then(function (response) {
+                console.log(response.url);
+                player.play(response.url);
+            })
+        }else{
+            $(this).find('.btnPlay').addClass('active');
+            $(this).find('.btnStop').removeClass('active');
+            player.stop();
+            console.log('stop');
+        };
+    });
+    $('#monthInput').datepicker({
+        autoClose: true,
+        view: 'months',
+        onSelect: function (formattedDate, date, inst) {
+            $('.preloader').css('display', 'block');
+            let dateMonth = moment(date).format("YYYY-MM"),
+                url = '/api/v1.1/calls_to_user/?user_id='+ currentUser +'&range=month&month_date='+dateMonth;
+            $('#tableMonthIptel').html('');
+            dataIptelMonth(url);
+        }
+    });
+    $('#monthBtn').on('click', function (e) {
+        e.preventDefault;
+        let idUser = $('body').attr('data-user'),
+           todayDate = moment().locale('ru'),
+           url = '/api/v1.1/calls_to_user/?user_id='+currentUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
+        $('#tableMonthIptel').html('');
+       $('.preloader').css('display', 'block');
+       $('#popupMonth').css('display', 'block');
+       $('#monthInput').val(todayDate.format("MMMM YYYY"));
+        dataIptelMonth(url);
+    });
+    $('.close_pop').on('click',function () {
+        $('#popupMonth').css('display', 'none');
+    })
+      btnNeed();
     btnPartners();
     btnDeal();
     tabs();
-
 });

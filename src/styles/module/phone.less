@@ -1,0 +1,100 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-addUser {
+    display: flex;
+    align-items: center;
+    &:not(:last-child){
+        margin-bottom:10px;
+    }
+    p {
+        margin-right: 10px;
+        width: 30px;
+    }
+    select{
+        width: 250px;
+        display: none;
+        &.active{
+            display: block;
+        }
+    }
+    input {
+        height: 30px;
+        border-radius: 3px;
+        outline: 0;
+        padding-left: 10px;
+        border: 1px solid #cdd0d4;
+        width: 250px;
+        display: none;
+        &[disabled] {
+            border: none;
+        }
+        &.active{
+            display: block;
+        }
+    }
+    button {
+        padding: 12px 20px;
+        margin-left: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        display: none;
+        width: 55px;
+        &.add, &.change,&.close{
+            &.active {
+                display: block;
+            }
+            &::before {
+                font: 1.4em FontAwesome;
+                color: #fff;
+            }
+        }
+        &.add {
+            &::before {
+                content: '\f067';
+            }
+        }
+        &.change {
+            &::before {
+                content: '\f044';
+            }
+        }
+        &.close{
+            &::before{
+                content: '\f00d';
+            }
+        }
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px;
+    }
+    .saved{
+        color: #cbe8ba;
+        margin-left:20px;
+        opacity:0;
+        transition: opacity .3s;
+        &.active{
+            opacity: 1;
+        }
+    }
+}
+.errorText{
+    text-align: center;
+    text-transform: uppercase;
+}
+#tablePhone{
+    .errorText{
+        font-size: 20px;
+        padding-top: 200px;
+    }
+}
+#popupAddUserToPhone{
+    .errorText{
+        padding-top: 150px;
+        font-size: 20px;
+    }
+}
