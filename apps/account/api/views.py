@@ -34,7 +34,7 @@ from apps.account.api.permissions import (
     EditUserPermission, ExportUserListPermission, IsSuperUser)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer, ManagerIdSerializer)
+    HomeGroupIdSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -52,7 +52,6 @@ from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
 from apps.navigation.table_columns import get_table
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +241,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], serializer_class=ManagerIdSerializer, permission_classes=(IsSuperUser,))
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
     def set_manager(self, request, pk):
         """
         Set manager for user
@@ -255,6 +254,19 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Менеджер назначен.')},
                         status=status.HTTP_200_OK)
 
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def set_skin(self, request, pk):
+        """
+        Set skin for user
+        """
+        user = self.get_object()
+        skin = self._get_object_or_error(User, 'skin_id')
+        user.skins.add(skin)
+        user.save()
+
+        return Response({'detail': _('Добавлено.')},
+                        status=status.HTTP_200_OK)
+
     # TODO tmp
     @detail_route(methods=['get'])
     def departments(self, request, pk):
@@ -263,6 +275,17 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         departments = get_object_or_404(User, pk=pk).departments.all()
         serializer = DepartmentSerializer(departments, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def skins(self, request, pk):
+        """
+        List of user.skins
+        """
+        skins = get_object_or_404(User, pk=pk).skins.annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        serializer = UserForSelectSerializer(skins, many=True)
 
         return Response(serializer.data)
 

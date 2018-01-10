@@ -48,7 +48,8 @@ urlpatterns = [
     url(r'^structure/(?P<pk>\d+)/$', views.structure, name='structure-detail'),
     url(r'^structure/(?P<pk>\d+)/(?P<name>.+)\.pdf$', views.structure_to_pdf, name='structure_to_pdf-detail'),
     url(r'^structure/top\.pdf$', views.structure_to_pdf, name='structure_to_pdf-top'),
-    url(r'^calls', views.calls, name='calls')
+    url(r'^calls', views.calls, name='calls'),
+    url(r'^controls/', include('apps.controls.urls', namespace='controls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

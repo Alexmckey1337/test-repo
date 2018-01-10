@@ -307,3 +307,13 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
                   'reports_submitted', 'reports_in_progress', 'reports_expired',)
 
         read_only_fields = ['__all__']
+
+
+class MobileReportsDashboardSerializer(serializers.ModelSerializer):
+    service = serializers.IntegerField()
+    home_meetings = serializers.IntegerField()
+    night = serializers.IntegerField()
+
+    class Meta:
+        model = Meeting
+        fields = ('service', 'home_meetings', 'night')

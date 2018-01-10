@@ -54,15 +54,21 @@ class ParticipationAdmin(admin.ModelAdmin):
         model = Participation
 
 
-# class ChurchReportPastorAdmin(admin.ModelAdmin):
-#     list_display = ('id',)
-#
-#     class Meta:
-#         model = ChurchReportPastor
+@admin.register(ChurchReport)
+class ChurchReportAdmin(admin.ModelAdmin):
+    list_display = ('church', 'pastor', 'status', 'date')
+    search_fields = ('church__title',)
+
+
+@admin.register(Meeting)
+class MeetingAdmin(admin.ModelAdmin):
+    list_display = ('home_group', 'owner', 'status', 'date')
+    search_fields = ('home_group__title',)
 
 
 admin.site.register(Participation, ParticipationAdmin)
 admin.site.register(MeetingType)
-admin.site.register(Meeting)
 admin.site.register(MeetingAttend)
-admin.site.register(ChurchReport)
+
+admin.register(ChurchReportAdmin)
+admin.register(MeetingAdmin)
