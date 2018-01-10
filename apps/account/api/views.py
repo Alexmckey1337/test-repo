@@ -266,6 +266,17 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         return Response(serializer.data)
 
+    @detail_route(methods=['get'])
+    def skins(self, request, pk):
+        """
+        List of user.skins
+        """
+        skins = get_object_or_404(User, pk=pk).skins.annotate(
+            full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
+        serializer = UserForSelectSerializer(skins, many=True)
+
+        return Response(serializer.data)
+
     def _get_object_or_error(self, model, field_name):
         obj_id = self.request.data.get(field_name, None)
         if not obj_id:
