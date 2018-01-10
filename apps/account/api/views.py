@@ -56,6 +56,10 @@ from apps.navigation.table_columns import get_table
 logger = logging.getLogger(__name__)
 
 
+def is_list_of_ints(lst):
+    return isinstance(lst, (list, tuple)) and all([isinstance(i, int) or (isinstance(i, str) and i.isdigit()) for i in lst])
+
+
 def get_reverse_fields(cls, obj):
     rev_fields = dict()
     for field in cls.get_tracking_reverse_fields():
@@ -242,7 +246,37 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
-    def set_manager(self, request, pk):
+    def set_managers(self, request, pk):
+        """
+        Add manager for user
+        """
+        user = self.get_object()
+        managers = request.data.get('managers', None)
+        if managers is None or not is_list_of_ints(managers):
+            raise exceptions.ValidationError(_('"managers" must be list of ints.'))
+        user.managers.set(managers)
+        user.save()
+
+        return Response({'detail': _('Менеджер добавлен.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def set_skins(self, request, pk):
+        """
+        Add skin for user
+        """
+        user = self.get_object()
+        skins = request.data.get('skins', None)
+        if skins is None or not is_list_of_ints(skins):
+            raise exceptions.ValidationError(_('"skins" must be list of ints.'))
+        user.skins.set(skins)
+        user.save()
+
+        return Response({'detail': _('Добавлено.')},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    def add_manager(self, request, pk):
         """
         Add manager for user
         """
@@ -255,7 +289,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
-    def set_skin(self, request, pk):
+    def add_skin(self, request, pk):
         """
         Add skin for user
         """
