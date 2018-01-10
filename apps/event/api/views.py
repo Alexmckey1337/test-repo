@@ -33,7 +33,7 @@ from apps.event.api.serializers import (
     MeetingStatisticSerializer, ChurchReportSerializer,
     ChurchReportListSerializer, MeetingDashboardSerializer,
     ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,
-    MeetingSummarySerializer, ChurchReportSummarySerializer)
+    MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 
@@ -291,6 +291,27 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], serializer_list_class=MobileReportsDashboardSerializer)
+    def mobile_dashboard(self, request):
+        user = self.user_for_dashboard(request)
+        queryset = self.queryset.for_user(user, extra_perms=False)
+
+        mobile_counts = queryset.aggregate(
+            service=Sum(Case(
+                When(type=1, then=1),
+                output_field=IntegerField(), default=0)),
+            home_meetings=Sum(Case(
+                When(type=2, then=1),
+                output_field=IntegerField(), default=0)),
+            night=Sum(Case(
+                When(type=3, then=1),
+                output_field=IntegerField(), default=0))
+        )
+
+        mobile_counts['church_reports'] = ChurchReport.objects.for_user(user, extra_perms=False).count()
+
+        return Response(mobile_counts, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
