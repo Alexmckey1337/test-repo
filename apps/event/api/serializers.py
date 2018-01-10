@@ -313,7 +313,8 @@ class MobileReportsDashboardSerializer(serializers.ModelSerializer):
     service = serializers.IntegerField()
     home_meetings = serializers.IntegerField()
     night = serializers.IntegerField()
+    church_reports = serializers.IntegerField()
 
     class Meta:
         model = Meeting
-        fields = ('service', 'home_meetings', 'night')
+        fields = ('service', 'home_meetings', 'night', 'church_reports')

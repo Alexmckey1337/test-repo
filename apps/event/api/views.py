@@ -292,7 +292,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_list_class=MobileReportsDashboardSerializer)
+    @list_route(methods=['GET'], serializer_class=MobileReportsDashboardSerializer)
     def mobile_dashboard(self, request):
         user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user, extra_perms=False)
@@ -310,8 +310,12 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         )
 
         mobile_counts['church_reports'] = ChurchReport.objects.for_user(user, extra_perms=False).count()
+        if not mobile_counts['church_reports']:
+            mobile_counts['church_reports'] = None
 
-        return Response(mobile_counts, status=status.HTTP_200_OK)
+        mobile_counts = self.serializer_class(mobile_counts)
+
+        return Response(mobile_counts.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
