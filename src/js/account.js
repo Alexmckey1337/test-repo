@@ -383,7 +383,7 @@ $('document').ready(function () {
     $("#isStable").on('change', function () {
         console.log('checkbox');
         let userId = $('body').attr('data-user'),
-            url = '/api/v1.1/users/' + userId + '/',
+            url = '/api/users/' + userId + '/',
             stable,
             data;
 
@@ -583,7 +583,7 @@ $('document').ready(function () {
         } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
             let userId = $('body').attr('data-user');
-            let url = '/api/v1.1/users/'+userId+'/';
+            let url = '/api/users/'+userId+'/';
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
