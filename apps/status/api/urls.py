@@ -8,5 +8,5 @@ router_v1_0.register('statuses', views.StatusViewSet)
 router_v1_0.register('divisions', views.DivisionViewSet)
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
+    path('', include(router_v1_0.urls)),
 ]

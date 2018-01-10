@@ -12,5 +12,5 @@ router_v1_0.register('churches', views.ChurchViewSet)
 router_v1_0.register('home_groups', views.HomeGroupViewSet)
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
+    path('', include(router_v1_0.urls)),
 ]

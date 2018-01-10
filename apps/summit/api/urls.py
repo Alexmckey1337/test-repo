@@ -63,9 +63,9 @@ custom_app = [
 ]
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
-    path('app/', include(router_app.urls)),
+    path('', include(router_v1_0.urls)),
+    path('', include(custom_urls)),
 
-    path('v1.0/', include(custom_urls)),
+    path('app/', include(router_app.urls)),
     path('app/', include(custom_app)),
 ]

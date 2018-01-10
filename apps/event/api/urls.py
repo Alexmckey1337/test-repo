@@ -12,5 +12,5 @@ router_v1_0.register('home_meetings', views.MeetingViewSet)
 router_v1_0.register('church_reports', views.ChurchReportViewSet)
 
 urlpatterns = [
-    path('v1.0/events/', include(router_v1_0.urls)),
+    path('', include(router_v1_0.urls)),
 ]

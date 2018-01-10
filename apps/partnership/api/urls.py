@@ -20,10 +20,10 @@ custom_urls = [
     path('users/<int:user_id>/set_partner_role/', views.SetPartnerRoleView.as_view(), name="set_partner_role"),
     path('users/<int:user_id>/delete_partner_role/',
          views.DeletePartnerRoleView.as_view(), name="delete_partner_role"),
-    path('users/(<int:user_id>/update_partner_role/',
+    path('users/<int:user_id>/update_partner_role/',
          views.UpdatePartnerRoleView.as_view(), name="update_partner_role"),
-    path('partners/(<int:partner_id>/last_deals/', views.LastPartnerDealsView.as_view(), name="partner-last_deals"),
-    path('partners/(<int:partner_id>/last_payments/',
+    path('partners/<int:partner_id>/last_deals/', views.LastPartnerDealsView.as_view(), name="partner-last_deals"),
+    path('partners/<int:partner_id>/last_payments/',
          views.LastPartnerPaymentsView.as_view(), name="church_partner-last_payments"),
     path('church_partners/<int:partner_id>/last_deals/', views.LastChurchPartnerDealsView.as_view(),
          name="partner-last_deals"),
@@ -32,8 +32,8 @@ custom_urls = [
 ]
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
-    path('v1.1/', include(router_v1_1.urls)),
+    path('', include(router_v1_0.urls)),
+    path('', include(router_v1_1.urls)),
 
-    path('v1.0/', include(custom_urls)),
+    path('', include(custom_urls)),
 ]

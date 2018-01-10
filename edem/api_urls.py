@@ -3,7 +3,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('apps.account.api.urls')),
-    path('', include('apps.event.api.urls')),
+    path('events/', include('apps.event.api.urls')),
     path('', include('apps.task.api.urls')),
     path('', include('apps.hierarchy.api.urls')),
     path('', include('apps.location.api.urls')),
@@ -17,5 +17,5 @@ urlpatterns = [
 
     path('', include('apps.status.api.urls')),
     path('', include('apps.summit.api.urls')),
-    path('', include('apps.controls.api.urls')),
+    path('controls/', include('apps.controls.api.urls')),
 ]

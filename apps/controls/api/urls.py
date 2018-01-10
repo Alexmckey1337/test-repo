@@ -12,5 +12,5 @@ router_v1_0 = routers.DefaultRouter()
 router_v1_0.register('db_access', views.DatabaseAccessViewSet)
 
 urlpatterns = [
-    path('v1.0/controls/', include(router_v1_0.urls))
+    path('', include(router_v1_0.urls))
 ]

@@ -1515,7 +1515,7 @@ class TestSummitProfileTreeForAppListView:
         ticket_profiles = summit_anket_factory.create_batch(2)
         ticket.users.set((p.id for p in ticket_profiles))
 
-        url = '/api/v1.0/summit_tickets/{}/users/'.format(ticket.id)
+        url = '/api/summit_tickets/{}/users/'.format(ticket.id)
         response = api_client.get(url, format='json')
 
         assert len(response.data) == 2
@@ -1530,7 +1530,7 @@ class TestSummitProfileTreeForAppListView:
         code_profile = summit_anket_factory(code='22222')
         ticket.users.set((p.id for p in ticket_profiles + [code_profile]))
 
-        url = '/api/v1.0/summit_tickets/{}/users/?code=22222'.format(ticket.id)
+        url = '/api/summit_tickets/{}/users/?code=22222'.format(ticket.id)
         response = api_client.get(url, format='json')
 
         assert len(response.data) == 3

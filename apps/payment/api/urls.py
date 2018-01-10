@@ -17,5 +17,5 @@ payment_urlpatterns = [
 ]
 
 urlpatterns = [
-    path('v1.0/', include(payment_urlpatterns)),
+    path('', include(payment_urlpatterns)),
 ]

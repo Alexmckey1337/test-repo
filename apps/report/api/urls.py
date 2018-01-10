@@ -10,5 +10,5 @@ router_v1_0.register('month_reports', views.MonthReportViewSet)
 router_v1_0.register('year_reports', views.YearReportViewSet)
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
+    path('', include(router_v1_0.urls)),
 ]
