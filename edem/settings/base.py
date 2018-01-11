@@ -348,27 +348,27 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'apps.account.views': {
+        'apps.account.api.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'apps.event.views': {
+        'apps.event.api.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'apps.group.views': {
+        'apps.group.api.views': {
             'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': False,
         },
-        'apps.summit.views': {
+        'apps.summit.api.views': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
-        'apps.partnership.tasks': {
+        'apps.partnership.api.tasks': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
