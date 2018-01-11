@@ -479,11 +479,10 @@ $('document').ready(function () {
         $('#home_groups_list').html(option);
     });
     makeChurches();
+    $('.selectdb').select2();
     $("#isStable").on('change', function () {
         console.log('checkbox');
-        let userId = $('body').attr('data-user'),
-            url = '/api/v1.1/users/' + userId + '/',
-            stable,
+        let stable,
             data;
 
         if ($('#isStable').is(':checked')) {
@@ -494,7 +493,7 @@ $('document').ready(function () {
         data = {
             "is_stable": stable
         };
-        postData(url, data, {method: "PATCH"});
+        postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
     })
     $('.set_user').on('click', function (e) {
         e.preventDefault();
@@ -510,7 +509,7 @@ $('document').ready(function () {
         if (form === 'editUserManager') {
             config = {'skin_id': userManager};
             $(item).text(userManagerText);
-            postData(`${URLS.user.detail(userId)}set_skin/`, config)
+            postData(`${URLS.user.detail(userId)}add_skin/`, config)
                 .then(() => {
                     list[0].prepend(item);
                     $('#user_manager_select').val('').trigger('change');
@@ -519,7 +518,7 @@ $('document').ready(function () {
         } else if (form === 'editManager') {
             config = {'manager_id': manager};
             $(item).text(managerText);
-            postData(`${URLS.user.detail(userId)}set_manager/`, config)
+            postData(`${URLS.user.detail(userId)}add_manager/`, config)
                 .then(() => {
                     list[0].prepend(item);
                     $('#manager_select').val('').trigger('change');
@@ -850,7 +849,7 @@ $('document').ready(function () {
     });
     $('#divisions').select2();
     $('#departments').select2();
-    $('.selectdb').select2();
+
     $('#sent_date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
@@ -875,10 +874,12 @@ $('document').ready(function () {
             select = $(this).closest('.note_wrapper').find('select'),
             btn = $(this).closest('.access_wrapper').find('#delete_access');
         if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
             textArea.attr('readonly', false);
             select.attr('readonly', false).attr('disabled', false);
             btn.attr('disabled', false);
         } else {
+            $(this).addClass('active');
             textArea.attr('readonly', true);
             select.attr('readonly', true).attr('disabled', true);
             btn.attr('disabled', true);
@@ -941,12 +942,8 @@ $('document').ready(function () {
     //         window.location.href = `/account/${id}`;
     //     }
     // })
-    function createUrl() {
-        let idUser = $('body').attr('data-user'),
-            url = '/api/v1.1/calls_to_user/?user_id='+ currentUser + '&range=last_3';
-        dataIptelTable(url);
-    }
-    createUrl();
+
+    dataIptelTable(URLS.phone.lastThree(currentUser));
 
     $('.recordIptel').on('click',function () {
         let defaultOption = {

@@ -17,7 +17,7 @@ $('document').ready(function () {
         init = false;
     const path = window.location.href.split('?')[1];
 
-
+    $('.selectdb').select2();
     function filterInit(set = null) {
         if (!init) {
             if (set != null) {
@@ -39,8 +39,8 @@ $('document').ready(function () {
     }
     if (path != undefined) {
         let filterParam = parseUrlQuery();
-        console.log(filterParam);
         filterInit(filterParam);
+        phoneTable();
     }
 
     // Events

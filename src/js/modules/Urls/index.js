@@ -163,6 +163,7 @@ const PHONE = {
     list: () => `/api/v1.1/all_calls/`,
     user: () => `/api/v1.1/asterisk_users/`,
     changeUser: () => `/api/v1.1/change_asterisk_user/`,
+    lastThree: (id) => `/api/v1.1/calls_to_user/?user_id=${id}&range=last_3`,
     // detail: (reportId) => `/api/v1.0/events/home_meetings/${reportId}/`,
 };
 

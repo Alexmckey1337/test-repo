@@ -95,7 +95,8 @@ export function phoneTable(config = {}) {
 }
 
 function addUserToPhone(data, block) {
-    let wrap = `${data.map(item => {
+    console.log(data);
+    let wrap = `${data.result.map(item => {
         return `<form class="form-addUser">
                     <p class="form-addUser__phone">${item.extension}</p>
                     <label>
