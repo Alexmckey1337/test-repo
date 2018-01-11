@@ -11,7 +11,7 @@
 // Cache references to DOM elements.
 import SiriWaves from './modules/Player';
 let idUser = $('body').attr('data-user'),
-    url = '/api/v1.1/calls_to_user/?user_id=' + idUser + '&range=last_3',
+    url = '/api/calls_to_user/?user_id=' + idUser + '&range=last_3',
     urlSound = 'http://192.168.240.47:7000/file/?file_name=in-443372230-0686046505-20171207-174710-1512661630.6310.wav';
 
 
