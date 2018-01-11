@@ -549,7 +549,7 @@
                     {% endif %}
                     <li id="editManager" class="manager-item">
                         <div class="right-info__block">
-                            <h4>Менеджер</h4>
+                            <h4>Текущие менеджеры</h4>
                             <div class="success__block"></div>
                             <form action="/" name="editManager" data-action="update-manager">
                                 <button class="edit" data-edit-block="editManager"></button>
@@ -557,7 +557,7 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
-                                            <span class="label_block">Менеджер:</span>
+                                            <span class="label_block">Текущие менеджеры:</span>
                                             <div class="input">
                                                 <div class="input-wrap">
                                                     <select name="manager" id="manager_select" class="select2">
@@ -1116,7 +1116,7 @@
 {#            </div>#}
 {#        </div>#}
 {#    </div>#}
-    <div id="popup-create_partners" class="popap" style="display: block;">
+    <div id="popup-create_partners" class="popap">
         <div class="pop_cont">
             <div class="popup_text">
                 <h2>Добавление партнерской анкеты</h2>
@@ -1126,7 +1126,7 @@
                     <input type="hidden" data-id="user" value="241">
                     <label>
                         <span class="label_block">Отдел партнерства:</span>
-                        <select class="department_partner selectdb select2-hidden-accessible" data-id="title"
+                        <select class="department_partner selectdb" data-id="title"
                                 tabindex="-1" aria-hidden="true">
                             <option value="UA">UA</option>
                             <option value="EU">EU</option>
@@ -1134,8 +1134,7 @@
                     </label>
                     <label>
                         <span class="label_block">Тег:</span>
-                        <select class="group selectdb par__group select2-hidden-accessible" data-id="group"
-                                tabindex="-1" aria-hidden="true">
+                        <select class="group selectdb par__group" data-id="group" tabindex="-1" aria-hidden="true">
                             <option value="" selected="" disabled="">Выберите тег</option>
                         </select>
                     </label>
@@ -1152,8 +1151,7 @@
                         <span class="label_block">Сумма сделки:</span>
                         <div class="input">
                             <input type="text" data-id="value" class="payment_value">
-                            <select class="payment_currency selectdb select2-hidden-accessible" data-id="currency"
-                                    tabindex="-1" aria-hidden="true">
+                            <select class="payment_currency selectdb" data-id="currency" tabindex="-1" aria-hidden="true">
                                 <option value="1">дол.</option>
                                 <option value="2">грн.</option>
                                 <option value="3">eвр.</option>
@@ -1163,8 +1161,7 @@
                     </label>
                     <label>
                         <span class="label_block">Менеджер:</span>
-                        <select class="responsible selectdb select2-hidden-accessible" data-id="responsible"
-                                tabindex="-1" aria-hidden="true">
+                        <select class="responsible selectdb " data-id="responsible" tabindex="-1" aria-hidden="true">
                             <option value="" selected="" disabled="">Выберите менеджера</option>
                         </select>
                     </label>

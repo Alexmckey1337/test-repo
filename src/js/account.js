@@ -495,9 +495,20 @@ $('document').ready(function () {
         };
         postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
     })
+    $('.delete-manager').on('click', function () {
+        let form = $(this).closest('form').attr('name');
+        if (form === 'editUserManager') {
+            deleteData(`${URLS.user.detail(currentUser)}delete_skin/`)
+                .then(() => {})
+                .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        } else if (form === 'editManager') {
+            deleteData(`${URLS.user.detail(currentUser)}delete_manager/`)
+                .then(() => {})
+                .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        }
+    })
     $('.set_user').on('click', function (e) {
         e.preventDefault();
-        const userId = $(this).data('user');
         let managerText = $('#manager_select').parent('div').find('.select2-selection__rendered').text(),
             userManagerText = $('#user_manager_select').parent('div').find('.select2-selection__rendered').text(),
             userManager = $('#user_manager_select').val(),
@@ -505,11 +516,21 @@ $('document').ready(function () {
             form = $(this).closest('form').attr('name'),
             list = $(this).closest('form').find('ul'),
             item = document.createElement('li'),
+            deleteIconWrap = document.createElement('span'),
+            deleteIcon = document.createElement('i'),
             config;
+        $(deleteIcon).addClass('material-icons').text('&#xE5CD;');
+        $(deleteIconWrap).addClass('delete-manager');
+
+        deleteIconWrap.appendChild(deleteIcon);
+        item.appendChild(deleteIconWrap);
+        console.log(deleteIcon)
+        console.log(deleteIconWrap)
+        console.log(item)
         if (form === 'editUserManager') {
             config = {'skin_id': userManager};
             $(item).text(userManagerText);
-            postData(`${URLS.user.detail(userId)}add_skin/`, config)
+            postData(`${URLS.user.detail(currentUser)}add_skin/`, config)
                 .then(() => {
                     list[0].prepend(item);
                     $('#user_manager_select').val('').trigger('change');
@@ -518,7 +539,7 @@ $('document').ready(function () {
         } else if (form === 'editManager') {
             config = {'manager_id': manager};
             $(item).text(managerText);
-            postData(`${URLS.user.detail(userId)}add_manager/`, config)
+            postData(`${URLS.user.detail(currentUser)}add_manager/`, config)
                 .then(() => {
                     list[0].prepend(item);
                     $('#manager_select').val('').trigger('change');
@@ -586,7 +607,7 @@ $('document').ready(function () {
                     makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
                     makeSelect(userManagerSelect, URLS.user.list_user(), parseFunc);
                     $(inputWrap).css('display','flex');
-                    $(deleteManager).css('display','inline-block');
+                    $(deleteManager).css('display','flex');
 
                 }
                 $(this).addClass('active');
