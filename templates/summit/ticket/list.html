@@ -123,7 +123,7 @@
         <% ankets.forEach(function(anket) { %>
             <tr<% if (anket.is_active) { %> class='active_user'<% } %>>
                 <td><%=anket.user.fullname %></td>
-        <td><a href="/api/v1.0/generate_code/<%= anket.code %>.pdf?code=<%= anket.code %>"><%=anket.code %></a></td>
+        <td><a href="/api/generate_code/<%= anket.code %>.pdf?code=<%= anket.code %>"><%=anket.code %></a></td>
             </tr>
         <% }) %>
         <tr></tr>

@@ -64,7 +64,7 @@
             var deal_select = $('select.deals');
             var options = '<option value="">------</option>';
             if (v) {
-                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/deals/?partnership__user=${v}`, null, function (deals) {
+                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/deals/?partnership__user=${v}`, null, function (deals) {
                     deals.results.forEach(function (deal) {
                         options += `<option value="${deal.id}">${deal.date_created}</option>`;
                     });
@@ -89,7 +89,7 @@
                     'object_id': deal_val
                 };
                 var json = JSON.stringify(data);
-                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/v1.0/payments/${id}/`, json, function (JSONobj) {
+                ajaxRequest(CONFIG.DOCUMENT_ROOT + `api/payments/${id}/`, json, function (JSONobj) {
                     showPopup('Сохранено.');
                     setTimeout(function () {
                         window.location.reload()

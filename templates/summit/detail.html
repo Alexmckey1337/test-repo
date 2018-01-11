@@ -366,7 +366,7 @@
                     <% } else if(key == 'code') { %>
                     <% if (results[index][key] != null) { %>
                     <td class="edit"><a
-                            href="/api/v1.0/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
+                            href="/api/generate_code/<%= results[index].code %>.pdf?code=<%= results[index].code %>"
                             data-link="<%= results[index].link %>" data-id="<%=results[index].id %>"><%=
                         results[index][key] %></a></td>
                     <% } else { %>
