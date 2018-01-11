@@ -496,10 +496,10 @@
                     </li>
                 </ul>
                 <ul class="right-info">
-                    {% if account.skins.all %}
+{#                    {% if account.skins.all %}#}
                         <li id="editUserManager" class="manager-item">
                             <div class="right-info__block">
-                                <h4>Менеджер у пользователей:</h4>
+                                <h4>Менеджер</h4>
                                 <div class="success__block"></div>
                                 <form action="/" name="editUserManager" data-action="update-manager">
                                     <button class="edit" data-edit-block="editUserManager"></button>
@@ -525,11 +525,14 @@
                                                                 </a>
                                                                 <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
                                                             </li>
-                                                                {% empty %}
-                                                            <li>
-                                                                Нет менеджера
+                                                            {% empty %}
+                                                            <li class="noManager">
+                                                                Не менеджер
                                                             </li>
                                                         {% endfor %}
+                                                        <li class="no-manager">
+                                                            Не менеджер
+                                                        </li>
                                                     </ul>
                                                 </div>
 {#                                                <select type="text" id="user_manager_select">#}
@@ -546,7 +549,7 @@
                                 </form>
                             </div>
                         </li>
-                    {% endif %}
+{#                    {% endif %}#}
                     <li id="editManager" class="manager-item">
                         <div class="right-info__block">
                             <h4>Текущие менеджеры</h4>
@@ -572,12 +575,15 @@
                                                                 {{ manager }}
                                                             </a>
                                                             <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
-                                                            {% empty %}
                                                         </li>
-                                                        <li>
-                                                            Нет менеджера
+                                                        {% empty %}
+                                                        <li class="noManager">
+                                                            Нет менеджеров
                                                         </li>
                                                     {% endfor %}
+                                                    <li class="no-manager">
+                                                        Нет менеджеров
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </label>

@@ -496,14 +496,27 @@ $('document').ready(function () {
         postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
     })
     $('.delete-manager').on('click', function () {
-        let form = $(this).closest('form').attr('name');
+        let form = $(this).closest('form').attr('name'),
+            link = $(this).parent('li').children('a').attr('href'),
+            itemCount = $(`form[name='`+form+`']`).find('li').length,
+            deleteItemCount = $(`form[name='`+form+`']`).find('.delete-item').length + 2,
+            managerId = parseInt(link.replace(/\D+/g,""));
+        if((itemCount - deleteItemCount) === 0){
+            $(this).closest(`form[name='`+form+`']`).find('.no-manager').css('display','block')
+        }
         if (form === 'editUserManager') {
-            deleteData(`${URLS.user.detail(currentUser)}delete_skin/`)
-                .then(() => {})
+            let config = {'skin_id': managerId};
+            postData(`${URLS.user.detail(currentUser)}delete_skin/`, config)
+                .then(() => {
+                    $(this).parent('li').addClass('delete-item');
+                })
                 .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
         } else if (form === 'editManager') {
-            deleteData(`${URLS.user.detail(currentUser)}delete_manager/`)
-                .then(() => {})
+            let config = {'manager_id': managerId};
+            postData(`${URLS.user.detail(currentUser)}delete_manager/`, config)
+                .then(() => {
+                    $(this).parent('li').addClass('delete-item');
+                })
                 .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
         }
     })
@@ -515,18 +528,13 @@ $('document').ready(function () {
             manager = $('#manager_select').val(),
             form = $(this).closest('form').attr('name'),
             list = $(this).closest('form').find('ul'),
+            no_manager = $(this).closest('form').find('.no-manager'),
+            noManager = $(this).closest('form').find('.noManager'),
             item = document.createElement('li'),
-            deleteIconWrap = document.createElement('span'),
-            deleteIcon = document.createElement('i'),
             config;
-        $(deleteIcon).addClass('material-icons').text('&#xE5CD;');
-        $(deleteIconWrap).addClass('delete-manager');
 
-        deleteIconWrap.appendChild(deleteIcon);
-        item.appendChild(deleteIconWrap);
-        console.log(deleteIcon)
-        console.log(deleteIconWrap)
-        console.log(item)
+        $(no_manager).css('display','none');
+        $(noManager).css('display','none');
         if (form === 'editUserManager') {
             config = {'skin_id': userManager};
             $(item).text(userManagerText);
