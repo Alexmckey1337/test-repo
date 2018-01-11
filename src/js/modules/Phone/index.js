@@ -119,7 +119,7 @@ function addUserToPhone(data, block) {
         $(this).parent().children('.close').addClass('active');
         $(this).parent().find('.inputPh').removeClass('active');
         $(this).parent().find('.selectPh').addClass('active');
-        makeSelect($('.selectPh.active'), '/api/v1.1/users/for_select/', parseFunc, formatRepo);
+        makeSelect($('.selectPh.active'), '/api/users/for_select/', parseFunc, formatRepo);
     });
     $('.close').on('click', function () {
         $(this).removeClass('active');
@@ -150,7 +150,7 @@ function addUserToPhone(data, block) {
             }, 1000);
         });
     })
-    makeSelect($('.selectPh.active'), '/api/v1.1/users/for_select/', parseFunc, formatRepo);
+    makeSelect($('.selectPh.active'), '/api/users/for_select/', parseFunc, formatRepo);
 }
 
 export function getDataUserPhone() {

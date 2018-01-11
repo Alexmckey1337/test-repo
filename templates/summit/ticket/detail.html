@@ -54,7 +54,7 @@
         {% for user in ticket.users.all %}
             <tr>
                 <td>{{ user.user.fullname }}</td>
-                <td><a href="/api/v1.0/generate_code/{{ user.code }}.pdf?code={{ user.code }}">{{ user.code }}</a></td>
+                <td><a href="/api/generate_code/{{ user.code }}.pdf?code={{ user.code }}">{{ user.code }}</a></td>
             </tr>
         {% endfor %}
         <tr></tr>

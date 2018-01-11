@@ -839,7 +839,7 @@
                                             <p class="summits-title__title">{{ anket.summit }}</p>
                                             <p>{{ anket.summit.description|default:"Комментарий не указан" }}
                                                 (Code: <a
-                                                        href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
+                                                        href="/api/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
                                                     {{ anket.code }}
                                                 </a>)
                                             </p>

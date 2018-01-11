@@ -1022,7 +1022,7 @@ $('document').ready(function () {
         onSelect: function (formattedDate, date, inst) {
             $('.preloader').css('display', 'block');
             let dateMonth = moment(date).format("YYYY-MM"),
-                url = '/api/v1.1/calls_to_user/?user_id='+ currentUser +'&range=month&month_date='+dateMonth;
+                url = '/api/calls_to_user/?user_id='+ currentUser +'&range=month&month_date='+dateMonth;
             $('#tableMonthIptel').html('');
             dataIptelMonth(url);
         }
@@ -1031,7 +1031,7 @@ $('document').ready(function () {
         e.preventDefault;
         let idUser = $('body').attr('data-user'),
            todayDate = moment().locale('ru'),
-           url = '/api/v1.1/calls_to_user/?user_id='+currentUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
+           url = '/api/calls_to_user/?user_id='+currentUser+'&range=month&month_date='+todayDate.format("YYYY-MM");
         $('#tableMonthIptel').html('');
        $('.preloader').css('display', 'block');
        $('#popupMonth').css('display', 'block');
