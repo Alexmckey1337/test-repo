@@ -9,5 +9,5 @@ router_v1_0.register('regions', views.RegionViewSet)
 router_v1_0.register('cities', views.CityViewSet)
 
 urlpatterns = [
-    path('v1.0/', include(router_v1_0.urls)),
+    path('', include(router_v1_0.urls)),
 ]

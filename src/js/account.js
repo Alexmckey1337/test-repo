@@ -533,6 +533,7 @@ $('document').ready(function () {
         let noEdit = false;
         let action = $(this).closest('form').data('action');
         let inputWrap = $(this).closest('form').find('.input-wrap');
+        let deleteManager = $(this).closest('form').find('.delete-manager');
         $edit.each(function () {
             if ($(this).hasClass('active')) {
                 noEdit = true;
@@ -563,6 +564,7 @@ $('document').ready(function () {
             });
             if (action === 'update-manager') {
                 $(inputWrap).css('display', 'none');
+                $(deleteManager).css('display', 'none');
             }
             $(this).removeClass('active');
         } else {
@@ -584,6 +586,8 @@ $('document').ready(function () {
                     makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
                     makeSelect(userManagerSelect, URLS.user.list_user(), parseFunc);
                     $(inputWrap).css('display','flex');
+                    $(deleteManager).css('display','inline-block');
+
                 }
                 $(this).addClass('active');
             }
@@ -615,6 +619,7 @@ $('document').ready(function () {
         let partner = thisForm.data('partner');
         let form = document.forms[formName];
         let inputWrap = $(this).closest('form').find('.input-wrap');
+        let deleteManager = $(this).closest('form').find('.delete-manager');
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
         if (action === 'update-user') {
@@ -719,7 +724,7 @@ $('document').ready(function () {
         } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
             let userId = $('body').attr('data-user');
-            let url = '/api/v1.1/users/'+userId+'/';
+            let url = '/api/users/'+userId+'/';
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
@@ -752,6 +757,7 @@ $('document').ready(function () {
         } else if (action === 'update-manager') {
             if (action === 'update-manager') {
                 $(inputWrap).css('display', 'none');
+                $(deleteManager).css('display', 'none');
             }
         }
         $input.each(function () {

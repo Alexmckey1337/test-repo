@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.contrib import admin
 from rest_framework import exceptions
 from rest_framework.response import Response
@@ -51,6 +51,8 @@ urlpatterns = [
 
     path('api/', SwaggerSchemaView.as_view()),
     path('api/', include('edem.api_urls')),
+    path('api/v1.0/', include('edem.api_urls')),
+    path('api/v1.1/', include('edem.api_urls')),
     path('', include('main.urls')),
     path('', include('django.contrib.auth.urls')),
 ]

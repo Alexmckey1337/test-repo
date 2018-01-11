@@ -523,6 +523,7 @@
                                                                    target="_blank">
                                                                     {{ skin.fullname }}
                                                                 </a>
+                                                                <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
                                                             </li>
                                                                 {% empty %}
                                                             <li>
@@ -570,6 +571,7 @@
                                                             <a href="{{ manager.get_absolute_url }}" target="_blank">
                                                                 {{ manager }}
                                                             </a>
+                                                            <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
                                                             {% empty %}
                                                         </li>
                                                         <li>
@@ -1114,6 +1116,66 @@
 {#            </div>#}
 {#        </div>#}
 {#    </div>#}
+    <div id="popup-create_partners" class="popap" style="display: block;">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление партнерской анкеты</h2>
+            </div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="user" value="241">
+                    <label>
+                        <span class="label_block">Отдел партнерства:</span>
+                        <select class="department_partner selectdb select2-hidden-accessible" data-id="title"
+                                tabindex="-1" aria-hidden="true">
+                            <option value="UA">UA</option>
+                            <option value="EU">EU</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тег:</span>
+                        <select class="group selectdb par__group select2-hidden-accessible" data-id="group"
+                                tabindex="-1" aria-hidden="true">
+                            <option value="" selected="" disabled="">Выберите тег</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb select2-hidden-accessible" data-id="currency"
+                                    tabindex="-1" aria-hidden="true">
+                                <option value="1">дол.</option>
+                                <option value="2">грн.</option>
+                                <option value="3">eвр.</option>
+                                <option value="4">руб.</option>
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb select2-hidden-accessible" data-id="responsible"
+                                tabindex="-1" aria-hidden="true">
+                            <option value="" selected="" disabled="">Выберите менеджера</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners">Создать</button>
+            </div>
+        </div>
+    </div>
     <div class="pop-up__table popup__month" id="popupMonth">
         <div class="pop_cont">
             <div class="top-text">

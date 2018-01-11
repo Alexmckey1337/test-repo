@@ -154,7 +154,7 @@ export function makeIptelTable(data,block) {
                                 <th>Кто</th>
                                 <th>Куда</th>                                        
                                 <th>Длительность(сек)</th>
-                                <th>Запись</th>
+                                
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {
@@ -219,20 +219,29 @@ export function makeIptelTable(data,block) {
                             <td>
                                 ${item.billsec}
                             </td> 
-                            <td class="recordIptel">
-                                <p class=''>${item.record}</p>
-                                <svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                                </svg>
-                                <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M6 6h12v12H6z"/>
-                                </svg>
-                            </td>
-                        </tr>`;
+                            `;
     }).join('')}</tbody>
                         </table>`;
     $(block).append(table);
 
 }
+
+
+
+
+
+
+// <th>Запись</th>
+
+// <td class="recordIptel">
+//                                 <p class=''>${item.record}</p>
+//                                 <svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
+//                                     <path d="M0 0h24v24H0z" fill="none"/>
+//                                     <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+//                                 </svg>
+//                                 <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+//                                     <path d="M0 0h24v24H0z" fill="none"/>
+//                                     <path d="M6 6h12v12H6z"/>
+//                                 </svg>
+//                             </td>
+//                         </tr>

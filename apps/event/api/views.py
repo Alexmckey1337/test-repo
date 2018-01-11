@@ -1,15 +1,17 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+import calendar
 import json
 import logging
+from datetime import datetime
 
-from django.db import transaction, IntegrityError
+from django.db import transaction, IntegrityError, connection
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField, F)
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import status, filters, exceptions
+from rest_framework import status, filters, exceptions, views
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -17,8 +19,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.account.models import CustomUser
-from common.filters import FieldSearchFilter
-from common.parsers import MultiPartAndJsonParser
 from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
@@ -36,6 +36,8 @@ from apps.event.api.serializers import (
     MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
+from common.filters import FieldSearchFilter
+from common.parsers import MultiPartAndJsonParser
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,18 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
                                    'reports_expired', 'reports_in_progress')
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+
+
+class IntervalFormatError(Exception):
+    pass
+
+
+class IntervalOrderError(Exception):
+    pass
+
+
+class LastPeriodFormatError(Exception):
+    pass
 
 
 class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
@@ -292,7 +306,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_list_class=MobileReportsDashboardSerializer)
+    @list_route(methods=['GET'], serializer_class=MobileReportsDashboardSerializer)
     def mobile_dashboard(self, request):
         user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user, extra_perms=False)
@@ -310,8 +324,12 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         )
 
         mobile_counts['church_reports'] = ChurchReport.objects.for_user(user, extra_perms=False).count()
+        if not mobile_counts['church_reports']:
+            mobile_counts['church_reports'] = None
 
-        return Response(mobile_counts, status=status.HTTP_200_OK)
+        mobile_counts = self.serializer_class(mobile_counts)
+
+        return Response(mobile_counts.data, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
                 filter_backends=(filters.OrderingFilter, EventSummaryFilter,
@@ -512,3 +530,334 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
         page = self.paginate_queryset(queryset)
         pastors = self.serializer_class(page, many=True)
         return self.get_paginated_response(pastors.data)
+
+
+class ChurchReportStatsView(views.APIView):
+    SQL = """
+        SELECT
+          date_part('year', r.date) _year,
+          date_part('week', r.date) week,
+          sum(r.count_people) count_people,
+          sum(r.new_people) new_people,
+          sum(r.count_repentance) count_repentance,
+          sum(r.tithe) tithe,
+          sum(r.donations) donations,
+          sum(r.transfer_payments) transfer_payments,
+          sum(r.pastor_tithe) pastor_tithe
+        FROM event_churchreport r
+          JOIN account_customuser a ON r.pastor_id = a.user_ptr_id
+        {filter}
+        GROUP BY date_part('year', r.date), date_part('week', r.date)
+        ORDER BY date_part('year', r.date), date_part('week', r.date);
+    """
+    WEEKS_TEMPLATE = "(date_part('week', r.date) BETWEEN {w1} AND {w2} AND date_part('year', r.date) = {year})"
+    YEARS_TEMPLATE = "date_part('year', r.date) IN ({years})"
+
+    @staticmethod
+    def strpyear(datestr):
+        return datetime.strptime(datestr, '%Y')
+
+    @staticmethod
+    def strpmonth(datestr):
+        return datetime.strptime(datestr, '%Y%m')
+
+    @staticmethod
+    def get_weeks_of_month(year, month):
+        c = calendar.Calendar()
+        months = [int(d.strftime('%W')) or 1 for d in c.itermonthdates(year, month)
+                  if d.weekday() == 6 and d.month == month and d.year == year]
+        return min(months), max(months)
+
+    def get_range_weeks_of_month(self, year, month):
+        f, t = self.get_weeks_of_month(year, month)
+        return range(f, t + 1)
+
+    def get_weeks_of_year(self, year):
+        return 1, self.get_weeks_of_month(year, 12)[1]
+
+    def get_range_weeks_of_year(self, year):
+        f, t = self.get_weeks_of_year(year)
+        return range(f, t + 1)
+
+    def months_to_weeks(self, from_, to_):
+        from_year, to_year = (from_ - 1) // 12, (to_ - 1) // 12
+        from_month, to_month = from_ % 12 or 12, to_ % 12 or 12
+        return {
+            'from': {'year': from_year, 'week': self.get_weeks_of_month(from_year, from_month)[0]},
+            'to': {'year': to_year, 'week': self.get_weeks_of_month(to_year, to_month)[1]}
+        }
+
+    def years_to_weeks(self, from_, to_):
+        return {
+            'from': {'year': from_, 'week': 1},
+            'to': {'year': to_, 'week': self.get_weeks_of_year(to_)[1]}
+        }
+
+    def week_to_month(self, year, week):
+        for month in range(1, 13):
+            from_, to_ = self.get_weeks_of_month(year, month)
+            if from_ <= week <= to_:
+                return month
+
+    def get_months_of_interval(self, interval):
+        fromto = interval.split('-')
+        if len(fromto) == 1:
+            from_, to_ = self.strpmonth(fromto[0]), datetime.now()
+        elif len(fromto) == 2:
+            from_, to_ = self.strpmonth(fromto[0]), self.strpmonth(fromto[1])
+        else:
+            raise IntervalFormatError()
+        return from_.year * 12 + from_.month, to_.year * 12 + to_.month
+
+    def get_years_of_interval(self, interval):
+        fromto = interval.split('-')
+        if len(fromto) == 1:
+            from_, to_ = self.strpyear(fromto[0]), datetime.now()
+        elif len(fromto) == 2:
+            from_, to_ = self.strpyear(fromto[0]), self.strpyear(fromto[1])
+        else:
+            raise IntervalFormatError()
+        return from_.year, to_.year
+
+    def get_weeks_of_interval(self, interval):
+        fromto = interval.split('-')
+        if len(fromto) == 1:
+            from_year, to_year = self.strpyear(fromto[0][:4]).year, datetime.now().year
+            from_week, to_week = fromto[0][4:], self.get_weeks_of_year(to_year)[1]
+        elif len(fromto) == 2:
+            from_year, to_year = self.strpyear(fromto[0][:4]).year, self.strpyear(fromto[1][:4]).year
+            from_week, to_week = fromto[0][4:], fromto[1][4:]
+        else:
+            raise IntervalFormatError()
+        return {
+            'from': {'year': from_year, 'week': int(from_week)},
+            'to': {'year': to_year, 'week': int(to_week)}
+        }
+
+    def get_weeks_by_interval(self, interval):
+        if not interval:
+            return []
+        p, interval, *_ = interval.split(':')
+        if p == 'm':
+            from_, to_ = self.get_months_of_interval(interval)
+            weeks = self.months_to_weeks(from_, to_)
+        elif p == 'y':
+            from_, to_ = self.get_years_of_interval(interval)
+            weeks = self.years_to_weeks(from_, to_)
+        elif p == 'w':
+            weeks = self.get_weeks_of_interval(interval)
+        else:
+            raise IntervalFormatError()
+        return weeks
+
+    def get_weeks_by_last_period(self, last):
+        if not last:
+            return []
+        if last[-1] == 'y':
+            from_, to_ = datetime.now().year - int(last[:-1]) + 1, datetime.now().year
+            weeks = self.years_to_weeks(from_, to_)
+        elif last[-1] == 'm':
+            current_month = datetime.now().year * 12 + datetime.now().month
+            from_, to_ = current_month - int(last[:-1]) + 1, current_month
+            weeks = self.months_to_weeks(from_, to_)
+        elif last[-1] == 'w':
+            now = datetime.now()
+            from_year, to_year = now.year, now.year
+            from_week, to_week = int(now.strftime('%W')) - int(last[:-1]) + 1, int(now.strftime('%W'))
+            while from_week <= 0:
+                from_year -= 1
+                from_week = self.get_weeks_of_year(from_year)[1] + from_week
+            weeks = {
+                'from': {'year': from_year, 'week': from_week},
+                'to': {'year': to_year, 'week': to_week}
+            }
+        else:
+            raise LastPeriodFormatError()
+        return weeks
+
+    def get_weeks(self):
+        weeks = (
+                self.get_weeks_by_interval(self.request.query_params.get('interval', '')) or
+                self.get_weeks_by_last_period(self.request.query_params.get('last', '')) or
+                self.get_weeks_by_last_period('3m')
+        )
+        if not weeks:
+            return {}
+        logger.info(weeks)
+        invalid_year = weeks['from']['year'] > weeks['to']['year']
+        invalid_week = weeks['from']['year'] == weeks['to']['year'] and weeks['from']['week'] > weeks['to']['week']
+        if invalid_year or invalid_week:
+            raise IntervalOrderError()
+        now = datetime.now()
+        from_ = [weeks['from']['week'], self.get_weeks_of_year(weeks['from']['year'])[1]]
+        to_ = [1, weeks['to']['week']]
+        if weeks['from']['year'] == weeks['to']['year']:
+            from_[1] = weeks['to']['week']
+            to_[0] = weeks['from']['week']
+        elif now.year == weeks['from']['year']:
+            from_[1] = int(now.strftime('%W'))
+        weeks['from']['week'] = from_
+        weeks['to']['week'] = to_
+        logger.info(weeks)
+        return weeks
+
+    def get_where_weeks(self, weeks):
+        where_weeks = [
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['from']['year'], w1=weeks['from']['week'][0], w2=weeks['from']['week'][1]),
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['to']['year'], w1=weeks['to']['week'][0], w2=weeks['to']['week'][1])
+        ]
+        years = ','.join([str(y) for y in range(weeks['from']['year'] + 1, weeks['to']['year'])])
+        if years:
+            where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
+        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else ''
+
+    def get_where_church(self):
+        church = self.request.query_params.get('church')
+        if not church:
+            return ''
+        return " AND r.church_id = {church}".format(church=church)
+
+    def get_where_pastor_tree(self):
+        pastor_tree = self.request.query_params.get('pastor_tree')
+        if not pastor_tree:
+            return ''
+        try:
+            pastor = CustomUser.objects.get(pk=pastor_tree)
+        except CustomUser.DoesNotExist:
+            return ' AND FALSE'
+        return " AND a.path like '{path}%' AND a.depth >= {depth}".format(path=pastor.path, depth=pastor.depth)
+
+    def get_where_pastor(self):
+        pastor = self.request.query_params.get('pastor')
+        if not pastor:
+            return ''
+        return " AND r.pastor_id = {pastor}".format(pastor=pastor)
+
+    def get_where_filter(self, weeks):
+        where = ''
+        where += self.get_where_weeks(weeks)
+        where += self.get_where_church()
+        where += self.get_where_pastor()
+        where += self.get_where_pastor_tree()
+        return 'WHERE ' + where if where else ''
+
+    def get_data(self, weeks):
+        where = self.get_where_filter(weeks)
+        query = self.SQL.format(filter=where)
+        with connection.cursor() as connect:
+            connect.execute(query)
+            result = connect.fetchall()
+        logger.info(query)
+        logger.info(result)
+        return [
+            {
+                'year': int(r[0]),
+                'week': int(r[1]),
+                'month': self.week_to_month(int(r[0]), int(r[1])),
+                'count_people': int(r[2]),
+                'count_new_people': int(r[3]),
+                'count_repentance': int(r[4]),
+                'tithe': r[5],
+                'donations': r[6],
+                'transfer_payments': r[7],
+                'pastor_tithe': r[8],
+            }
+            for r in result
+        ]
+
+    def group_by(self, y, m, w, aggr_by_key):
+        return {
+            'year': y,
+            'week': w,
+            'month': m,
+            'count_people': aggr_by_key('count_people', max),
+            'count_new_people': aggr_by_key('count_new_people'),
+            'count_repentance': aggr_by_key('count_repentance'),
+            'tithe': aggr_by_key('tithe'),
+            'donations': aggr_by_key('donations'),
+            'transfer_payments': aggr_by_key('transfer_payments'),
+            'pastor_tithe': aggr_by_key('pastor_tithe'),
+        }
+
+    def group_by_week(self, result, weeks):
+        def aggr_by_key(key, func=sum):
+            return func([r.get(key, 0) for r in result if (r['year'] == y and r['week'] == w)] or [0])
+
+        y = weeks['from']['year']
+        for w in range(weeks['from']['week'][0], weeks['from']['week'][1] + 1):
+            m = self.week_to_month(y, w)
+            yield self.group_by(y, m, w, aggr_by_key)
+
+        for y in range(weeks['from']['year'] + 1, weeks['to']['year']):
+            year_weeks = self.get_weeks_of_year(y)
+            for w in range(year_weeks[0], year_weeks[1] + 1):
+                m = self.week_to_month(y, w)
+                yield self.group_by(y, m, w, aggr_by_key)
+
+        y = weeks['to']['year']
+        if y > weeks['from']['year']:
+            for w in range(weeks['to']['week'][0], weeks['to']['week'][1] + 1):
+                m = self.week_to_month(y, w)
+                yield self.group_by(y, m, w, aggr_by_key)
+
+    def group_by_month(self, result, weeks):
+        def aggr_by_key(key, func=sum):
+            return func([r.get(key, 0) for r in result if (r['year'] == y and r['month'] == m)] or [0])
+
+        y = weeks['from']['year']
+        months = set()
+        for w in range(weeks['from']['week'][0], weeks['from']['week'][1] + 1):
+            months.add(self.week_to_month(y, w))
+        for m in months:
+            yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+
+        for y in range(weeks['from']['year'] + 1, weeks['to']['year']):
+            year_weeks = self.get_weeks_of_year(y)
+            months = set()
+            for w in range(year_weeks[0], year_weeks[1] + 1):
+                months.add(self.week_to_month(y, w))
+            for m in months:
+                yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+
+        y = weeks['to']['year']
+        if y > weeks['from']['year']:
+            months = set()
+            for w in range(weeks['to']['week'][0], weeks['to']['week'][1] + 1):
+                months.add(self.week_to_month(y, w))
+            for m in months:
+                yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+
+    def group_by_year(self, result, weeks):
+        def aggr_by_key(key, func=sum):
+            return func([r.get(key, 0) for r in result if r['year'] == y] or [0])
+
+        y = weeks['from']['year']
+        yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+
+        for y in range(weeks['from']['year'] + 1, weeks['to']['year']):
+            yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+
+        y = weeks['to']['year']
+        if y > weeks['from']['year']:
+            yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            weeks = self.get_weeks()
+        except IntervalFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" format')})
+        except IntervalOrderError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" order')})
+        except LastPeriodFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "last" format')})
+        group_by = request.query_params.get('group_by', 'week')
+        result = self.get_data(weeks)
+        if group_by == 'week':
+            return Response(data=self.group_by_week(result, weeks))
+        if group_by == 'month':
+            return Response(data=self.group_by_month(result, weeks))
+        if group_by == 'year':
+            return Response(data=self.group_by_year(result, weeks))
+        return Response(data=[])

@@ -32,9 +32,9 @@ custom_v1_1_urls = [
 ]
 
 urlpatterns = [
-    path('v1.0/', include(custom_urls)),
-    path('v1.0/', include(router_v1_0.urls)),
+    path('', include(custom_urls)),
+    path('', include(router_v1_0.urls)),
 
-    path('v1.1/', include(custom_v1_1_urls)),
-    path('v1.1/', include(router_v1_1.urls)),
+    path('', include(custom_v1_1_urls)),
+    path('', include(router_v1_1.urls)),
 ]
