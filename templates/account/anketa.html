@@ -1123,19 +1123,23 @@
             </div>
             <div class="popup_body">
                 <div class="container container_block">
-                    <input type="hidden" data-id="user" value="241">
+                    <input type="hidden" data-id="user" value="{{ account.id }}">
                     <label>
                         <span class="label_block">Отдел партнерства:</span>
-                        <select class="department_partner selectdb" data-id="title"
-                                tabindex="-1" aria-hidden="true">
-                            <option value="UA">UA</option>
-                            <option value="EU">EU</option>
+                        {% get_partner_titles as titles %}
+                        <select class="department_partner selectdb" data-id="title">
+                            {% for t in titles %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                            {% endfor %}
                         </select>
                     </label>
                     <label>
                         <span class="label_block">Тег:</span>
-                        <select class="group selectdb par__group" data-id="group" tabindex="-1" aria-hidden="true">
-                            <option value="" selected="" disabled="">Выберите тег</option>
+                        <select class="group selectdb par__group" data-id="group">
+                            <option value="" selected disabled>Выберите тег</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
                         </select>
                     </label>
                     <label>
@@ -1151,18 +1155,23 @@
                         <span class="label_block">Сумма сделки:</span>
                         <div class="input">
                             <input type="text" data-id="value" class="payment_value">
-                            <select class="payment_currency selectdb" data-id="currency" tabindex="-1" aria-hidden="true">
-                                <option value="1">дол.</option>
-                                <option value="2">грн.</option>
-                                <option value="3">eвр.</option>
-                                <option value="4">руб.</option>
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
                             </select>
                         </div>
                     </label>
                     <label>
                         <span class="label_block">Менеджер:</span>
-                        <select class="responsible selectdb " data-id="responsible" tabindex="-1" aria-hidden="true">
-                            <option value="" selected="" disabled="">Выберите менеджера</option>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
                         </select>
                     </label>
                 </div>
