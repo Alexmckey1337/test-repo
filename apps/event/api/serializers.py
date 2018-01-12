@@ -15,6 +15,7 @@ from apps.group.api.serializers import (
     UserNameSerializer, ChurchNameSerializer, HomeGroupNameSerializer, UserNameWithLinkSerializer)
 from apps.group.models import Church
 from apps.payment.api.serializers import CurrencySerializer
+from common.week_range import week_range
 
 
 class ValidateDataBeforeUpdateMixin(object):
@@ -26,7 +27,7 @@ class ValidateDataBeforeUpdateMixin(object):
                             % instance)
             })
 
-        if instance.date.isocalendar()[1] > validated_data.get('date').isocalendar()[1]:
+        if week_range(instance.date) != week_range(validated_data.get('date')):
             raise serializers.ValidationError({
                 'detail': _('Невозможно подать отчет, переданная дата - %s. '
                             'Отчет должен подаваться за ту неделю на которой был создан.'
