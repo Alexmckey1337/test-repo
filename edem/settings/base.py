@@ -30,7 +30,7 @@ FILEBROWSER_DIRECTORY = 'uploads'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '4y6l3@a0%vq394z6+w)k3-wl459r++v=z!jv1gw4+nt0sd5z+s'
 
-ASTERISK_SERVICE_ADDRESS = 'http://localhost:8080'
+ASTERISK_SERVICE_ADDRESS = 'http://asterisk:8080'
 VISITORS_LOCATION_TOKEN = '4ewfeciss6qdbmgfj9eg6jb3fdcxefrs4dxtcdrt10rduds2sn'
 
 APP_DEVICE_ID_FIELD = 'HTTP_DEVICE_ID'
