@@ -51,6 +51,8 @@ class Church(CommonGroup):
 
     image = models.ImageField(_('Church Image'), upload_to='churches/', blank=True, null=True)
 
+    region = models.CharField(_('Region'), max_length=50, blank=True, null=True)
+
     objects = ChurchManager()
 
     def save(self, *args, **kwargs):

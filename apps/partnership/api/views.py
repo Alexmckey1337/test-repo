@@ -27,7 +27,8 @@ from apps.group.api.filters import FilterChurchPartnerMasterTree
 from apps.partnership.api.filters import (
     FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
     PartnerUserFilter, DealFilterByPaymentStatus, PartnerFilterByDateAge,
-    ChurchDateAndValueFilter, ChurchPartnerFilter, LastDealFilter, LastChurchDealFilter)
+    ChurchDateAndValueFilter, ChurchPartnerFilter, LastDealFilter, LastChurchDealFilter,
+    PartnerFilterByLevel)
 from apps.partnership.api.mixins import (
     PartnerStatMixin, DealCreatePaymentMixin, DealListPaymentMixin,
     PartnerExportViewSetMixin, PartnerStatusReviewMixin, StatsSummaryMixin,
@@ -75,6 +76,7 @@ class PartnershipViewSet(
                        FilterByPartnerBirthday,
                        FilterPartnerMasterTreeWithSelf,
                        PartnerFilterByDateAge,
+                       PartnerFilterByLevel,
                        filters.OrderingFilter,)
     filter_fields = ('user', 'responsible')
     ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',

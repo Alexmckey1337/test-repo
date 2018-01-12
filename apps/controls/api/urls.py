@@ -10,6 +10,9 @@ router_v1_0 = routers.DefaultRouter()
 
 
 router_v1_0.register('db_access', views.DatabaseAccessViewSet)
+router_v1_0.register('summit_panel', views.SummitPanelViewSet)
+router_v1_0.register('summit_type_panel', views.SummitTypePanelViewSet)
+
 
 urlpatterns = [
     path('', include(router_v1_0.urls))

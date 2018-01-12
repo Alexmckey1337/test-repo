@@ -42,6 +42,8 @@ from apps.group.resources import ChurchResource, HomeGroupResource
 from apps.event.models import ChurchReport, Meeting, MeetingType
 from datetime import datetime
 from common.week_range import week_range
+from common.parsers import MultiPartAndJsonParser
+from rest_framework.parsers import JSONParser, FormParser
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +72,7 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
 
     ordering_fields = ('title', 'city', 'department__title', 'home_group',
                        'is_open', 'opening_date', 'pastor__last_name', 'phone_number',
-                       'address', 'website', 'count_groups', 'count_users', 'country')
+                       'address', 'website', 'count_groups', 'count_users', 'country', 'region')
 
     filter_class = ChurchFilter
 
