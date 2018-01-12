@@ -35,10 +35,16 @@ def ticket_scanner(request):
 @login_required(login_url='entry')
 def calls(request):
     ctx = {
-        'types': ['in', 'out'],
-        'dispositions': ['ANSWERED', 'OTHER'],
+        'types': [
+            {'in': 'Входящие'},
+            {'out': 'Исходящие'}
+        ],
+        'dispositions': [
+            {'ANSWERED': 'Отвеченные'},
+            {'OTHER': 'Остальные'}
+        ]
     }
-    return render(request, 'calls.html', context=ctx)
+    return render(request, 'phone/index.html', context=ctx)
 
 
 @login_required(login_url='entry')

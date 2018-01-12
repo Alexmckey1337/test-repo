@@ -171,8 +171,13 @@ $(document).ready(function () {
             }
         };
     }
-
-    makeSelect($('#master-filter'), URLS.user.short_for_dashboard(), parse);
+    function formatRepo(data) {
+        if (data.id === '') {
+            return '-------';
+        }
+        return `<option value="${data.id}">${data.text}</option>`;
+    }
+    makeSelect($('#master-filter'), URLS.user.short_for_dashboard(), parse,formatRepo);
     const option = `<option value="${userId}">${userName}</option>`;
     $('#master-filter').append(option);
 

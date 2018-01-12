@@ -318,7 +318,7 @@
 
 #sort-on,
 #load-tickets,
-#duplicates {
+#duplicates,#add-phone {
   & i {
     color: #fff;
   }
@@ -427,6 +427,13 @@
   }
   #statusTabs {
     top: -2px;
+    border: 1px solid #cdd0d4;
+    border-bottom:none;
+    li{
+      &:not(:first-child) {
+        border-left: 1px solid #cdd0d4;
+      }
+    }
   }
 }
 
@@ -439,6 +446,8 @@
   #tabs {
     position: relative;
     margin-right: 20px;
+    border: 1px solid #cdd0d4;
+    border-bottom:none;
   }
   #tabs li {
     &.active {
@@ -447,7 +456,7 @@
         color: #656d78;
       }
     }
-    &:first-child {
+    &:not(:first-child) {
       border-left: 1px solid #cdd0d4;
     }
   }
@@ -1098,6 +1107,7 @@
   &,&:hover{
     border:none !important;
   }
+  display: flex;
   li,div{
     border:none !important;
     position: relative;

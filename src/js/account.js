@@ -14,6 +14,8 @@ import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import errorHandling from './modules/Error';
+import moment from 'moment';
+import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
@@ -25,12 +27,8 @@ import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
 import {showAlert, showConfirm} from './modules/ShowNotifications/index';
 import {createPayment} from './modules/Payment/index';
-import {
-    changeLessonStatus,
-    initLocationSelect,
-    sendNote,
-} from './modules/Account/index';
-import {addUserToChurch, addUserToHomeGroup, stableUser} from './modules/User/addUser';
+import {changeLessonStatus, initLocationSelect, sendNote, dataIptelTable,dataIptelMonth} from './modules/Account/index';
+import {addUserToChurch, addUserToHomeGroup} from './modules/User/addUser';
 import {dataURLtoBlob, handleFileSelect} from './modules/Avatar/index';
 import {
     btnNeed,
@@ -46,6 +44,7 @@ $('document').ready(function () {
           PARTNER_ID = $('.tab_main').find('li.active').attr('data-partner'),
           ID = getLastId();
     let managerSelect = $('#manager_select'),
+        userManagerSelect = $('#user_manager_select'),
         userIsPartner = $('.left-contentwrap').attr('data-partner');
 
     if (userIsPartner === 'True') {
@@ -69,23 +68,24 @@ $('document').ready(function () {
             }
         };
     }
-
-    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
-
-    $('#set_manager').on('click', function () {
-        const userId = $(this).data('user');
-        let manager = $('#manager_select').val(),
-            config = {'manager_id': manager};
-        postData(`${URLS.user.detail(userId)}set_manager/`, config)
-            .then(() => window.location.reload())
-            .catch(err => errorHandling(err));
-    });
+    // $('#set_manager').on('click', function () {
+    //     const userId = $(this).data('user');
+    //     let manager = $('#manager_select').val(),
+    //         config = {'manager_id': manager};
+    //     postData(`${URLS.user.detail(userId)}set_manager/`, config)
+    //         .then(() => window.location.reload())
+    //         .catch(err => errorHandling(err));
+    // });
     $('.reset_device_id').on('click', function () {
         const profileId = $(this).data('id');
         postData(`/api/app/users/${profileId}/reset_device_id/`, null)
             .then(() => window.location.reload())
             .catch(err => errorHandling(err));
     });
+    //////////////////////////////////////////////
+    // sorry for my code  -- finish
+    //////////////////////////////////////////////
+    // const ID = getLastId();
 
     function AddColorMarkers() {
         let options = $('#markers-select').find('option:selected'),
@@ -112,6 +112,32 @@ $('document').ready(function () {
         let user = $(this).data('user-id');
         setCookie('hard_user_id', user, {path: '/'});
         window.location.reload();
+    });
+
+    $("#tabs1 li").on('click', function () {
+        let id_tab = $(this).attr('data-tab');
+        $('[data-tab-content]').hide();
+        $('[data-tab-content="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $('#send_need').on('click', function () {
+        let need_text = $('#id_need_text').val();
+        let url = URLS.partner.update_need($(this).data('partner'));
+        let need = JSON.stringify({'need_text': need_text});
+        ajaxRequest(url, need, function () {
+            showAlert('Нужда сохранена.');
+        }, 'PUT', true, {
+            'Content-Type': 'application/json'
+        }, {
+            400: function (data) {
+                data = data.responseJSON;
+                showAlert(data.detail);
+            }
+        });
+        $(this).siblings('.editText').removeClass('active');
+        $(this).parent().siblings('textarea').attr('readonly', true);
     });
 
     $('.send_email_with_code').on('click', function () {
@@ -238,10 +264,83 @@ $('document').ready(function () {
         $('#popup-create_deal textarea').val('');
         $('#popup-create_deal').css('display', '');
     });
+    $("#create_new_deal").on('click', function () {
+        $('#send_new_deal').prop('disabled', false);
+        $('#popup-create_deal').css('display', 'block');
+    });
+
+    function clearDeal() {
+        $('#popup-create_deal textarea').val('');
+        $('#new_deal_sum').val('');
+        $('#new_deal_date').val('');
+        $('#popup-create_deal').css('display', 'none');
+    }
+
+    function createDeal(config) {
+        postData(URLS.deal.list(), config).then(() => {
+            showAlert('Сделка создана.');
+            clearDeal();
+        }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
+    }
+
+    $('#send_new_deal').on('click', function () {
+        let description = $('#popup-create_deal textarea').val(),
+            value = $('#new_deal_sum').val(),
+            date = $('#new_deal_date').val(),
+            type = $('#new_deal_type').val();
+
+        if (value && date) {
+            let dateFormat = date.trim().split('.').reverse().join('-'),
+                id = $(this).data('partner'),
+                checkDeal = {
+                    'date_created': dateFormat,
+                    'value': value,
+                    'partnership_id': id,
+                },
+                deal = {
+                    'date_created': dateFormat,
+                    'value': value,
+                    'description': description,
+                    'partnership': id,
+                    'type': type,
+                };
+            $(this).prop('disabled', true);
+            getData(URLS.deal.check_duplicates(), checkDeal).then( data => {
+                if (data.results) {
+                    $('.preloader').css('display', 'block');
+                    $('#send_new_deal').prop('disabled', false);
+                    makeDuplicateDeals(checkDeal);
+                    $('#hard_create').attr('data-date_created', dateFormat)
+                                     .attr('data-value', value)
+                                     .attr('data-description', description)
+                                     .attr('data-partnership', id)
+                                     .attr('data-type', type);
+                } else {
+                    createDeal(deal);
+                }
+            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
+        } else {
+            showAlert('Заполните все поля.');
+        }
+    });
+
+    $('#hard_create').on('click', function () {
+        let deal = {
+                    'date_created': $(this).attr('data-date_created'),
+                    'value': $(this).attr('data-value'),
+                    'description': $(this).attr('data-description'),
+                    'partnership': $(this).attr('data-partnership'),
+                    'type': $(this).attr('data-type'),
+                };
+        createDeal(deal);
+        $('.pop-up_duplicate__table').css('display', 'none');
+    });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
         $('.pop-up_duplicate__table').css('display', 'none');
     });
+
+    $("#tabs1 li").click();
 
     $("#id_deal_date").datepicker({
         dateFormat: "yy-mm-dd",
@@ -380,11 +479,10 @@ $('document').ready(function () {
         $('#home_groups_list').html(option);
     });
     makeChurches();
+    $('.selectdb').select2();
     $("#isStable").on('change', function () {
         console.log('checkbox');
-        let userId = $('body').attr('data-user'),
-            url = '/api/users/' + userId + '/',
-            stable,
+        let stable,
             data;
 
         if ($('#isStable').is(':checked')) {
@@ -395,18 +493,76 @@ $('document').ready(function () {
         data = {
             "is_stable": stable
         };
-
-        postData(url, data, {method: "PATCH"});
+        postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
     })
+    $('.delete-manager').on('click', function () {
+        let form = $(this).closest('form').attr('name'),
+            link = $(this).parent('li').children('a').attr('href'),
+            itemCount = $(`form[name='`+form+`']`).find('li').length,
+            deleteItemCount = $(`form[name='`+form+`']`).find('.delete-item').length + 2,
+            managerId = parseInt(link.replace(/\D+/g,""));
+        if((itemCount - deleteItemCount) === 0){
+            $(this).closest(`form[name='`+form+`']`).find('.no-manager').css('display','block')
+        }
+        if (form === 'editUserManager') {
+            let config = {'skin_id': managerId};
+            postData(`${URLS.user.detail(currentUser)}delete_skin/`, config)
+                .then(() => {
+                    $(this).parent('li').addClass('delete-item');
+                })
+                .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        } else if (form === 'editManager') {
+            let config = {'manager_id': managerId};
+            postData(`${URLS.user.detail(currentUser)}delete_manager/`, config)
+                .then(() => {
+                    $(this).parent('li').addClass('delete-item');
+                })
+                .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
+        }
+    })
+    $('.set_user').on('click', function (e) {
+        e.preventDefault();
+        let managerText = $('#manager_select').parent('div').find('.select2-selection__rendered').text(),
+            userManagerText = $('#user_manager_select').parent('div').find('.select2-selection__rendered').text(),
+            userManager = $('#user_manager_select').val(),
+            manager = $('#manager_select').val(),
+            form = $(this).closest('form').attr('name'),
+            list = $(this).closest('form').find('ul'),
+            no_manager = $(this).closest('form').find('.no-manager'),
+            noManager = $(this).closest('form').find('.noManager'),
+            item = document.createElement('li'),
+            config;
+
+        $(no_manager).css('display','none');
+        $(noManager).css('display','none');
+        if (form === 'editUserManager') {
+            config = {'skin_id': userManager};
+            $(item).text(userManagerText);
+            postData(`${URLS.user.detail(currentUser)}add_skin/`, config)
+                .then(() => {
+                    list[0].prepend(item);
+                    $('#user_manager_select').val('').trigger('change');
+                })
+                .catch(err => errorHandling(err));
+        } else if (form === 'editManager') {
+            config = {'manager_id': manager};
+            $(item).text(managerText);
+            postData(`${URLS.user.detail(currentUser)}add_manager/`, config)
+                .then(() => {
+                    list[0].prepend(item);
+                    $('#manager_select').val('').trigger('change');
+                })
+                .catch(err => errorHandling(err));
+        }
+    });
     $('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit');
         let exists = $edit.closest('form').find('ul').hasClass('exists');
-        console.log(exists);
-        if (!exists) {
-            console.log(exists);
-        }
         let noEdit = false;
+        let action = $(this).closest('form').data('action');
+        let inputWrap = $(this).closest('form').find('.input-wrap');
+        let deleteManager = $(this).closest('form').find('.delete-manager');
         $edit.each(function () {
             if ($(this).hasClass('active')) {
                 noEdit = true;
@@ -435,6 +591,10 @@ $('document').ready(function () {
                     }
                 }
             });
+            if (action === 'update-manager') {
+                $(inputWrap).css('display', 'none');
+                $(deleteManager).css('display', 'none');
+            }
             $(this).removeClass('active');
         } else {
             if (noEdit) {
@@ -451,6 +611,13 @@ $('document').ready(function () {
                         }
                     }
                 });
+                if(action === 'update-manager'){
+                    makeSelect(managerSelect, URLS.user.list_user(), parseFunc);
+                    makeSelect(userManagerSelect, URLS.user.list_user(), parseFunc);
+                    $(inputWrap).css('display','flex');
+                    $(deleteManager).css('display','flex');
+
+                }
                 $(this).addClass('active');
             }
         }
@@ -462,6 +629,7 @@ $('document').ready(function () {
 
             return;
         }
+        console.log('Valid-->', $('#phone_number').inputmask("isComplete"));
 
         if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete"))) {
             showAlert('Введите коректный номер телефона');
@@ -479,6 +647,8 @@ $('document').ready(function () {
         let action = thisForm.data('action');
         let partner = thisForm.data('partner');
         let form = document.forms[formName];
+        let inputWrap = $(this).closest('form').find('.input-wrap');
+        let deleteManager = $(this).closest('form').find('.delete-manager');
         let formData = new FormData(form);
         let hidden = $(this).hasClass('after__hidden');
         if (action === 'update-user') {
@@ -583,26 +753,10 @@ $('document').ready(function () {
         } else if (action === 'update-church') {
             let $existBlock = $('#editChurches').find('ul');
             let userId = $('body').attr('data-user');
-            let url = '/api/users/'+userId+'/';
+            let url = URLS.user.detail(currentUser);
             let noExist = $existBlock.hasClass('exists');
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
-            let stableId = $('#isStable').is(':checked');
-            let stable;
-            if($('#isStable').is(':checked')){
-                stable = true;
-            }else {
-                stable = false;
-            }
-            let data = {
-                "is_stable": stable
-            }
-            console.log('churchID: ' + church_id);
-            console.log('homeGroupID: ' + home_groups_id);
-            $('#isStable').on('change', function () {
-              console.log('stableId: ' + stableId);
-              postData(url,data,{method:"PATCH"});
-            });
             if (!!home_groups_id) {
                 addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
@@ -612,7 +766,6 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
-                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
@@ -630,8 +783,12 @@ $('document').ready(function () {
                     showAlert(JSON.parse(data.responseText));
                 });
             }
+        } else if (action === 'update-manager') {
+            if (action === 'update-manager') {
+                $(inputWrap).css('display', 'none');
+                $(deleteManager).css('display', 'none');
+            }
         }
-
         $input.each(function () {
             if (!$(this).attr('disabled')) {
                 $(this).attr('disabled', true);
@@ -725,10 +882,9 @@ $('document').ready(function () {
             $img.cropper("destroy");
         });
     });
-
     $('#divisions').select2();
     $('#departments').select2();
-    $('.selectdb').select2();
+
     $('#sent_date').datepicker({
         autoClose: true,
         dateFormat: 'dd.mm.yyyy'
@@ -745,6 +901,24 @@ $('document').ready(function () {
         $(this).parent().addClass('active');
         $(this).closest('.summits-block').find('.wrapp').hide();
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
+    });
+
+    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
+        $(this).toggleClass('active');
+        let textArea = $(this).parent().siblings('textarea'),
+            select = $(this).closest('.note_wrapper').find('select'),
+            btn = $(this).closest('.access_wrapper').find('#delete_access');
+        if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
+            textArea.attr('readonly', false);
+            select.attr('readonly', false).attr('disabled', false);
+            btn.attr('disabled', false);
+        } else {
+            $(this).addClass('active');
+            textArea.attr('readonly', true);
+            select.attr('readonly', true).attr('disabled', true);
+            btn.attr('disabled', true);
+        }
     });
 
     AddColorMarkers();
@@ -797,9 +971,78 @@ $('document').ready(function () {
     });
 
 
-    btnNeed();
+    // $('label[for="master"]').on('click', function () {
+    //     let id = $('#selectResponsible').find('option:selected').val();
+    //     if(id) {
+    //         window.location.href = `/account/${id}`;
+    //     }
+    // })
+
+    dataIptelTable(URLS.phone.lastThree(currentUser));
+
+    $('.recordIptel').on('click',function () {
+        let defaultOption = {
+            method: 'GET',
+            credentials: 'same-origin',
+            mode: 'cors',
+            headers: new Headers({
+                'Content-Type': 'text / html',
+                'Access-Control-Allow-Origin':'*',
+                'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
+            })
+        },
+        target = $(this).find('p').text().trim(),
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
+        player = new WavPlayer();
+        // fetch(url, defaultOption).then(function (response) {
+        //     console.log(response.url);
+        //     var sound = new Howl({
+        //         src: [response.url]
+        //     }).play();
+        // });
+        console.log($(this));
+        if($(this).find('.btnPlay').hasClass('active')){
+            $(this).find('.btnPlay').removeClass('active');
+            $(this).find('.btnStop').addClass('active');
+            console.log('play');
+            fetch(url, defaultOption).then(function (response) {
+                console.log(response.url);
+                player.play(response.url);
+            })
+        }else{
+            $(this).find('.btnPlay').addClass('active');
+            $(this).find('.btnStop').removeClass('active');
+            player.stop();
+            console.log('stop');
+        };
+    });
+    $('#monthInput').datepicker({
+        autoClose: true,
+        view: 'months',
+        onSelect: function (formattedDate, date, inst) {
+            $('.preloader').css('display', 'block');
+            let dateMonth = moment(date).format("YYYY-MM"),
+                url = URLS.phone.filterMonth(currentUser,dateMonth);
+            $('#tableMonthIptel').html('');
+            dataIptelMonth(url);
+        }
+    });
+    $('#monthBtn').on('click', function (e) {
+        e.preventDefault;
+        let idUser = $('body').attr('data-user'),
+           todayDate = moment().locale('ru'),
+           url = URLS.phone.filterMonth(currentUser,todayDate.format("YYYY-MM"));
+        $('#tableMonthIptel').html('');
+       $('.preloader').css('display', 'block');
+       $('#popupMonth').css('display', 'block');
+       $('#monthInput').val(todayDate.format("MMMM YYYY"));
+        dataIptelMonth(url);
+    });
+    $('.close_pop').on('click',function () {
+        $('#popupMonth').css('display', 'none');
+    })
+      btnNeed();
     btnPartners();
     btnDeal();
     tabs();
-
 });

@@ -158,6 +158,16 @@ const EXPORT = {
     church_partners: () => `/api/church_partners/export/`,
 };
 
+const PHONE = {
+
+    list: () => `/api/all_calls/`,
+    user: () => `/api/asterisk_users/`,
+    changeUser: () => `/api/change_asterisk_user/`,
+    lastThree: (id) => `/api/calls_to_user/?user_id=${id}&range=last_3`,
+    filterMonth: (id,date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
+    // detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
+};
+
 const URLS = {
     login: () => `/api/login/`,
     logout: () => `/api/logout/`,
@@ -190,6 +200,7 @@ const URLS = {
     event: EVENT,
     church: CHURCH,
     home_group: HOME_GROUP,
+    phone: PHONE,
     export: EXPORT,
 };
 

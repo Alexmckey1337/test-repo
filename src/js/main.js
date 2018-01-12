@@ -246,7 +246,12 @@ $(document).ready(function () {
             hideFilter();
         }
     });
-
+    $('#skin_id').each(function () {
+        $(this).html($(this).find('option').sort(function (a, b) {
+            return a.text == b.text ? 0 : a.text < b.text ? -1 : 1
+        }));
+    });
+    $('#skin_id').select2();
     $('.top-s').on('click',function () {
         let block = $(this).parent().children('.accordion-block');
         if ($(this).hasClass('active')) {

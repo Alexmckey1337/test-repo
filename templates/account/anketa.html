@@ -495,27 +495,125 @@
                         </div>
                     </li>
                 </ul>
+                <ul class="right-info">
+{#                    {% if account.skins.all %}#}
+                        <li id="editUserManager" class="manager-item">
+                            <div class="right-info__block">
+                                <h4>Менеджер</h4>
+                                <div class="success__block"></div>
+                                <form action="/" name="editUserManager" data-action="update-manager">
+                                    <button class="edit" data-edit-block="editUserManager"></button>
+{#                                    <button class="save__info" type="submit"></button>#}
+                                    <div class="popup_body">
+                                        <div class="container">
+                                            <label>
+                                                <span class="label_block">Менеджер у пользователей:</span>
+                                                <div class="input">
+                                                    <div class="input-wrap">
+                                                        <select name="manager" id="user_manager_select"
+                                                                class="select2">
+                                                            <option value=""></option>
+                                                        </select>
+                                                        <button id="set_user_manager" class="set_user" data-user="{{ account.id }}">+</button>
+                                                    </div>
+                                                    <ul>
+                                                        {% for skin in account.skins.all %}
+                                                            <li>
+                                                                <a href="{{ skin.get_absolute_url }}"
+                                                                   target="_blank">
+                                                                    {{ skin.fullname }}
+                                                                </a>
+                                                                <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
+                                                            </li>
+                                                            {% empty %}
+                                                            <li class="noManager">
+                                                                Не менеджер
+                                                            </li>
+                                                        {% endfor %}
+                                                        <li class="no-manager">
+                                                            Не менеджер
+                                                        </li>
+                                                    </ul>
+                                                </div>
+{#                                                <select type="text" id="user_manager_select">#}
+{#                                                    {% for skin in account.skins.all %}#}
+{#                                                        <option#}
+{#                                                                {% if skin in account.skins.all %}selected{% endif %}>#}
+{#                                                            {{ skin.fullname }}#}
+{#                                                        </option>#}
+{#                                                    {% endfor %}#}
+{#                                                </select>#}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+{#                    {% endif %}#}
+                    <li id="editManager" class="manager-item">
+                        <div class="right-info__block">
+                            <h4>Текущие менеджеры</h4>
+                            <div class="success__block"></div>
+                            <form action="/" name="editManager" data-action="update-manager">
+                                <button class="edit" data-edit-block="editManager"></button>
+{#                                <button class="save__info" type="submit" data-user="{{ account.id }}" ></button>#}
+                                <div class="popup_body">
+                                    <div class="container">
+                                        <label>
+                                            <span class="label_block">Текущие менеджеры:</span>
+                                            <div class="input">
+                                                <div class="input-wrap">
+                                                    <select name="manager" id="manager_select" class="select2">
+                                                        <option value=""></option>
+                                                    </select>
+                                                    <button id="set_manager" class="set_user" data-user="{{ account.id }}">+</button>
+                                                </div>
+                                                <ul>
+                                                    {% for manager in account.managers.all %}
+                                                        <li>
+                                                            <a href="{{ manager.get_absolute_url }}" target="_blank">
+                                                                {{ manager }}
+                                                            </a>
+                                                            <span class="delete-manager"><i class="material-icons">&#xE5CD;</i></span>
+                                                        </li>
+                                                        {% empty %}
+                                                        <li class="noManager">
+                                                            Нет менеджеров
+                                                        </li>
+                                                    {% endfor %}
+                                                    <li class="no-manager">
+                                                        Нет менеджеров
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
             </div><!--End left-content -->
         </div>
 
         <div class="right-contentwrap">
             <div class="right-content">
-                {% if request.user.is_superuser %}
-                    <div class="a-block a-manager">
-                        <div class="manager-wrap">
-                            <label for="manager_select">Менеджер:</label>
-                            <select name="manager" id="manager_select" class="select2"></select>
-                            <button id="set_manager" data-user="{{ account.id }}">Set</button>
-                            <p>Текущий менеджер: {% for manager in account.managers.all %}
-                                <a href="{{ manager.get_absolute_url }}" target="_blank">
-                                    {{ manager }}
-                                </a>{% if not forloop.last %},{% endif %}
-                            {% empty %}
-                                Нет менеджера
-                            {% endfor %}</p>
-                        </div>
-                    </div>
-                {% endif %}
+{#                {% if request.user.is_superuser %}#}
+{#                    <div class="a-block a-manager">#}
+{#                        <div class="manager-wrap">#}
+{#                            <label for="manager_select">Менеджер:</label>#}
+{#                            <select name="manager" id="manager_select" class="select2"></select>#}
+{#                            <button id="set_manager" data-user="{{ account.id }}">Set</button>#}
+{#                            <p>Текущий менеджер: {% for manager in account.managers.all %}#}
+{#                                <a href="{{ manager.get_absolute_url }}" target="_blank">#}
+{#                                    {{ manager }}#}
+{#                                </a>{% if not forloop.last %},{% endif %}#}
+{#                                {% empty %}#}
+{#                                Нет менеджера#}
+{#                            {% endfor %}</p>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                {% endif %}#}
                 <div class="a-block a-mail">
                     {% for profile in account.active_summit_profiles %}
                         <h1>{{ profile.summit }}: {{ profile.reg_code }}
@@ -561,6 +659,54 @@
                         </div>
                     </div>
                 </div>
+                <div class="a-block a-iptel">
+                    <div class="top-s">
+                        <h3>Звонки</h3>
+                        <span id="monthBtn">Звонки за месяц</span>
+                    </div>
+                    <div class="a-iptel__wrap accordion-block">
+                        <div id="iptelBlock"></div>
+                        <div class="iptelPlayer">
+                            <!-- Top Info -->
+                            <div id="title">
+                                <span id="track"></span>
+                                <div id="timer">0:00</div>
+                                <div id="duration">0:00</div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="controlsOuter">
+                                <div class="controlsInner">
+                                    <div id="loading"></div>
+                                    <div class="btn" id="playBtn"></div>
+                                    <div class="btn" id="pauseBtn"></div>
+                                    <div class="btn" id="prevBtn"></div>
+                                    <div class="btn" id="nextBtn"></div>
+                                </div>
+                                <div class="btn" id="playlistBtn"></div>
+                                <div class="btn" id="volumeBtn"></div>
+                            </div>
+
+                            <!-- Progress -->
+                            <div id="waveform"></div>
+                            <div id="bar"></div>
+                            <div id="progress"></div>
+
+                            <!-- Playlist -->
+                            <div id="playlist">
+                                <div id="list"></div>
+                            </div>
+
+                            <!-- Volume -->
+                            <div id="volume" class="fadeout">
+                                <div id="barFull" class="bar"></div>
+                                <div id="barEmpty" class="bar"></div>
+                                <div id="sliderBtn"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {% if user.is_partner_manager_or_high and account.is_partner %}
                         <div class="a-block">
                             <div class="top-s">
@@ -693,7 +839,7 @@
                                             <p class="summits-title__title">{{ anket.summit }}</p>
                                             <p>{{ anket.summit.description|default:"Комментарий не указан" }}
                                                 (Code: <a
-                                                        href="/api/v1.0/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
+                                                        href="/api/generate_code/{{ anket.user.fullname }} ({{ anket.code }}).pdf?code={{ anket.code }}">
                                                     {{ anket.code }}
                                                 </a>)
                                             </p>
@@ -797,15 +943,6 @@
         </div>
 
     </div>
-    {% if account.skins.all %}
-        <div class="clearfix"></div>
-        <h1>Менеджер у пользователей:</h1>
-        <ul style="padding-left: 40px;">
-            {% for skin in account.skins.all %}
-                <li><a href="{{ skin.get_absolute_url }}">{{ skin.fullname }}</a></li>
-            {% endfor %}
-        </ul>
-    {% endif %}
     <div class="clearfix"></div>
     {% if log_messages or log_messages_iam %}
         <h1>Пользователь:</h1>
@@ -972,9 +1109,19 @@
             </div>
         </div>
     </div>
-
-{% include "partials/find_duplicate_deals.html" %}
-
+    {% include "partials/find_duplicate_deals.html" %}
+    {#    <div id="playerPopup" class="pop-up__table">#}
+{#        <div class="pop_cont">#}
+{#            <div class="top-text">#}
+{#                <h3>Прослушать запись</h3><span class="close_pop">×</span>#}
+{#            </div>#}
+{#            <div class="musicPlayer">#}
+{#                <audio controls>#}
+{#                  <source src="http://192.168.240.47:7000/file/?file_name=out-0687774566-1119-20171023-133344-1508754824.286.wav" type="audio/wav">#}
+{#                </audio>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     <div id="popup-create_partners" class="popap">
         <div class="pop_cont">
             <div class="popup_text">
@@ -1041,11 +1188,100 @@
             </div>
         </div>
     </div>
+    <div class="pop-up__table popup__month" id="popupMonth">
+        <div class="pop_cont">
+            <div class="top-text">
+                <h3>Звонки за</h3>
+                <input type="text"
+                   class="iptel-month"
+                   id="monthInput"
+                   data-language='en'
+                   data-min-view="months"
+                   data-view="months"
+                   data-date-format="MM yyyy" />
+                <span class="close_pop">×</span>
+            </div>
+            <div class="main-text">
+                <div class="iptel-month" id="tableMonthIptel"></div>
+            </div>
+        </div>
+    </div>
+    <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Добавление партнерской анкеты</h2>
+            </div>
+            <div class="popup_body">
+                <div class="container container_block">
+                    <input type="hidden" data-id="user" value="{{ account.id }}">
+                    <label>
+                        <span class="label_block">Отдел партнерства:</span>
+                        {% get_partner_titles as titles %}
+                        <select class="department_partner selectdb" data-id="title">
+                            {% for t in titles %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Тег:</span>
+                        <select class="group selectdb par__group" data-id="group">
+                            <option value="" selected disabled>Выберите тег</option>
+                            {% for el in partner_groups %}
+                                <option value="{{ el.id }}">{{ el.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <input type="checkbox" class="partnershipCheck">
+                        <div></div>
+                    </label>
+                    <label>
+                        <span class="label_block">Партнёр с:</span>
+                        <input type="text" class="sel__date" data-id="date">
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма сделки:</span>
+                        <div class="input">
+                            <input type="text" data-id="value" class="payment_value">
+                            <select class="payment_currency selectdb" data-id="currency">
+                                {% for currency in currencies %}
+                                    <option value="{{ currency.id }}">
+                                        {{ currency.short_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        <span class="label_block">Менеджер:</span>
+                        <select class="responsible selectdb" data-id="responsible">
+                            <option value="" selected disabled>Выберите менеджера</option>
+                            {% get_simple_managers as managers %}
+                            {% for manager in managers %}
+                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+                <div id="table_duplicate" class="table-wrap clearfix"></div>
+            </div>
+            <div class="container">
+                <button id="close_addPartners">Отменить</button>
+                <button id="send_addPartners">Создать</button>
+            </div>
+        </div>
+    </div>
 
     {{ block.super }}
 
 {% endblock %}
 
 {% block extra_scripts %}
+    <script>var currentUser = {{ account.id }}</script>
     <script src="{% static "js/account.bundle.js" %}"></script>
+    <script id="iptelScript">
+
+    </script>
 {% endblock %}

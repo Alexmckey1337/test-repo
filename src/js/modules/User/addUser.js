@@ -8,7 +8,7 @@ import {dataURLtoBlob} from "../Avatar/index";
 import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
 
-export function addUserToHomeGroup(user_id, hg_id,stable,urlStable, exist = false) {
+export function addUserToHomeGroup(user_id, hg_id, exist = false) {
     let url = URLS.user.set_home_group(user_id);
     let config = {
         url: url,
@@ -16,14 +16,6 @@ export function addUserToHomeGroup(user_id, hg_id,stable,urlStable, exist = fals
         data: {
             home_group_id: hg_id
         }
-    },
-    configStable = {
-        url: urlStable,
-        method: "PATCH",
-        data: {
-            is_stable: stable
-        }
-
     }
     return new Promise(function (resolve, reject) {
         let codes = {
@@ -35,12 +27,11 @@ export function addUserToHomeGroup(user_id, hg_id,stable,urlStable, exist = fals
             }
         };
         newAjaxRequest(config, codes, reject);
-        // newAjaxRequest(configStable, codes, reject);
     });
 }
 
 
-export function addUserToChurch(user_id, id,stable,urlstable, exist = false) {
+export function addUserToChurch(user_id, id, exist = false) {
     let url = URLS.user.set_church(user_id);
     let config = {
         url: url,
@@ -48,14 +39,6 @@ export function addUserToChurch(user_id, id,stable,urlstable, exist = false) {
         data: {
             church_id: id
         }
-    },
-    configStable = {
-        url: urlstable,
-        method: "PATCH",
-        data: {
-            is_stable: stable
-        }
-
     }
     return new Promise(function (resolve, reject) {
         let codes = {
@@ -67,7 +50,6 @@ export function addUserToChurch(user_id, id,stable,urlstable, exist = false) {
             }
         };
         newAjaxRequest(config, codes, reject);
-        // newAjaxRequest(configStable, codes, reject);
     });
 }
 
