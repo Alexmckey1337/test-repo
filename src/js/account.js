@@ -38,6 +38,7 @@ import {
     renderDealTable,
     renderPaymentTable,
 } from "./modules/Partnerships/index";
+import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -494,7 +495,7 @@ $('document').ready(function () {
             "is_stable": stable
         };
         postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
-    })
+    });
     $('.delete-manager').on('click', function () {
         let form = $(this).closest('form').attr('name'),
             link = $(this).parent('li').children('a').attr('href'),
@@ -519,7 +520,7 @@ $('document').ready(function () {
                 })
                 .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
         }
-    })
+    });
     $('.set_user').on('click', function (e) {
         e.preventDefault();
         let managerText = $('#manager_select').parent('div').find('.select2-selection__rendered').text(),
@@ -882,6 +883,7 @@ $('document').ready(function () {
             $img.cropper("destroy");
         });
     });
+
     $('#divisions').select2();
     $('#departments').select2();
 
@@ -1000,7 +1002,7 @@ $('document').ready(function () {
         //         src: [response.url]
         //     }).play();
         // });
-        console.log($(this));
+
         if($(this).find('.btnPlay').hasClass('active')){
             $(this).find('.btnPlay').removeClass('active');
             $(this).find('.btnStop').addClass('active');
@@ -1009,13 +1011,14 @@ $('document').ready(function () {
                 console.log(response.url);
                 player.play(response.url);
             })
-        }else{
+        } else {
             $(this).find('.btnPlay').addClass('active');
             $(this).find('.btnStop').removeClass('active');
             player.stop();
             console.log('stop');
-        };
+        }
     });
+
     $('#monthInput').datepicker({
         autoClose: true,
         view: 'months',
@@ -1027,6 +1030,7 @@ $('document').ready(function () {
             dataIptelMonth(url);
         }
     });
+
     $('#monthBtn').on('click', function (e) {
         e.preventDefault;
         let idUser = $('body').attr('data-user'),
@@ -1038,10 +1042,12 @@ $('document').ready(function () {
        $('#monthInput').val(todayDate.format("MMMM YYYY"));
         dataIptelMonth(url);
     });
+
     $('.close_pop').on('click',function () {
         $('#popupMonth').css('display', 'none');
-    })
-      btnNeed();
+    });
+
+    btnNeed();
     btnPartners();
     btnDeal();
     tabs();
