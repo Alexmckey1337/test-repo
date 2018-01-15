@@ -38,6 +38,7 @@ import {
     renderDealTable,
     renderPaymentTable,
 } from "./modules/Partnerships/index";
+import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -510,7 +511,7 @@ $('document').ready(function () {
             "is_stable": stable
         };
         postData(URLS.user.detail(currentUser), data, {method: "PATCH"});
-    })
+    });
     $('.delete-manager').on('click', function () {
         let form = $(this).closest('form').attr('name'),
             link = $(this).parent('li').children('a').attr('href'),
@@ -535,7 +536,7 @@ $('document').ready(function () {
                 })
                 .catch((err) => showAlert(`Невозможно удалить. ${err.detail}`, 'Ошибка'));
         }
-    })
+    });
     $('.set_user').on('click', function (e) {
         e.preventDefault();
         let managerText = $('#manager_select').parent('div').find('.select2-selection__rendered').text(),
@@ -896,6 +897,7 @@ $('document').ready(function () {
             $img.cropper("destroy");
         });
     });
+
     $('#divisions').select2();
     $('#departments').select2();
 
@@ -1009,6 +1011,7 @@ $('document').ready(function () {
         url = 'http://192.168.240.47:7000/file/?file_name=' + target;
         console.log(url);
     });
+
     $('#monthInput').datepicker({
         autoClose: true,
         view: 'months',
@@ -1020,6 +1023,7 @@ $('document').ready(function () {
             dataIptelMonth(url);
         }
     });
+
     $('#monthBtn').on('click', function (e) {
         e.preventDefault;
         let idUser = $('body').attr('data-user'),
@@ -1031,10 +1035,12 @@ $('document').ready(function () {
        $('#monthInput').val(todayDate.format("MMMM YYYY"));
         dataIptelMonth(url);
     });
+
     $('.close_pop').on('click',function () {
         $('#popupMonth').css('display', 'none');
-    })
-      btnNeed();
+    });
+
+    btnNeed();
     btnPartners();
     btnDeal();
     tabs();

@@ -50,6 +50,15 @@ class DealFilterByPaymentStatus(filters.BaseFilterBackend):
         return queryset
 
 
+class PartnerFilterByLevel(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        level = request.query_params.get('level')
+        if level:
+            queryset = queryset.filter(user__partner_role__level=level)
+
+        return queryset
+
+
 class FilterByPartnerBirthday(BaseFilterByBirthday):
     born_date_field = 'user__born_date'
 

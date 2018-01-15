@@ -52,7 +52,7 @@ class ChurchFilter(django_filters.FilterSet):
     class Meta:
         model = Church
         fields = ('department', 'pastor', 'is_open', 'opening_date', 'country',
-                  'city')
+                  'city', 'region')
 
 
 class CommonGroupMasterTreeFilter(BaseFilterBackend):

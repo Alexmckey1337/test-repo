@@ -23,7 +23,9 @@ church_columns = {
     'country': {
         'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 9, 'active': True, 'editable': True},
     'opening_date': {
-        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True}
+        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True},
+    'region': {
+        'id': 0, 'title': 'Область', 'ordering_title': 'region', 'number': 11, 'active': True, 'editable': True},
 }
 
 user_columns = {
