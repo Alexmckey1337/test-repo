@@ -74,6 +74,11 @@ $('document').ready(function () {
             });
     });
 
+    $('.create_report').on('click',function () {
+        $('#addHomeGroupReport').addClass('active');
+        $('.bg').addClass('active');
+    })
+    $('#typeReport').select2();
     $.validate({
         lang: 'ru',
         form: '#createUser',

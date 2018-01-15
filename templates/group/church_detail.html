@@ -416,6 +416,38 @@
                         <div class="pagination users__pagination"></div>
                     </div>
                 </div>
+{#                <div class="a-block a-sdelki">#}
+{#                    <div class="top-s">#}
+{#                        <h3>Отчеты</h3>#}
+{#                    </div>#}
+{#                    <div class="accordion-block">#}
+{#                        <div class="tab-status">#}
+{#                            <ul class="tabs_report church-tabs">#}
+{#                                {% for type in report_types %}#}
+{#                                    <li data-status="True">#}
+{#                                        <button><span>{{ type }}</span></button>#}
+{#                                    </li>#}
+{#                                {% endfor %}#}
+{#                            </ul>#}
+{##}
+{#                            <button class="create_report">Добавить отчет</button>#}
+{#                        </div>#}
+{#                        <div class="top-pag">#}
+{#                            <div class="table__count"></div>#}
+{#                            <div class="pagination users__pagination"><!--pagination -->#}
+{#                            </div><!--End pagination -->#}
+{#                        </div>#}
+{#                        <div class="table-wrap  clearfix" id="church_reports">#}
+{#                            <!--Table -->#}
+{#                            <div class="table scrollbar-inner" id="tableChurchReports"></div>#}
+{#                            <div class="query-none">#}
+{#                                <p></p>#}
+{#                            </div>#}
+{#                        </div><!--End Table -->#}
+{#                        <div class="table__count"></div>#}
+{#                        <div class="pagination users__pagination"></div>#}
+{#                    </div>#}
+{#                </div>#}
             </div>
         </div>
     </div>
@@ -547,6 +579,35 @@
         </div>
     </div>
     {% include "partials/find_duplicate_deals.html" %}
+    <div class="popap popap_slide" id='addChurchReport'>
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Создание отчета</h2>
+            </div>
+            <form action="">
+                <div class="popup_body">
+                    <div class="container container_block">
+                        <label>
+                            <span class="label_block">Тип</span>
+                            <select name="type_id" id="typeReport">
+                                {% for type in report_types %}
+                                    <option value="{{ type.id }}">{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span class="label_block">Дата</span>
+                            <input name="date_report" type="text" id="dateReport">
+                        </label>
+                    </div>
+                </div>
+                <div class="container">
+                    <button class="close-popup">Отменить</button>
+                    <button type="submit" class="add-church">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>

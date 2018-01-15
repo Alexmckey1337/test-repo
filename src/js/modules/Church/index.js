@@ -109,6 +109,7 @@ export function saveChurches(el) {
         address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
+    
     saveChurchData(data, id).then(function () {
         $(el).text("Сохранено");
         $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
