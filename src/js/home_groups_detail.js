@@ -6,9 +6,10 @@ import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import {createHomeGroupUsersTable, makeUsersFromDatabaseList, editHomeGroups,
-        reRenderTable} from "./modules/HomeGroup/index";
+        reRenderTable,updateHomeGroup} from "./modules/HomeGroup/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
+import {dataURLtoBlob} from './modules/Avatar/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import accordionInfo from './modules/accordionInfo';
@@ -139,16 +140,43 @@ $('document').ready(function () {
             });
             $(this).addClass('active');
         }
+         $('#first_name,#file').attr('disabled',false);
+        $('#first_name,#file').attr('readonly',false);
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
-        let idHomeGroup = $('.accordion').attr('data-id');
+        let idHomeGroup = $('.accordion').attr('data-id'),
+            $input = $(this).closest('form').find('input:not(.select2-search__field), select'),
+            webLink = $(this).closest('form').find('#web_site').val(),
+            linkIcon = $('#site-link'),
+            success = $(this).closest('.right-info__block').find('.success__block'),
+            thisForm = $(this).closest('form'),
+            formName = thisForm.attr('name'),
+            form = document.forms[formName],
+            formData = new FormData(form),
+            liderLink = '/account/' + $('#homeGroupLeader').val();
+        $input.each(function (i, elem) {
+            if ($(elem).is('[type=file]')) {
+                let send_image = $(elem).prop("files").length || false;
+                if (send_image) {
+                    try {
+                        let blob;
+                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                        formData.append('image', blob, 'logo.jpg');
+                        formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                    } catch (err) {
+                        console.log(err);
+                    }
+                }
+                return;
+            }
+        });
+        updateHomeGroup(idHomeGroup, formData, success);
         editHomeGroups($(this), idHomeGroup);
-        let liderLink = '/account/' + $('#homeGroupLeader').val();
+
+
         pasteLink($('#homeGroupLeader'), liderLink);
-        let webLink = $(this).closest('form').find('#web_site').val();
-        let linkIcon = $('#site-link');
         if (webLink == '' ) {
             !linkIcon.hasClass('link-hide') && linkIcon.addClass('link-hide');
         } else {
@@ -157,4 +185,15 @@ $('document').ready(function () {
         }
     });
 
+    $('#editNameBtn').on('click', function () {
+        if ($(this).hasClass('active')) {
+            $('#editNameBlock').css({
+                display: 'block',
+            });
+        } else {
+            $('#editNameBlock').css({
+                display: 'none',
+            });
+        }
+    });
 });

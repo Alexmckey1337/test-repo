@@ -391,6 +391,22 @@ $('document').ready(function () {
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
     });
+    $("#tabs3 li").on('click', function (e) {
+        e.preventDefault();
+        let id_tab = this.getAttribute('data-tab');
+        $('[data-main_tab]').hide();
+        $('[data-main_tab="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
+    $("#tabs4 li").on('click', function (e) {
+        e.preventDefault();
+        let id_tab = this.getAttribute('data-main');
+        $('[data-history_tab]').hide();
+        $('[data-history_tab="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
 
     if ($("#tabs2 li")) {
         $('#Sammits').css('display', 'block');
@@ -736,7 +752,6 @@ $('document').ready(function () {
                     }
                 });
                 updateUser(ID, formData, success).then(function (data) {
-                    console.log($(success));
                     if (formName === 'editHierarchy') {
                         $('.is-hidden__after-edit').html('');
                     }
@@ -778,7 +793,6 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
-                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
@@ -992,29 +1006,8 @@ $('document').ready(function () {
             })
         },
         target = $(this).find('p').text().trim(),
-        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
-        player = new WavPlayer();
-        // fetch(url, defaultOption).then(function (response) {
-        //     console.log(response.url);
-        //     var sound = new Howl({
-        //         src: [response.url]
-        //     }).play();
-        // });
-        console.log($(this));
-        if($(this).find('.btnPlay').hasClass('active')){
-            $(this).find('.btnPlay').removeClass('active');
-            $(this).find('.btnStop').addClass('active');
-            console.log('play');
-            fetch(url, defaultOption).then(function (response) {
-                console.log(response.url);
-                player.play(response.url);
-            })
-        }else{
-            $(this).find('.btnPlay').addClass('active');
-            $(this).find('.btnStop').removeClass('active');
-            player.stop();
-            console.log('stop');
-        };
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target;
+        console.log(url);
     });
     $('#monthInput').datepicker({
         autoClose: true,

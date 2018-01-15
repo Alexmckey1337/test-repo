@@ -11,7 +11,6 @@ module.exports = {
         entry: ['babel-polyfill', './entry.js'],
         tasks: ['babel-polyfill', './tasks.js'],
         phone: ['babel-polyfill', './phone.js'],
-        player: ['babel-polyfill', './Player.js'],
         restorepass: ['babel-polyfill', './restorepass.js'],
         editpass: ['babel-polyfill', './editpass.js'],
         main: ['babel-polyfill', './main.js'],

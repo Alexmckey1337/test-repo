@@ -3,7 +3,7 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
-import getData, {postData} from "../Ajax/index";
+import getData, {postData,postFormData} from "../Ajax/index";
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import {getOrderingData} from "../Ordering/index";
@@ -314,7 +314,20 @@ export function makeUsersFromDatabaseList(config = {}, id) {
 //         newAjaxRequest(resData, codes, reject);
 //     });
 // }
-
+export function updateHomeGroup(id,data,success) {
+    let url = URLS.home_group.detail(id);
+    let config = {
+        method: 'PATCH',
+    };
+    postFormData(url,data,config).then(function () {
+        $(success).text('Сохранено');
+        setTimeout(function () {
+            $(success).text('');
+            $('#editNameBlock').css('display','none');
+            $('#editNameBtn').removeClass('active');
+        }, 1000);
+    });
+}
 export function editHomeGroups(el, id) {
     let data = {
         leader: $($(el).closest('ul').find('#homeGroupLeader')).val(),
@@ -322,13 +335,16 @@ export function editHomeGroups(el, id) {
         website: ($(el).closest('ul').find('#web_site')).val(),
         opening_date: $($(el).closest('ul').find('#opening_date')).val().split('.').reverse().join('-') || null,
         city: $($(el).closest('ul').find('#city')).val(),
-        address: $($(el).closest('ul').find('#address')).val()
+        address: $($(el).closest('ul').find('#address')).val(),
+        title: $($(el).closest('ul').find('#first_name')).val()
     };
 
     saveHomeGroupsData(data, id).then(function () {
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
-        console.log($input);
         $input.each(function (i, elem) {
+            if($(elem).is('#first_name')){
+                $('#fullName').text($(elem).val());
+            }
             $(this).attr('disabled', true);
             $(this).attr('readonly', true);
             if ($(elem).is('select')) {
@@ -343,6 +359,12 @@ export function editHomeGroups(el, id) {
         $(el).closest('form').find('.edit').removeClass('active');
         let success = $($(el).closest('form').closest('div').find('.success__block'));
         $(success).text('Сохранено');
+        if ($($(el).parent('form')).attr('name')==='editName') {
+            setTimeout(function () {
+                $('#editNameBlock').css('display', 'none');
+                $('#editNameBtn').removeClass('active');
+            }, 3000);
+        }
         setTimeout(function () {
             $(success).text('');
         }, 3000);

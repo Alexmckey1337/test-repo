@@ -35,13 +35,13 @@
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            {#                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>#}
+                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
                                 <h3 id="fullName">{{ home_group.get_title }}</h3>
                             </hgroup>
                         </div>
                         <div class="anketa-photo">
-                            {% if church.image %}
+                            {% if home_group.image %}
                                 <img src="{{ home_group.image.url }}" alt="photo">
                             {% else %}
                                 <i class="fa fa-picture-o" aria-hidden="true"></i>
@@ -59,24 +59,8 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
-                                            <span class="label_block">Имя</span>
-                                            <input type="text" name="first_name" value="{{ account.first_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Фамилия</span>
-                                            <input type="text" name="last_name" value="{{ account.last_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Отчество</span>
-                                            <input type="text" name="middle_name" value="{{ account.middle_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Имя на родном языке</span>
-                                            <input type="text" name="search_name" value="{{ account.search_name }}"
-                                                   readonly>
+                                            <span class="label_block">Название</span>
+                                            <input type="text" name="first_name" id="first_name" value="{{ home_group.get_title }}">
                                         </label>
                                         <label>
                                             <span class="label_block">Фото</span>
@@ -106,10 +90,6 @@
                                                 <input type="text" id="phone_number" value="{{ home_group.phone_number }}"
                                                    readonly>
                                             </div>
-                                        </label>
-                                        <label>
-                                            <span class="label_block"><i class="fa fa-envelope"></i></span>
-                                            <input type="text" id="address" value="{{ home_group.address }}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block"><i class="fa fa-globe"
@@ -194,6 +174,10 @@
                                         <label>
                                             <span class="label_block">Город:</span>
                                             <input type="text" id="city" value="{{ home_group.city }}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Адрес:</span>
+                                            <input type="text" id="address" value="{{ home_group.address }}" readonly>
                                         </label>
                                     </div>
                                 </div>
