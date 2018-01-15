@@ -100,8 +100,26 @@ $('document').ready(function () {
 
     $('.accordion').find('.edit').on('click', function (e) {
         e.preventDefault();
-        let $input = $(this).closest('form').find('input:not(.select2-search__field), select');
+        let $edit = $('.edit'),
+            exists = $edit.closest('form').find('ul').hasClass('exists'),
+            noEdit = false,
+            action = $(this).closest('form').data('action'),
+            inputWrap = $(this).closest('form').find('.input-wrap'),
+            $block = $('#' + $(this).data('edit-block')),
+            $input = $block.find('input:not(.select2-search__field), select'),
+            $hiddenBlock = $(this).parent().find('.hidden');
+        $hiddenBlock.each(function () {
+            $(this).removeClass('hidden');
+        });
+        $edit.each(function () {
+            if ($(this).hasClass('active')) {
+                noEdit = true;
+            }
+        });
 
+        if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
+            $(this).closest('form').get(0).reset();
+        }
         if ($(this).hasClass('active')) {
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
@@ -109,71 +127,181 @@ $('document').ready(function () {
                 }
                 $(this).attr('readonly', true);
                 if ($(el).is('select')) {
-                    if (!$(this).is('.no_select')) {
-                        $(this).select2('destroy');
+                    if ($(this).is(':not([multiple])')) {
+                        if (!$(this).is('.no_select')) {
+                            $(this).select2('destroy');
+                        }
                     }
                 }
             });
             $(this).removeClass('active');
         } else {
-            let leaderId = $('#homeGroupLeader').val(),
-                churchId = $('#editHomeGroupForm').attr('data-departament_id');
-            $input.each(function (i, el) {
-                console.log($(this).is('#homeGroupLeader'));
-                if (!$(this).hasClass('no__edit')) {
-                    if ($(this).attr('disabled')) {
-                        $(this).attr('disabled', false);
-                    }
-                    if (!$(el).is('#church')) {
+            if (noEdit) {
+                showAlert("Сначала сохраните или отмените изменения в другом блоке");
+            } else {
+                let leaderId = $('#homeGroupLeader').val(),
+                    churchId = $('#editHomeGroupForm').attr('data-departament_id');
+                $input.each(function () {
+                    if (!$(this).hasClass('no__edit')) {
+                        if ($(this).attr('disabled')) {
+                            $(this).attr('disabled', false);
+                        }
                         $(this).attr('readonly', false);
-                    }
-                    if ($(el).is('#homeGroupLeader')) {
-                        getPotentialLeadersForHG({church: churchId}).then(function (res) {
-                            return res.map(function (leader) {
-                                return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
+                        if ($(this).is('select') && $(this).is(':not(.no_select)')) {
+                            $(this).select2();
+                        }
+                        if ($(this).is('#church')) {
+                            $(this).attr('readonly', true);
+                        }else{
+                            $(this).attr('readonly', false);
+                        }
+                        if ($(this).is('#homeGroupLeader')) {
+                            getPotentialLeadersForHG({church: churchId}).then(function (res) {
+                                return res.map(function (leader) {
+                                    return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
+                                });
+                            }).then(function (data) {
+                                $('#homeGroupLeader').html(data).prop('disabled', false).select2();
                             });
-                        }).then(function (data) {
-                            $('#homeGroupLeader').html(data).prop('disabled', false).select2();
-                        });
+                        }
                     }
-                }
-            });
-            $(this).addClass('active');
+                });
+                $(this).addClass('active');
+            }
         }
-         $('#first_name,#file').attr('disabled',false);
-        $('#first_name,#file').attr('readonly',false);
+
+        // if ($(this).hasClass('active')) {
+        //     $input.each(function (i, el) {
+        //         if (!$(this).attr('disabled')) {
+        //             $(this).attr('disabled', true);
+        //         }
+        //         $(this).attr('readonly', true);
+        //         if ($(el).is('select')) {
+        //             if (!$(this).is('.no_select')) {
+        //                 $(this).select2('destroy');
+        //             }
+        //         }
+        //     });
+        //     $(this).removeClass('active');
+        // } else {
+        //     let leaderId = $('#homeGroupLeader').val(),
+        //         churchId = $('#editHomeGroupForm').attr('data-departament_id');
+        //     $input.each(function (i, el) {
+        //         console.log($(this).is('#homeGroupLeader'));
+        //         if (!$(this).hasClass('no__edit')) {
+        //             if ($(this).attr('disabled')) {
+        //                 $(this).attr('disabled', false);
+        //             }
+        //             if (!$(el).is('#church')) {
+        //                 $(this).attr('readonly', false);
+        //             }
+        //             if ($(el).is('#homeGroupLeader')) {
+        //                 getPotentialLeadersForHG({church: churchId}).then(function (res) {
+        //                     return res.map(function (leader) {
+        //                         return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
+        //                     });
+        //                 }).then(function (data) {
+        //                     $('#homeGroupLeader').html(data).prop('disabled', false).select2();
+        //                 });
+        //             }
+        //         }
+        //     });
+        //     $(this).addClass('active');
+        // }
+        //  $('#first_name,#file').attr('disabled',false);
+        // $('#first_name,#file').attr('readonly',false);
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
         e.preventDefault();
+        $(this).closest('form').find('.edit').removeClass('active');
         let idHomeGroup = $('.accordion').attr('data-id'),
-            $input = $(this).closest('form').find('input:not(.select2-search__field), select'),
-            webLink = $(this).closest('form').find('#web_site').val(),
-            linkIcon = $('#site-link'),
-            success = $(this).closest('.right-info__block').find('.success__block'),
+            _self = this,
+            idChurch = $('.accordion').attr('data-id'),
+            $block = $(this).closest('.right-info__block'),
+            $input = $block.find('input:not(.select2-search__field), select'),
             thisForm = $(this).closest('form'),
+            success = $(this).closest('.right-info__block').find('.success__block'),
             formName = thisForm.attr('name'),
+            partner = thisForm.data('partner'),
+            action = thisForm.data('action'),
             form = document.forms[formName],
             formData = new FormData(form),
+            hidden = $(this).hasClass('after__hidden'),
+            linkIcon = $('#site-link'),
+            webLink = $(this).closest('form').find('#web_site').val(),
             liderLink = '/account/' + $('#homeGroupLeader').val();
-        $input.each(function (i, elem) {
-            if ($(elem).is('[type=file]')) {
-                let send_image = $(elem).prop("files").length || false;
-                if (send_image) {
-                    try {
-                        let blob;
-                        blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-                        formData.append('image', blob, 'logo.jpg');
-                        formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-                    } catch (err) {
-                        console.log(err);
+
+        if (action === 'update-user') {
+            $input.each(function () {
+                let id = $(this).data('id');
+                console.log('ID-->', id);
+                if (!$(this).attr('name')) {
+                    if ($(this).is('[type=file]')) {
+                        let send_image = $(this).prop("files").length || false;
+                        if (send_image) {
+                            try {
+                                let blob;
+                                blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
+                                formData.append('image', blob, 'logo.jpg');
+                                formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
+                                formData.append('id', id);
+
+                            } catch (err) {
+                                console.log(err);
+                            }
+                        }
+                        return;
+                    }
+                    let id = $(this).attr('id');
+                    let $val = $('#' + id);
+                    if ($val.val() instanceof Array) {
+                        formData.append(id, JSON.stringify($('#' + id).val()));
+                    } else {
+                        if ($val.val()) {
+                            if ($val.is('#opening_date')) {
+                                formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
+                            }else if($val.is('#church')){
+                                formData.append(id, $('#' + id).data('id'));
+                            } else  {
+                                formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
+                            }
+                        } else {
+                            if ($val.hasClass('sel__date')) {
+                                formData.append(id, '');
+                            } else {
+                                formData.append(id, JSON.stringify([]));
+                            }
+                        }
                     }
                 }
-                return;
+            });
+            updateHomeGroup(idChurch, formData, success)
+                .then(function (data) {
+                    if (hidden) {
+                        let editBtn = $(_self).closest('.hidden').data('edit');
+                        setTimeout(function () {
+                            $('#' + editBtn).trigger('click');
+                        }, 1500);
+                    }
+                    $('#fullName').text(data.title);
+                })
+        }
+        $input.each(function () {
+            if (!$(this).attr('disabled')) {
+                $(this).attr('disabled', true);
+            }
+            $(this).attr('readonly', true);
+            if ($(this).is('select')) {
+                if ($(this).is(':not([multiple])')) {
+                    if (!$(this).is('.no_select')) {
+                        $(this).select2('destroy');
+                    }
+                }
             }
         });
-        updateHomeGroup(idHomeGroup, formData, success);
-        editHomeGroups($(this), idHomeGroup);
+        // updateHomeGroup(idHomeGroup, formData, success);
+        // editHomeGroups($(this), idHomeGroup);
 
 
         pasteLink($('#homeGroupLeader'), liderLink);

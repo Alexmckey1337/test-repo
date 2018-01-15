@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="content content_anketa accordion" data-id="{{ home_group.id }}">
+    <div class="content content_anketa accordion" id="editHomeGroupForm" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}">
         <div class="left-contentwrap">
             <div class="left-content">
                 <div class="user-fiowrap">
@@ -60,7 +60,7 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Название</span>
-                                            <input type="text" name="first_name" id="first_name" value="{{ home_group.get_title }}">
+                                            <input type="text" name="title" id="first_name" value="{{ home_group.get_title }}">
                                         </label>
                                         <label>
                                             <span class="label_block">Фото</span>
@@ -87,7 +87,7 @@
                                                 <i class="fa fa-phone" aria-hidden="true"></i>
                                             </span>
                                             <div class="label_phone_block">
-                                                <input type="text" id="phone_number" value="{{ home_group.phone_number }}"
+                                                <input type="text" name="phone_number" id="phone_number" value="{{ home_group.phone_number }}"
                                                    readonly>
                                             </div>
                                         </label>
@@ -95,7 +95,7 @@
                                             <span class="label_block"><i class="fa fa-globe"
                                                                          aria-hidden="true"></i></span>
                                             <div class="input">
-                                                <input type="text" id="web_site" value="{{ home_group.website }}"
+                                                <input type="text" name="website" id="web_site" value="{{ home_group.website }}"
                                                        readonly>
                                                 <a href="{{ home_group.website }}" target="_blank" id="site-link"
                                                    {% if not home_group.website %}class="link-hide"{% endif %}>
@@ -120,7 +120,7 @@
                                         <label>
                                             <span class="label_block">Дата открытия:</span>
                                             <input type="text" class="date" id="opening_date"
-                                                   value="{{ home_group.opening_date }}"
+                                                   value="{{ home_group.opening_date|date:"d.m.Y" }}"
                                                    disabled="disabled" readonly>
                                         </label>
                                     </div>
@@ -133,14 +133,14 @@
                             <h4>Контактные данные</h4>
                             <div class="success__block"></div>
                             <form action="/" id="editChurch" name="editChurch" data-action="update-user">
-                                <button class="edit" data-edit-block="editDepartment"></button>
+                                <button class="edit" data-edit-block="editChurch"></button>
                                 <button class="save__info" type="submit"></button>
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Церковь:</span>
                                             <div class="input">
-                                                <input type="text" id="church" value="{{ home_group.church }}" readonly>
+                                                <input type="text" id="church" value="{{ home_group.church }}" data-id="{{ home_group.church.id }}" readonly>
                                                 <a href="/churches/{{ home_group.church.id }}" target="_blank">
                                                     <i class="fa fa-external-link" aria-hidden="true"></i>
                                                 </a>
@@ -149,7 +149,7 @@
                                         <label>
                                             <span class="label_block">Лидер домашней группы:</span>
                                             <div class="input">
-                                                <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">
+                                                <select id="homeGroupLeader" name="leader" readonly="readonly" disabled="disabled">
                                                     <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>
                                                 </select>
                                                 <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">
@@ -173,11 +173,11 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Город:</span>
-                                            <input type="text" id="city" value="{{ home_group.city }}" readonly>
+                                            <input type="text" name="city" id="city" value="{{ home_group.city }}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block">Адрес:</span>
-                                            <input type="text" id="address" value="{{ home_group.address }}" readonly>
+                                            <input type="text" id="address" name="address" value="{{ home_group.address }}" readonly>
                                         </label>
                                     </div>
                                 </div>

@@ -14,6 +14,7 @@ import {getFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
+import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import OrderTable from '../Ordering/index';
 import {getPotentialLeadersForHG} from "../GetList/index";
 import updateHistoryUrl from '../History/index';
@@ -314,18 +315,53 @@ export function makeUsersFromDatabaseList(config = {}, id) {
 //         newAjaxRequest(resData, codes, reject);
 //     });
 // }
-export function updateHomeGroup(id,data,success) {
+export function updateHomeGroup(id, data, success = null) {
     let url = URLS.home_group.detail(id);
     let config = {
-        method: 'PATCH',
+        url: url,
+        data: data,
+        method: 'PATCH'
     };
-    postFormData(url,data,config).then(function () {
-        $(success).text('Сохранено');
-        setTimeout(function () {
-            $(success).text('');
-            $('#editNameBlock').css('display','none');
-            $('#editNameBtn').removeClass('active');
-        }, 1000);
+    return ajaxSendFormData(config).then(function (data) {
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
+        return data;
+    }).catch(function (data) {
+        let msg = "";
+        if (typeof data == "string") {
+            msg += data;
+        } else {
+            let errObj = null;
+            if (typeof data != 'object') {
+                errObj = JSON.parse(data);
+            } else {
+                errObj = data;
+            }
+            for (let key in errObj) {
+                msg += key;
+                msg += ': ';
+                if (errObj[key] instanceof Array) {
+                    errObj[key].forEach(function (item) {
+                        msg += item;
+                        msg += ' ';
+                    });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
+                } else {
+                    msg += errObj[key];
+                }
+                msg += '; ';
+            }
+        }
+        showAlert(msg);
+
+        return false;
     });
 }
 export function editHomeGroups(el, id) {

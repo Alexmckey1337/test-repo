@@ -185,7 +185,6 @@ $('document').ready(function () {
                 noEdit = true;
             }
         });
-        console.log(noEdit);
         if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
             $(this).closest('form').get(0).reset();
         }
@@ -220,6 +219,19 @@ $('document').ready(function () {
                     }
                 });
                 $(this).addClass('active');
+            }
+            if ($(this).attr('data-edit-block') === 'editDepartment') {
+                makePastorList(department, '#editPastorSelect', pastor);
+                makeDepartmentList('#editDepartmentSelect', department).then(function () {
+                    $('#editDepartmentSelect').on('change', function () {
+                        let id = parseInt($(this).val());
+                        makePastorList(id, '#editPastorSelect');
+                    })
+                });
+            } else if ($(this).attr('data-edit-block') === 'editCurrency') {
+                $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
+                    $('.select2-search__field').focus();
+                });
             }
         }
         // $edit.each(function () {
@@ -296,7 +308,6 @@ $('document').ready(function () {
                 let id = $(this).data('id');
                 console.log('ID-->', id);
                 if (!$(this).attr('name')) {
-                    console.log($input);
                     if ($(this).is('[type=file]')) {
                         let send_image = $(this).prop("files").length || false;
                         if (send_image) {
@@ -315,17 +326,13 @@ $('document').ready(function () {
                     }
                     let id = $(this).attr('id');
                     let $val = $('#' + id);
-                    console.log(id);
                     if ($val.val() instanceof Array) {
-                        console.log($input)
                         formData.append(id, JSON.stringify($('#' + id).val()));
                     } else {
                         if ($val.val()) {
                             if ($val.is('#opening_date')) {
                                 formData.append(id, $('#' + id).val().trim().split('.').reverse().join('-'));
-                            } else if ($val.is('#is_open_church')) {
-                                console.log(id);
-                                console.log($val.is('#is_open_church'));
+                            } else if ($val.is('#is_open')) {
                                 if ($val.is(':checked')) {
                                     formData.append(id, "true");
                                 } else {
@@ -335,7 +342,6 @@ $('document').ready(function () {
                                 formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));
                             }
                         } else {
-                            console.log($input)
                             if ($val.hasClass('sel__date')) {
                                     formData.append(id, '');
                                 } else {
@@ -347,7 +353,6 @@ $('document').ready(function () {
             });
             updateChurch(idChurch, formData, success)
                 .then(function (data) {
-                    console.log(data);
                     if (hidden) {
                         let editBtn = $(_self).closest('.hidden').data('edit');
                         setTimeout(function () {
@@ -357,23 +362,6 @@ $('document').ready(function () {
                     $('#fullName').text(data.title);
                 })
         }
-        // $input.each(function (i, elem) {
-        //     if ($(elem).is('[type=file]')) {
-        //         let send_image = $(elem).prop("files").length || false;
-        //         if (send_image) {
-        //             try {
-        //                 let blob;
-        //                 blob = dataURLtoBlob($(".anketa-photo img").attr('src'));
-        //                 formData.append('image', blob, 'logo.jpg');
-        //                 formData.set('image_source', $('input[type=file]')[0].files[0], 'photo.jpg');
-        //             } catch (err) {
-        //                 console.log(err);
-        //             }
-        //         }
-        //         return;
-        //     }
-        // });
-        // editChurches($(this), idChurch);
         $input.each(function () {
             if (!$(this).attr('disabled')) {
                 $(this).attr('disabled', true);

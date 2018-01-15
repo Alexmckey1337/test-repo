@@ -17,7 +17,7 @@ import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
-import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
+import {makeChurches, makeResponsibleList,makeHomeGroupsList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
@@ -463,10 +463,11 @@ $('document').ready(function () {
 
     let $selectDepartment = $('#departments');
 
-    // makeHomeGroupsList().then((results) => {
+    // makeHomeGroupsList($('#editHomeGroupForm').data('id')).then((results) => {
     //     if (!results) {
     //         return null
     //     }
+    //     console.log(results);
     //     let $homeGroupsList = $('#home_groups_list');
     //     let homeGroupsID = $homeGroupsList.val();
     //     console.log(homeGroupsID);
@@ -774,7 +775,7 @@ $('document').ready(function () {
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -786,7 +787,7 @@ $('document').ready(function () {
                     showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id,stable,url, noExist).then(function (data) {
+                addUserToChurch(ID, church_id,url, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
