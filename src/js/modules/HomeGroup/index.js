@@ -3,7 +3,7 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
-import getData, {postData} from "../Ajax/index";
+import getData, {postData,postFormData} from "../Ajax/index";
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import {getOrderingData} from "../Ordering/index";
@@ -14,6 +14,7 @@ import {getFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
+import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import OrderTable from '../Ordering/index';
 import {getPotentialLeadersForHG} from "../GetList/index";
 import updateHistoryUrl from '../History/index';
@@ -314,7 +315,55 @@ export function makeUsersFromDatabaseList(config = {}, id) {
 //         newAjaxRequest(resData, codes, reject);
 //     });
 // }
+export function updateHomeGroup(id, data, success = null) {
+    let url = URLS.home_group.detail(id);
+    let config = {
+        url: url,
+        data: data,
+        method: 'PATCH'
+    };
+    return ajaxSendFormData(config).then(function (data) {
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
+        return data;
+    }).catch(function (data) {
+        let msg = "";
+        if (typeof data == "string") {
+            msg += data;
+        } else {
+            let errObj = null;
+            if (typeof data != 'object') {
+                errObj = JSON.parse(data);
+            } else {
+                errObj = data;
+            }
+            for (let key in errObj) {
+                msg += key;
+                msg += ': ';
+                if (errObj[key] instanceof Array) {
+                    errObj[key].forEach(function (item) {
+                        msg += item;
+                        msg += ' ';
+                    });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
+                } else {
+                    msg += errObj[key];
+                }
+                msg += '; ';
+            }
+        }
+        showAlert(msg);
 
+        return false;
+    });
+}
 export function editHomeGroups(el, id) {
     let data = {
         leader: $($(el).closest('ul').find('#homeGroupLeader')).val(),
@@ -322,13 +371,16 @@ export function editHomeGroups(el, id) {
         website: ($(el).closest('ul').find('#web_site')).val(),
         opening_date: $($(el).closest('ul').find('#opening_date')).val().split('.').reverse().join('-') || null,
         city: $($(el).closest('ul').find('#city')).val(),
-        address: $($(el).closest('ul').find('#address')).val()
+        address: $($(el).closest('ul').find('#address')).val(),
+        title: $($(el).closest('ul').find('#first_name')).val()
     };
 
     saveHomeGroupsData(data, id).then(function () {
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
-        console.log($input);
         $input.each(function (i, elem) {
+            if($(elem).is('#first_name')){
+                $('#fullName').text($(elem).val());
+            }
             $(this).attr('disabled', true);
             $(this).attr('readonly', true);
             if ($(elem).is('select')) {
@@ -343,6 +395,12 @@ export function editHomeGroups(el, id) {
         $(el).closest('form').find('.edit').removeClass('active');
         let success = $($(el).closest('form').closest('div').find('.success__block'));
         $(success).text('Сохранено');
+        if ($($(el).parent('form')).attr('name')==='editName') {
+            setTimeout(function () {
+                $('#editNameBlock').css('display', 'none');
+                $('#editNameBtn').removeClass('active');
+            }, 3000);
+        }
         setTimeout(function () {
             $(success).text('');
         }, 3000);

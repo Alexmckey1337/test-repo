@@ -1,7 +1,7 @@
 'use strict';
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
-import getData, {postData} from '../Ajax/index';
+import getData, {postData, postFormData} from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
@@ -15,6 +15,7 @@ import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import DeleteChurchUser from '../User/deleteChurchUser';
 import {addUser2Church} from "../User/addUser";
+import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import updateHistoryUrl from '../History/index';
 
 export function createChurchesTable(config = {}) {
@@ -108,6 +109,7 @@ export function saveChurches(el) {
         address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
+    
     saveChurchData(data, id).then(function () {
         $(el).text("Сохранено");
         $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
@@ -133,6 +135,69 @@ export function saveChurches(el) {
         showAlert(html);
     });
 }
+export function updateChurch(id, data, success = null) {
+    let url = URLS.church.detail(id);
+    let config = {
+        url: url,
+        data: data,
+        method: 'PATCH'
+    };
+    return ajaxSendFormData(config).then(function (data) {
+        if (success) {
+            $(success).text('Сохранено');
+            setTimeout(function () {
+                $(success).text('');
+            }, 3000);
+        }
+        return data;
+    }).catch(function (data) {
+        let msg = "";
+        if (typeof data == "string") {
+            msg += data;
+        } else {
+            let errObj = null;
+            if (typeof data != 'object') {
+                errObj = JSON.parse(data);
+            } else {
+                errObj = data;
+            }
+            for (let key in errObj) {
+                msg += key;
+                msg += ': ';
+                if (errObj[key] instanceof Array) {
+                    errObj[key].forEach(function (item) {
+                        msg += item;
+                        msg += ' ';
+                    });
+                } else if (typeof errObj[key] == 'object') {
+                    let errKeys = Object.keys(errObj[key]),
+                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
+                    msg += html;
+                } else {
+                    msg += errObj[key];
+                }
+                msg += '; ';
+            }
+        }
+        showAlert(msg);
+
+        return false;
+    });
+}
+// export function updateChurch(id,data,success){
+//     let url = URLS.church.detail(id);
+//     let config = {
+//         method: 'PATCH',
+//     };
+//     postFormData(url,data,config).then(function (dat) {
+//         $(success).text('Сохранено');
+//         setTimeout(function () {
+//             $(success).text('');
+//             $('#editNameBlock').css('display','none');
+//             $('#editNameBtn').removeClass('active');
+//         }, 1000);
+//     });
+// }
 
 function saveChurchData(data, id) {
     if (id) {
@@ -485,12 +550,16 @@ export function editChurches(el, id) {
         country: $($(el).closest('ul').find('#country')).val(),
         city: $($(el).closest('ul').find('#city')).val(),
         address: $($(el).closest('ul').find('#address')).val(),
-        report_currency: $($(el).closest('ul').find('#report_currency')).val()
+        report_currency: $($(el).closest('ul').find('#report_currency')).val(),
+        title: $($(el).closest('ul').find('#first_name')).val(),
     };
     saveChurchData(data, id).then(function () {
         $(el).closest('form').find('.edit').removeClass('active');
         let $input = $(el).closest('form').find('input:not(.select2-search__field), select');
         $input.each(function (i, elem) {
+            if($(elem).is('#first_name')){
+                $('#fullName').text($(elem).val());
+            }
             $(this).attr('disabled', true);
             $(this).attr('readonly', true);
             if ($(elem).is('select')) {
@@ -502,8 +571,14 @@ export function editChurches(el, id) {
             }
         });
         $(el).removeClass('active');
-        let success = $($(el).closest('form').closest('div').find('.success__block'));
+        let success = $($(el).closest('.right-info__block').find('.success__block'));
         $(success).text('Сохранено');
+        if ($($(el).parent('form')).attr('name')==='editName') {
+            setTimeout(function () {
+                $('#editNameBlock').css('display', 'none');
+                $('#editNameBtn').removeClass('active');
+            }, 3000);
+        }
         setTimeout(function () {
             $(success).text('');
         }, 3000);

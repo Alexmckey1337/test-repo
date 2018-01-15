@@ -17,7 +17,7 @@ import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
-import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
+import {makeChurches, makeResponsibleList,makeHomeGroupsList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
@@ -392,6 +392,22 @@ $('document').ready(function () {
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
     });
+    $("#tabs3 li").on('click', function (e) {
+        e.preventDefault();
+        let id_tab = this.getAttribute('data-tab');
+        $('[data-main_tab]').hide();
+        $('[data-main_tab="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
+    $("#tabs4 li").on('click', function (e) {
+        e.preventDefault();
+        let id_tab = this.getAttribute('data-main');
+        $('[data-history_tab]').hide();
+        $('[data-history_tab="' + id_tab + '"]').show();
+        $(this).closest('.tab-status').find('li').removeClass('active');
+        $(this).addClass('active');
+    });
 
     if ($("#tabs2 li")) {
         $('#Sammits').css('display', 'block');
@@ -447,10 +463,11 @@ $('document').ready(function () {
 
     let $selectDepartment = $('#departments');
 
-    // makeHomeGroupsList().then((results) => {
+    // makeHomeGroupsList($('#editHomeGroupForm').data('id')).then((results) => {
     //     if (!results) {
     //         return null
     //     }
+    //     console.log(results);
     //     let $homeGroupsList = $('#home_groups_list');
     //     let homeGroupsID = $homeGroupsList.val();
     //     console.log(homeGroupsID);
@@ -737,7 +754,6 @@ $('document').ready(function () {
                     }
                 });
                 updateUser(ID, formData, success).then(function (data) {
-                    console.log($(success));
                     if (formName === 'editHierarchy') {
                         $('.is-hidden__after-edit').html('');
                     }
@@ -759,7 +775,7 @@ $('document').ready(function () {
             let church_id = $('#church_list').val();
             let home_groups_id = $('#home_groups_list').val();
             if (!!home_groups_id) {
-                addUserToHomeGroup(ID, home_groups_id,stable,url,noExist).then(function (data) {
+                addUserToHomeGroup(ID, home_groups_id,url,noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -771,7 +787,7 @@ $('document').ready(function () {
                     showAlert(JSON.parse(data.responseText));
                 });
             } else if (!!church_id) {
-                addUserToChurch(ID, church_id,stable,url, noExist).then(function (data) {
+                addUserToChurch(ID, church_id,url, noExist).then(function (data) {
                     let success = $(_self).closest('.right-info__block').find('.success__block');
                     $(success).text('Сохранено');
                     setTimeout(function () {
@@ -779,7 +795,6 @@ $('document').ready(function () {
                         $('.no_church_in').text('');
                     }, 3000);
                     $existBlock.addClass('exists');
-                    // postData(url,data,{method:"PATCH"});
                 }).catch(function (data) {
                     showAlert(JSON.parse(data.responseText));
                 });
@@ -994,29 +1009,8 @@ $('document').ready(function () {
             })
         },
         target = $(this).find('p').text().trim(),
-        url = 'http://192.168.240.47:7000/file/?file_name=' + target,
-        player = new WavPlayer();
-        // fetch(url, defaultOption).then(function (response) {
-        //     console.log(response.url);
-        //     var sound = new Howl({
-        //         src: [response.url]
-        //     }).play();
-        // });
-
-        if($(this).find('.btnPlay').hasClass('active')){
-            $(this).find('.btnPlay').removeClass('active');
-            $(this).find('.btnStop').addClass('active');
-            console.log('play');
-            fetch(url, defaultOption).then(function (response) {
-                console.log(response.url);
-                player.play(response.url);
-            })
-        } else {
-            $(this).find('.btnPlay').addClass('active');
-            $(this).find('.btnStop').removeClass('active');
-            player.stop();
-            console.log('stop');
-        }
+        url = 'http://192.168.240.47:7000/file/?file_name=' + target;
+        console.log(url);
     });
 
     $('#monthInput').datepicker({

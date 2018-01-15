@@ -11,6 +11,7 @@ from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
 from apps.partnership.models import PartnerGroup
 from apps.payment.models import Currency
+from apps.event.models import MeetingType
 
 
 __all__ = [
@@ -172,6 +173,7 @@ class HomeGroupDetailView(LoginRequiredMixin, CanSeeHomeGroupsMixin, DetailView)
             'juniors_count': home_group.uusers.filter(spiritual_level=CustomUser.JUNIOR).count(),
             'babies_count': home_group.uusers.filter(spiritual_level=CustomUser.BABY).count(),
             'partners_count': home_group.uusers.filter(partners__is_active=True).count(),
+            'report_types': MeetingType.objects.all(),
         }
         ctx.update(extra_context)
 
