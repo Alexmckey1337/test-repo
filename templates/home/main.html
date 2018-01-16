@@ -96,42 +96,42 @@
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:church_report_list' %}?status=2" class="col-sm-4 well success" data-id="9">
+                <a href="{% url 'events:church_report_list' %}?is_submitted=true" class="col-sm-4 well success" data-id="9">
                     <span>Заполнено отчетов (церкви)</span>
                     <p>
                         <%= (church_reports_submitted) ? String(church_reports_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:church_report_list' %}?status=1" class="col-sm-4 well info" data-id="10">
+                <a href="{% url 'events:church_report_list' %}?is_submitted=false" class="col-sm-4 well info" data-id="10">
                     <span>Отчетов к заполнению (церкви)</span>
                     <p>
                         <%= (church_reports_in_progress) ? String(church_reports_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:church_report_list' %}?status=3" class="col-sm-4 well error" data-id="11">
+                <a href="{% url 'events:church_report_list' %}?is_submitted=false" class="col-sm-4 well error" data-id="11">
                     <span>Просрочено отчетов (церкви)</span>
                     <p>
                         <%= (church_reports_expired) ? String(church_reports_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:meeting_report_list' %}?status=2" class="col-sm-4 well success" data-id="12">
+                <a href="{% url 'events:meeting_report_list' %}?is_submitted=true" class="col-sm-4 well success" data-id="12">
                     <span>Заполнено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_submitted) ? String(meetings_submitted).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:meeting_report_list' %}?status=1" class="col-sm-4 well info" data-id="13">
+                <a href="{% url 'events:meeting_report_list' %}?is_submitted=false" class="col-sm-4 well info" data-id="13">
                     <span>Отчетов к заполнению (дом. группы)</span>
                     <p>
                         <%= (meetings_in_progress) ? String(meetings_in_progress).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
                     </p>
                     <button class="vision"></button>
                 </a>
-                <a href="{% url 'events:meeting_report_list' %}?status=3" class="col-sm-4 well error" data-id="14">
+                <a href="{% url 'events:meeting_report_list' %}?is_submitted=false" class="col-sm-4 well error" data-id="14">
                     <span>Просрочено отчетов (дом. группы)</span>
                     <p>
                         <%= (meetings_expired) ? String(meetings_expired).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') : 0 %>
