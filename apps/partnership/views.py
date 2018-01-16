@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView
 
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Department, Hierarchy
-from apps.partnership.models import PartnerGroup
+from apps.partnership.models import PartnerGroup, PartnerRole
 from apps.payment.models import Currency
 
 
