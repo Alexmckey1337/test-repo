@@ -15,7 +15,13 @@
                         <p id="payment_responsible"></p>
                     </div>
                     <div class="block_line">
-                        <p>Дата подачи отчета:</p>
+                        <p>
+                            {% if date == "report" %}
+                                Дата подачи отчета:
+                            {% else %}
+                                Дата сделки:
+                            {% endif %}
+                        </p>
                         <p id="payment_date"></p>
                     </div>
                     <div class="block_line">

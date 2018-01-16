@@ -58,7 +58,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'departments': Department.objects.all(),
             'partner_groups': PartnerGroup.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
-            'currencies': Currency.objects.all()
+            'currencies': Currency.objects.all(),
+            'levels': PartnerRole.objects.all(),
         }
         user = self.request.user
         if user.is_staff:

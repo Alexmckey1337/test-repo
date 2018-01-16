@@ -26,6 +26,8 @@ church_columns = {
         'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True},
     'region': {
         'id': 0, 'title': 'Область', 'ordering_title': 'region', 'number': 11, 'active': True, 'editable': True},
+    'stable_count': {
+        'id': 0, 'title': 'Количество стабильных', 'ordering_title': '', 'number': 12, 'active': True, 'editable': True},
 }
 
 user_columns = {
