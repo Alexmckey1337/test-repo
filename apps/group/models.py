@@ -89,6 +89,11 @@ class Church(CommonGroup):
         return User.objects.filter(Q(customuser__cchurch=self, customuser__is_stable=True) | Q(
             customuser__hhome_group__church=self, customuser__is_stable=True)).count()
 
+    @property
+    def count_people(self):
+        return User.objects.filter(Q(customuser__cchurch=self) | Q(
+            customuser__hhome_group__church=self)).count()
+
 
 class HomeGroup(CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group',

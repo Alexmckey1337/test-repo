@@ -134,7 +134,7 @@ $('document').ready(function () {
         }
     }
 
-    if (path == undefined) {
+    if (path === undefined) {
         ChurchReportsTable();
         filterChange();
     }
