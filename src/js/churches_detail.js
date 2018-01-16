@@ -155,6 +155,8 @@ $('document').ready(function () {
             $('#addChurchReport').removeClass('active');
             $('.bg').removeClass('active');
             showAlert('Отчет успешно создан');
+            $('.preloader').css('display', 'block');
+            ChurchReportsTable({church:idChurch},false);
         }).catch(err => {
             showAlert(err.message);
         });

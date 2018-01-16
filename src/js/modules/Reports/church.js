@@ -97,7 +97,7 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
                 showAlert('Отчет успешно удален!');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
-                churchReportsTable({page: page});
+                churchReportsTable({page: page,church: currentСhurch},false);
             }).catch((error) => {
                 let errKey = Object.keys(error),
                     html = errKey.map(errkey => `${error[errkey]}`);
@@ -108,7 +108,7 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
     });
 }
 
-export function churchReportsTable(config = {}) {
+export function churchReportsTable(config = {},fixedHead=true) {
     let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
     config.is_submitted = is_submitted;
     Object.assign(config, getSearch('search_title'));
@@ -116,7 +116,7 @@ export function churchReportsTable(config = {}) {
     Object.assign(config, getTabsFilterParam());
     updateHistoryUrl(config);
     getChurchReports(config).then(data => {
-        makeChurchReportsTable(data, config);
+        makeChurchReportsTable(data, config,fixedHead);
     })
 }
 

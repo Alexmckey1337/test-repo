@@ -145,7 +145,12 @@ $('document').ready(function () {
             churchStatistics(true);
         });
     }
-
+    $('.resetFilter').on('click',function () {
+        $treeFilter.val('ВСЕ').trigger('change');
+        $pastorFilter.val('ВСЕ').trigger('change');
+        $churchFilter.val('ВСЕ').trigger('change');
+        churchStatistics(true);
+    })
     //Parsing URL
     if (path != undefined) {
         let filterParam = parseUrlQuery();
