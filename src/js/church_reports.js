@@ -8,7 +8,7 @@ import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index"
+import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";

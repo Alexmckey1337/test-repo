@@ -16,12 +16,15 @@ import {
     editChurches,
     updateChurch,
 } from "./modules/Church/index";
+import {ChurchReportsTable} from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import accordionInfo from './modules/accordionInfo';
 import {dataURLtoBlob} from './modules/Avatar/index';
+import getSearch from './modules/Search/index';
+import {getFilterParam} from "./modules/Filter/index";
 import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
@@ -40,7 +43,8 @@ $('document').ready(function () {
     const D_ID = $('#added_home_group_church').data('department');
     let responsibleList = false,
         link = $('.get_info .active').data('link'),
-        ChIsPartner = $('.left-contentwrap').attr('data-partner');
+        ChIsPartner = $('.left-contentwrap').attr('data-partner'),
+        idChurch = $('#editChurchForm').data('id');
 
     if (ChIsPartner === 'True') {
         renderDealTable({done: 'False'});
@@ -146,8 +150,7 @@ $('document').ready(function () {
         let date = $(this).parent().closest('form').find('#dateReport').val().trim().split('.').reverse().join('-'),
             data = {
                 date: date
-            },
-            idChurch = $('#editChurchForm').data('id');
+            };
         postData(URLS.church.create_report(idChurch),data).then(function () {
             $('#addChurchReport').removeClass('active');
             $('.bg').removeClass('active');
@@ -534,6 +537,20 @@ $('document').ready(function () {
         dateFormat: 'dd.mm.yyyy'
     });
 
+    $('.tabs_report').find('button').on('click', function () {
+        $('.preloader').css('display', 'block');
+        let is_submitted = $(this).attr('data-is_submitted');
+        let config = {
+            church:idChurch,
+            is_submitted
+        };
+        ChurchReportsTable(config,false);
+        $('.tabs_report').find('li').removeClass('active');
+        $(this).closest('li').addClass('active');
+    });
+
+
+    ChurchReportsTable({church:idChurch},false);
     btnNeed();
     btnPartners();
     btnDeal();

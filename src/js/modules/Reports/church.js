@@ -17,10 +17,10 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 
-export function ChurchReportsTable(config={}) {
+export function ChurchReportsTable(config={},fixTableHead) {
     Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
-        makeChurchReportsTable(data);
+        makeChurchReportsTable(data,{},fixTableHead);
     });
 }
 
@@ -50,8 +50,8 @@ function getChurchReports(config = {}) {
     })
 }
 
-function makeChurchReportsTable(data, config = {}) {
-        let tmpl = $('#databaseChurchReports').html();
+function makeChurchReportsTable(data, config = {},fixTableHead = true) {
+    let tmpl = $('#databaseChurchReports').html();
     _.map(data.results, item => {
         let date = new Date(reverseDate(item.date, '-')),
             weekNumber = moment(date).isoWeek(),
@@ -76,7 +76,9 @@ function makeChurchReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
-    fixedTableHead();
+    if(fixTableHead){
+        fixedTableHead();
+    }
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
