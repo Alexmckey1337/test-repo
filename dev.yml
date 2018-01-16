@@ -12,7 +12,7 @@ services:
     image: reg.sobsam.com/postgres:10
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
-      - /Users/volodimir/Downloads/:/backups
+      - postgres_backup_dev:/backups
     environment:
       - POSTGRES_USER=crm_user
       - POSTGRES_DB=crm_db
