@@ -109,7 +109,7 @@ export function saveChurches(el) {
         address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
-    
+
     saveChurchData(data, id).then(function () {
         $(el).text("Сохранено");
         $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
@@ -127,7 +127,11 @@ export function saveChurches(el) {
             $(el).text("Сохранить");
             $(el).closest('.popap').find('.close-popup').text('Отменить');
             $(el).attr('disabled', false);
-        })
+        });
+
+        $(el).parent().closest('.popap_slide').removeClass('active');
+        $(".bg").removeClass('active');
+        showAlert('Изменения сохранены');
     }).catch(function (res) {
         let error = JSON.parse(res.responseText);
         let errKey = Object.keys(error);

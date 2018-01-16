@@ -136,6 +136,29 @@ $('document').ready(function () {
             });
     });
 
+    $('.create_report').on('click',function () {
+        $('#addChurchReport').addClass('active');
+        $('.bg').addClass('active');
+    });
+
+    $('.add-report').on('click',function (e) {
+        e.preventDefault();
+        let date = $(this).parent().closest('form').find('#dateReport').val().trim().split('.').reverse().join('-'),
+            data = {
+                date: date
+            },
+            idChurch = $('#editChurchForm').data('id');
+        postData(URLS.church.create_report(idChurch),data).then(function () {
+            $('#addChurchReport').removeClass('active');
+            $('.bg').removeClass('active');
+            showAlert('Отчет успешно создан');
+        }).catch(err => {
+            showAlert(err.message);
+        });
+    })
+
+    $('#typeReport').select2();
+
     $.validate({
         lang: 'ru',
         form: '#createUser',
@@ -155,7 +178,7 @@ $('document').ready(function () {
 
     // accordionInfo();
 
-    $('#opening_date').datepicker({
+    $('#opening_date,#dateReport').datepicker({
         dateFormat: 'dd.mm.yyyy',
         autoClose: true
     });
