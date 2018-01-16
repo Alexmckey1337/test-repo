@@ -29,19 +29,19 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="content content_anketa accordion" data-id="{{ home_group.id }}">
+    <div class="content content_anketa accordion" id="editHomeGroupForm" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}">
         <div class="left-contentwrap">
             <div class="left-content">
                 <div class="user-fiowrap">
                     <div class="user-fio">
                         <div class="right-info-r">
-                            {#                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>#}
+                            <button class="edit" id="editNameBtn" data-edit-block="editNameBlock"></button>
                             <hgroup>
                                 <h3 id="fullName">{{ home_group.get_title }}</h3>
                             </hgroup>
                         </div>
                         <div class="anketa-photo">
-                            {% if church.image %}
+                            {% if home_group.image %}
                                 <img src="{{ home_group.image.url }}" alt="photo">
                             {% else %}
                                 <i class="fa fa-picture-o" aria-hidden="true"></i>
@@ -59,24 +59,8 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
-                                            <span class="label_block">Имя</span>
-                                            <input type="text" name="first_name" value="{{ account.first_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Фамилия</span>
-                                            <input type="text" name="last_name" value="{{ account.last_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Отчество</span>
-                                            <input type="text" name="middle_name" value="{{ account.middle_name }}"
-                                                   readonly>
-                                        </label>
-                                        <label>
-                                            <span class="label_block">Имя на родном языке</span>
-                                            <input type="text" name="search_name" value="{{ account.search_name }}"
-                                                   readonly>
+                                            <span class="label_block">Название</span>
+                                            <input type="text" name="title" id="first_name" value="{{ home_group.get_title }}">
                                         </label>
                                         <label>
                                             <span class="label_block">Фото</span>
@@ -103,19 +87,15 @@
                                                 <i class="fa fa-phone" aria-hidden="true"></i>
                                             </span>
                                             <div class="label_phone_block">
-                                                <input type="text" id="phone_number" value="{{ home_group.phone_number }}"
+                                                <input type="text" name="phone_number" id="phone_number" value="{{ home_group.phone_number }}"
                                                    readonly>
                                             </div>
-                                        </label>
-                                        <label>
-                                            <span class="label_block"><i class="fa fa-envelope"></i></span>
-                                            <input type="text" id="address" value="{{ home_group.address }}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block"><i class="fa fa-globe"
                                                                          aria-hidden="true"></i></span>
                                             <div class="input">
-                                                <input type="text" id="web_site" value="{{ home_group.website }}"
+                                                <input type="text" name="website" id="web_site" value="{{ home_group.website }}"
                                                        readonly>
                                                 <a href="{{ home_group.website }}" target="_blank" id="site-link"
                                                    {% if not home_group.website %}class="link-hide"{% endif %}>
@@ -140,7 +120,7 @@
                                         <label>
                                             <span class="label_block">Дата открытия:</span>
                                             <input type="text" class="date" id="opening_date"
-                                                   value="{{ home_group.opening_date }}"
+                                                   value="{{ home_group.opening_date|date:"d.m.Y" }}"
                                                    disabled="disabled" readonly>
                                         </label>
                                     </div>
@@ -153,14 +133,14 @@
                             <h4>Контактные данные</h4>
                             <div class="success__block"></div>
                             <form action="/" id="editChurch" name="editChurch" data-action="update-user">
-                                <button class="edit" data-edit-block="editDepartment"></button>
+                                <button class="edit" data-edit-block="editChurch"></button>
                                 <button class="save__info" type="submit"></button>
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Церковь:</span>
                                             <div class="input">
-                                                <input type="text" id="church" value="{{ home_group.church }}" readonly>
+                                                <input type="text" id="church" value="{{ home_group.church }}" data-id="{{ home_group.church.id }}" readonly>
                                                 <a href="/churches/{{ home_group.church.id }}" target="_blank">
                                                     <i class="fa fa-external-link" aria-hidden="true"></i>
                                                 </a>
@@ -169,7 +149,7 @@
                                         <label>
                                             <span class="label_block">Лидер домашней группы:</span>
                                             <div class="input">
-                                                <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">
+                                                <select id="homeGroupLeader" name="leader" readonly="readonly" disabled="disabled">
                                                     <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>
                                                 </select>
                                                 <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">
@@ -193,7 +173,11 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Город:</span>
-                                            <input type="text" id="city" value="{{ home_group.city }}" readonly>
+                                            <input type="text" name="city" id="city" value="{{ home_group.city }}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Адрес:</span>
+                                            <input type="text" id="address" name="address" value="{{ home_group.address }}" readonly>
                                         </label>
                                     </div>
                                 </div>
@@ -288,123 +272,41 @@
                         <div class="pagination users__pagination"></div>
                     </div>
                 </div>
+                <div class="a-block a-sdelki">
+                    <div class="top-s">
+                        <h3>Отчеты</h3>
+                    </div>
+                    <div class="accordion-block">
+                        <div class="tab-status">
+                            <ul class="tabs_report church-tabs">
+                                {% for type in report_types %}
+                                    <li data-status="True">
+                                        <button><span>{{ type }}</span></button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <button class="create_report">Добавить отчет</button>
+                        </div>
+                        <div class="top-pag">
+                            <div class="table__count"></div>
+                            <div class="pagination users__pagination"><!--pagination -->
+                            </div><!--End pagination -->
+                        </div>
+                        <div class="table-wrap  clearfix" id="home_group_reports">
+                            <!--Table -->
+                            <div class="table scrollbar-inner" id="tableHomeGroupReports"></div>
+                            <div class="query-none">
+                                <p></p>
+                            </div>
+                        </div><!--End Table -->
+                        <div class="table__count"></div>
+                        <div class="pagination users__pagination"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-{#    <div class="accordion">#}
-{#        <h2 class="info-title">Основная информация:</h2>#}
-{#        <div class="info">#}
-{#            <form action="/" id="editHomeGroupForm" data-id="{{ home_group.id }}"#}
-{#                  data-departament_id="{{ home_group.church.department.id }}">#}
-{#                <button class="edit"></button>#}
-{#                <button class="save__info" type="submit"></button>#}
-{#                <div class="success__block"></div>#}
-{#                <div class="popup_body">#}
-{#                    <div class="container container_block">#}
-{#                        <label>#}
-{#                            <span class="label_block">Дата открытия:</span>#}
-{#                            <input type="text" class="date" id="opening_date" value="{{ home_group.opening_date }}"#}
-{#                                   disabled="disabled" readonly>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Церковь:</span>#}
-{#                            <div class="input">#}
-{#                                <input type="text" id="church" value="{{ home_group.church }}" readonly>#}
-{#                                <a href="/churches/{{ home_group.church.id }}" target="_blank">#}
-{#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                                </a>#}
-{#                            </div>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Лидер домашней группы:</span>#}
-{#                            <div class="input">#}
-{#                                <select name="" id="homeGroupLeader" readonly="readonly" disabled="disabled">#}
-{#                                    <option value="{{ home_group.leader.id }}">{{ home_group.leader }}</option>#}
-{#                                </select>#}
-{#                                <a href="{{ home_group.leader.get_absolute_url }}" target="_blank">#}
-{#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                                </a>#}
-{#                            </div>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Город:</span>#}
-{#                            <input type="text" id="city" value="{{ home_group.city }}" readonly>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Адрес:</span>#}
-{#                            <input type="text" id="address" value="{{ home_group.address }}" readonly>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Телефонный номер:</span>#}
-{#                            <input type="text" id="phone_number" value="{{ home_group.phone_number }}" readonly>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Сайт:</span>#}
-{#                            <div class="input">#}
-{#                                <input type="text" id="web_site" value="{{ home_group.website }}" readonly>#}
-{#                                <a href="{{ home_group.website }}" target="_blank" id="site-link"#}
-{#                                   {% if not home_group.website %}class="link-hide"{% endif %}>#}
-{#                                    <i class="fa fa-external-link" aria-hidden="true"></i>#}
-{#                                </a>#}
-{#                            </div>#}
-{#                        </label>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </form>#}
-{#        </div>#}
-{#        <h2 class="info-title">Сводная информация:</h2>#}
-{#        <div class="info info-calc">#}
-{#            <div class="popup_body">#}
-{#                <div class="container container_block">#}
-{#                    <label>#}
-{#                        <span class="label_block">Количество людей:</span>#}
-{#                        <p class="count"><span id="users_count">{{ users_count }}</span></p>#}
-{#                    </label>#}
-{#                    <label>#}
-{#                        <span class="label_block">Количество Отцов:</span>#}
-{#                        <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>#}
-{#                    </label>#}
-{#                    <label>#}
-{#                        <span class="label_block">Количество Юношей:</span>#}
-{#                        <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>#}
-{#                    </label>#}
-{#                    <label>#}
-{#                        <span class="label_block">Количество Младенцев:</span>#}
-{#                        <p class="count"><span id="babies_count">{{ babies_count }}</span></p>#}
-{#                    </label>#}
-{#                    <label>#}
-{#                        <span class="label_block">Количество Партнеров:</span>#}
-{#                        <p class="count"><span id="partners_count">{{ partners_count }}</span></p>#}
-{#                    </label>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-{#    {% block pagination_top %}#}
-{#        <div class="top-pag">#}
-{#            <div class="table__count"></div>#}
-{#            <div class="pagination users__pagination"><!--pagination -->#}
-{#            </div><!--End pagination -->#}
-{#        </div>#}
-{#    {% endblock %}#}
-{##}
-{#    {% block table %}#}
-{#        <div class="table-wrap  clearfix" id="home_group" data-id="{{ home_group.id }}"#}
-{#             data-departament_id="{{ home_group.church.department.id }}"#}
-{#             data-departament_title="{{ home_group.church.department }}" data-church-id="{{ home_group.church.id }}">#}
-{#            <!--Table -->#}
-{#            <div class="table scrollbar-inner" id="tableUserINHomeGroups"></div>#}
-{#            <div class="query-none">#}
-{#                <p></p>#}
-{#            </div>#}
-{#        </div><!--End Table -->#}
-{##}
-{#    {% endblock %}#}
-{##}
-{#    {% block pagination_bottom %}#}
-{#        <div class="table__count"></div>#}
-{#        <div class="pagination users__pagination"></div>#}
-{#    {% endblock %}#}
 {% endblock %}
 
 {% block create_user %}
@@ -536,6 +438,35 @@
                 <div class="container">
                     <button type="submit" class="add-church">Создать</button>
                     <button class="close-popup">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="popap_slide" id='addHomeGroupReport'>
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Создание отчета</h2>
+            </div>
+            <form action="">
+                <div class="popup_body">
+                    <div class="container container_block">
+                        <label>
+                            <span class="label_block">Тип</span>
+                            <select name="type_id" id="typeReport">
+                                {% for type in report_types %}
+                                    <option value="{{ type.id }}">{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            <span class="label_block">Дата</span>
+                            <input name="date_report" type="text" id="dateReport" required>
+                        </label>
+                    </div>
+                </div>
+                <div class="container">
+                    <button class="close-popup">Отменить</button>
+                    <button type="submit" class="add-report">Создать</button>
                 </div>
             </form>
         </div>

@@ -70,7 +70,7 @@ export function makeChurches() {
     }
 }
 
-function makeHomeGroupsList(ID) {
+export function makeHomeGroupsList(ID) {
     let churchID = ID || $('#church_list').val();
     if (churchID && typeof parseInt(churchID) == "number") {
         return getHomeGroupsINChurches(churchID)

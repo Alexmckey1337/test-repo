@@ -132,6 +132,7 @@ const CHURCH = {
     potential_users_church: () => `/api/churches/potential_users_church/`,
     potential_users_group: (churchId) => `/api/churches/${churchId}/potential_users_group/`,
     dashboard_count: () => `/api/churches/dashboard_counts/`,
+    create_report: (id) => `/api/churches/${id}/create_report/`
 };
 
 const HOME_GROUP = {
@@ -144,6 +145,7 @@ const HOME_GROUP = {
     for_select: () => `/api/home_groups/for_select/`,
     leaders: () => `/api/home_groups/leaders/`,
     potential_leaders: () => `/api/home_groups/potential_leaders/`,
+    create_report: (id) => `/api/home_groups/${id}/create_report/`
 };
 
 const PAYMENT = {
@@ -164,7 +166,7 @@ const PHONE = {
     user: () => `/api/asterisk_users/`,
     changeUser: () => `/api/change_asterisk_user/`,
     lastThree: (id) => `/api/calls_to_user/?user_id=${id}&range=last_3`,
-    filterMonth: (id,date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}git `,
+    filterMonth: (id,date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
     // detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
 };
 

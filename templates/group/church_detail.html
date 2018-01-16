@@ -39,7 +39,7 @@
 
 {% block main.content %}
     <div class="content content_anketa">
-        <div class="left-contentwrap accordion" data-id="{{ church.id }}" data-partner="{{ church.partners.exists }}">
+        <div class="left-contentwrap accordion" id="editChurchForm" data-id="{{ church.id }}" data-partner="{{ church.partners.exists }}">
             <div class="left-content">
                 <div class="user-fiowrap">
                     <div class="user-fio">
@@ -69,8 +69,7 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Название</span>
-                                            <input type="text" name="first_name" value="{{ account.first_name }}"
-                                                   readonly>
+                                            <input type="text" name="title" id="first_name" value="{{ church.get_title }}">
                                         </label>
                                         <label>
                                             <span class="label_block">Фото</span>
@@ -105,7 +104,7 @@
                                         <label>
                                             <span class="label_block"><i class="fa fa-globe"
                                                                          aria-hidden="true"></i></span>
-                                            <input type="text" name="skype" value="{{ church.website }}" readonly>
+                                            <input type="text" name="website" value="{{ church.website }}" readonly>
                                         </label>
                                     </div>
                                 </div>
@@ -123,7 +122,7 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Открыта</span>
-                                            <input type="checkbox" id="is_open_church"
+                                            <input type="checkbox" id="is_open"
                                                    {% if church.is_open %}checked{% endif %}
                                                    readonly disabled="disabled">
                                             <div></div>
@@ -132,7 +131,7 @@
                                             <span class="label_block">Дата открытия</span>
                                             <div class="input">
                                                 <input type="text" class="date" id="opening_date"
-                                                       value="{{ church.opening_date }}"
+                                                       value="{{ church.opening_date|date:"d.m.Y" }}"
                                                        disabled="disabled" readonly>
                                             </div>
                                         </label>
@@ -152,7 +151,7 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Отдел:</span>
-                                            <select name="" id="editDepartmentSelect" readonly="readonly"
+                                            <select name="department" id="editDepartmentSelect" readonly="readonly"
                                                     disabled="disabled">
                                                 <option value="{{ church.department.id }}">{{ church.department }}</option>
                                             </select>
@@ -160,7 +159,7 @@
                                         <label>
                                             <span class="label_block">Пастор:</span>
                                             <div class="input">
-                                                <select name="" id="editPastorSelect" readonly="readonly"
+                                                <select name="pastor" id="editPastorSelect" readonly="readonly"
                                                         disabled="disabled">
                                                     <option value="{{ church.pastor.id }}">{{ church.pastor }}</option>
                                                 </select>
@@ -185,15 +184,19 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Страна:</span>
-                                            <input type="text" id="country" value="{{ church.country }}" readonly>
+                                            <input name="country" type="text" id="country" value="{{ church.country }}" readonly>
                                         </label>
                                         <label>
-                                            <span class="label_block">Город:</span>
-                                            <input type="text" id="city" value="{{ church.city }}" readonly>
+                                            <span class="label_block">Область:</span>
+                                            <input name="region" type="text" id="region" value="{{ church.region }}" readonly>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Нас. пункт:</span>
+                                            <input name="city" type="text" id="city" value="{{ church.city }}" readonly>
                                         </label>
                                         <label>
                                             <span class="label_block">Адрес:</span>
-                                            <input type="text" value="{{ church.address }}" readonly>
+                                            <input name="address" type="text" value="{{ church.address }}" readonly>
                                         </label>
                                     </div>
                                 </div>
@@ -212,7 +215,7 @@
                                         <label>
                                             <span class="label_block">Валюта:</span>
                                             <div class="input">
-                                                <select id="report_currency" readonly="readonly" disabled="disabled">
+                                                <select id="report_currency" readonly="readonly" name="report_currency" disabled="disabled">
                                                     {% for currency in currencies %}
                                                         <option value="{{ currency.id }}"
                                                                 {% if currency.id == church.report_currency %}selected{% endif %}>{{ currency.short_name }}</option>
@@ -413,6 +416,38 @@
                         <div class="pagination users__pagination"></div>
                     </div>
                 </div>
+                <div class="a-block a-sdelki">
+                    <div class="top-s">
+                        <h3>Отчеты</h3>
+                    </div>
+                    <div class="accordion-block">
+                        <div class="tab-status">
+                            <ul class="tabs_report church-tabs">
+                                {% for type in report_types %}
+                                    <li data-status="True">
+                                        <button><span>{{ type }}</span></button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <button class="create_report">Добавить отчет</button>
+                        </div>
+                        <div class="top-pag">
+                            <div class="table__count"></div>
+                            <div class="pagination users__pagination"><!--pagination -->
+                            </div><!--End pagination -->
+                        </div>
+                        <div class="table-wrap  clearfix" id="church_reports">
+                            <!--Table -->
+                            <div class="table scrollbar-inner" id="tableChurchReports"></div>
+                            <div class="query-none">
+                                <p></p>
+                            </div>
+                        </div><!--End Table -->
+                        <div class="table__count"></div>
+                        <div class="pagination users__pagination"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -544,6 +579,27 @@
         </div>
     </div>
     {% include "partials/find_duplicate_deals.html" %}
+    <div class="popap_slide" id='addChurchReport'>
+        <div class="pop_cont">
+            <div class="popup_text">
+                <h2>Создание отчета</h2>
+            </div>
+            <form action="">
+                <div class="popup_body">
+                    <div class="container container_block">
+                        <label>
+                            <span class="label_block">Дата</span>
+                            <input name="date_report" type="text" id="dateReport">
+                        </label>
+                    </div>
+                </div>
+                <div class="container">
+                    <button class="close-popup">Отменить</button>
+                    <button type="submit" class="add-report">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
