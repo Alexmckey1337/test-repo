@@ -13,8 +13,7 @@ from apps.event.models import Meeting, MeetingType, ChurchReport
 from django.db import transaction
 from apps.payment.models import get_default_currency
 from apps.account.models import User
-from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
-                              BooleanField, F)
+from django.db.models import Q
 
 
 @python_2_unicode_compatible
@@ -96,7 +95,7 @@ class Church(CommonGroup):
 
     @property
     def count_home_groups(self):
-        return HomeGroup.objects.filter(church=self).count()
+        return User.objects.filter(customuser__church=self).count()
 
 
 class HomeGroup(CommonGroup):

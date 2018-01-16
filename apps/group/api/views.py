@@ -360,7 +360,7 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
 
 
 class HomeGroupViewSet(ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
-    queryset = HomeGroup.objects.all()
+    queryset = HomeGroup.objects.all().select_related('leader', 'church')
 
     serializer_class = HomeGroupSerializer
     serializer_list_class = HomeGroupListSerializer
