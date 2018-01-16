@@ -10,7 +10,8 @@ from apps.group.api.serializers import BASE_GROUP_USER_FIELDS
 COMMON_GROUP_RESOURCE_FIELDS = ('opening_date', 'city', 'address', 'phone_number',
                                 'website')
 CHURCH_MAIN_RESOURCE_FIELDS = COMMON_GROUP_RESOURCE_FIELDS + ('country', 'is_open')
-CHURCH_RESOURCE_FIELDS = CHURCH_MAIN_RESOURCE_FIELDS + ('get_title', 'department', 'pastor', 'region')
+CHURCH_RESOURCE_FIELDS = CHURCH_MAIN_RESOURCE_FIELDS + ('get_title', 'department', 'pastor',
+                                                        'region', 'stable_count')
 
 
 class ChurchMetaclass(ModelDeclarativeMetaclass):

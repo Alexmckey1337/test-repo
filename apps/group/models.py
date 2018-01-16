@@ -12,6 +12,9 @@ from apps.group.managers import ChurchManager, HomeGroupManager
 from apps.event.models import Meeting, MeetingType, ChurchReport
 from django.db import transaction
 from apps.payment.models import get_default_currency
+from apps.account.models import User
+from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
+                              BooleanField, F)
 
 
 @python_2_unicode_compatible
@@ -80,6 +83,11 @@ class Church(CommonGroup):
     @property
     def owner_name(self):
         return self.pastor.last_name
+
+    @property
+    def stable_count(self):
+        return User.objects.filter(Q(customuser__cchurch=self, customuser__is_stable=True) | Q(
+            customuser__hhome_group__church=self, customuser__is_stable=True)).count()
 
 
 class HomeGroup(CommonGroup):
