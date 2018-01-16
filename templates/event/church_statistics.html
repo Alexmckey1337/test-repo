@@ -38,220 +38,63 @@
             {% block header.buttons.extra %}
             {% endblock %}
             {% block header.buttons.change_table %}
-                <li>
-                    <button id="filter_button"
-                            data-count="0"
-                    >
-                        Фильтр
-                    </button>
-                </li>
             {% endblock %}
         </ul>
     </div>
 {% endblock %}
 
 {% block main.content %}
-    <div class="container-full">
+    <div class="container-full content-managerStats">
         <div class="tab-status tab-home-stats">
-            <button class="week week_all">Все</button>
-            <button class="week week_now active">Текущая неделя</button>
-            <button class="week week_prev">Прошедшая неделя</button>
-            <div class="set-date">
-                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
-                <div class="cal-icon"></div>
+            <button class="range active" data-range="1m">1 мес.</button>
+            <button class="range" data-range="3m">3 мес.</button>
+            <button class="range" data-range="6m">6 мес.</button>
+            <button class="range range__last_item" data-range="12m">1 год.</button>
+            <div class="container prefilter_select">
+                <label>
+                    <span class="label_block">Ветка</span>
+                    <select class="selectdb" data-filter="pastor_tree" id="tree_filter"></select>
+                </label>
+                <label>
+                    <span class="label_block">Пастор</span>
+                    <select class="selectdb" data-filter="pastor" id="pastor_filter"></select>
+                </label>
+                <label>
+                    <span class="label_block">Церковь</span>
+                    <select class="selectdb" data-filter="church" id="church_filter"></select>
+                </label>
             </div>
         </div>
         {% block pagination_top %}
-            <div class="top-pag">
-                <div id="period_expired" class="period">
-                    <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input
-                            type="text" id="expired_datepicker_to" readonly="readonly"><a
-                            id="show-all-expired" href="javascript:void(0);">Показать
-                        все</a></p>
-                </div>
-                <div id="period_done" class="period">
-                    <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                            id="done_datepicker_to"readonly="readonly"><a
-                            id="show-all-done" href="javascript:void(0);">Показать
-                        все</a></p>
-                </div>
-            </div>
-            {#        <div class="table__count"></div>#}
-            {#        <div class="pagination users__pagination"><!--pagination -->#}
-            {#        </div><!--End pagination -->#}
+            <div class="top-pag"></div>
         {% endblock %}
 
-        {% block table %}
-            <div class="table-wrap clearfix" id="churchReports"><!--Table -->
-                <div class="table scrollbar-inner" id="tableChurchReports"></div>
-                <div class="query-none">
-                    <p></p>
-                </div>
-            </div><!--End Table -->
-        {% endblock %}
-
-        {% block pagination_bottom %}
-            <div id="statisticsContainer"></div>
-        {% endblock %}
-    </div>
-{% endblock %}
-
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                            </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Пастор</span>
-                        <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
-                    Очистить
-                </button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
+        <div class="charts">
+            <div class="chart">
+                <canvas id="chart_peoples"></canvas>
             </div>
         </div>
+
+        {% block table %}
+        <div class="table-wrap table-wrap_margin clearfix"><!--Table -->
+            <div class="table scrollbar-inner" id="tableChRepFinStats"></div>
+        </div>
+            <div class="charts">
+                <div class="chart">
+                    <canvas id="chart_finances"></canvas>
+                </div>
+                <div class="chart">
+                    <canvas id="chart_finances_pastor"></canvas>
+                </div>
+            </div>
+        <div class="table-wrap clearfix"><!--Table -->
+            <div class="table scrollbar-inner" id="tableChRepUserStats"></div>
+        </div>
+        {% endblock %}
+
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
     <script src="{% static "js/church_statistics.bundle.js" %}"></script>
-{% endblock %}
-{% block template_tables %}
-    <script type="text/template" id="statisticsTmp">
-        <div class="panel panel-success">
-            <div class="panel-body">
-                <div class="row">
-                    <div class="grid_block">
-                        <div class="col-sm-4">
-                            <div class="well info"><span>Всего людей на собрании</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="planned_sum_deals" class="label label-primary">
-                                        <%= (total_peoples) ? total_peoples : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well success"><span>Всего новых людей</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="paid_sum_deals" class="label label-primary">
-                                        <%= (total_new_peoples) ? total_new_peoples : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well success"><span>Всего покаяний</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="percent_paid_sum_deals" class="label label-primary">
-                                        <%= (total_repentance) ? total_repentance : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid_block">
-                        <div class="col-sm-4">
-                            <div class="well success"><span>Заполненные отчёты</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_planned_sum_deals" class="label label-primary">
-                                        <%= (church_reports_submitted) ? church_reports_submitted : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well info"><span>Отчёты к заполнению</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_paid_sum_deals" class="label label-primary">
-                                        <%= (church_reports_in_progress) ? church_reports_in_progress : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="well error"><span>Просроченные отчёты</span>
-                                <p style="font-size:4em;text-align: center">
-                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">
-                                        <%= (church_reports_expired) ? church_reports_expired : 0 %>
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-{#                    <div class="grid_block">#}
-{#                        <div class="col-sm-4">#}
-{#                            <div class="well info"><span>Десятины</span>#}
-{#                                <p style="font-size:4em;text-align: center">#}
-{#                                    <span id="closed_planned_sum_deals" class="label label-primary">#}
-{#                                        <%= (total_tithe) ? total_tithe : 0 %>#}
-{#                                    </span>#}
-{#                                </p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="col-sm-4">#}
-{#                            <div class="well info"><span>Десятина пастора</span>#}
-{#                                <p style="font-size:4em;text-align: center">#}
-{#                                    <span id="closed_paid_sum_deals" class="label label-primary">#}
-{#                                        <%= (total_pastor_tithe) ? total_pastor_tithe : 0 %>#}
-{#                                    </span>#}
-{#                                </p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="col-sm-4">#}
-{#                            <div class="well info"><span>15% к перечислению</span>#}
-{#                                <p style="font-size:4em;text-align: center">#}
-{#                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">#}
-{#                                        <%= (total_transfer_payments) ? total_transfer_payments : 0 %>#}
-{#                                    </span>#}
-{#                                </p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="grid_block">#}
-{#                        <div class="col-12">#}
-{#                            <div class="well success"><span>Всего пожертвований</span>#}
-{#                                <p style="font-size:4em;text-align: center">#}
-{#                                    <span id="closed_percent_paid_sum_deals" class="label label-primary">#}
-{#                                        <%= (total_donations) ? total_donations : 0 %>#}
-{#                                    </span>#}
-{#                                </p>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-                </div>
-            </div>
-        </div>
-    </script>
 {% endblock %}

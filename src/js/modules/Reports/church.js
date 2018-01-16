@@ -297,14 +297,6 @@ export function makeReportData(data) {
                         </li>
                         <li>
                             <div class="label-wrapp">
-                                <label for="currency_donations">Пожертвования в другой валюте</label>
-                            </div>
-                            <div class="input">
-                                <textarea name="currency_donations" id="currency_donations">${data.currency_donations}</textarea>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="label-wrapp">
                                 <label for="transfer_payments">15% к перечислению (${data.currency.short_name})</label>
                             </div>
                             <div class="input">
