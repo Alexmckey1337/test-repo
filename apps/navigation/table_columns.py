@@ -30,6 +30,8 @@ church_columns = {
         'id': 0, 'title': 'Количество стабильных', 'ordering_title': '', 'number': 12, 'active': True, 'editable': True},
     'count_people': {
         'id': 0, 'title': 'Количество людей', 'ordering_title': '', 'number': 13, 'active': True, 'editable': True},
+    'count_home_groups': {
+        'id': 0, 'title': 'Количество домашних групп', 'ordering_title': '', 'number': 14, 'active': True, 'editable': True},
 }
 
 user_columns = {

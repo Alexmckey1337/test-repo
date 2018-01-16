@@ -67,6 +67,10 @@ class ChurchResource(CustomFieldsModelResource):
         church_field = self.get_church_field(church)
         return str(church_field.count_people)
 
+    def dehydrate_count_home_groups(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.count_home_groups)
+
     def dehydrate_is_open(self, church):
         church_field = self.get_church_field(church)
         return _('Yes') if church_field.is_open else _('No')
