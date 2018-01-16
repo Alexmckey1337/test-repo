@@ -28,6 +28,8 @@ church_columns = {
         'id': 0, 'title': 'Область', 'ordering_title': 'region', 'number': 11, 'active': True, 'editable': True},
     'stable_count': {
         'id': 0, 'title': 'Количество стабильных', 'ordering_title': '', 'number': 12, 'active': True, 'editable': True},
+    'count_people': {
+        'id': 0, 'title': 'Количество людей', 'ordering_title': '', 'number': 13, 'active': True, 'editable': True},
 }
 
 user_columns = {
