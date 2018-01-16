@@ -33,6 +33,7 @@ class ChurchMetaclass(ModelDeclarativeMetaclass):
 class ChurchResource(CustomFieldsModelResource):
     """For excel import/export"""
     get_title = fields.Field()
+    stable_count = fields.Field()
 
     church_field_name = None
 
@@ -56,6 +57,10 @@ class ChurchResource(CustomFieldsModelResource):
     def dehydrate_get_title(self, church):
         church_field = self.get_church_field(church)
         return str(church_field.title)
+
+    def dehydrate_stable_count(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.stable_count)
 
     def dehydrate_is_open(self, church):
         church_field = self.get_church_field(church)
