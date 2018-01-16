@@ -90,7 +90,7 @@
 {% endblock %}
 
 {% block popup %}
-    {% create_payment_form %}
+    {% include "payment/partials/create_payment.html" %}
     {% include "partner/partials/create_deal.html" with btn="delete" title="update" %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
