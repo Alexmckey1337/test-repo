@@ -3,7 +3,7 @@ import moment from 'moment/min/moment.min.js';
 import WavPlayer from 'webaudio-wav-stream-player';
 import 'howler';
 import URLS from '../Urls/index';
-import getData,{getDataPhone} from "../Ajax/index";
+import getData,{getDataPhone,postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {showAlert} from '../ShowNotifications/index';
 import {
@@ -146,6 +146,12 @@ export function dataIptelMonth(url) {
     });
 }
 export function makeIptelTable(data,block) {
+    let wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: 'violet',
+        progressColor: 'purple'
+    });
+    wavesurfer.load('/media/audio/80s_vibe.mp3');
     let table = `<table class="tableIptel">
                         <thead>
                             <tr>
@@ -154,7 +160,7 @@ export function makeIptelTable(data,block) {
                                 <th>Кто</th>
                                 <th>Куда</th>                                        
                                 <th>Длительность(сек)</th>
-                                
+                                <th>Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {
@@ -218,30 +224,46 @@ export function makeIptelTable(data,block) {
                             </td>
                             <td>
                                 ${item.billsec}
-                            </td> 
+                            </td>
+                             <td class="recordIptel" onclick="wavesurfer.playPause()">
+                                <p class=''>${item.record}</p>
+                                <a href="" class="linkFile" download=""><svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                                </svg></a>
+                                <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M6 6h12v12H6z"/>
+                                </svg>
+                            </td>
+                        </tr>
                             `;
     }).join('')}</tbody>
                         </table>`;
     $(block).append(table);
 
+        // $('.recordIptel').on('click', function () {
+    //     let defaultOption = {
+    //             method: 'GET',
+    //             credentials: 'same-origin',
+    //             mode: 'cors',
+    //             headers: new Headers({
+    //                 'Content-Type': 'text / html',
+    //                 'Access-Control-Allow-Origin': '*',
+    //                 'Record-Token': 'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
+    //             })
+    //         },
+    //         target = $(this).find('p').text().trim(),
+    //         url = 'http://192.168.240.47:7000/file/?file_name=' + target,
+    //
+    //     fetch(url, defaultOption).then(function (response) {
+    //         wavesurfer.load('/media/audio/80s_vibe.mp3');
+    //
+    //         $('.linkFile').attr('href',response.url).attr('download',response.url);
+    //
+    //     })
+    // });
+
 }
 
 
-
-
-
-
-// <th>Запись</th>
-
-// <td class="recordIptel">
-//                                 <p class=''>${item.record}</p>
-//                                 <svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
-//                                     <path d="M0 0h24v24H0z" fill="none"/>
-//                                     <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-//                                 </svg>
-//                                 <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-//                                     <path d="M0 0h24v24H0z" fill="none"/>
-//                                     <path d="M6 6h12v12H6z"/>
-//                                 </svg>
-//                             </td>
-//                         </tr>
