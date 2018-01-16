@@ -132,6 +132,15 @@
                         </select>
                     </label>
                     <label>
+                        <span class="label_block">Уровень доступа</span>
+                        <select class="selectdb" data-filter="level" id="level_filter">
+                            <option value="">ВСЕ</option>
+                            {% for level in levels %}
+                                <option value="{{ level.0 }}">{{ level.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
                         <span class="label_block">Срок партнерства</span>
                         <select class="selectdb" id="age_filter">
                             <option value="">ВСЕ</option>

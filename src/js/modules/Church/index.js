@@ -1,6 +1,7 @@
 'use strict';
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
+import error from '../Error/index';
 import getData, {postData, postFormData} from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
@@ -109,7 +110,7 @@ export function saveChurches(el) {
         address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
-    
+
     saveChurchData(data, id).then(function () {
         $(el).text("Сохранено");
         $(el).closest('.popap').find('.close-popup.change__text').text('Закрыть');
@@ -127,7 +128,11 @@ export function saveChurches(el) {
             $(el).text("Сохранить");
             $(el).closest('.popap').find('.close-popup').text('Отменить');
             $(el).attr('disabled', false);
-        })
+        });
+
+        $(el).parent().closest('.popap_slide').removeClass('active');
+        $(".bg").removeClass('active');
+        showAlert('Изменения сохранены');
     }).catch(function (res) {
         let error = JSON.parse(res.responseText);
         let errKey = Object.keys(error);
@@ -151,36 +156,7 @@ export function updateChurch(id, data, success = null) {
         }
         return data;
     }).catch(function (data) {
-        let msg = "";
-        if (typeof data == "string") {
-            msg += data;
-        } else {
-            let errObj = null;
-            if (typeof data != 'object') {
-                errObj = JSON.parse(data);
-            } else {
-                errObj = data;
-            }
-            for (let key in errObj) {
-                msg += key;
-                msg += ': ';
-                if (errObj[key] instanceof Array) {
-                    errObj[key].forEach(function (item) {
-                        msg += item;
-                        msg += ' ';
-                    });
-                } else if (typeof errObj[key] == 'object') {
-                    let errKeys = Object.keys(errObj[key]),
-                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
-                    msg += html;
-                } else {
-                    msg += errObj[key];
-                }
-                msg += '; ';
-            }
-        }
-        showAlert(msg);
-
+        error(data);
         return false;
     });
 }

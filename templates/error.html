@@ -10,8 +10,8 @@
         <h1>{% block error_heading %}{% trans 'Sorry!' %}{% endblock %}</h1>
             {% block error_message %}{% endblock %}
         <p class="btn_group">
-            <a class="btn" onclick="javascript:history.go(-1);">{% trans 'Return to previous page' %}</a>
-            <a class="btn" href="{% url 'index' %}">{% trans "Go to homepage" %}</a>
+            <a class="btn" onclick="javascript:history.go(-1);">{% trans 'На предыдущую страницу' %}</a>
+            <a class="btn" href="{% url 'index' %}">{% trans "На домашнюю страницу" %}</a>
         </p>
     </div>
 {% endblock %}

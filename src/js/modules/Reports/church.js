@@ -17,10 +17,10 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 
-export function ChurchReportsTable(config={}) {
+export function ChurchReportsTable(config={},fixTableHead) {
     Object.assign(config, getTabsFilterParam());
     getChurchReports(config).then(data => {
-        makeChurchReportsTable(data);
+        makeChurchReportsTable(data,{},fixTableHead);
     });
 }
 
@@ -50,8 +50,8 @@ function getChurchReports(config = {}) {
     })
 }
 
-function makeChurchReportsTable(data, config = {}) {
-        let tmpl = $('#databaseChurchReports').html();
+function makeChurchReportsTable(data, config = {},fixTableHead = true) {
+    let tmpl = $('#databaseChurchReports').html();
     _.map(data.results, item => {
         let date = new Date(reverseDate(item.date, '-')),
             weekNumber = moment(date).isoWeek(),
@@ -76,7 +76,9 @@ function makeChurchReportsTable(data, config = {}) {
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
     $('.table__count').text(text);
-    fixedTableHead();
+    if(fixTableHead){
+        fixedTableHead();
+    }
     new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
@@ -95,7 +97,7 @@ function makeChurchReportsTable(data, config = {}) {
                 showAlert('Отчет успешно удален!');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
-                churchReportsTable({page: page});
+                churchReportsTable({page: page,church: currentСhurch},false);
             }).catch((error) => {
                 let errKey = Object.keys(error),
                     html = errKey.map(errkey => `${error[errkey]}`);
@@ -106,7 +108,7 @@ function makeChurchReportsTable(data, config = {}) {
     });
 }
 
-export function churchReportsTable(config = {}) {
+export function churchReportsTable(config = {},fixedHead=true) {
     let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
     config.is_submitted = is_submitted;
     Object.assign(config, getSearch('search_title'));
@@ -114,7 +116,7 @@ export function churchReportsTable(config = {}) {
     Object.assign(config, getTabsFilterParam());
     updateHistoryUrl(config);
     getChurchReports(config).then(data => {
-        makeChurchReportsTable(data, config);
+        makeChurchReportsTable(data, config,fixedHead);
     })
 }
 

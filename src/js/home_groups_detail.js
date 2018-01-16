@@ -5,9 +5,11 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import URLS from './modules/Urls/index';
 import {createHomeGroupUsersTable, makeUsersFromDatabaseList, editHomeGroups,
         reRenderTable,updateHomeGroup} from "./modules/HomeGroup/index";
 import updateSettings from './modules/UpdateSettings/index';
+import {postData} from "./modules/Ajax/index";
 import exportTableData from './modules/Export/index';
 import {dataURLtoBlob} from './modules/Avatar/index';
 import {showAlert} from "./modules/ShowNotifications/index";
@@ -78,6 +80,25 @@ $('document').ready(function () {
         $('#addHomeGroupReport').addClass('active');
         $('.bg').addClass('active');
     })
+
+    $('.add-report').on('click',function (e) {
+        e.preventDefault();
+        let type = $(this).parent().closest('form').find('#typeReport').val(),
+            date = $(this).parent().closest('form').find('#dateReport').val().trim().split('.').reverse().join('-'),
+            data = {
+                type_id:type,
+                date: date
+            },
+            idHomeGroup = $('#editHomeGroupForm').data('id');
+        postData(URLS.home_group.create_report(idHomeGroup),data).then(function () {
+            $('#addHomeGroupReport').removeClass('active');
+            $('.bg').removeClass('active');
+            showAlert('Отчет успешно создан');
+        }).catch(err => {
+            showAlert(err.message);
+        })
+    });
+
     $('#typeReport').select2();
     $.validate({
         lang: 'ru',
@@ -98,11 +119,10 @@ $('document').ready(function () {
 
     accordionInfo();
 
-    $('#opening_date').datepicker({
+    $('#opening_date,#dateReport').datepicker({
         dateFormat: 'dd.mm.yyyy',
         autoClose: true
     });
-
     $('.accordion').find('.edit').on('click', function (e) {
         e.preventDefault();
         let $edit = $('.edit'),

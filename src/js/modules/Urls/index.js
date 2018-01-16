@@ -133,6 +133,7 @@ const CHURCH = {
     potential_users_church: () => `/api/churches/potential_users_church/`,
     potential_users_group: (churchId) => `/api/churches/${churchId}/potential_users_group/`,
     dashboard_count: () => `/api/churches/dashboard_counts/`,
+    create_report: (id) => `/api/churches/${id}/create_report/`
 };
 
 const HOME_GROUP = {
@@ -145,6 +146,7 @@ const HOME_GROUP = {
     for_select: () => `/api/home_groups/for_select/`,
     leaders: () => `/api/home_groups/leaders/`,
     potential_leaders: () => `/api/home_groups/potential_leaders/`,
+    create_report: (id) => `/api/home_groups/${id}/create_report/`
 };
 
 const PAYMENT = {
