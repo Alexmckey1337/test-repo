@@ -101,7 +101,7 @@
 {% endblock %}
 
 {% block popup %}
-    {% create_payment_form %}
+    {% include "payment/partials/create_payment.html" with date="report" %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">

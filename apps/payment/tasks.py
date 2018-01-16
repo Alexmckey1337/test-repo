@@ -1,12 +1,14 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.core.files.storage import default_storage
+import io
+
 from edem.settings.celery import app
 from django.conf import settings
 from datetime import datetime
 from channels import Group
 from json import dumps
-import os
 import shutil
 
 from apps.notification.backend import RedisBackend
@@ -23,14 +25,11 @@ def generate_export(user, model, ids, fields, resource_class, file_format, file_
     file_name = file_name.replace(' ', '_') + '_export_at_' + datetime.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()
 
-    path_to_file = settings.MEDIA_ROOT + '/exports/' + file_name_with_format
+    path_to_file = 'exports/' + file_name_with_format
 
     result = export_data.encode('cp1251', errors='replace')
 
-    os.makedirs(os.path.dirname(path_to_file), exist_ok=True)
-
-    with open(path_to_file, 'wb') as file:
-        file.write(result)
+    default_storage.save(path_to_file, io.BytesIO(result))
 
     url = settings.MEDIA_URL + 'exports/%s' % file_name_with_format
 

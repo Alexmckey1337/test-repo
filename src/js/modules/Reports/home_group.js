@@ -180,6 +180,7 @@ export function getHomeReportDetailTableData(config = {}) {
 export function makeCaption(data) {
     let container = document.createElement('div'),
         title,
+        dateTitle,
         dist = {
             night: "О Марафоне",
             home: "Домашней группы",
@@ -192,6 +193,15 @@ export function makeCaption(data) {
     } else if (data.status === 3) {
         title = `Отчет ${dist[data.type.code]}<span> (просрочен)</span>`;
     }
+
+    if (data.type.id === 1) {
+        dateTitle = 'служения';
+    } else if (data.type.id === 2) {
+        dateTitle = 'домашки';
+    } else if (data.type.id === 3) {
+        dateTitle = 'марафона';
+    }
+
     $(container).addClass('hg_caption');
     let txt = `<h2>${title}</h2>
                  <p>
@@ -202,7 +212,7 @@ export function makeCaption(data) {
                     <a href="/home_groups/${data.home_group.id}">${data.home_group.title}</a>
                  </p>
                  <p>
-                    <label>Дата отчёта: </label>
+                    <label>Дата ${dateTitle}: </label>
                     <input id="report_date" value="${data.date}" size="${data.date.length}" data-name="date">
                  </p>
                     ${ (data.type.code != 'service') ?
