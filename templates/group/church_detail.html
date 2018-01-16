@@ -603,7 +603,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script>var currentСhurch = {{ church.id }}</script>
+    <script>let currentСhurch = {{ church.id }}</script>
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
     <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
