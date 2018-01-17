@@ -65,7 +65,7 @@ function makeChartConfig(data, isGroup) {
             },
                 {
                     label: 'Пожертвования',
-                    backgroundColor: CHARTCOLORS.green,
+                    backgroundColor: CHARTCOLORS.yellow,
                     yAxisID: "y-axis-0",
                     data: donations
                 }, {

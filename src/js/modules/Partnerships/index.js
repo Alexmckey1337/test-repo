@@ -51,7 +51,7 @@ export function btnPartners() {
         $('#popup-create_partners').css('display', 'none');
     });
 
-    $('#send_addPartners').on('click', function () {
+    $('#send_addPartners').on('click', _.debounce(function () {
         let popup = $('#popup-create_partners'),
             checkBox = popup.find('.partnershipCheck'),
             partnershipData = {},
@@ -71,12 +71,14 @@ export function btnPartners() {
                 partnershipData[id] = $(this).val();
             }
         });
+        $('.preloader').css('display', 'block');
         postData(url, partnershipData).then(() => {
             location.reload();
         }).catch(err => {
+            $('.preloader').css('display', 'none');
             errorHandling(err);
         })
-    });
+    }, 500, true));
 }
 
 export function tabs() {
