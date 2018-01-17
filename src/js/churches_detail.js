@@ -16,7 +16,7 @@ import {
     editChurches,
     updateChurch,
 } from "./modules/Church/index";
-import {ChurchReportsTable} from './modules/Reports/church';
+import {ChurchReportsTable, saveReport} from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert} from "./modules/ShowNotifications/index";
@@ -29,6 +29,7 @@ import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
+
 import {
     btnNeed,
     btnPartners,
@@ -161,6 +162,11 @@ $('document').ready(function () {
             showAlert(err.message);
         });
     })
+
+    $('.save-update').on('click', function (e) {
+        e.preventDefault();
+        saveReport();
+    });
 
     $('#typeReport').select2();
 

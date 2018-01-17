@@ -6,6 +6,7 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
+import getData, {postData} from '../Ajax/index';
 import {getFilterParam, getTabsFilterParam} from "../Filter/index"
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
@@ -71,7 +72,9 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
         currentPage: page,
         pages: pages,
         callback: churchReportsTable
-    };
+    },
+        $input = $('#updateReport').find('input,textarea'),
+        $inputTithe = $('#updateReport').find('.report-tithe');
     // $('.table__count').text(data.count);
     makePagination(paginationConfig);
     makeSortForm(data.table_columns);
@@ -106,6 +109,108 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
         }, () => {
         });
     });
+
+    $("#churchReports").find('tr').on('click',function (event) {
+        let target = event.target,
+            reportId = $(this).find('#reportId').data('id'),
+            url = URLS.event.church_report.detail(reportId);
+        $('.save-update').attr('disabled',true);
+        if(!$(target).is('a')){
+            getData(url).then(function (data) {
+                let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
+                    thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
+                    thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
+                $('#reportDate').datepicker({
+                    autoClose: true,
+                    minDate: new Date(thisMonday),
+                    maxDate: new Date(thisSunday),
+                    onSelect: function () {
+                        $('.save-update').attr('disabled',false);
+                    }
+                });
+                completeFields(data);
+                $('#updateReport,.bg').addClass('active');
+            })
+            $input.each(function (i, elem) {
+                $(elem).on('input', function () {
+                    $('.save-update').attr('disabled',false);
+                })
+            });
+            $inputTithe.each(function (i,elem) {
+                $(elem).on('input', function () {
+                    let tithe = parseFloat($('#reportTithe').val()),
+                        donat = parseFloat($('#reportDonations').val());
+                    if ($('#reportTithe').val() === '' && $('#reportDonations').val() === ''){
+                        $('#reportTransferPayments').val('0.0');
+                    }else if ($('#reportDonations').val() === ''){
+                        $('#reportTransferPayments').val((tithe+0)*0.15);
+                    }else if ($('#reportTithe').val() === ''){
+                        $('#reportTransferPayments').val((0+donat)*0.15);
+                    }else{
+                        $('#reportTransferPayments').val((tithe+donat)*0.15);
+                    }
+                })
+            })
+        }
+    });
+}
+
+function completeFields(data) {
+    $('#id_report').text(data.id);
+    $('#reportChurch').text(data.church.title);
+    $("#reportPastor").text(data.pastor.fullname);
+    $('#reportChurch').data('id',data.church.id);
+    $("#reportPastor").data('id',data.pastor.id);
+    $('#reportDate').val(data.date);
+    $('#reportCountPeople').val(data.total_peoples);
+    $('#reportCountNewPeople').val(data.total_new_peoples);
+    $('#reportCountRepentance').val(data.total_repentance);
+    $('#reportTithe').val(data.total_tithe);
+    $('#reportDonations').val(data.total_donations);
+    $('#reportTransferPayments').val(data.transfer_payments);
+    $('#reportPastorTithe').val(data.total_pastor_tithe);
+    $('#reportComment').val(data.comment);
+    $('#updateReport').attr('data-status',data.status);
+}
+
+function savedData() {
+    return {
+        "id": parseInt($('#id_report').text()),
+        "pastor": $('#reportPastor').data('id'),
+        "church": $('#reportChurch').data('id'),
+        "date": $('#reportDate').val().split('.').reverse().join('-'),
+        "total_peoples": $('#reportCountPeople').val(),
+        "total_new_peoples": $('#reportCountNewPeople').val(),
+        "total_repentance": $('#reportCountRepentance').val(),
+        "transfer_payments": $('#reportTransferPayments').val(),
+        "total_tithe": $('#reportTithe').val(),
+        "total_donations": $('#reportDonations').val(),
+        "total_pastor_tithe": $('#reportPastorTithe').val(),
+        "comment": $('#reportComment').val(),
+    }
+}
+export function saveReport() {
+    let reportId = parseInt($('#updateReport').find('#id_report').text()),
+        saveUrl = URLS.event.church_report.detail(reportId),
+        createUrl = URLS.event.church_report.submit(reportId),
+        data = savedData(),
+        status = parseInt($('#updateReport').attr('data-status'));
+    if(status === 2){
+        let config = {
+            method: 'PATCH',
+        };
+        postData(saveUrl, data, config).then(function () {
+            churchReportsTable();
+            showAlert("Отчет изменен");
+            $('#updateReport,.bg').removeClass('active');
+        });
+    }else if (status === 1){
+        postData(createUrl, data).then(function () {
+            churchReportsTable();
+            showAlert("Отчет заполнен");
+            $('#updateReport,.bg').removeClass('active');
+        });
+    }
 }
 
 export function churchReportsTable(config = {},fixedHead=true) {
