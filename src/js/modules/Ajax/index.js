@@ -10,7 +10,6 @@ let defaultOption = {
 };
 
 export default function getData(url, options = {}, config = {}) {
-
     let keys = Object.keys(options);
     if (keys.length) {
         url += '?';

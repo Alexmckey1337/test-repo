@@ -129,41 +129,40 @@ export function btnDeal() {
             date = $('#new_deal_date').val(),
             type = $('#new_deal_type').val(),
             typeDeal = $('.partner_block_wrap').first().attr('data-type'),
-            url = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
-
-        if (value && date) {
-            let dateFormat = date.trim().split('.').reverse().join('-'),
-                id = $(this).data('partner'),
-                checkDeal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'partnership_id': id,
-                },
-                deal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'description': description,
-                    'partnership': id,
-                    'type': type,
-                };
-            $(this).prop('disabled', true);
-            getData(url, checkDeal).then(data => {
-                if (data.results) {
-                    $('.preloader').css('display', 'block');
-                    $('#send_new_deal').prop('disabled', false);
-                    makeDuplicateDeals(checkDeal);
-                    $('#hard_create').attr('data-date_created', dateFormat)
-                        .attr('data-value', value)
-                        .attr('data-description', description)
-                        .attr('data-partnership', id)
-                        .attr('data-type', type);
-                } else {
-                    createDeal(deal);
-                }
-            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
-        } else {
+            urlDuplicates = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
+        if (!value && !date) {
             showAlert('Заполните все поля.');
+            return;
         }
+        let dateFormat = date.trim().split('.').reverse().join('-'),
+            id = $(this).data('partner'),
+            checkDeal = {
+                'date_created': dateFormat,
+                'value': value,
+                'partnership_id': id,
+            },
+            deal = {
+                'date_created': dateFormat,
+                'value': value,
+                'description': description,
+                'partnership': id,
+                'type': type,
+            };
+        $(this).prop('disabled', true);
+        getData(urlDuplicates, checkDeal).then(data => {
+            if(!data.results) {
+                createDeal(deal);
+                return;
+            }
+            $('.preloader').css('display', 'block');
+            $('#send_new_deal').prop('disabled', false);
+            $('#hard_create').attr('data-date_created', dateFormat)
+                .attr('data-value', value)
+                .attr('data-description', description)
+                .attr('data-partnership', id)
+                .attr('data-type', type);
+            makeDuplicateDeals(checkDeal);
+        });
     });
 
     $('#hard_create').on('click', function () {
@@ -186,7 +185,7 @@ function createDeal(config) {
         showAlert('Сделка создана.');
         clearDeal();
         renderDealTable({done: 'False'});
-    }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
+    }).catch(err => errorHandling(err));
 }
 
 function clearDeal() {

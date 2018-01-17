@@ -216,16 +216,9 @@ $('document').ready(function () {
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
         $('.preloader').css('display', 'block');
-        let is_submitted = $(this).attr('data-is_submitted');
-        let config = {
-            is_submitted
-        };
-        Object.assign(config, getFilterParam());
-        Object.assign(config, getSearch('search_title'));
-        Object.assign(config, getTabsFilterParam());
-        HomeReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
+        homeReportsTable();
     });
 
     $('#filter_button').on('click', function () {
