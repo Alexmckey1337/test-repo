@@ -1,6 +1,8 @@
 'use strict';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
@@ -118,12 +120,23 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
         if(!$(target).is('a')){
             getData(url).then(function (data) {
                 let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
+                    eventDay = [dateReportsFormatted.getDate()],
+                    eventMonth = [dateReportsFormatted.getMonth()],
                     thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
                     thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
                 $('#reportDate').datepicker({
                     autoClose: true,
                     minDate: new Date(thisMonday),
                     maxDate: new Date(thisSunday),
+                    onRenderCell: function (date, cellType) {
+                        var currentDay = date.getDate(),
+                            currentMonth = date.getMonth();
+                        if (cellType == 'day' && eventDay.indexOf(currentDay) != -1 && eventMonth.indexOf(currentMonth) != -1) {
+                            return {
+                                html: '<span class="selectedDate">' + currentDay + '</span>'
+                            }
+                        }
+                    },
                     onSelect: function () {
                         $('.save-update').attr('disabled',false);
                     }
@@ -137,20 +150,25 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
                 })
             });
             $inputTithe.each(function (i,elem) {
+                $(elem).removeClass('error');
                 $(elem).on('input', function () {
                     let tithe = parseFloat($('#reportTithe').val()),
                         donat = parseFloat($('#reportDonations').val());
                     if ($('#reportTithe').val() === '' && $('#reportDonations').val() === ''){
                         $('#reportTransferPayments').val('0.0');
                     }else if ($('#reportDonations').val() === ''){
-                        $('#reportTransferPayments').val((tithe+0)*0.15);
+                        $('#reportTransferPayments').val(((tithe+0)*0.15).toFixed(1));
                     }else if ($('#reportTithe').val() === ''){
-                        $('#reportTransferPayments').val((0+donat)*0.15);
+                        $('#reportTransferPayments').val(((0+donat)*0.15).toFixed(1));
                     }else{
-                        $('#reportTransferPayments').val((tithe+donat)*0.15);
+                        $('#reportTransferPayments').val(((tithe+donat)*0.15).toFixed(1));
                     }
                 })
             })
+            $.validate({
+                lang: 'ru',
+                form: '#updateReport'
+            });
         }
     });
 }
@@ -189,7 +207,7 @@ function savedData() {
         "comment": $('#reportComment').val(),
     }
 }
-export function saveReport() {
+export function saveReport(config={},fixedHead=true) {
     let reportId = parseInt($('#updateReport').find('#id_report').text()),
         saveUrl = URLS.event.church_report.detail(reportId),
         createUrl = URLS.event.church_report.submit(reportId),
@@ -200,13 +218,13 @@ export function saveReport() {
             method: 'PATCH',
         };
         postData(saveUrl, data, config).then(function () {
-            churchReportsTable();
+            churchReportsTable(config,fixedHead);
             showAlert("Отчет изменен");
             $('#updateReport,.bg').removeClass('active');
         });
     }else if (status === 1){
         postData(createUrl, data).then(function () {
-            churchReportsTable();
+            churchReportsTable(config,fixedHead);
             showAlert("Отчет заполнен");
             $('#updateReport,.bg').removeClass('active');
         });

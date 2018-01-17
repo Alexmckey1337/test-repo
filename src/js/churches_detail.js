@@ -165,7 +165,7 @@ $('document').ready(function () {
 
     $('.save-update').on('click', function (e) {
         e.preventDefault();
-        saveReport();
+        saveReport({church:idChurch},false);
     });
 
     $('#typeReport').select2();
