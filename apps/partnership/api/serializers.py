@@ -61,7 +61,7 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
     group = serializers.StringRelatedField()
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
-    is_stable_newbie = serializers.IntegerField(read_only=True)
+    is_stable_newbie = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Partnership

@@ -127,7 +127,7 @@ class PartnershipViewSet(
              GROUP BY U0."partnership_id") = 3
              AND partnership_partnergroup.title = '1+1' THEN 1
              ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
-                                                                       'user__first_name', 'user__middle_name')
+                                      'user__first_name', 'user__middle_name')
 
             return queryset
         return self.queryset.for_user(user=self.request.user)
