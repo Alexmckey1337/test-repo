@@ -118,10 +118,18 @@ class ChurchSerializer(serializers.ModelSerializer):
         return super(ChurchSerializer, self).update(instance, validated_data)
 
 
-class ChurchListSerializer(ChurchSerializer):
+class BaseChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
 
+    class Meta:
+        model = Church
+        fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
+                  'department', 'pastor', 'country', 'city', 'address', 'website',
+                  'phone_number', 'report_currency', 'region')
+
+
+class ChurchListSerializer(BaseChurchListSerializer):
     class Meta:
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
