@@ -20,7 +20,6 @@ class DealKeyError(Exception):
 def partnerships_deactivate_raw():
 
     def make_partners_list(key='done'):
-
         if key not in ['done', 'expired']:
             raise DealKeyError('Invalid key')
 

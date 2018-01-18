@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
-from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery
+from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery, OuterRef
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
@@ -87,6 +87,7 @@ class PartnershipViewSet(
                        'user__facebook',
                        'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
                        'user__department',)
+
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -112,6 +113,21 @@ class PartnershipViewSet(
         return self.serializer_class
 
     def get_queryset(self):
+        if self.action in ('list', 'retrieve'):
+            queryset = self.queryset.select_related("group").extra(
+                select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
+                        ELSE 0 END)
+             FROM "partnership_deal" U0
+             WHERE U0.id IN (SELECT U1.id
+                             FROM "partnership_deal" U1
+                             WHERE U1."partnership_id" = ("partnership_partnership"."id")
+                             ORDER BY U1.date_created DESC
+                             LIMIT 3)
+             GROUP BY U0."partnership_id") = 3
+             AND partnership_partnergroup.title = '1+1' THEN 1
+             ELSE 0 END"""}).for_user(user=self.request.user).order_by('-is_stable_newbie', 'user__last_name',
+                                                                       'user__first_name', 'user__middle_name')
+            return queryset
         return self.queryset.for_user(user=self.request.user)
 
     @log_perform_update
@@ -796,7 +812,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
 class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
-                serializer.initial_data.get('level') < self.request.user.partner_role.level):
+                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
             raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
 
 

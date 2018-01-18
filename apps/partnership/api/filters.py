@@ -5,7 +5,7 @@ from apps.account.models import CustomUser
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from apps.hierarchy.models import Hierarchy, Department
 from apps.partnership.models import Deal, Partnership, PartnerGroup, ChurchDeal, ChurchPartner
-from rest_framework import filters
+from rest_framework import filters, exceptions
 
 
 class DealDateAndValueFilter(django_filters.FilterSet):
