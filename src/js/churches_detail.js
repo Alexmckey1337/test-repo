@@ -16,7 +16,7 @@ import {
     editChurches,
     updateChurch,
 } from "./modules/Church/index";
-import {ChurchReportsTable, saveReport} from './modules/Reports/church';
+import {ChurchReportsTable, saveReport, deleteReport} from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert} from "./modules/ShowNotifications/index";
@@ -167,6 +167,10 @@ $('document').ready(function () {
         e.preventDefault();
         saveReport({church:idChurch},false);
     });
+    $('#delete_report').on('click', function (e) {
+        e.preventDefault();
+        deleteReport({church:idChurch},false);
+    })
 
     $('#typeReport').select2();
 

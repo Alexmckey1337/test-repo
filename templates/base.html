@@ -88,7 +88,7 @@
         </thead>
         <tbody>
             <% for( var index in results) { %>
-            <tr>
+            <tr <% if(results[index].is_stable_newbie) { %>class="is_stable"<% } %>>
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
                         <% if (key === 'fullname') { %>

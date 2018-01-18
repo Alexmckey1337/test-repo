@@ -79,9 +79,25 @@
   margin-top: 20px;
 }
 #updateReport{
+  &.home-group{
+    .popup_body{
+      overflow: auto;
+    }
+  }
   label{
     &.hidden{
       display: none;
+    }
+    .input{
+      display: flex;
+      justify-content: space-between;
+      #clear_img{
+        width: 30px;
+        padding: 0;
+        i{
+          color: #fff;
+        }
+      }
     }
     span{
       &+p{
@@ -93,6 +109,13 @@
       width:250px;
       border-radius: 4px;
       resize: none;
+    }
+  }
+  input{
+    &[type='file']{
+      opacity: 1;
+      border:none;
+      width: 200px !important;
     }
   }
 }

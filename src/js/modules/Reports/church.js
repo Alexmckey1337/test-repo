@@ -8,7 +8,7 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
-import getData, {postData} from '../Ajax/index';
+import getData, {postData, deleteData} from '../Ajax/index';
 import {getFilterParam, getTabsFilterParam} from "../Filter/index"
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
@@ -115,6 +115,7 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
     $("#churchReports").find('tr').on('click',function (event) {
         let target = event.target,
             reportId = $(this).find('#reportId').data('id'),
+            msg = 'Вы действительно хотите удалить данный отчет',
             url = URLS.event.church_report.detail(reportId);
         $('.save-update').attr('disabled',true);
         if(!$(target).is('a')){
@@ -170,6 +171,18 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
                 form: '#updateReport'
             });
         }
+    });
+}
+
+export function deleteReport(config = {}, fixedHead = true) {
+    let msg = 'Вы действительно хотите удалить данный отчет',
+        reportId = parseInt($('#updateReport').find('#id_report').text()),
+        url = URLS.event.church_report.detail(reportId);
+    showConfirm('Удаление', msg, function () {
+        deleteData(url).then(function () {
+            churchReportsTable(config,fixedHead);
+            showAlert('Отчет удален');
+        })
     });
 }
 

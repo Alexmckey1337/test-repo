@@ -325,8 +325,8 @@ $('document').ready(function () {
     $("#tabs3 li").on('click', function (e) {
         e.preventDefault();
         let id_tab = this.getAttribute('data-tab');
-        $('[data-main_tab]').hide();
-        $('[data-main_tab="' + id_tab + '"]').show();
+        $('.history-tabs-block[data-main_tab]').hide();
+        $('.history-tabs-block[data-main_tab="' + id_tab + '"]').show();
         $(this).closest('.tab-status').find('li').removeClass('active');
         $(this).addClass('active');
     });

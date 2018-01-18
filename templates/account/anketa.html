@@ -1020,103 +1020,6 @@
 
     </div>
     <div class="clearfix"></div>
-{#    {% if log_messages or log_messages_iam %}#}
-{#        <h1>Пользователь:</h1>#}
-{#    {% endif %}#}
-{#    <div class="content padding-table">#}
-{#        {% if log_messages %}#}
-{#            <h1 style="padding-left: 20px;">#}
-{#                <a href="{% url "account:logs" user_id=account.id %}">{% trans "Меня меняли" %}</a>#}
-{#            </h1>#}
-{#            <table>#}
-{#                <tr>#}
-{#                    <th>{% trans "Редактор" %}</th>#}
-{#                    <th>{% trans "Тип" %}</th>#}
-{#                    <th>{% trans "Лог" %}</th>#}
-{#                    <th>{% trans "Время изменения" %}</th>#}
-{#                </tr>#}
-{#                {% for log_message in log_messages|slice:"20" %}#}
-{#                    <tr>#}
-{#                        <td><a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a></td>#}
-{#                        <td>{{ log_message.get_action_flag_display }}</td>#}
-{#                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>#}
-{#                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#            </table>#}
-{#        {% endif %}#}
-{#        {% if log_messages_iam %}#}
-{#            <h1 style="padding-left: 20px;">#}
-{#                <a href="{% url "account:owner_logs" user_id=account.id %}">{% trans "Я менял" %}</a>#}
-{#            </h1>#}
-{#            <table>#}
-{#                <tr>#}
-{#                    <th>{% trans "Кого" %}</th>#}
-{#                    <th>{% trans "Тип" %}</th>#}
-{#                    <th>{% trans "Лог" %}</th>#}
-{#                    <th>{% trans "Время изменения" %}</th>#}
-{#                </tr>#}
-{#                {% for log_message in log_messages_iam|slice:"20" %}#}
-{#                    <tr>#}
-{#                        <td><a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a>#}
-{#                        </td>#}
-{#                        <td>{{ log_message.get_action_flag_display }}</td>#}
-{#                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>#}
-{#                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#            </table>#}
-{#        {% endif %}#}
-{#    </div>#}
-{#    {% if partner_log_messages or partner_log_messages_iam %}#}
-{#        <h1>Партнерство:</h1>#}
-{#    {% endif %}#}
-{#    <div class="content padding-table">#}
-{#        {% if partner_log_messages %}#}
-{#            <h1 style="padding-left: 20px;">#}
-{#                <a href="{% url "account:logs" user_id=account.id %}">{% trans "Меня меняли" %}</a>#}
-{#            </h1>#}
-{#            <table>#}
-{#                <tr>#}
-{#                    <th>{% trans "Редактор" %}</th>#}
-{#                    <th>{% trans "Тип" %}</th>#}
-{#                    <th>{% trans "Лог" %}</th>#}
-{#                    <th>{% trans "Время изменения" %}</th>#}
-{#                </tr>#}
-{#                {% for log_message in partner_log_messages|slice:"20" %}#}
-{#                    <tr>#}
-{#                        <td><a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a></td>#}
-{#                        <td>{{ log_message.get_action_flag_display }}</td>#}
-{#                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>#}
-{#                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#            </table>#}
-{#        {% endif %}#}
-{#        {% if partner_log_messages_iam %}#}
-{#            <h1 style="padding-left: 20px;">#}
-{#                <a href="{% url "account:owner_logs" user_id=account.id %}">{% trans "Я менял" %}</a>#}
-{#            </h1>#}
-{#            <table>#}
-{#                <tr>#}
-{#                    <th>{% trans "Кого" %}</th>#}
-{#                    <th>{% trans "Тип" %}</th>#}
-{#                    <th>{% trans "Лог" %}</th>#}
-{#                    <th>{% trans "Время изменения" %}</th>#}
-{#                </tr>#}
-{#                {% for log_message in partner_log_messages_iam|slice:"20" %}#}
-{#                    <tr>#}
-{#                        <td><a href="{% url "account:detail" log_message.object_id %}">{{ log_message.object_repr }}</a>#}
-{#                        </td>#}
-{#                        <td>{{ log_message.get_action_flag_display }}</td>#}
-{#                        <td><a href="{{ log_message.get_absolute_url }}">{{ log_message.get_change_message }}</a></td>#}
-{#                        <td>{{ log_message.action_time|date:"d M Y H:i:s" }}</td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#            </table>#}
-{#        {% endif %}#}
-{#    </div>#}
-
 {% endblock %}
 
 {% block popup %}
@@ -1187,18 +1090,6 @@
     </div>
     {% include "partner/partials/create_deal.html" %}
     {% include "partials/find_duplicate_deals.html" %}
-    {#    <div id="playerPopup" class="pop-up__table">#}
-{#        <div class="pop_cont">#}
-{#            <div class="top-text">#}
-{#                <h3>Прослушать запись</h3><span class="close_pop">×</span>#}
-{#            </div>#}
-{#            <div class="musicPlayer">#}
-{#                <audio controls>#}
-{#                  <source src="http://192.168.240.47:7000/file/?file_name=out-0687774566-1119-20171023-133344-1508754824.286.wav" type="audio/wav">#}
-{#                </audio>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
     <div id="popup-create_partners" class="popap">
         <div class="pop_cont">
             <div class="popup_text">

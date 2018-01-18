@@ -12,7 +12,7 @@ import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {ChurchReportsTable, churchReportsTable, saveReport} from "./modules/Reports/church";
+import {ChurchReportsTable, churchReportsTable, saveReport, deleteReport} from "./modules/Reports/church";
 import {createChurchPayment} from "./modules/Reports/church";
 import reverseDate from './modules/Date/index';
 
@@ -191,6 +191,10 @@ $('document').ready(function () {
         e.preventDefault();
         saveReport();
     });
+     $('#delete_report').on('click', function (e) {
+        e.preventDefault();
+        deleteReport();
+    })
 
     // Sort table
     $('#sort_save').on('click', function () {
