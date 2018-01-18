@@ -223,6 +223,7 @@ function getAddChurchData() {
         "pastor": $('#pastor_select').val(),
         "country": $('#added_churches_country').val(),
         "city": $('#added_churches_city').val(),
+        "region": $('#added_churches_region').val(),
         "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val(),

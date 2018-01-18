@@ -1,5 +1,5 @@
 'use strict';
-import  'air-datepicker';
+import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -17,11 +17,11 @@ import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
-import {makeChurches, makeResponsibleList,makeHomeGroupsList} from './modules/MakeList/index';
+import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
-import getData, {deleteData, postData} from "./modules/Ajax/index";
+import {deleteData, postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
@@ -38,7 +38,6 @@ import {
     renderDealTable,
     renderPaymentTable,
 } from "./modules/Partnerships/index";
-import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -83,9 +82,7 @@ $('document').ready(function () {
             .then(() => window.location.reload())
             .catch(err => errorHandling(err));
     });
-    //////////////////////////////////////////////
-    // sorry for my code  -- finish
-    //////////////////////////////////////////////
+
     // const ID = getLastId();
 
     function AddColorMarkers() {
@@ -268,73 +265,6 @@ $('document').ready(function () {
     $("#create_new_deal").on('click', function () {
         $('#send_new_deal').prop('disabled', false);
         $('#popup-create_deal').css('display', 'block');
-    });
-
-    function clearDeal() {
-        $('#popup-create_deal textarea').val('');
-        $('#new_deal_sum').val('');
-        $('#new_deal_date').val('');
-        $('#popup-create_deal').css('display', 'none');
-    }
-
-    function createDeal(config) {
-        postData(URLS.deal.list(), config).then(() => {
-            showAlert('Сделка создана.');
-            clearDeal();
-        }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
-    }
-
-    $('#send_new_deal').on('click', function () {
-        let description = $('#popup-create_deal textarea').val(),
-            value = $('#new_deal_sum').val(),
-            date = $('#new_deal_date').val(),
-            type = $('#new_deal_type').val();
-
-        if (value && date) {
-            let dateFormat = date.trim().split('.').reverse().join('-'),
-                id = $(this).data('partner'),
-                checkDeal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'partnership_id': id,
-                },
-                deal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'description': description,
-                    'partnership': id,
-                    'type': type,
-                };
-            $(this).prop('disabled', true);
-            getData(URLS.deal.check_duplicates(), checkDeal).then( data => {
-                if (data.results) {
-                    $('.preloader').css('display', 'block');
-                    $('#send_new_deal').prop('disabled', false);
-                    makeDuplicateDeals(checkDeal);
-                    $('#hard_create').attr('data-date_created', dateFormat)
-                                     .attr('data-value', value)
-                                     .attr('data-description', description)
-                                     .attr('data-partnership', id)
-                                     .attr('data-type', type);
-                } else {
-                    createDeal(deal);
-                }
-            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
-        } else {
-            showAlert('Заполните все поля.');
-        }
-    });
-
-    $('#hard_create').on('click', function () {
-        let deal = {
-                    'date_created': $(this).attr('data-date_created'),
-                    'value': $(this).attr('data-value'),
-                    'description': $(this).attr('data-description'),
-                    'partnership': $(this).attr('data-partnership'),
-                    'type': $(this).attr('data-type'),
-                };
-        createDeal(deal);
-        $('.pop-up_duplicate__table').css('display', 'none');
     });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
@@ -918,24 +848,6 @@ $('document').ready(function () {
         $(this).parent().addClass('active');
         $(this).closest('.summits-block').find('.wrapp').hide();
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
-    });
-
-    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
-        $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select'),
-            btn = $(this).closest('.access_wrapper').find('#delete_access');
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            textArea.attr('readonly', false);
-            select.attr('readonly', false).attr('disabled', false);
-            btn.attr('disabled', false);
-        } else {
-            $(this).addClass('active');
-            textArea.attr('readonly', true);
-            select.attr('readonly', true).attr('disabled', true);
-            btn.attr('disabled', true);
-        }
     });
 
     AddColorMarkers();

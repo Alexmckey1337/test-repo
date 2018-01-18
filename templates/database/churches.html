@@ -107,6 +107,11 @@
                                    id="search_country">
                     </label>
                     <label>
+                        <span class="label_block">Область</span>
+                        <input type="text" data-filter="region" placeholder="область или часть названия"
+                                   id="search_city">
+                    </label>
+                    <label>
                         <span class="label_block">Город</span>
                         <input type="text" data-filter="city" placeholder="город или часть названия"
                                    id="search_city">
@@ -155,9 +160,14 @@
                             <input type="text" id="added_churches_country" required>
                         </label>
                         <label>
+                            <span class="label_block">Область</span>
+                            <input type="text" id="added_churches_region" required>
+                        </label>
+                        <label>
                             <span class="label_block">Город</span>
                             <input type="text" id="added_churches_city" required>
                         </label>
+
                         <label>
                             <span class="label_block">Пастор</span>
                             <select name="pastor" class="selectdb" id="pastor_select" disabled required>

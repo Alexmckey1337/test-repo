@@ -265,6 +265,8 @@ class UniqueFIOTelWithIdsValidator(UniqueTogetherValidator):
 
 
 class UserCreateSerializer(BaseUserSerializer):
+    is_stable = serializers.BooleanField(default=True)
+
     class Meta(BaseUserSerializer.Meta):
         validators = (UniqueFIOTelWithIdsValidator(
             queryset=User.objects.all(),
