@@ -76,7 +76,6 @@ class ChurchPartnerTableSerializer(serializers.ModelSerializer):
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
     fullname = serializers.CharField(source='church.title')
-    is_stable_newbie = serializers.BooleanField()
 
     class Meta:
         model = Partnership

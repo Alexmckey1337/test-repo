@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
-from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery, OuterRef
+from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
