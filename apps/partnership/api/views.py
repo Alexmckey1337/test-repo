@@ -114,7 +114,8 @@ class PartnershipViewSet(
 
     def get_queryset(self):
         if self.action in ('list', 'retrieve'):
-            queryset = self.queryset.select_related("group").extra(
+            self.base_qs = self.queryset.select_related("group").for_user(user=self.request.user)
+            queryset = self.base_qs.extra(
                 select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
                         ELSE 0 END)
              FROM "partnership_deal" U0
@@ -125,10 +126,21 @@ class PartnershipViewSet(
                              LIMIT 3)
              GROUP BY U0."partnership_id") = 3
              AND partnership_partnergroup.title = '1+1' THEN 1
-             ELSE 0 END"""}).for_user(user=self.request.user).order_by('-is_stable_newbie', 'user__last_name',
+             ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
                                                                        'user__first_name', 'user__middle_name')
+
             return queryset
         return self.queryset.for_user(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
