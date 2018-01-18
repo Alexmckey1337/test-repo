@@ -18,6 +18,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.account.api.serializers import AddExistUserSerializer
 from apps.account.models import CustomUser
+from apps.analytics.decorators import log_perform_update, log_perform_create
+from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin
@@ -48,7 +50,7 @@ from rest_framework.parsers import JSONParser, FormParser
 logger = logging.getLogger(__name__)
 
 
-class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
+class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMixin,
                     ChurchHomeGroupMixin, ExportViewSetMixin):
     queryset = Church.objects.select_related('pastor', 'department')
 
@@ -359,7 +361,7 @@ class ChurchViewSet(ModelViewSet, ChurchUsersMixin,
         return Response({'message': _('Отчет успешно создан')}, status=status.HTTP_200_OK)
 
 
-class HomeGroupViewSet(ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
+class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
     queryset = HomeGroup.objects.all().select_related('leader', 'church')
 
     serializer_class = HomeGroupSerializer

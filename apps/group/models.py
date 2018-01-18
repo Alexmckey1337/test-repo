@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
+from apps.analytics.models import LogModel
 from apps.group.managers import ChurchManager, HomeGroupManager
 from apps.event.models import Meeting, MeetingType, ChurchReport
 from django.db import transaction
@@ -42,7 +43,7 @@ class CommonGroup(models.Model):
         return '{} {}'.format(self.owner_name, self.city)
 
 
-class Church(CommonGroup):
+class Church(LogModel, CommonGroup):
     department = models.ForeignKey('hierarchy.Department', related_name='churches',
                                    on_delete=models.PROTECT, verbose_name=_('Department'))
     pastor = models.ForeignKey('account.CustomUser', related_name='church',
@@ -56,6 +57,14 @@ class Church(CommonGroup):
     region = models.CharField(_('Region'), max_length=50, blank=True, null=True)
 
     objects = ChurchManager()
+
+    tracking_fields = (
+        'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
+        'department', 'pastor', 'country',
+        'is_open', 'report_currency', 'image', 'region',
+    )
+
+    tracking_reverse_fields = ()
 
     def save(self, *args, **kwargs):
         is_create = True if not self.pk else False
@@ -98,7 +107,7 @@ class Church(CommonGroup):
         return User.objects.filter(customuser__church=self).count()
 
 
-class HomeGroup(CommonGroup):
+class HomeGroup(LogModel, CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group',
                                on_delete=models.PROTECT, verbose_name=_('Leader'))
     church = models.ForeignKey('Church', related_name='home_group',
@@ -108,6 +117,11 @@ class HomeGroup(CommonGroup):
     image = models.ImageField(_('Home Group Image'), upload_to='home_groups/', blank=True, null=True)
 
     objects = HomeGroupManager()
+
+    tracking_fields = (
+        'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
+        'leader', 'church', 'active', 'image',
+    )
 
     def save(self, *args, **kwargs):
         is_create = True if not self.pk else False
