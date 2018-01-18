@@ -35,6 +35,7 @@ class ChurchResource(CustomFieldsModelResource):
     get_title = fields.Field()
     stable_count = fields.Field()
     count_people = fields.Field()
+    count_home_group = fields.Field()
 
     church_field_name = None
 

@@ -61,10 +61,11 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
     group = serializers.StringRelatedField()
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
+    is_stable_newbie = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'fullname') + BASE_PARTNER_FIELDS
+        fields = ('id', 'user', 'fullname', 'is_stable_newbie') + BASE_PARTNER_FIELDS
 
 
 class ChurchPartnerTableSerializer(serializers.ModelSerializer):
@@ -78,7 +79,7 @@ class ChurchPartnerTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('id', 'church', 'fullname') + BASE_PARTNER_FIELDS
+        fields = ('id', 'church', 'fullname',) + BASE_PARTNER_FIELDS
 
 
 class ChurchPartnerSerializer(serializers.ModelSerializer):

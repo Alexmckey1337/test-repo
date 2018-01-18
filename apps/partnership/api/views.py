@@ -87,6 +87,7 @@ class PartnershipViewSet(
                        'user__facebook',
                        'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
                        'user__department',)
+
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -112,7 +113,34 @@ class PartnershipViewSet(
         return self.serializer_class
 
     def get_queryset(self):
+        if self.action in ('list', 'retrieve'):
+            self.base_qs = self.queryset.select_related("group").for_user(user=self.request.user)
+            queryset = self.base_qs.extra(
+                select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
+                        ELSE 0 END)
+             FROM "partnership_deal" U0
+             WHERE U0.id IN (SELECT U1.id
+                             FROM "partnership_deal" U1
+                             WHERE U1."partnership_id" = ("partnership_partnership"."id")
+                             ORDER BY U1.date_created DESC
+                             LIMIT 3)
+             GROUP BY U0."partnership_id") = 3
+             AND partnership_partnergroup.title = '1+1' THEN 1
+             ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
+                                      'user__first_name', 'user__middle_name')
+
+            return queryset
         return self.queryset.for_user(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
@@ -796,7 +824,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
 class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
-                serializer.initial_data.get('level') < self.request.user.partner_role.level):
+                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
             raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
 
 
