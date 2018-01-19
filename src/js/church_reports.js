@@ -8,7 +8,7 @@ import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index"
+import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
@@ -134,7 +134,7 @@ $('document').ready(function () {
         }
     }
 
-    if (path == undefined) {
+    if (path === undefined) {
         ChurchReportsTable();
         filterChange();
     }
@@ -143,15 +143,9 @@ $('document').ready(function () {
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
         $('.preloader').css('display', 'block');
-        let is_submitted = $(this).attr('data-is_submitted');
-        let config = {
-            is_submitted
-        };
-        Object.assign(config, getFilterParam());
-        Object.assign(config, getSearch('search_title'));
-        ChurchReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
+        churchReportsTable();
     });
     $('#filter_button').on('click', function () {
         filterInit();
@@ -217,7 +211,6 @@ $('document').ready(function () {
         $departmentsFilter.on('change', function () {
             let departamentID = $(this).val(),
                 config = {};
-            console.log(departamentID);
             if (!departamentID) {
                 departamentID = null;
             } else {

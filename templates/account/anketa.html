@@ -830,7 +830,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -1186,6 +1185,7 @@
             </div>
         </div>
     </div>
+    {% include "partner/partials/create_deal.html" %}
     {% include "partials/find_duplicate_deals.html" %}
     {#    <div id="playerPopup" class="pop-up__table">#}
 {#        <div class="pop_cont">#}
@@ -1283,73 +1283,73 @@
             </div>
         </div>
     </div>
-    <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Добавление партнерской анкеты</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container container_block">
-                    <input type="hidden" data-id="user" value="{{ account.id }}">
-                    <label>
-                        <span class="label_block">Отдел партнерства:</span>
-                        {% get_partner_titles as titles %}
-                        <select class="department_partner selectdb" data-id="title">
-                            {% for t in titles %}
-                                <option value="{{ t.0 }}">{{ t.1 }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Тег:</span>
-                        <select class="group selectdb par__group" data-id="group">
-                            <option value="" selected disabled>Выберите тег</option>
-                            {% for el in partner_groups %}
-                                <option value="{{ el.id }}">{{ el.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Активный</span>
-                        <input type="checkbox" class="partnershipCheck">
-                        <div></div>
-                    </label>
-                    <label>
-                        <span class="label_block">Партнёр с:</span>
-                        <input type="text" class="sel__date" data-id="date">
-                    </label>
-                    <label>
-                        <span class="label_block">Сумма сделки:</span>
-                        <div class="input">
-                            <input type="text" data-id="value" class="payment_value">
-                            <select class="payment_currency selectdb" data-id="currency">
-                                {% for currency in currencies %}
-                                    <option value="{{ currency.id }}">
-                                        {{ currency.short_name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </label>
-                    <label>
-                        <span class="label_block">Менеджер:</span>
-                        <select class="responsible selectdb" data-id="responsible">
-                            <option value="" selected disabled>Выберите менеджера</option>
-                            {% get_simple_managers as managers %}
-                            {% for manager in managers %}
-                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-                <div id="table_duplicate" class="table-wrap clearfix"></div>
-            </div>
-            <div class="container">
-                <button id="close_addPartners">Отменить</button>
-                <button id="send_addPartners">Создать</button>
-            </div>
-        </div>
-    </div>
+{#    <div id="create_duplicate_pop" class="pop-up__table pop-up_duplicate__table" style="display: none;">#}
+{#        <div class="pop_cont">#}
+{#            <div class="popup_text">#}
+{#                <h2>Добавление партнерской анкеты</h2>#}
+{#            </div>#}
+{#            <div class="popup_body">#}
+{#                <div class="container container_block">#}
+{#                    <input type="hidden" data-id="user" value="{{ account.id }}">#}
+{#                    <label>#}
+{#                        <span class="label_block">Отдел партнерства:</span>#}
+{#                        {% get_partner_titles as titles %}#}
+{#                        <select class="department_partner selectdb" data-id="title">#}
+{#                            {% for t in titles %}#}
+{#                                <option value="{{ t.0 }}">{{ t.1 }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <span class="label_block">Тег:</span>#}
+{#                        <select class="group selectdb par__group" data-id="group">#}
+{#                            <option value="" selected disabled>Выберите тег</option>#}
+{#                            {% for el in partner_groups %}#}
+{#                                <option value="{{ el.id }}">{{ el.title }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <span class="label_block">Активный</span>#}
+{#                        <input type="checkbox" class="partnershipCheck">#}
+{#                        <div></div>#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <span class="label_block">Партнёр с:</span>#}
+{#                        <input type="text" class="sel__date" data-id="date">#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <span class="label_block">Сумма сделки:</span>#}
+{#                        <div class="input">#}
+{#                            <input type="text" data-id="value" class="payment_value">#}
+{#                            <select class="payment_currency selectdb" data-id="currency">#}
+{#                                {% for currency in currencies %}#}
+{#                                    <option value="{{ currency.id }}">#}
+{#                                        {{ currency.short_name }}#}
+{#                                    </option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <span class="label_block">Менеджер:</span>#}
+{#                        <select class="responsible selectdb" data-id="responsible">#}
+{#                            <option value="" selected disabled>Выберите менеджера</option>#}
+{#                            {% get_simple_managers as managers %}#}
+{#                            {% for manager in managers %}#}
+{#                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </label>#}
+{#                </div>#}
+{#                <div id="table_duplicate" class="table-wrap clearfix"></div>#}
+{#            </div>#}
+{#            <div class="container">#}
+{#                <button id="close_addPartners">Отменить</button>#}
+{#                <button id="send_addPartners">Создать</button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
 
     {% include "partials/player.html" %}
 

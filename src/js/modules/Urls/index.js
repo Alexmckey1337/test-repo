@@ -58,6 +58,7 @@ const CHURCH_REPORT = {
     detail: (reportId) => `/api/events/church_reports/${reportId}/`,
     submit: (reportId) => `/api/events/church_reports/${reportId}/submit/`,
     stats: () => `/api/events/church_reports/statistics/`,
+    statistics: () => `/api/events/church_reports/stats/`,
     dashboard_count: () => `/api/events/church_reports/dashboard_counts/`,
     summary: () => `/api/events/church_reports/reports_summary/`,
     create_payment: (reportId) => `/api/events/church_reports/${reportId}/create_payment/`,

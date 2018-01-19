@@ -65,21 +65,25 @@ $('document').ready(function () {
                 await getData(urlPastors, config2).then(function (res) {
                     const pastors = res.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
                     $treeFilter.html('<option>ВСЕ</option>').append(pastors);
+
                     return res;
                 });
                 await getData(urlChurches, config2).then(res => {
                     let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
+
                     return res;
                 });
                 await getData(urlHG, config2).then(res => {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+
                     return res;
                 });
                 await getData(urlHGleaders, config).then(res => {
                     let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
                     $liderFilter.html('<option>ВСЕ</option>').append(liders);
+
                     return res;
                 });
             } else {
@@ -89,21 +93,25 @@ $('document').ready(function () {
                 await getData(urlPastors, config).then(res => {
                     let leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
                     $treeFilter.html('<option>ВСЕ</option>').append(leaders);
+
                     return res;
                 });
                 await getData(urlChurches).then(res => {
                     let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
+
                     return res;
                 });
                 await getData(urlHG).then(res => {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+
                     return res;
                 });
                 await getData(urlHGleaders).then(res => {
                     let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
                     $liderFilter.html('<option>ВСЕ</option>').append(liders);
+
                     return res;
                 });
             }
@@ -115,16 +123,19 @@ $('document').ready(function () {
                 await getData(urlChurches, config).then(res => {
                     let churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`);
                     $churchFilter.html('<option>ВСЕ</option>').append(churches);
+
                     return res;
                 });
                 await getData(urlHG, config).then(res => {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+
                     return res;
                 });
                 await getData(urlHGleaders, config).then(res => {
                     let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
                     $liderFilter.html('<option>ВСЕ</option>').append(liders);
+
                     return res;
                 });
             }
@@ -139,11 +150,13 @@ $('document').ready(function () {
                 await getData(urlHG, config2).then(res => {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+
                     return res;
                 });
                 await getData(urlHGleaders, config).then(res => {
                     let liders = res.map(lider => `<option value="${lider.id}">${lider.fullname}</option>`);
                     $liderFilter.html('<option>ВСЕ</option>').append(liders);
+
                     return res;
                 });
             }
@@ -155,6 +168,7 @@ $('document').ready(function () {
                 await getData(urlHG, config).then(res => {
                     let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
                     $homeGroupFilter.html('<option>ВСЕ</option>').append(groups);
+
                     return res;
                 });
             }
@@ -193,7 +207,7 @@ $('document').ready(function () {
         }
     }
 
-    if (path == undefined) {
+    if (path === undefined) {
         HomeReportsTable();
         filterChange();
     }
@@ -202,16 +216,9 @@ $('document').ready(function () {
     let $statusTabs = $('#statusTabs');
     $statusTabs.find('button').on('click', function () {
         $('.preloader').css('display', 'block');
-        let is_submitted = $(this).attr('data-is_submitted');
-        let config = {
-            is_submitted
-        };
-        Object.assign(config, getFilterParam());
-        Object.assign(config, getSearch('search_title'));
-        Object.assign(config, getTabsFilterParam());
-        HomeReportsTable(config);
         $statusTabs.find('li').removeClass('current');
         $(this).closest('li').addClass('current');
+        homeReportsTable();
     });
 
     $('#filter_button').on('click', function () {

@@ -3,6 +3,7 @@ import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {getDataPhone, getAudioFile} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
+import {makeIptelTable} from '../Phone/index'
 import {showAlert} from '../ShowNotifications/index';
 import errorHandling from '../Error';
 import {

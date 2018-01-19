@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView
 
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Department, Hierarchy
-from apps.partnership.models import PartnerGroup
+from apps.partnership.models import PartnerGroup, PartnerRole
 from apps.payment.models import Currency
 
 
@@ -58,7 +58,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'departments': Department.objects.all(),
             'partner_groups': PartnerGroup.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
-            'currencies': Currency.objects.all()
+            'currencies': Currency.objects.all(),
+            'levels': PartnerRole.LEVELS,
         }
         user = self.request.user
         if user.is_staff:

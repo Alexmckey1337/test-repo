@@ -101,7 +101,8 @@ class ChurchSerializer(serializers.ModelSerializer):
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'report_currency', 'image', 'region')
+                  'phone_number', 'report_currency', 'image', 'region', 'stable_count',
+                  'count_people', 'count_home_groups')
 
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')
@@ -117,7 +118,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         return super(ChurchSerializer, self).update(instance, validated_data)
 
 
-class ChurchListSerializer(ChurchSerializer):
+class BaseChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
 
@@ -126,6 +127,15 @@ class ChurchListSerializer(ChurchSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'region')
+
+
+class ChurchListSerializer(BaseChurchListSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
+                  'department', 'pastor', 'country', 'city', 'address', 'website',
+                  'phone_number', 'report_currency', 'region', 'stable_count',
+                  'count_people', 'count_home_groups')
 
 
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):

@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from apps.account.api.serializers import UserTableSerializer
+from apps.account.api.serializers import UserTableSerializer, PartnerUserSerializer
 from apps.payment.models import Payment
 from common.fields import DecimalWithCurrencyField
-from apps.group.api.serializers import ChurchListSerializer
+from apps.group.api.serializers import ChurchListSerializer, BaseChurchListSerializer
 from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
 from apps.payment.api.serializers import CurrencySerializer
 
@@ -55,20 +55,23 @@ class PartnershipCreateSerializer(serializers.ModelSerializer):
 
 
 class PartnershipTableSerializer(serializers.ModelSerializer):
-    user = UserTableSerializer()
+    user = PartnerUserSerializer()
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
     group = serializers.StringRelatedField()
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
+    is_stable_newbie = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Partnership
-        fields = ('id', 'user', 'fullname') + BASE_PARTNER_FIELDS
+        fields = ('id',
+                  'user',
+                  'fullname', 'is_stable_newbie') + BASE_PARTNER_FIELDS
 
 
 class ChurchPartnerTableSerializer(serializers.ModelSerializer):
-    church = ChurchListSerializer()
+    church = BaseChurchListSerializer()
     date = serializers.DateField(format=None, input_formats=None)
     responsible = serializers.StringRelatedField()
     group = serializers.StringRelatedField()
@@ -78,7 +81,7 @@ class ChurchPartnerTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('id', 'church', 'fullname') + BASE_PARTNER_FIELDS
+        fields = ('id', 'church', 'fullname',) + BASE_PARTNER_FIELDS
 
 
 class ChurchPartnerSerializer(serializers.ModelSerializer):

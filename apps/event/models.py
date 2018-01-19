@@ -88,7 +88,8 @@ class Meeting(AbstractStatusModel):
     owner = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                               limit_choices_to={'hierarchy__level__gte': 1})
 
-    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.CASCADE, verbose_name=_('Home Group'))
+    home_group = models.ForeignKey('group.HomeGroup', on_delete=models.CASCADE,
+                                   verbose_name=_('Home Group'))
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
@@ -172,7 +173,8 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
                                        decimal_places=0, default=0)
 
-    payments = GenericRelation('payment.Payment', related_query_name='church_reports', on_delete=models.PROTECT)
+    payments = GenericRelation('payment.Payment', related_query_name='church_reports',
+                               on_delete=models.PROTECT)
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
     done = models.BooleanField(default=False)
