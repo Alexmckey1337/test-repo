@@ -14,3 +14,52 @@
     font-size: 1em;
   }
 }
+#tableUsers{
+  width: 100%;
+  label{
+    justify-content: space-between;
+    &:not(:first-child) {
+      border-bottom: 1px solid #eee;
+      margin-bottom: 0px;
+      padding: 7px;
+      transition: background-color .3s;
+      span {
+        background-color: #fff;
+        &.label_block{
+          background-color: transparent;
+        }
+      }
+      &:hover {
+        background-color: #e4e4e4;
+      }
+    }
+  }
+}
+#updateReport{
+  .popup_body{
+    padding-right: 5px;
+    box-sizing: content-box;
+  }
+}
+
+#reportImage {
+  width:0.1px;
+  height: 0.1px;
+  opacity: 0;
+  position: absolute;
+  z-index: -100;
+  & + label {
+    cursor: pointer;
+    width: 200px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    border: 1px solid #cdd0d4;
+    border-radius: 4px;
+    i{
+      margin:0 5px;
+      font-size: 18px;
+    }
+  }
+}

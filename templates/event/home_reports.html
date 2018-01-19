@@ -217,10 +217,15 @@
                         <span class="label_block">Изменить фото</span>
                         <div class="input">
                             <input type="file" id="reportImage" data-name="image">
+                            <label for="reportImage">
+                                <i class="material-icons">&#xE2C4;</i>
+                                <span>Выберите файл</span>
+                            </label>
                             <button id="clear_img"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                         </div>
                     </label>
-                    <div id="tableUsers"></div>
+                    <div id="tableUsers">
+                    </div>
                 </div>
             </div>
             <div class="container">
@@ -257,9 +262,10 @@
                 <% if(key == 'id') { %>
                 <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
                     {% if user.is_staff %}
-                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
+{#                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>#}
                     {% endif %}
-                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+{#                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>#}
+                <%= results[index][key] %>
                     <% if (results[index].image != null) { %>
                     <button class="view_img" data-img="<%= results[index].image %>"></button>
                     <% } %>

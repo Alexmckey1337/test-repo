@@ -122,13 +122,8 @@ function btnControls() {
     })
     $("#homeReports").find('tr').on('click',function (event) {
         let target = event.target,
-            $input = $('#updateReport').find('input,textarea'),
             reportId = $(this).find('#reportId').data('id'),
-            msg = 'Вы действительно хотите удалить данный отчет',
-            $homeReports = $('#updateReport'),
-            $items = $('#tableUsers'),
             url = URLS.event.home_meeting.detail(reportId);
-            // urlUsers = URLS.event.home_meeting.visitors(reportId);
         $('.save-update').attr('disabled',true);
         if(!$(target).is('a') && !$(target).is('button')){
             getData(url).then(function (data) {
@@ -156,56 +151,106 @@ function btnControls() {
                 });
                 $('#updateReport').attr('data-status',data.status);
                 completeFields(data);
+                $('#tableUsers').html('');
                 reportUserTable(data,$('#tableUsers'));
                 $('#updateReport,.bg').addClass('active');
-                $('.save-update').on('click', function () {
-                    let data = new FormData(), attends = [];
-                    $homeReports.find('input').each(function () {
-                        let field = $(this).data('name');
-                        if (field) {
-                            if (field == 'date') {
-                                data.append(field, reverseDate($(this).val(), '-'));
-                            } else if (field == 'image') {
-                                ($(this)[0].files.length > 0) && data.append(field, $(this)[0].files[0]);
-                            } else {
-                                data.append(field, $(this).data('value') || $(this).val());
-                            }
-                        }
-                    });
-                    $items.find('input').each(function () {
-                        let data = {},
-                            elem = $(this),
-                            name = elem.attr('name');
-                        if (name == 'attended') {
-                            console.log(elem);
-                            data[elem.attr('name')] = elem.prop("checked")
-                        } else if (name == 'user_id') {
-                            data[elem.attr('name')] = parseInt(elem.val());
-                        } else {
-                            data[elem.attr('name')] = elem.val();
-                        }
-
-                        attends.push(data);
-                    });
-                    data.append('attends', JSON.stringify(attends));
-                    sendForms(data);
-                });
             })
-            $input.each(function (i, elem) {
-                $(elem).on('input', function () {
-                    $('.save-update').attr('disabled',false);
-                })
-                $(elem).on('change', function () {
-                    $('.save-update').attr('disabled',false);
-                })
-            });
             $.validate({
                 lang: 'ru',
                 form: '#updateReport'
             });
         }
+
+    });
+    let inputs = $("#reportImage");
+    Array.prototype.forEach.call(inputs, function (input) {
+        var label = input.nextElementSibling,
+            labelVal = label.innerHTML;
+        input.addEventListener('change', function (e) {
+            let fileName = '';
+            if (this.files && this.files.length > 1) {
+                fileName = ( this.getAttribute('data-multiple-caption') || '' ).replace('{count}', this.files.length);
+            }
+            else {
+                fileName = e.target.value.split('\\').pop();
+            }
+
+            if (fileName) {
+                $(label).find('span').text(fileName);
+            }
+            else {
+                $(label).innerHTML = labelVal;
+            }
+
+        });
     });
 }
+
+$('#clear_img').on('click',function () {
+    let inputs = $("#reportImage");
+    Array.prototype.forEach.call(inputs, function (input) {
+        let label = input.nextElementSibling;
+        $(label).find('span').text('Выберите файл');
+        $('#reportImage').val('');
+    });
+})
+
+$('.save-update').on('click', function () {
+        let data = new FormData(),
+            $homeReports = $('#updateReport');
+        $homeReports.find('input').each(function () {
+            let field = $(this).data('name');
+            if (field) {
+                if (field == 'date') {
+                    data.append(field, reverseDate($(this).val(), '-'));
+                } else if (field == 'image') {
+                    ($(this)[0].files.length > 0) && data.append(field, $(this)[0].files[0]);
+                } else {
+                    data.append(field, $(this).data('value') || $(this).val());
+                }
+            }
+        });
+
+        let $items = $homeReports.find('#tableUsers').find('label:not(:first-child)');
+        let attends = [];
+        $items.each(function () {
+            let $input = $(this).find('input, b');
+            let data = {};
+            $input.each(function () {
+                let elem = $(this);
+                let name = elem.attr('name');
+                if (name == 'attended') {
+                    data[elem.attr('name')] = elem.prop("checked")
+                } else if (name == 'user_id') {
+                    data[elem.attr('name')] = parseInt(elem.data('id'));
+                } else {
+                    data[elem.attr('name')] = elem.data('id');
+                }
+            });
+            attends.push(data);
+        });
+        data.append('attends', JSON.stringify(attends));
+        sendForms(data);
+    });
+
+$('#delete_report').on('click', function () {
+    let id = parseInt($('#id_report').text());
+    showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+        deleteData(URLS.event.home_meeting.detail(id)).then(() => {
+            showAlert('Отчет успешно удален!');
+            $('#updateReport,.bg').removeClass('active');
+            $('.preloader').css('display', 'block');
+            let page = $('.pagination__input').val();
+            homeReportsTable({page: page});
+
+        }).catch((error) => {
+            let errKey = Object.keys(error),
+                html = errKey.map(errkey => `${error[errkey]}`);
+            showAlert(html[0], 'Ошибка');
+        });
+    }, () => {
+    });
+})
 
 function completeFields(data) {
     $('#id_report').text(data.id);
@@ -214,19 +259,49 @@ function completeFields(data) {
     $('#reportDonations').val(data.total_sum);
     $('#reportDate').val(data.date);
     $('#reportImage').attr('src',data.image);
+
+    let status = parseInt($('#updateReport').attr('data-status')),title,dist = {
+            night: "О Марафоне",
+            home: "Домашней группы",
+            service: "О Воскресном Служении"
+        };
+    if (data.status === 1) {
+        title = `Подача отчета ${dist[data.type.code]}`;
+    } else if (data.status === 2) {
+        title = `Отчет ${dist[data.type.code]}`;
+    } else if (data.status === 3) {
+        title = `Отчет ${dist[data.type.code]}<span> (просрочен)</span>`;
+    }
+    $('#updateReport').find('.popup_text h2').text(title);
+
 }
 
 function reportUserTable(data, block) {
-    let table = `${data.attends.map(item => {
-
+    console.log(data);
+    let $input,
+        table = `${(data.attends != 0) ? `<label>
+                    <p class="update-title">Люди</p>
+                 </label>` : ``}${data.attends.map(item => {
         return `<label>
                         <span class="label_block">${item.fullname}</span>
-                        <div style="display: none"><input type="text" name="user_id" value="${item.user_id}"></div>
+                        <b name="user_id" data-id="${item.user_id}"></b>
+                        <b name="id" data-id="${item.id}"></b>
+                        <b name="note" data-id="${item.note}"></b>
+                        <!--<input type="text" name="user_id" value="${item.user_id}"></div>-->
                         ${item.attended ? `<input type="checkbox" name="attended" checked>` : `<input type="checkbox" name="attended">`}
-                        <div></div>
+                        <span></span>
                     </label>`;
     }).join('')}`;
     $(block).append(table);
+    $input = $('#updateReport').find('input,textarea');
+    $input.each(function (i, elem) {
+        $(elem).on('input', function () {
+            $('.save-update').attr('disabled', false);
+        })
+        $(elem).on('change', function () {
+            $('.save-update').attr('disabled', false);
+        })
+    });
 }
 
 export function makeHomeReportDetailTable(data) {
@@ -350,13 +425,12 @@ export function sendForms(data) {
             contentType: 'multipart/form-data',
         },
         status = parseInt($('#updateReport').attr('data-status'));
-    console.log(status);
 
     if (status === 2) {
         Object.assign(config, {method: 'PUT'});
         config.url = URLS.event.home_meeting.detail(idReport);
-        console.log(config.url);
         ajaxSendFormData(config).then(() => {
+            homeReportsTable();
             $('#updateReport,.bg').removeClass('active');
             showAlert("Отчет сохранен");
         });
@@ -364,6 +438,7 @@ export function sendForms(data) {
         config.url = URLS.event.home_meeting.submit(idReport);
         console.log(config.url);
         ajaxSendFormData(config).then(() => {
+            // homeReportsTable();
             $('#updateReport,.bg').removeClass('active');
             showAlert("Отчет создан");
         }).catch((err) => {
