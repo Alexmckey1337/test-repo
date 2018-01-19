@@ -1,9 +1,3 @@
-/**
- * Created by volodimir on 12/13/17.
- */
-/**
- * Created by volodimir on 11/2/17.
- */
 'use strict';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -13,18 +7,16 @@ import 'whatwg-fetch';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import {getFilterParam} from "../Filter/index";
-import getData, {postData, getDataPhone} from '../Ajax/index';
+import {postData, getDataPhone, getAudioFile} from '../Ajax/index';
 import getSearch from '../Search/index';
 import OrderTable from '../Ordering/index';
 import makePagination from '../Pagination/index';
-
 import updateHistoryUrl from '../History/index';
 import makeSelect from '../MakeAjaxSelect/index';
 
 function parseFunc(data, params) {
     params.page = params.page || 1;
     const results = [];
-    console.log(data)
     data.results.forEach(function makeResults(element) {
         results.push({
             id: element.id,
@@ -135,7 +127,7 @@ function addUserToPhone(data, block) {
             data = {
                 "user_id": userId,
                 "extension": phone
-            }
+            };
         postData(URLS.phone.changeUser(), data).then(() => {
             let userName = $(this).find('span option[value=' + userId + ']').text();
             console.log(userName);
@@ -149,7 +141,7 @@ function addUserToPhone(data, block) {
                 $(this).find('.saved').removeClass('active');
             }, 1000);
         });
-    })
+    });
     makeSelect($('.selectPh.active'), '/api/users/for_select/', parseFunc, formatRepo);
 }
 
@@ -175,7 +167,7 @@ export function makeIptelTable(data,block) {
                                 <th>Кто</th>
                                 <th>Куда</th>                                        
                                 <th>Длительность(сек)</th>
-                                
+                                <th>Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {
@@ -239,15 +231,58 @@ export function makeIptelTable(data,block) {
                             </td>
                             <td>
                                 ${item.billsec}
-                            </td> 
+                            </td>
+                             <td class="recordIptel" data-url='${item.record}'>
+                                <svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                                </svg>
+                                <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M6 6h12v12H6z"/>
+                                </svg>
+                                <a href="#" class="downloadFile">Сохранить</a>
+                            </td>
+                        </tr>
                             `;
     }).join('')}</tbody>
                         </table>`;
     $(block).append(table);
-
+    btnPlayrecord();
+    btnDownloadRecord();
 }
 
+function btnPlayrecord() {
+    $('.recordIptel').on('click', function () {
+        let file = $(this).attr('data-url').trim(),
+            btnPlay = $('#play');
 
+        getAudioFile(URLS.phone.play(file)).then(myBlob => {
+            let objectURL = URL.createObjectURL(myBlob);
+            btnPlay.attr('data-url', objectURL);
+            (!btnPlay.hasClass('load')) && btnPlay.addClass('load');
+        }).catch(err => errorHandling(err));
+    });
+}
 
+function btnDownloadRecord() {
+    $('.downloadFile').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let file = $(this).closest('td').attr('data-url').trim(),
+            a = document.createElement("a");
+        $('body').append(a);
+        a.style = "display: none";
+        $('body').append(a);
+        getAudioFile(URLS.phone.play(file)).then(myBlob => {
+            let url = window.URL.createObjectURL(myBlob);
+            a.href = url;
+            a.download = `audio-record-${myBlob.size}`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        }).catch(err => errorHandling(err));
+    });
+}
 
 

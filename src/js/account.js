@@ -22,7 +22,7 @@ import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
-import getData, {deleteData, postData} from "./modules/Ajax/index";
+import {deleteData, postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
