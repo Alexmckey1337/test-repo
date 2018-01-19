@@ -13,11 +13,12 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
-import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
+import WaveSurfer from 'wavesurfer.js';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
-import {makeChurches, makeResponsibleList,makeHomeGroupsList} from './modules/MakeList/index';
+import errorHandling from './modules/Error';
+import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
@@ -997,24 +998,6 @@ $('document').ready(function () {
 
     dataIptelTable(URLS.phone.lastThree(currentUser));
 
-    // $('.recordIptel').on('click',function () {
-    //     let defaultOption = {
-    //         method: 'GET',
-    //         credentials: 'same-origin',
-    //         mode: 'cors',
-    //         headers: new Headers({
-    //             'Content-Type': 'text / html',
-    //             'Access-Control-Allow-Origin':'*',
-    //             'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
-    //         })
-    //     },
-    //     target = $(this).find('p').text().trim(),
-    //     url = 'http://192.168.240.47:7000/file/?file_name=' + target;
-    //     fetch(url, defaultOption).then(function (response) {
-    //         console.log(response.url);
-    //     })
-    // });
-
     $('#monthInput').datepicker({
         autoClose: true,
         view: 'months',
@@ -1047,4 +1030,108 @@ $('document').ready(function () {
     btnPartners();
     btnDeal();
     tabs();
+
+    //PLAYER
+    let m,
+        s,
+        totalTime,
+        timeJump,
+        currentTime,
+        currentTimeJump,
+        wavesurfer = WaveSurfer.create({
+            barWidth: 1,
+            container: '#wavesurfer',
+            cursorWidth: 0,
+            dragSelection: true,
+            height: 500,
+            hideScrollbar: true,
+            interact: true,
+            normalize: true,
+            waveColor: 'rgba(255,255,255,.05)',
+            progressColor: 'rgba(255,255,255,.15)'
+    });
+
+    $('.phone').on('click', '#play', function () {
+        if ($(this).hasClass('load')) {
+            let url = $(this).attr('data-url');
+            $(this).removeClass('load');
+            wavesurfer.load(url);
+        } else {
+            wavesurfer.playPause();
+        }
+    });
+
+    function getMinutes(convTime) {
+        convTime = Number(convTime);
+        m = Math.floor(convTime % 3600 / 60);
+        return ((m < 10 ? "0" : "") + m);
+    }
+
+    function getSeconds(convTime) {
+        convTime = Number(convTime);
+        s = Math.floor(convTime % 3600 % 60);
+        return ((s < 10 ? "0" : "") + s);
+    }
+
+    wavesurfer.on('ready', function () {
+        totalTime = wavesurfer.getDuration();
+        timeJump = 300 / totalTime;
+        $('.wavesurfer__elem').addClass('show');
+        $('.button__loader').fadeOut();
+        $('.time__minutes').text(getMinutes(totalTime));
+        $('.time__seconds').text(getSeconds(totalTime));
+        $('.time, .progress').fadeIn();
+
+        //Volume controls for player
+
+        let volumeInput = $('#button__volume'),
+            onChangeVolume = function (e) {
+                e.stopPropagation();
+                wavesurfer.setVolume(e.target.value);
+            };
+        wavesurfer.setVolume(1);
+        volumeInput.val(wavesurfer.backend.getVolume());
+        volumeInput.on('input', onChangeVolume);
+        volumeInput.on('change', onChangeVolume);
+
+        wavesurfer.play();
+    });
+
+    function progressJump() {
+        currentTime = wavesurfer.getCurrentTime();
+        currentTimeJump = currentTime * timeJump + 10;
+        $('.progress__button').css({left: currentTimeJump + 'px'});
+        $('.progress__indicator').css({width: currentTimeJump + 'px'});
+
+        $('.time__minutes').text(getMinutes(currentTime));
+        $('.time__seconds').text(getSeconds(currentTime));
+    }
+
+    wavesurfer.on('audioprocess', function () {
+        progressJump();
+    });
+
+    wavesurfer.on('pause', function () {
+        $('.button__play-iconplay').fadeIn();
+        $('.button__play-iconpause').fadeOut();
+        $('.recordplayer').removeClass('play');
+        $('.recordplayer__disc').removeClass('animate');
+    });
+
+    wavesurfer.on('play', function () {
+        $('.button__play-iconplay').fadeOut();
+        $('.button__play-iconpause').fadeIn();
+        $('.recordplayer').addClass('play');
+        $('.recordplayer__disc').addClass('animate');
+    });
+
+    wavesurfer.on('loading', function (event) {
+        $('.button__loader').css({height: event + 'px'});
+    });
+
+    // wavesurfer.on('seek', function (event) {
+    //     progressJump();
+    //     console.log('HERE');
+    // });
+
 });
