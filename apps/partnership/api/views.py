@@ -20,9 +20,6 @@ from rest_framework.viewsets import ModelViewSet
 from apps.account.models import CustomUser
 from apps.analytics.decorators import log_perform_create, log_perform_update
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
-from apps.payment.models import Payment
-from common.filters import FieldSearchFilter
-from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.group.api.filters import FilterChurchPartnerMasterTree
 from apps.partnership.api.filters import (
     FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
@@ -55,6 +52,9 @@ from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerR
     ChurchPartner, \
     ChurchPartnerLog, ChurchDeal
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
+from apps.payment.models import Payment
+from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
 
 
 class PartnershipViewSet(
@@ -114,8 +114,10 @@ class PartnershipViewSet(
 
     def get_queryset(self):
         if self.action in ('list', 'retrieve'):
-            self.base_qs = self.queryset.select_related("group").for_user(user=self.request.user)
-            queryset = self.base_qs.extra(
+            self.base_qs = self.queryset.for_user(user=self.request.user)
+            queryset = self.base_qs.select_related(
+                'user', 'user__hierarchy', 'user__master', 'responsible',
+                'currency', 'group', 'user__cchurch', 'user__hhome_group__church').extra(
                 select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
                         ELSE 0 END)
              FROM "partnership_deal" U0
@@ -253,6 +255,9 @@ class ChurchPartnerViewSet(
         return self.serializer_class
 
     def get_queryset(self):
+        if self.action in ('list', 'retrieve'):
+            return self.queryset.select_related(
+                'church__department', 'church__pastor', 'responsible', 'group', 'currency')
         return self.queryset.all()
 
     def get_permissions(self):
@@ -824,7 +829,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
 class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
-                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
+                serializer.initial_data.get('level') < self.request.user.partner_role.level):
             raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
 
 

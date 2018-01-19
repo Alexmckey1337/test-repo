@@ -46,6 +46,20 @@ BASE_USER_FIELDS = (
     'is_dead', 'is_stable',
 )
 
+PARTNER_USER_FIELDS = (
+    'id',
+    'fullname',
+    'email', 'first_name', 'last_name', 'middle_name', 'search_name',
+    'phone_number', 'born_date', 'repentance_date', 'spiritual_level',
+    'master', 'hierarchy',
+    'departments', 'divisions',
+    'get_church',
+    'country', 'region', 'city', 'district', 'address',
+    # 'username',
+    # read_only
+    'is_dead', 'is_stable',
+)
+
 
 class HierarchyError(Exception):
     pass
@@ -111,8 +125,27 @@ class AddExistUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'city', 'country', 'full_name', 'can_add', 'master')
 
 
+class ChurchNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Church
+        fields = ('id', 'title',)
+
+
 def exist_users_with_level_not_in_levels(users, levels):
     return users.exclude(hierarchy__level__in=levels).exists()
+
+
+class PartnerUserSerializer(serializers.ModelSerializer):
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
+    master = MasterNameSerializer(required=False, allow_null=True)
+    hierarchy = HierarchyTitleSerializer()
+    divisions = DivisionSerializer(many=True, read_only=True)
+    spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    get_church = ChurchNameSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = PARTNER_USER_FIELDS
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -331,12 +364,6 @@ class UserSingleSerializer(BaseUserSerializer):
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
-
-
-class ChurchNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Church
-        fields = ('id', 'title',)
 
 
 class UserTableSerializer(UserSingleSerializer):
