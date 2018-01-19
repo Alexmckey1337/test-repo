@@ -257,6 +257,7 @@ function makeCompareDate() {
 }
 
 function renderCompareTable(data, oldData = {}) {
+    console.log(data);
     let tmpl = $('#databaseCompareSummary').html(),
         rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);

@@ -7,7 +7,6 @@ import {initCharts} from '../Chart/church_stats';
 
 export function churchStatistics(update = false) {
     let config = Object.assign({}, getPreFilterParam());
-    console.log('Will be save -->', config);
     updateHistoryUrl(config);
     (config.last != '1m') && (config.group_by = 'month');
     getData(URLS.event.church_report.statistics(), config).then(data => {
@@ -54,22 +53,33 @@ function getTransformData(data, isGroup) {
         headers;
 
     if (isGroup === '1m') {
-        headers = data.map(item => `${item.week} нед. ${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`);
+        headers = data.map(item => `${item.date.week} нед. ${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
     } else {
-        headers = data.map(item => `${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`);
+        headers = data.map(item => `${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
     }
 
     headers.map((item, index) => {
-        let elem = data[index];
-        dataFinances[0][item] = elem.donations;
-        dataFinances[1][item] = elem.tithe;
-        dataFinances[2][item] = elem.pastor_tithe;
-        dataFinances[3][item] = elem.transfer_payments;
-        dataPeoples[0][item] = elem.count_people;
-        dataPeoples[1][item] = elem.count_new_people;
-        dataPeoples[2][item] = elem.count_repentance;
+        let elem = data[index].result;
+        dataFinances[0][item] = _.reduce(elem, (result, value, key) => {
+                result[key] = value.donations;
+                return result;
+            }, {});
+        dataFinances[1][item] = _.reduce(elem, (result, value, key) => {
+                result[key] = value.tithe;
+                return result;
+            }, {});
+        dataFinances[2][item] = _.reduce(elem, (result, value, key) => {
+                result[key] = value.pastor_tithe;
+                return result;
+            }, {});
+        dataFinances[3][item] = _.reduce(elem, (result, value, key) => {
+                result[key] = value.transfer_payments;
+                return result;
+            }, {});
+        dataPeoples[0][item] = _.reduce(elem, (sum, val, key) => sum + val.count_people, 0);
+        dataPeoples[1][item] = _.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0);
+        dataPeoples[2][item] = _.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0);
     });
-
     return {
         headers,
         dataFinances,
@@ -85,8 +95,17 @@ function createFinanceTable(headers, body) {
                         <th>Финансы</th>
                         ${headers.map(item => {
                             return `
-                                <th>${item}</th>
+                                <th colspan="4">${item}</th>
                             `    
+                        }).join('')}
+                    </tr>
+                    <tr>
+                        <th></th>
+                        ${headers.map(_ => {
+                            return `<th>грн</th>
+                                    <th>руб</th>
+                                    <th>дол</th>
+                                    <th>евро</th>`    
                         }).join('')}
                     </tr>
                     </thead>
@@ -96,7 +115,11 @@ function createFinanceTable(headers, body) {
                                     <td>${item.title}</td>
                                     ${headers.map(el => {
                                         return `
-                                            <td>${beautifyNumber(item[el])}</td>
+                                            <td>${beautifyNumber(item[el].uah)}</td>
+                                            <td>${beautifyNumber(item[el].rur)}</td>
+                                            <td>${beautifyNumber(item[el].usd)}</td>
+                                            <td>${beautifyNumber(item[el].eur)}</td>
+                                          
                                         `
                             }).join('')}
                                 </tr>`;

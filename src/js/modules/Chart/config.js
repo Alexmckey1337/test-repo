@@ -67,6 +67,7 @@ export const CHARTCOLORS = {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)',
     white: 'rgb(255, 255, 255)',
+    salmon: 'rgb(139, 76, 57)',
 };
 
 export function getRandomColor() {
