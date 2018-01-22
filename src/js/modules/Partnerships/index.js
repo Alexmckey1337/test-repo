@@ -57,6 +57,7 @@ export function btnPartners() {
             partnershipData = {},
             type = $(this).attr('data-type'),
             url = (type === 'CH') ? URLS.partner.church_list() : URLS.partner.list();
+        $(this).attr('disabled', true);
         partnershipData.is_active = checkBox.is(':checked');
         let $input = popup.find('input:not(.select2-search__field), select').filter(":not(':checkbox')");
         $input.each(function () {
@@ -76,6 +77,7 @@ export function btnPartners() {
             location.reload();
         }).catch(err => {
             $('.preloader').css('display', 'none');
+            $('#send_addPartners').attr('disabled', false);
             errorHandling(err);
         })
     }, 500, true));

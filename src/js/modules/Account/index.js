@@ -1,9 +1,7 @@
 'use strict';
 import moment from 'moment/min/moment.min.js';
-import WavPlayer from 'webaudio-wav-stream-player';
-import 'howler';
 import URLS from '../Urls/index';
-import getData,{getDataPhone} from "../Ajax/index";
+import {getDataPhone} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
 import {makeIptelTable} from '../Phone/index'
 import {showAlert} from '../ShowNotifications/index';
