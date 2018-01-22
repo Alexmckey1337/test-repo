@@ -6,6 +6,7 @@ import 'air-datepicker/dist/css/datepicker.css';
 import 'whatwg-fetch';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import WaveSurfer from 'wavesurfer.js';
 import {getFilterParam} from "../Filter/index";
 import {postData, getDataPhone, getAudioFile} from '../Ajax/index';
 import getSearch from '../Search/index';
@@ -165,8 +166,8 @@ export function makeIptelTable(data,block) {
                                 <th>Тип</th>
                                 <th>Дата</th>
                                 <th>Кто</th>
-                                <th>Куда</th>                                        
-                                <th>Длительность(сек)</th>
+                                <th>Кому</th>                                        
+                                <th>Длительность (сек)</th>
                                 <th>Запись</th>
                             </tr>
                         </thead>
@@ -233,15 +234,11 @@ export function makeIptelTable(data,block) {
                                 ${item.billsec}
                             </td>
                              <td class="recordIptel" data-url='${item.record}'>
-                                <svg class="btnPlay active" fill="#000000" height="30" viewBox="0 0 24 24" width="30" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                                </svg>
-                                <svg class="btnStop" fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M6 6h12v12H6z"/>
-                                </svg>
-                                <a href="#" class="downloadFile">Сохранить</a>
+                                <div class="playerControll load">
+                                    <i class="material-icons btnPlay">&#xE039;</i>
+                                    <i class="material-icons btnStop">&#xE036;</i>
+                                </div>
+                                <a href="#" class="downloadFile"><i class="material-icons">&#xE2C4;</i></a>
                             </td>
                         </tr>
                             `;
@@ -250,17 +247,50 @@ export function makeIptelTable(data,block) {
     $(block).append(table);
     btnPlayrecord();
     btnDownloadRecord();
+    btnClosePlayer();
+}
+function btnClosePlayer() {
+    $('.closePlayer').on('click',function(){
+        wavesurfer.stop();
+        $('.phone').css({
+            'display':'none'
+        })
+        $('.playerControll').removeClass('active').addClass('load');
+    })
 }
 
 function btnPlayrecord() {
-    $('.recordIptel').on('click', function () {
-        let file = $(this).attr('data-url').trim(),
-            btnPlay = $('#play');
-
+    $('.playerControll').on('click', function () {
+        let file = $(this).parent().attr('data-url').trim(),
+        btnPlay = $('.playerControll').not(this);
         getAudioFile(URLS.phone.play(file)).then(myBlob => {
-            let objectURL = URL.createObjectURL(myBlob);
-            btnPlay.attr('data-url', objectURL);
-            (!btnPlay.hasClass('load')) && btnPlay.addClass('load');
+            let objectURL = URL.createObjectURL(myBlob),
+                player = $('.phone'),
+                playerHeight = parseInt($(this).parent().parent().height()),
+                playerPosition = $(this).parent().parent().position(),
+                playerWidth = parseInt($(this).parent().parent().width()) - parseInt($(this).parent().width()) - 22;
+
+            $(btnPlay).addClass('load').removeClass('active');
+            $(player).css({
+                'height':playerHeight,
+                'width':playerWidth,
+                'display': 'block',
+                'left': playerPosition.left + 'px',
+                'top': playerPosition.top + 'px'
+
+            });
+            $('#wavesurfer').find('wave').css({
+                'height': playerHeight + 'px',
+                'width':playerWidth + 'px'
+
+            });
+            $(this).toggleClass('active');
+            if ($(this).hasClass('load')) {
+                $(this).removeClass('load');
+                wavesurfer.load(objectURL);
+            } else {
+                wavesurfer.playPause();
+            }
         }).catch(err => errorHandling(err));
     });
 }
@@ -285,4 +315,107 @@ function btnDownloadRecord() {
     });
 }
 
+
+//PLAYER
+    let m,
+        s,
+        totalTime,
+        timeJump,
+        currentTime,
+        currentTimeJump,
+        wavesurfer = WaveSurfer.create({
+            barWidth: 1,
+            container: '#wavesurfer',
+            cursorWidth: 0,
+            dragSelection: true,
+            height: 500,
+            hideScrollbar: true,
+            interact: true,
+            normalize: true,
+            waveColor: 'rgba(101,109,112,0.25)',
+            progressColor: '#3caeda'
+    });
+
+    $('.phone').on('click', '#play', function () {
+        if ($(this).hasClass('load')) {
+            let url = $(this).attr('data-url');
+            $(this).removeClass('load');
+            wavesurfer.load(url);
+        } else {
+            wavesurfer.playPause();
+        }
+    });
+
+    function getMinutes(convTime) {
+        convTime = Number(convTime);
+        m = Math.floor(convTime % 3600 / 60);
+        return ((m < 10 ? "0" : "") + m);
+    }
+
+    function getSeconds(convTime) {
+        convTime = Number(convTime);
+        s = Math.floor(convTime % 3600 % 60);
+        return ((s < 10 ? "0" : "") + s);
+    }
+
+    wavesurfer.on('ready', function () {
+        totalTime = wavesurfer.getDuration();
+        timeJump = 300 / totalTime;
+        $('.wavesurfer__elem').addClass('show');
+        $('.button__loader').fadeOut();
+        $('.time__minutes').text(getMinutes(totalTime));
+        $('.time__seconds').text(getSeconds(totalTime));
+        $('.time, .progress').fadeIn();
+
+        //Volume controls for player
+
+        let volumeInput = $('#button__volume'),
+            onChangeVolume = function (e) {
+                e.stopPropagation();
+                wavesurfer.setVolume(e.target.value);
+            };
+        wavesurfer.setVolume(1);
+        volumeInput.val(wavesurfer.backend.getVolume());
+        volumeInput.on('input', onChangeVolume);
+        volumeInput.on('change', onChangeVolume);
+
+        wavesurfer.play();
+    });
+
+    function progressJump() {
+        currentTime = wavesurfer.getCurrentTime();
+        currentTimeJump = currentTime * timeJump + 10;
+        $('.progress__button').css({left: currentTimeJump + 'px'});
+        $('.progress__indicator').css({width: currentTimeJump + 'px'});
+
+        $('.time__minutes').text(getMinutes(currentTime));
+        $('.time__seconds').text(getSeconds(currentTime));
+    }
+
+    wavesurfer.on('audioprocess', function () {
+        progressJump();
+    });
+
+    wavesurfer.on('pause', function () {
+        $('.button__play-iconplay').fadeIn();
+        $('.button__play-iconpause').fadeOut();
+        $('.recordplayer').removeClass('play');
+        $('.recordplayer__disc').removeClass('animate');
+    });
+
+    wavesurfer.on('play', function () {
+        $('.button__play-iconplay').fadeOut();
+        $('.button__play-iconpause').fadeIn();
+        $('.recordplayer').addClass('play');
+        $('.recordplayer__disc').addClass('animate');
+    });
+
+    wavesurfer.on('loading', function (event) {
+        $('.button__loader').css({height: event + 'px'});
+    });
+
+    // wavesurfer.on('seek', function (event) {
+    //     progressJump();
+    //     console.log('HERE');
+    // });
 

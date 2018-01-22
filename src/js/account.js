@@ -16,7 +16,6 @@ import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
-import WaveSurfer from 'wavesurfer.js';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
 import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
@@ -942,108 +941,5 @@ $('document').ready(function () {
     btnPartners();
     btnDeal();
     tabs();
-
-    //PLAYER
-    let m,
-        s,
-        totalTime,
-        timeJump,
-        currentTime,
-        currentTimeJump,
-        wavesurfer = WaveSurfer.create({
-            barWidth: 1,
-            container: '#wavesurfer',
-            cursorWidth: 0,
-            dragSelection: true,
-            height: 500,
-            hideScrollbar: true,
-            interact: true,
-            normalize: true,
-            waveColor: 'rgba(255,255,255,.05)',
-            progressColor: 'rgba(255,255,255,.15)'
-    });
-
-    $('.phone').on('click', '#play', function () {
-        if ($(this).hasClass('load')) {
-            let url = $(this).attr('data-url');
-            $(this).removeClass('load');
-            wavesurfer.load(url);
-        } else {
-            wavesurfer.playPause();
-        }
-    });
-
-    function getMinutes(convTime) {
-        convTime = Number(convTime);
-        m = Math.floor(convTime % 3600 / 60);
-        return ((m < 10 ? "0" : "") + m);
-    }
-
-    function getSeconds(convTime) {
-        convTime = Number(convTime);
-        s = Math.floor(convTime % 3600 % 60);
-        return ((s < 10 ? "0" : "") + s);
-    }
-
-    wavesurfer.on('ready', function () {
-        totalTime = wavesurfer.getDuration();
-        timeJump = 300 / totalTime;
-        $('.wavesurfer__elem').addClass('show');
-        $('.button__loader').fadeOut();
-        $('.time__minutes').text(getMinutes(totalTime));
-        $('.time__seconds').text(getSeconds(totalTime));
-        $('.time, .progress').fadeIn();
-
-        //Volume controls for player
-
-        let volumeInput = $('#button__volume'),
-            onChangeVolume = function (e) {
-                e.stopPropagation();
-                wavesurfer.setVolume(e.target.value);
-            };
-        wavesurfer.setVolume(1);
-        volumeInput.val(wavesurfer.backend.getVolume());
-        volumeInput.on('input', onChangeVolume);
-        volumeInput.on('change', onChangeVolume);
-
-        wavesurfer.play();
-    });
-
-    function progressJump() {
-        currentTime = wavesurfer.getCurrentTime();
-        currentTimeJump = currentTime * timeJump + 10;
-        $('.progress__button').css({left: currentTimeJump + 'px'});
-        $('.progress__indicator').css({width: currentTimeJump + 'px'});
-
-        $('.time__minutes').text(getMinutes(currentTime));
-        $('.time__seconds').text(getSeconds(currentTime));
-    }
-
-    wavesurfer.on('audioprocess', function () {
-        progressJump();
-    });
-
-    wavesurfer.on('pause', function () {
-        $('.button__play-iconplay').fadeIn();
-        $('.button__play-iconpause').fadeOut();
-        $('.recordplayer').removeClass('play');
-        $('.recordplayer__disc').removeClass('animate');
-    });
-
-    wavesurfer.on('play', function () {
-        $('.button__play-iconplay').fadeOut();
-        $('.button__play-iconpause').fadeIn();
-        $('.recordplayer').addClass('play');
-        $('.recordplayer__disc').addClass('animate');
-    });
-
-    wavesurfer.on('loading', function (event) {
-        $('.button__loader').css({height: event + 'px'});
-    });
-
-    // wavesurfer.on('seek', function (event) {
-    //     progressJump();
-    //     console.log('HERE');
-    // });
 
 });
