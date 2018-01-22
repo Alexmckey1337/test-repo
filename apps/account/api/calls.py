@@ -1,14 +1,24 @@
 # -*- coding: utf-8
+import time
 import json
 import requests
 from rest_framework.decorators import api_view
-from django.core.exceptions import ObjectDoesNotExist
 from apps.account.models import CustomUser as User
 from rest_framework.response import Response
 from rest_framework import status, exceptions
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from datetime import datetime
+
+
+def func_time(func):
+    def wrap(*args, **kwargs):
+        t = time.time()
+        result = func(*args, **kwargs)
+        print("[{1:.3f}] {0}".format(func.__name__, time.time() - t))
+        return result
+
+    return wrap
 
 
 class ServiceUnavailable(exceptions.APIException):
@@ -18,14 +28,17 @@ class ServiceUnavailable(exceptions.APIException):
 
 
 def request_to_asterisk(data, url):
+    s = time.time()
     try:
         response = requests.get(settings.ASTERISK_SERVICE_ADDRESS + url,
-                                data=json.dumps(data),
+                                params=data, json=data,
                                 headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
         raise ServiceUnavailable(
             {'detail': 'Asterisk Service temporarily unavailable, try again later'})
+    finally:
+        print("[{:.3f}] asterisk time".format(time.time() - s))
 
     return response
 
@@ -79,6 +92,7 @@ def get_response_data(response):
     return calls_data
 
 
+@func_time
 @api_view(['GET'])
 def calls_to_user(request):
     data = dict()
@@ -109,6 +123,7 @@ def calls_to_user(request):
 
 
 @api_view(['GET'])
+@func_time
 def all_calls(request):
     data = request.query_params
 
@@ -132,6 +147,7 @@ def all_calls(request):
 
 
 @api_view(['GET'])
+@func_time
 def asterisk_users(request):
     response = request_to_asterisk(data=None, url='/users')
     try:
@@ -148,6 +164,7 @@ def asterisk_users(request):
 
 
 @api_view(['POST'])
+@func_time
 def change_asterisk_user(request):
     data = {}
     try:
