@@ -1,9 +1,3 @@
-/**
- * Created by volodimir on 12/13/17.
- */
-/**
- * Created by volodimir on 11/2/17.
- */
 'use strict';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -12,19 +6,18 @@ import 'air-datepicker/dist/css/datepicker.css';
 import 'whatwg-fetch';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
+import WaveSurfer from 'wavesurfer.js';
 import {getFilterParam} from "../Filter/index";
-import getData, {postData, getDataPhone} from '../Ajax/index';
+import {postData, getDataPhone, getAudioFile} from '../Ajax/index';
 import getSearch from '../Search/index';
 import OrderTable from '../Ordering/index';
 import makePagination from '../Pagination/index';
-
 import updateHistoryUrl from '../History/index';
 import makeSelect from '../MakeAjaxSelect/index';
 
 function parseFunc(data, params) {
     params.page = params.page || 1;
     const results = [];
-    console.log(data)
     data.results.forEach(function makeResults(element) {
         results.push({
             id: element.id,
@@ -135,7 +128,7 @@ function addUserToPhone(data, block) {
             data = {
                 "user_id": userId,
                 "extension": phone
-            }
+            };
         postData(URLS.phone.changeUser(), data).then(() => {
             let userName = $(this).find('span option[value=' + userId + ']').text();
             console.log(userName);
@@ -149,7 +142,7 @@ function addUserToPhone(data, block) {
                 $(this).find('.saved').removeClass('active');
             }, 1000);
         });
-    })
+    });
     makeSelect($('.selectPh.active'), '/api/users/for_select/', parseFunc, formatRepo);
 }
 
@@ -173,9 +166,9 @@ export function makeIptelTable(data,block) {
                                 <th>Тип</th>
                                 <th>Дата</th>
                                 <th>Кто</th>
-                                <th>Куда</th>                                        
-                                <th>Длительность(сек)</th>
-                                
+                                <th>Кому</th>                                        
+                                <th>Длительность (сек)</th>
+                                <th>Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {
@@ -239,15 +232,190 @@ export function makeIptelTable(data,block) {
                             </td>
                             <td>
                                 ${item.billsec}
-                            </td> 
+                            </td>
+                             <td class="recordIptel" data-url='${item.record}'>
+                                <div class="playerControll load">
+                                    <i class="material-icons btnPlay">&#xE039;</i>
+                                    <i class="material-icons btnStop">&#xE036;</i>
+                                </div>
+                                <a href="#" class="downloadFile"><i class="material-icons">&#xE2C4;</i></a>
+                            </td>
+                        </tr>
                             `;
     }).join('')}</tbody>
                         </table>`;
     $(block).append(table);
+    btnPlayrecord();
+    btnDownloadRecord();
+    btnClosePlayer();
+}
+function btnClosePlayer() {
+    $('.closePlayer').on('click',function(){
+        wavesurfer.stop();
+        $('.phone').css({
+            'display':'none'
+        })
+        $('.playerControll').removeClass('active').addClass('load');
+    })
+}
 
+function btnPlayrecord() {
+    $('.playerControll').on('click', function () {
+        let file = $(this).parent().attr('data-url').trim(),
+        btnPlay = $('.playerControll').not(this);
+        getAudioFile(URLS.phone.play(file)).then(myBlob => {
+            let objectURL = URL.createObjectURL(myBlob),
+                player = $('.phone'),
+                playerHeight = parseInt($(this).parent().parent().height()),
+                playerPosition = $(this).parent().parent().position(),
+                playerWidth = parseInt($(this).parent().parent().width()) - parseInt($(this).parent().width()) - 22;
+
+            $(btnPlay).addClass('load').removeClass('active');
+            $(player).css({
+                'height':playerHeight,
+                'width':playerWidth,
+                'display': 'block',
+                'left': playerPosition.left + 'px',
+                'top': playerPosition.top + 'px'
+
+            });
+            $('#wavesurfer').find('wave').css({
+                'height': playerHeight + 'px',
+                'width':playerWidth + 'px'
+
+            });
+            $(this).toggleClass('active');
+            if ($(this).hasClass('load')) {
+                $(this).removeClass('load');
+                wavesurfer.load(objectURL);
+            } else {
+                wavesurfer.playPause();
+            }
+        }).catch(err => errorHandling(err));
+    });
+}
+
+function btnDownloadRecord() {
+    $('.downloadFile').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let file = $(this).closest('td').attr('data-url').trim(),
+            a = document.createElement("a");
+        $('body').append(a);
+        a.style = "display: none";
+        $('body').append(a);
+        getAudioFile(URLS.phone.play(file)).then(myBlob => {
+            let url = window.URL.createObjectURL(myBlob);
+            a.href = url;
+            a.download = `audio-record-${myBlob.size}`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        }).catch(err => errorHandling(err));
+    });
 }
 
 
+//PLAYER
+    let m,
+        s,
+        totalTime,
+        timeJump,
+        currentTime,
+        currentTimeJump,
+        wavesurfer = WaveSurfer.create({
+            barWidth: 1,
+            container: '#wavesurfer',
+            cursorWidth: 0,
+            dragSelection: true,
+            height: 500,
+            hideScrollbar: true,
+            interact: true,
+            normalize: true,
+            waveColor: 'rgba(101,109,112,0.25)',
+            progressColor: '#3caeda'
+    });
 
+    $('.phone').on('click', '#play', function () {
+        if ($(this).hasClass('load')) {
+            let url = $(this).attr('data-url');
+            $(this).removeClass('load');
+            wavesurfer.load(url);
+        } else {
+            wavesurfer.playPause();
+        }
+    });
 
+    function getMinutes(convTime) {
+        convTime = Number(convTime);
+        m = Math.floor(convTime % 3600 / 60);
+        return ((m < 10 ? "0" : "") + m);
+    }
+
+    function getSeconds(convTime) {
+        convTime = Number(convTime);
+        s = Math.floor(convTime % 3600 % 60);
+        return ((s < 10 ? "0" : "") + s);
+    }
+
+    wavesurfer.on('ready', function () {
+        totalTime = wavesurfer.getDuration();
+        timeJump = 300 / totalTime;
+        $('.wavesurfer__elem').addClass('show');
+        $('.button__loader').fadeOut();
+        $('.time__minutes').text(getMinutes(totalTime));
+        $('.time__seconds').text(getSeconds(totalTime));
+        $('.time, .progress').fadeIn();
+
+        //Volume controls for player
+
+        let volumeInput = $('#button__volume'),
+            onChangeVolume = function (e) {
+                e.stopPropagation();
+                wavesurfer.setVolume(e.target.value);
+            };
+        wavesurfer.setVolume(1);
+        volumeInput.val(wavesurfer.backend.getVolume());
+        volumeInput.on('input', onChangeVolume);
+        volumeInput.on('change', onChangeVolume);
+
+        wavesurfer.play();
+    });
+
+    function progressJump() {
+        currentTime = wavesurfer.getCurrentTime();
+        currentTimeJump = currentTime * timeJump + 10;
+        $('.progress__button').css({left: currentTimeJump + 'px'});
+        $('.progress__indicator').css({width: currentTimeJump + 'px'});
+
+        $('.time__minutes').text(getMinutes(currentTime));
+        $('.time__seconds').text(getSeconds(currentTime));
+    }
+
+    wavesurfer.on('audioprocess', function () {
+        progressJump();
+    });
+
+    wavesurfer.on('pause', function () {
+        $('.button__play-iconplay').fadeIn();
+        $('.button__play-iconpause').fadeOut();
+        $('.recordplayer').removeClass('play');
+        $('.recordplayer__disc').removeClass('animate');
+    });
+
+    wavesurfer.on('play', function () {
+        $('.button__play-iconplay').fadeOut();
+        $('.button__play-iconpause').fadeIn();
+        $('.recordplayer').addClass('play');
+        $('.recordplayer__disc').addClass('animate');
+    });
+
+    wavesurfer.on('loading', function (event) {
+        $('.button__loader').css({height: event + 'px'});
+    });
+
+    // wavesurfer.on('seek', function (event) {
+    //     progressJump();
+    //     console.log('HERE');
+    // });
 

@@ -665,7 +665,9 @@
                         <span id="monthBtn">Звонки за месяц</span>
                     </div>
                     <div class="a-iptel__wrap accordion-block">
-                        <div id="iptelBlock"></div>
+                        <div id="iptelBlock">
+                            {% include "partials/player.html" %}
+                        </div>
                     </div>
                 </div>
 
@@ -1242,11 +1244,14 @@
 {#        </div>#}
 {#    </div>#}
 
+
+
     {{ block.super }}
 
 {% endblock %}
 
 {% block extra_scripts %}
     <script>var currentUser = {{ account.id }}</script>
+{#    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js"></script>#}
     <script src="{% static "js/account.bundle.js" %}"></script>
 {% endblock %}

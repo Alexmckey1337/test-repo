@@ -909,22 +909,6 @@ $('document').ready(function () {
 
     dataIptelTable(URLS.phone.lastThree(currentUser));
 
-    $('.recordIptel').on('click',function () {
-        let defaultOption = {
-            method: 'GET',
-            credentials: 'same-origin',
-            mode: 'cors',
-            headers: new Headers({
-                'Content-Type': 'text / html',
-                'Access-Control-Allow-Origin':'*',
-                'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
-            })
-        },
-        target = $(this).find('p').text().trim(),
-        url = 'http://192.168.240.47:7000/file/?file_name=' + target;
-        console.log(url);
-    });
-
     $('#monthInput').datepicker({
         autoClose: true,
         view: 'months',
@@ -957,4 +941,5 @@ $('document').ready(function () {
     btnPartners();
     btnDeal();
     tabs();
+
 });

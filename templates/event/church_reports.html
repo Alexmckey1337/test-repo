@@ -296,7 +296,7 @@
                     <% if(key == 'id') { %>
                     <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
                         {% if user.is_staff %}
-                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
+                        {#<button class="delete_btn" data-id="<%= results[index][key] %>"></button>#}
                         {% endif %}
                             <%= results[index][key] %>
 {#                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>#}
