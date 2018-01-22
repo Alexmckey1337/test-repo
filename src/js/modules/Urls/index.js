@@ -58,6 +58,7 @@ const CHURCH_REPORT = {
     detail: (reportId) => `/api/events/church_reports/${reportId}/`,
     submit: (reportId) => `/api/events/church_reports/${reportId}/submit/`,
     stats: () => `/api/events/church_reports/statistics/`,
+    statistics: () => `/api/events/church_reports/stats/`,
     dashboard_count: () => `/api/events/church_reports/dashboard_counts/`,
     summary: () => `/api/events/church_reports/reports_summary/`,
     create_payment: (reportId) => `/api/events/church_reports/${reportId}/create_payment/`,
@@ -166,8 +167,9 @@ const PHONE = {
     user: () => `/api/asterisk_users/`,
     changeUser: () => `/api/change_asterisk_user/`,
     lastThree: (id) => `/api/calls_to_user/?user_id=${id}&range=last_3`,
-    filterMonth: (id,date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
+    filterMonth: (id, date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
     // detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
+    play: (file) => `http://192.168.240.47:7000/file/?file_name=${file}`,
 };
 
 const URLS = {

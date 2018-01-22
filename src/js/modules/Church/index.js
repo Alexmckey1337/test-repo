@@ -1,6 +1,7 @@
 'use strict';
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
+import error from '../Error/index';
 import getData, {postData, postFormData} from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
@@ -155,36 +156,7 @@ export function updateChurch(id, data, success = null) {
         }
         return data;
     }).catch(function (data) {
-        let msg = "";
-        if (typeof data == "string") {
-            msg += data;
-        } else {
-            let errObj = null;
-            if (typeof data != 'object') {
-                errObj = JSON.parse(data);
-            } else {
-                errObj = data;
-            }
-            for (let key in errObj) {
-                msg += key;
-                msg += ': ';
-                if (errObj[key] instanceof Array) {
-                    errObj[key].forEach(function (item) {
-                        msg += item;
-                        msg += ' ';
-                    });
-                } else if (typeof errObj[key] == 'object') {
-                    let errKeys = Object.keys(errObj[key]),
-                        html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
-                    msg += html;
-                } else {
-                    msg += errObj[key];
-                }
-                msg += '; ';
-            }
-        }
-        showAlert(msg);
-
+        error(data);
         return false;
     });
 }
@@ -251,6 +223,7 @@ function getAddChurchData() {
         "pastor": $('#pastor_select').val(),
         "country": $('#added_churches_country').val(),
         "city": $('#added_churches_city').val(),
+        "region": $('#added_churches_region').val(),
         "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val(),

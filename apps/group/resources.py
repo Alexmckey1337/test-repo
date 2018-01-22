@@ -10,7 +10,8 @@ from apps.group.api.serializers import BASE_GROUP_USER_FIELDS
 COMMON_GROUP_RESOURCE_FIELDS = ('opening_date', 'city', 'address', 'phone_number',
                                 'website')
 CHURCH_MAIN_RESOURCE_FIELDS = COMMON_GROUP_RESOURCE_FIELDS + ('country', 'is_open')
-CHURCH_RESOURCE_FIELDS = CHURCH_MAIN_RESOURCE_FIELDS + ('get_title', 'department', 'pastor')
+CHURCH_RESOURCE_FIELDS = CHURCH_MAIN_RESOURCE_FIELDS + ('get_title', 'department', 'pastor',
+                                                        'region', 'stable_count', 'count_people')
 
 
 class ChurchMetaclass(ModelDeclarativeMetaclass):
@@ -32,6 +33,9 @@ class ChurchMetaclass(ModelDeclarativeMetaclass):
 class ChurchResource(CustomFieldsModelResource):
     """For excel import/export"""
     get_title = fields.Field()
+    stable_count = fields.Field()
+    count_people = fields.Field()
+    count_home_group = fields.Field()
 
     church_field_name = None
 
@@ -55,6 +59,18 @@ class ChurchResource(CustomFieldsModelResource):
     def dehydrate_get_title(self, church):
         church_field = self.get_church_field(church)
         return str(church_field.title)
+
+    def dehydrate_stable_count(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.stable_count)
+
+    def dehydrate_count_people(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.count_people)
+
+    def dehydrate_count_home_groups(self, church):
+        church_field = self.get_church_field(church)
+        return str(church_field.count_home_groups)
 
     def dehydrate_is_open(self, church):
         church_field = self.get_church_field(church)

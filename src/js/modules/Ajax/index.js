@@ -10,7 +10,6 @@ let defaultOption = {
 };
 
 export default function getData(url, options = {}, config = {}) {
-
     let keys = Object.keys(options);
     if (keys.length) {
         url += '?';
@@ -136,5 +135,31 @@ export function postExport(url, data = {}) {
     if (typeof url === "string") {
 
         return fetch(url, initConfig).then(resp => resp).catch(err => err);
+    }
+}
+
+export function getAudioFile(url) {
+    let config = {
+            mode: 'cors',
+            headers: new Headers({
+                'Content-Type': 'text / html',
+                'Access-Control-Allow-Origin': '*',
+                'Record-Token': 'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
+            })
+        },
+        initConfig = Object.assign({}, defaultOption, config);
+    if (typeof url === "string") {
+
+        return fetch(url, initConfig).then(resp => {
+            if (resp.status >= 200 && resp.status < 300) {
+                return resp.blob();
+            }else if (resp.status === 503) {
+                throw Error('Служба Asterisk временно недоступна, повторите попытку позже');
+            } else {
+                return resp.json().then(err => {
+                    throw err;
+                });
+            }
+        });
     }
 }

@@ -794,29 +794,50 @@
 .user-wrap{
   display: flex;
   align-items: center;
+  background-color: #434a5599;
+  height: 23px;
+
+  select{
+    margin-left: 1em;
+  }
+  p{
+    color: #fff;
+    font-family: UbuntuLight,sans-serif;
+    margin-right: 1em;
+  }
   h1{
     margin-right:15px;
+    font-size: 12px;
+    color: #fff;
+    text-transform: capitalize;
+    a{
+      color: #fff;
+      text-decoration: underline;
+    }
   }
   #entry_as{
-    height: 25px;
+    height: 23px;
     background-color: #aab2bd;
     color: #fff;
-    border-radius: 4px;
     border: 0;
     cursor: pointer;
     font-size: 1.1em;
     padding: 0 10px;
     transition: background-color .3s;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
     &:hover{
       background-color: #3caeda;
     }
   }
-  select{
-    border-radius: 4px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  .select2-container--default{
+    .select2-selection--single{
+      border-radius: 0 !important;
+      .select2-selection__arrow{
+        border-radius: 0 !important;
+      }
+      .select2-selection__rendered{
+        line-height: 23px !important;
+      }
+    }
   }
 }
 .a-block{

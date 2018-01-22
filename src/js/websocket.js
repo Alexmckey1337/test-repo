@@ -5,7 +5,8 @@ import 'alertifyjs/build/css/themes/default.min.css';
 import {makeExports} from "./modules/Notifications/notify";
 
 const USERID = $('body').attr('data-user');
-let url = `wss://${window.location.host}/ws/user/${USERID}/`;
+let scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+let url = `${scheme}://${window.location.host}/ws/user/${USERID}/`;
 let socket = new WebSocket(url);
 socket.onmessage = function (e) {
     let data = JSON.parse(e.data),
@@ -43,7 +44,7 @@ socket.onmessage = function (e) {
         alertify.notify(`${message_text}`, 'success', 10);
     } else if (data.type == 'SUMMIT_EMAIL_CODE_ERROR') {
         $("#without_notifications").remove();
-        $('.sms').attr('data-count', + count + 1);
+        $('.sms').attr('data-count', +count + 1);
         if ($('#profile_notifications').length > 0) {
             let el = `<li><a href='${data.profile_url}'>${data.profile_title} (${data.time})</a></li>`;
             $('#profile_notifications').append(el);

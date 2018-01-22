@@ -1,5 +1,5 @@
 'use strict';
-import  'air-datepicker';
+import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
@@ -16,12 +16,13 @@ import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import errorHandling from './modules/Error';
 import moment from 'moment';
 import 'moment/locale/ru';
+import WaveSurfer from 'wavesurfer.js';
 import {updateOrCreatePartner, updateUser} from './modules/User/updateUser';
-import {makeChurches, makeResponsibleList,makeHomeGroupsList} from './modules/MakeList/index';
+import {makeChurches, makeResponsibleList} from './modules/MakeList/index';
 import makeSelect from './modules/MakeAjaxSelect';
 import getLastId from './modules/GetLastId/index';
 import {setCookie} from './modules/Cookie/cookie';
-import getData, {deleteData, postData} from "./modules/Ajax/index";
+import {deleteData, postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import URLS from './modules/Urls/index';
 import {CONFIG} from './modules/config';
@@ -38,7 +39,6 @@ import {
     renderDealTable,
     renderPaymentTable,
 } from "./modules/Partnerships/index";
-import {makeDuplicateDeals} from "./modules/Deals/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -83,9 +83,7 @@ $('document').ready(function () {
             .then(() => window.location.reload())
             .catch(err => errorHandling(err));
     });
-    //////////////////////////////////////////////
-    // sorry for my code  -- finish
-    //////////////////////////////////////////////
+
     // const ID = getLastId();
 
     function AddColorMarkers() {
@@ -268,73 +266,6 @@ $('document').ready(function () {
     $("#create_new_deal").on('click', function () {
         $('#send_new_deal').prop('disabled', false);
         $('#popup-create_deal').css('display', 'block');
-    });
-
-    function clearDeal() {
-        $('#popup-create_deal textarea').val('');
-        $('#new_deal_sum').val('');
-        $('#new_deal_date').val('');
-        $('#popup-create_deal').css('display', 'none');
-    }
-
-    function createDeal(config) {
-        postData(URLS.deal.list(), config).then(() => {
-            showAlert('Сделка создана.');
-            clearDeal();
-        }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'));
-    }
-
-    $('#send_new_deal').on('click', function () {
-        let description = $('#popup-create_deal textarea').val(),
-            value = $('#new_deal_sum').val(),
-            date = $('#new_deal_date').val(),
-            type = $('#new_deal_type').val();
-
-        if (value && date) {
-            let dateFormat = date.trim().split('.').reverse().join('-'),
-                id = $(this).data('partner'),
-                checkDeal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'partnership_id': id,
-                },
-                deal = {
-                    'date_created': dateFormat,
-                    'value': value,
-                    'description': description,
-                    'partnership': id,
-                    'type': type,
-                };
-            $(this).prop('disabled', true);
-            getData(URLS.deal.check_duplicates(), checkDeal).then( data => {
-                if (data.results) {
-                    $('.preloader').css('display', 'block');
-                    $('#send_new_deal').prop('disabled', false);
-                    makeDuplicateDeals(checkDeal);
-                    $('#hard_create').attr('data-date_created', dateFormat)
-                                     .attr('data-value', value)
-                                     .attr('data-description', description)
-                                     .attr('data-partnership', id)
-                                     .attr('data-type', type);
-                } else {
-                    createDeal(deal);
-                }
-            }).catch(() => showAlert('При запросе к серверу произошла ошибка. Попробуйте снова', 'Ошибка'))
-        } else {
-            showAlert('Заполните все поля.');
-        }
-    });
-
-    $('#hard_create').on('click', function () {
-        let deal = {
-                    'date_created': $(this).attr('data-date_created'),
-                    'value': $(this).attr('data-value'),
-                    'description': $(this).attr('data-description'),
-                    'partnership': $(this).attr('data-partnership'),
-                    'type': $(this).attr('data-type'),
-                };
-        createDeal(deal);
-        $('.pop-up_duplicate__table').css('display', 'none');
     });
 
     $('.pop-up__table').find('.close_pop').on('click', function () {
@@ -920,24 +851,6 @@ $('document').ready(function () {
         $(this).closest('.summits-block').find(`.wrapp-${tab}`).show();
     });
 
-    $('.a-note, .a-sdelki').find('.editText').on('click', function () {
-        $(this).toggleClass('active');
-        let textArea = $(this).parent().siblings('textarea'),
-            select = $(this).closest('.note_wrapper').find('select'),
-            btn = $(this).closest('.access_wrapper').find('#delete_access');
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            textArea.attr('readonly', false);
-            select.attr('readonly', false).attr('disabled', false);
-            btn.attr('disabled', false);
-        } else {
-            $(this).addClass('active');
-            textArea.attr('readonly', true);
-            select.attr('readonly', true).attr('disabled', true);
-            btn.attr('disabled', true);
-        }
-    });
-
     AddColorMarkers();
 
     $('#phone_number').inputmask('phone', {
@@ -997,24 +910,6 @@ $('document').ready(function () {
 
     dataIptelTable(URLS.phone.lastThree(currentUser));
 
-    // $('.recordIptel').on('click',function () {
-    //     let defaultOption = {
-    //         method: 'GET',
-    //         credentials: 'same-origin',
-    //         mode: 'cors',
-    //         headers: new Headers({
-    //             'Content-Type': 'text / html',
-    //             'Access-Control-Allow-Origin':'*',
-    //             'Record-Token':'g6jb3fdcxefrs4dxtcdrt10r4ewfeciss6qdbmgfj9eduds2sn',
-    //         })
-    //     },
-    //     target = $(this).find('p').text().trim(),
-    //     url = 'http://192.168.240.47:7000/file/?file_name=' + target;
-    //     fetch(url, defaultOption).then(function (response) {
-    //         console.log(response.url);
-    //     })
-    // });
-
     $('#monthInput').datepicker({
         autoClose: true,
         view: 'months',
@@ -1047,4 +942,108 @@ $('document').ready(function () {
     btnPartners();
     btnDeal();
     tabs();
+
+    //PLAYER
+    let m,
+        s,
+        totalTime,
+        timeJump,
+        currentTime,
+        currentTimeJump,
+        wavesurfer = WaveSurfer.create({
+            barWidth: 1,
+            container: '#wavesurfer',
+            cursorWidth: 0,
+            dragSelection: true,
+            height: 500,
+            hideScrollbar: true,
+            interact: true,
+            normalize: true,
+            waveColor: 'rgba(255,255,255,.05)',
+            progressColor: 'rgba(255,255,255,.15)'
+    });
+
+    $('.phone').on('click', '#play', function () {
+        if ($(this).hasClass('load')) {
+            let url = $(this).attr('data-url');
+            $(this).removeClass('load');
+            wavesurfer.load(url);
+        } else {
+            wavesurfer.playPause();
+        }
+    });
+
+    function getMinutes(convTime) {
+        convTime = Number(convTime);
+        m = Math.floor(convTime % 3600 / 60);
+        return ((m < 10 ? "0" : "") + m);
+    }
+
+    function getSeconds(convTime) {
+        convTime = Number(convTime);
+        s = Math.floor(convTime % 3600 % 60);
+        return ((s < 10 ? "0" : "") + s);
+    }
+
+    wavesurfer.on('ready', function () {
+        totalTime = wavesurfer.getDuration();
+        timeJump = 300 / totalTime;
+        $('.wavesurfer__elem').addClass('show');
+        $('.button__loader').fadeOut();
+        $('.time__minutes').text(getMinutes(totalTime));
+        $('.time__seconds').text(getSeconds(totalTime));
+        $('.time, .progress').fadeIn();
+
+        //Volume controls for player
+
+        let volumeInput = $('#button__volume'),
+            onChangeVolume = function (e) {
+                e.stopPropagation();
+                wavesurfer.setVolume(e.target.value);
+            };
+        wavesurfer.setVolume(1);
+        volumeInput.val(wavesurfer.backend.getVolume());
+        volumeInput.on('input', onChangeVolume);
+        volumeInput.on('change', onChangeVolume);
+
+        wavesurfer.play();
+    });
+
+    function progressJump() {
+        currentTime = wavesurfer.getCurrentTime();
+        currentTimeJump = currentTime * timeJump + 10;
+        $('.progress__button').css({left: currentTimeJump + 'px'});
+        $('.progress__indicator').css({width: currentTimeJump + 'px'});
+
+        $('.time__minutes').text(getMinutes(currentTime));
+        $('.time__seconds').text(getSeconds(currentTime));
+    }
+
+    wavesurfer.on('audioprocess', function () {
+        progressJump();
+    });
+
+    wavesurfer.on('pause', function () {
+        $('.button__play-iconplay').fadeIn();
+        $('.button__play-iconpause').fadeOut();
+        $('.recordplayer').removeClass('play');
+        $('.recordplayer__disc').removeClass('animate');
+    });
+
+    wavesurfer.on('play', function () {
+        $('.button__play-iconplay').fadeOut();
+        $('.button__play-iconpause').fadeIn();
+        $('.recordplayer').addClass('play');
+        $('.recordplayer__disc').addClass('animate');
+    });
+
+    wavesurfer.on('loading', function (event) {
+        $('.button__loader').css({height: event + 'px'});
+    });
+
+    // wavesurfer.on('seek', function (event) {
+    //     progressJump();
+    //     console.log('HERE');
+    // });
+
 });
