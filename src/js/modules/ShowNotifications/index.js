@@ -7,7 +7,7 @@ export function showAlert(message, title = 'Уведомление') {
     alertify.alert(title, message);
 }
 
-export function showConfirm(title, text, okFunc, cancelFunc) {
+export function showConfirm(title, text, okFunc, cancelFunc = () => {}) {
     alertify.confirm(title, text, okFunc, cancelFunc).set('labels', {ok:'Подтвердить', cancel:'Отменить'});
 }
 
