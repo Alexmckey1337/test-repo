@@ -100,13 +100,13 @@ def calls_to_user(request):
         user_id = int(request.query_params.get('user_id'))
     except (ValueError, TypeError):
         raise exceptions.ValidationError(
-            {'message': 'Parameter {user_id} required and must be integer'})
+            {'message': 'Parameter {user_id} required and must be integer.'})
     user = get_object_or_404(User, id=user_id)
 
     phone_number = user.phone_number[-10:]
     if not phone_number:
         raise exceptions.ValidationError(
-            {'message': 'This user not have a {phone_number}'})
+            {'message': 'This user not have a {phone_number}.'})
 
     data['phone_number'] = phone_number
     data['range'] = request.query_params.get('range')

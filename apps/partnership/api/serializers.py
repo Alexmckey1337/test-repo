@@ -10,6 +10,7 @@ from apps.group.api.serializers import ChurchListSerializer, BaseChurchListSeria
 from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
 from apps.payment.api.serializers import CurrencySerializer
 
+
 BASE_PARTNER_FIELDS = (
     'id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active', 'group', 'title')
 BASE_CHURCH_PARTNER_FIELDS = (

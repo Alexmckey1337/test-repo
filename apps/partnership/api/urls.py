@@ -34,6 +34,5 @@ custom_urls = [
 urlpatterns = [
     path('', include(router_v1_0.urls)),
     path('', include(router_v1_1.urls)),
-
     path('', include(custom_urls)),
 ]

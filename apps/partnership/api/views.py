@@ -47,7 +47,8 @@ from apps.partnership.api.serializers import (
     ChurchDealSerializer,
     ChurchPartnerCreateSerializer, ChurchPartnerUpdateSerializer,
     PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
-    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer, ChurchDealDuplicateSerializer)
+    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer,
+    ChurchDealDuplicateSerializer, IsPartnerSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
     ChurchPartner, \
     ChurchPartnerLog, ChurchDeal
@@ -55,6 +56,7 @@ from apps.partnership.resources import PartnerResource, ChurchPartnerResource
 from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+from apps.summit.api.permissions import HasAPIAccess
 
 
 class PartnershipViewSet(
@@ -205,6 +207,23 @@ class PartnershipViewSet(
         PartnerRoleLog.log_partner_role(manager.partner_role)
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
+
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    def is_partner(self, request):
+        phone_number = request.query_params.get('phone_number')
+        print(phone_number)
+        if not phone_number or len(phone_number) < 10:
+            raise exceptions.ValidationError(
+                {'message': 'Invalid parameter {phone_number} or parameter is not passed'}
+            )
+        phone_number = phone_number[:10]
+
+        if Partnership.objects.filter(user__phone_number__contains=phone_number, is_active=True).exists():
+            is_partner = True
+        else:
+            is_partner = False
+
+        return Response({'is_partner': is_partner}, status.HTTP_200_OK)
 
 
 class ChurchPartnerViewSet(
