@@ -95,22 +95,7 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
         let id = $(this).data('id');
         showChurchPayments(id);
     });
-    $("button.delete_btn").on('click', function () {
-        let id = $(this).attr('data-id');
-        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
-            deleteChurchPayment(id).then(() => {
-                showAlert('Отчет успешно удален!');
-                $('.preloader').css('display', 'block');
-                let page = $('.pagination__input').val();
-                churchReportsTable({page: page,church: currentСhurch},false);
-            }).catch((error) => {
-                let errKey = Object.keys(error),
-                    html = errKey.map(errkey => `${error[errkey]}`);
-                showAlert(html[0], 'Ошибка');
-            });
-        }, () => {
-        });
-    });
+    btnDelReport();
 
     $("#churchReports").find('tr').on('click',function (event) {
         let target = event.target,
@@ -144,7 +129,7 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
                 });
                 completeFields(data);
                 $('#updateReport,.bg').addClass('active');
-            })
+            });
             $input.each(function (i, elem) {
                 $(elem).on('input', function () {
                     $('.save-update').attr('disabled',false);
@@ -165,12 +150,31 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
                         $('#reportTransferPayments').val(((tithe+donat)*0.15).toFixed(1));
                     }
                 })
-            })
+            });
             $.validate({
                 lang: 'ru',
                 form: '#updateReport'
             });
         }
+    });
+}
+
+function btnDelReport() {
+    $("button.delete_btn").on('click', function () {
+        let id = $(this).attr('data-id');
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
+            deleteChurchPayment(id).then(() => {
+                showAlert('Отчет успешно удален!');
+                $('.preloader').css('display', 'block');
+                let page = $('.pagination__input').val();
+                churchReportsTable({page: page, church: currentСhurch}, false);
+            }).catch((error) => {
+                let errKey = Object.keys(error),
+                    html = errKey.map(errkey => `${error[errkey]}`);
+                showAlert(html[0], 'Ошибка');
+            });
+        }, () => {
+        });
     });
 }
 

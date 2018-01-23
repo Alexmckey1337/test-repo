@@ -252,7 +252,7 @@ export function makeIptelTable(data,block) {
 function btnClosePlayer() {
     $('.closePlayer').on('click',function(){
         wavesurfer.stop();
-        $('.phone').css({
+        $('#wavesurferPlayer').css({
             'display':'none'
         });
         $('.playerControll').removeClass('active').addClass('load');
@@ -265,7 +265,7 @@ function btnPlayrecord() {
         btnPlay = $('.playerControll').not(this);
         getAudioFile(URLS.phone.play(file)).then(myBlob => {
             let objectURL = URL.createObjectURL(myBlob),
-                player = $('.phone'),
+                player = $('#wavesurferPlayer'),
                 playerHeight = parseInt($(this).parent().parent().height()),
                 playerPosition = $(this).parent().parent().position(),
                 playerWidth = parseInt($(this).parent().parent().width()) - parseInt($(this).parent().width()) - 22;
@@ -336,7 +336,7 @@ function btnDownloadRecord() {
             progressColor: '#3caeda'
     });
 
-    $('.phone').on('click', '#play', function () {
+    $('#wavesurferPlayer').on('click', '#play', function () {
         if ($(this).hasClass('load')) {
             let url = $(this).attr('data-url');
             $(this).removeClass('load');
