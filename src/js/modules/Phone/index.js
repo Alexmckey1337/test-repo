@@ -254,7 +254,7 @@ function btnClosePlayer() {
         wavesurfer.stop();
         $('.phone').css({
             'display':'none'
-        })
+        });
         $('.playerControll').removeClass('active').addClass('load');
     })
 }
