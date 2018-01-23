@@ -290,7 +290,7 @@ CELERYBEAT_SCHEDULE = {
     # Executes every monday evening at 20:00 A.M
     'processing_church_reports': {
         'task': 'processing_church_reports',
-        'schedule': crontab(hour=20, minute=0, day_of_week='mon')
+        'schedule': crontab(hour=8, minute=0, day_of_week=2)
     },
     'delete_expired_export': {
         'task': 'delete_expired_export',
