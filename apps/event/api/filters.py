@@ -122,7 +122,6 @@ class ChurchReportPaymentStatusFilter(filters.BaseFilterBackend):
 class CommonGroupsLast5Filter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         last_5 = request.query_params.get('last_5')
-        print(last_5)
         if last_5 == 'true':
             queryset = queryset[:5]
 
