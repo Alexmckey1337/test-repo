@@ -22,7 +22,8 @@ from apps.account.models import CustomUser
 from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter, ChurchReportStatusFilter)
+    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter,
+    ChurchReportStatusFilter, CommonGroupsLast5Filter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
     MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
@@ -77,7 +78,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        MeetingFilterByMaster,
-                       MeetingStatusFilter)
+                       MeetingStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
@@ -375,7 +377,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        ChurchReportPaymentStatusFilter,
-                       ChurchReportStatusFilter,)
+                       ChurchReportStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_class = ChurchReportFilter
 

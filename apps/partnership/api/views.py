@@ -211,14 +211,15 @@ class PartnershipViewSet(
     @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
     def is_partner(self, request):
         phone_number = request.query_params.get('phone_number')
-        print(phone_number)
+
         if not phone_number or len(phone_number) < 10:
             raise exceptions.ValidationError(
                 {'message': 'Invalid parameter {phone_number} or parameter is not passed'}
             )
         phone_number = phone_number[:10]
 
-        if Partnership.objects.filter(user__phone_number__contains=phone_number, is_active=True).exists():
+        if Partnership.objects.filter(
+                user__phone_number__contains=phone_number, is_active=True).exists():
             is_partner = True
         else:
             is_partner = False
@@ -849,7 +850,9 @@ class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
                 serializer.initial_data.get('level') < self.request.user.partner_role.level):
-            raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
+            raise ValidationError(
+                {'detail': _('Вы не можете назначать пользователям уровень выше вашего.')}
+            )
 
 
 class SetPartnerRoleView(CheckPartnerLevelMixin, GenericAPIView):
@@ -892,7 +895,9 @@ class DeletePartnerRoleView(DestroyAPIView):
 
     def perform_destroy(self, instance):
         if Partnership.objects.filter(responsible=instance.user).exists():
-            raise ValidationError({'detail': _('Пользователь является ответственным по партнерам')})
+            raise ValidationError(
+                {'detail': _('Пользователь является ответственным по партнерам')}
+            )
         PartnerRoleLog.delete_partner_role(instance)
         instance.delete()
 

@@ -6,7 +6,7 @@ from common.filters import BaseFilterMasterTree
 from django.db.models import Q
 
 
-class CommonMeetingFilter(django_filters.FilterSet):
+class CommonMeetingFilterMixin(django_filters.FilterSet):
     from_date = django_filters.DateFilter(name="date", lookup_expr='gte')
     to_date = django_filters.DateFilter(name="date", lookup_expr='lte')
 
@@ -14,22 +14,22 @@ class CommonMeetingFilter(django_filters.FilterSet):
         fields = ('status', 'date', 'from_date', 'to_date')
 
 
-class MeetingFilter(CommonMeetingFilter):
+class MeetingFilter(CommonMeetingFilterMixin):
     owner = django_filters.ModelChoiceFilter(name='owner', queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
 
-    class Meta(CommonMeetingFilter.Meta):
+    class Meta(CommonMeetingFilterMixin.Meta):
         model = Meeting
-        fields = CommonMeetingFilter.Meta.fields + ('home_group', 'owner', 'type')
+        fields = CommonMeetingFilterMixin.Meta.fields + ('home_group', 'owner', 'type')
 
 
-class ChurchReportFilter(CommonMeetingFilter):
+class ChurchReportFilter(CommonMeetingFilterMixin):
     pastor = django_filters.ModelChoiceFilter(name='pastor', queryset=CustomUser.objects.filter(
         church__pastor__id__isnull=False).distinct())
 
-    class Meta(CommonMeetingFilter.Meta):
+    class Meta(CommonMeetingFilterMixin.Meta):
         model = ChurchReport
-        fields = CommonMeetingFilter.Meta.fields + ('church', 'pastor')
+        fields = CommonMeetingFilterMixin.Meta.fields + ('church', 'pastor')
 
 
 class MeetingCustomFilter(filters.BaseFilterBackend):
@@ -115,5 +115,15 @@ class ChurchReportPaymentStatusFilter(filters.BaseFilterBackend):
         payment_status = request.query_params.get('payment_status')
         if payment_status:
             return queryset.filter(payment_status=payment_status)
+
+        return queryset
+
+
+class CommonGroupsLast5Filter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        last_5 = request.query_params.get('last_5')
+        print(last_5)
+        if last_5 == 'true':
+            queryset = queryset[:5]
 
         return queryset
