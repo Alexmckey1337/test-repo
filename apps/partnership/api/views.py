@@ -48,7 +48,7 @@ from apps.partnership.api.serializers import (
     ChurchPartnerCreateSerializer, ChurchPartnerUpdateSerializer,
     PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
     LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer,
-    ChurchDealDuplicateSerializer, IsPartnerSerializer)
+    ChurchDealDuplicateSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
     ChurchPartner, \
     ChurchPartnerLog, ChurchDeal

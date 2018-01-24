@@ -76,6 +76,7 @@ def prepare_asterisk_users(users):
             'extension': x[1][0],
             'fullname': fullname,
         }
+
     return users
 
 
@@ -103,10 +104,11 @@ def calls_to_user(request):
             {'message': 'Parameter {user_id} required and must be integer.'})
     user = get_object_or_404(User, id=user_id)
 
-    phone_number = user.phone_number[-10:]
-    if not phone_number:
+    try:
+        phone_number = user.phone_number[-10:]
+    except Exception as e:
         raise exceptions.ValidationError(
-            {'message': 'This user not have a {phone_number}.'})
+                {'message': 'This user not have a {phone_number}.'})
 
     data['phone_number'] = phone_number
     data['range'] = request.query_params.get('range')
