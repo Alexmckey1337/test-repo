@@ -1,0 +1,95 @@
+<div class="popap popap_slide" id='editReport'>
+    <form action="./" class="pop_cont" id="chReportForm">
+        <div class='popup_text'><h2><span id="report_title">Подача</span> отчета Церкви</h2></div>
+        <div class="popup_body">
+            <div class="container">
+                <label>
+                    <span class="label_block">Церковь</span>
+                    <p id="reportChurch"></p>
+                </label>
+                <label>
+                    <span class="label_block">Пастор церкви</span>
+                    <p id="reportPastor"></p>
+                </label>
+                <label>
+                    <span class="label_block">Дата служения</span>
+                    <input type="text"
+                           name="date"
+                           data-validation="required"
+                           id="reportDate">
+                </label>
+                <label>
+                    <p class="update-title">Отчет по людям</p>
+                </label>
+                <label>
+                    <span class="label_block">К-во людей на собрании</span>
+                    <input type="number"
+                           name="total_peoples"
+                           data-validation="number required"
+                           id="reportCountPeople">
+                </label>
+                <label>
+                    <span class="label_block">К-во новых людей</span>
+                    <input type="number"
+                           id="reportCountNewPeople"
+                           name="total_new_peoples"
+                           data-validation="number required">
+                </label>
+                <label>
+                    <span class="label_block">К-во покаяний</span>
+                    <input type="number"
+                           id="reportCountRepentance"
+                           name="total_repentance"
+                           data-validation="number required">
+                </label>
+                <label>
+                    <span class="label_block">Коментарий</span>
+                    <textarea id="reportComment" name="comment"></textarea>
+                </label>
+                <label>
+                    <p class="update-title">Отчет по финансам</p>
+                </label>
+                <label>
+                    <span class="label_block">Десятины <span class="cur_name"></span></span>
+                    <input type="number"
+                           id="reportTithe"
+                           class="report-tithe"
+                           name="total_tithe"
+                           data-validation="number required"
+                           data-validation-allowing="float">
+                </label>
+                <label>
+                    <span class="label_block">Пожертвования <span class="cur_name"></span></span>
+                    <input type="number"
+                           id="reportDonations"
+                           class="report-tithe"
+                           name="total_donations"
+                           data-validation="number required"
+                           data-validation-allowing="float">
+                </label>
+                <label>
+                    <span class="label_block">15% к перечислению <span class="cur_name"></span></span>
+                    <input type="number"
+                           name="transfer_payments"
+                           id="reportTransferPayments"
+                           disabled="disabled">
+                </label>
+                <label>
+                    <span class="label_block">Десятина пастора <span class="cur_name"></span></span>
+                    <input type="number"
+                           id="reportPastorTithe"
+                           name="total_pastor_tithe"
+                           data-validation="number required"
+                           data-validation-allowing="float">
+                </label>
+            </div>
+        </div>
+        <div class="container">
+            {% if user.is_staff %}
+                <button id="delete_report" data-id=""></button>
+            {% endif %}
+            <button class="close-popup">Отменить</button>
+            <button type="submit" id="send_report">Сохранить</button>
+        </div>
+    </form>
+</div>

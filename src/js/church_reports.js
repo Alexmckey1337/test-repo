@@ -3,16 +3,22 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
-import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {ChurchReportsTable, churchReportsTable, saveReport, deleteReport} from "./modules/Reports/church";
+import {
+    ChurchReportsTable,
+    churchReportsTable,
+    sendReport,
+    deleteReport,
+    calcTransPayments
+} from "./modules/Reports/church";
 import {createChurchPayment} from "./modules/Reports/church";
 import reverseDate from './modules/Date/index';
 
@@ -149,7 +155,6 @@ $('document').ready(function () {
     });
     $('#filter_button').on('click', function () {
         filterInit();
-        //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
         $('.bg').addClass('active');
     });
@@ -185,16 +190,14 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         churchReportsTable();
     }, 500));
+
     $('.selectdb').select2();
 
-    $('.save-update').on('click', function (e) {
-        e.preventDefault();
-        saveReport();
-    });
      $('#delete_report').on('click', function (e) {
         e.preventDefault();
-        deleteReport();
-    })
+        let page = $('.pagination__input').val();
+        deleteReport(churchReportsTable.bind(this, {page}));
+    });
 
     // Sort table
     $('#sort_save').on('click', function () {
@@ -315,4 +318,19 @@ $('document').ready(function () {
         console.log(filterParam);
         filterInit(filterParam);
     }
+
+    $.validate({
+        lang: 'ru',
+        form: '#chReportForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            sendReport();
+
+            return false;
+        }
+    });
+
+    calcTransPayments();
 });

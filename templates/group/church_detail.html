@@ -423,8 +423,8 @@
                     </div>
                     <div class="accordion-block">
                         <div class="tab-status">
-                            <ul class="tabs_report church-tabs">
-                                <li class="active">
+                            <ul id="statusTabs" class="tabs_report church-tabs">
+                                <li class="current">
                                     <button data-is_submitted="false"><span>Отчет к заполнению</span></button>
                                 </li>
                                 <li>
@@ -434,11 +434,6 @@
 
                             <button class="create_report">Добавить отчет</button>
                         </div>
-                        <div class="top-pag">
-                            <div class="table__count"></div>
-                            <div class="pagination users__pagination"><!--pagination -->
-                            </div><!--End pagination -->
-                        </div>
                         <div class="table-wrap  clearfix" id="church_reports">
                             <!--Table -->
                             <div class="table scrollbar-inner" id="churchReports"></div>
@@ -446,8 +441,6 @@
                                 <p></p>
                             </div>
                         </div><!--End Table -->
-                        <div class="table__count"></div>
-                        <div class="pagination users__pagination"></div>
                     </div>
                 </div>
             </div>
@@ -461,6 +454,11 @@
 {% endblock %}
 
 {% block popup %}
+    {% include "event/partials/church_report.html" %}
+    {% include "payment/partials/create_payment.html" with date="report" %}
+    {% include "payment/partials/payments_detail.html" %}
+    {% include "partials/find_duplicate_deals.html" %}
+
     <div class="popap popap_slide" id='addHomeGroup'>
         <div class="pop_cont">
             <div class="popup_text">
@@ -580,7 +578,6 @@
             </div>
         </div>
     </div>
-    {% include "partials/find_duplicate_deals.html" %}
     <div class="popap_slide" id='addChurchReport'>
         <div class="pop_cont">
             <div class="popup_text">
@@ -602,77 +599,8 @@
             </form>
         </div>
     </div>
-    <div class="popap_slide" id='updateReport' data-status="">
-        <div class="pop_cont">
-            <div class='popup_text'><h2>Редактирование отчета</h2></div>
-            <div class="popup_body">
-                <div class="container">
-                    <label class="hidden">
-                        <span class="label_block">№ отчета</span>
-                        <p class="hidden" id="id_report"></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <p id="reportChurch" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Пастор церкви</span>
-                        <p id="reportPastor" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата</span>
-                        <input type="text" id="reportDate">
-                    </label>
-                    <label>
-                        <p class="update-title">Отчет по людям</p>
-                    </label>
-                    <label>
-                        <span class="label_block">К-во людей на собрании</span>
-                        <input type="number" id="reportCountPeople">
-                    </label>
-                    <label>
-                        <span class="label_block">К-во новых людей</span>
-                        <input type="number" id="reportCountNewPeople">
-                    </label>
-                    <label>
-                        <span class="label_block">К-во покаяний</span>
-                        <input type="number" id="reportCountRepentance">
-                    </label>
-                    <label>
-                        <span class="label_block">Коментарий</span>
-                        <textarea id="reportComment"></textarea>
-                    </label>
-                    <label>
-                        <p class="update-title">Отчет по финансам</p>
-                    </label>
-                    <label>
-                        <span class="label_block">Десятины (дол.)</span>
-                        <input type="number" value="0" id="reportTithe" class="report-tithe" data-validation="number required" data-validation-allowing="float">
-                    </label>
-                    <label>
-                        <span class="label_block">Пожертвования (дол.)</span>
-                        <input type="number" value="0" id="reportDonations" class="report-tithe" data-validation="number required" data-validation-allowing="float">
-                    </label>
-                    <label>
-                        <span class="label_block">15% к перечислению (дол.)</span>
-                        <input type="number" id="reportTransferPayments" disabled="disabled">
-                    </label>
-                    <label>
-                        <span class="label_block">Десятина пастора (дол.)</span>
-                        <input type="number" id="reportPastorTithe">
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button id="delete_report" data-id=""></button>
-                <button class="close-popup">Отменить</button>
-                <button class="save-update" disabled="disabled">Сохранить</button>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script>let currentСhurch = {{ church.id }}</script>
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
     <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
@@ -766,7 +694,7 @@
         <table id="header-fixed"></table>
     </script>
     <script type="text/template" id="databaseChurchReports">
-         <table id="table-1">
+         <table>
                 <thead>
                 <tr>
                     <% for( var key in table_columns) { %>
@@ -786,11 +714,7 @@
                     <% if(table_columns[key].active) { %>
                     <% if(key == 'id') { %>
                     <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
-                        {% if user.is_staff %}
-                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
-                        {% endif %}
-                            <%= results[index][key] %>
-{#                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>#}
+                        <%= results[index][key] %>
                     </td>
                     <% } else if (key == 'church') { %>
                     <% if (results[index][key] != null) { %>
@@ -870,6 +794,5 @@
                 <% } %>
                 </tbody>
             </table>
-            <table id="header-fixed"></table>
     </script>
 {% endblock %}
