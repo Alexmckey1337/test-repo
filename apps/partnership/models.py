@@ -440,3 +440,12 @@ class ChurchPartnerLog(PartnershipAbstractModel):
             title=partner.title,
             partner=partner,
         )
+
+
+# class TelegramGroup(models.Model):
+#     user = models.ForeignKey('CustomUser', related_name='telegram_group', on_delete=models.PROTECT,
+#                              verbose_name=_('Telegram Group'))
+#
+#     telegram_id = models.CharField(_('Telegram ID'), max_length=255)
+#     is_active = models.BooleanField(_('Is Active Partner'), default=True)
+#     synced = models.BooleanField(_('Is synced?'), default=True)
