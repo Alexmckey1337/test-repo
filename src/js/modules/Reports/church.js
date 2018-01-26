@@ -187,6 +187,7 @@ export function deleteReport(config = {}, fixedHead = true) {
 }
 
 function completeFields(data) {
+    console.log(data);
     $('#id_report').text(data.id);
     $('#reportChurch').text(data.church.title);
     $("#reportPastor").text(data.pastor.fullname);

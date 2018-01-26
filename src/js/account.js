@@ -916,7 +916,8 @@ $('document').ready(function () {
             $('.preloader').css('display', 'block');
             let dateMonth = moment(date).format("YYYY-MM"),
                 url = URLS.phone.filterMonth(currentUser,dateMonth);
-            $('#tableMonthIptel').html('');
+            // $('#popupMonth').find('.main-text').html('');
+
             dataIptelMonth(url);
         }
     });
@@ -926,7 +927,7 @@ $('document').ready(function () {
         let idUser = $('body').attr('data-user'),
            todayDate = moment().locale('ru'),
            url = URLS.phone.filterMonth(currentUser,todayDate.format("YYYY-MM"));
-        $('#tableMonthIptel').html('');
+        // $('#popupMonth').find('.main-text').html('');
        $('.preloader').css('display', 'block');
        $('#popupMonth').css('display', 'block');
        $('#monthInput').val(todayDate.format("MMMM YYYY"));
