@@ -295,7 +295,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
         // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
-        new OrderTable().sort(createChurchesDetailsTable, ".table-wrap th");
+        new OrderTable().sort(createChurchesDetailsTable, "#church th");
     })
 }
 

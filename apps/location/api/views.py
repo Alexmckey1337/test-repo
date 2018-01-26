@@ -5,13 +5,13 @@ from django_filters import rest_framework
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 
-from apps.location.models import Country, Region, City
-from apps.location.api.serializers import CountrySerializer, RegionSerializer, CitySerializer
+from apps.location.models import OldCountry, OldRegion, OldCity
+from apps.location.api.serializers import OldCountrySerializer, OldRegionSerializer, OldCitySerializer
 
 
-class CountryViewSet(viewsets.ModelViewSet):
-    queryset = Country.objects.all()
-    serializer_class = CountrySerializer
+class OldCountryViewSet(viewsets.ModelViewSet):
+    queryset = OldCountry.objects.all()
+    serializer_class = OldCountrySerializer
     pagination_class = None
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,)
@@ -20,9 +20,9 @@ class CountryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-class RegionViewSet(viewsets.ModelViewSet):
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
+class OldRegionViewSet(viewsets.ModelViewSet):
+    queryset = OldRegion.objects.all()
+    serializer_class = OldRegionSerializer
     pagination_class = None
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,)
@@ -31,9 +31,9 @@ class RegionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-class CityViewSet(viewsets.ModelViewSet):
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
+class OldCityViewSet(viewsets.ModelViewSet):
+    queryset = OldCity.objects.all()
+    serializer_class = OldCitySerializer
     pagination_class = None
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,)

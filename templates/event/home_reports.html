@@ -91,20 +91,6 @@
                     </li>
                 </ul>
             </div>
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                           id="expired_datepicker_to"
-                                                                                                           readonly="readonly"><a
-                        id="show-all-expired" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-            <div id="period_done" class="period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                        id="done_datepicker_to"
-                                                                                                        readonly="readonly"><a
-                        id="show-all-done" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
         </div>
         <div class="table__count"></div>
         <div class="pagination reports__pagination"><!--pagination -->
@@ -127,6 +113,8 @@
 {% endblock %}
 
 {% block popup %}
+    {% include "event/partials/home_report.html" %}
+
     <div class="popap popap_slide" id='filterPopup'>
         <div class="pop_cont">
             <div class='popup_text'>
@@ -188,53 +176,7 @@
             </div>
         </div>
     </div>
-    <div class="popap_slide home-group" id='updateReport' data-status="">
-        <div class="pop_cont">
-            <div class='popup_text'><h2>Редактирование отчета</h2></div>
-            <div class="popup_body">
-                <div class="container">
-                    <label class="hidden">
-                        <span class="label_block">№ отчета</span>
-                        <p class="hidden" id="id_report"></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Домашняя группа</span>
-                        <p id="reportHomeGroup" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Лидер домашней группы</span>
-                        <p id="reportLeader" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата</span>
-                        <input type="text" id="reportDate" data-name="date">
-                    </label>
-                    <label>
-                        <span class="label_block">Сумма пожертвований</span>
-                        <input type="number" id="reportDonations" data-name="total_sum">
-                    </label>
-                    <label>
-                        <span class="label_block">Изменить фото</span>
-                        <div class="input">
-                            <input type="file" id="reportImage" data-name="image">
-                            <label for="reportImage">
-                                <i class="material-icons">&#xE2C4;</i>
-                                <span>Выберите файл</span>
-                            </label>
-                            <button id="clear_img"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                        </div>
-                    </label>
-                    <div id="tableUsers">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <button id="delete_report" data-id=""></button>
-                <button class="close-popup">Отменить</button>
-                <button class="save-update" disabled="disabled">Сохранить</button>
-            </div>
-        </div>
-    </div>
+
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/home_reports.bundle.js" %}"></script>
@@ -261,11 +203,7 @@
                 <% if(table_columns[key].active) { %>
                 <% if(key == 'id') { %>
                 <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
-                    {% if user.is_staff %}
-{#                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>#}
-                    {% endif %}
-{#                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>#}
-                <%= results[index][key] %>
+                    <%= results[index][key] %>
                     <% if (results[index].image != null) { %>
                     <button class="view_img" data-img="<%= results[index].image %>"></button>
                     <% } %>

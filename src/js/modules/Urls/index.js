@@ -76,6 +76,7 @@ const HOME_MEETING = {
     stats: () => `/api/events/home_meetings/statistics/`,
     dashboard_count: () => `/api/events/home_meetings/dashboard_counts/`,
     summary: () => `/api/events/home_meetings/meetings_summary/`,
+    cleanImg: (id) => `/api/events/home_meetings/${id}/clean_image/`,
 };
 
 const EVENT = {

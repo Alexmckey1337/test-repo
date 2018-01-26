@@ -1,8 +1,6 @@
 'use strict';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
-import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
-import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
@@ -15,45 +13,34 @@ import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {btnDeals} from "../Deals/index";
-import {completeChurchPayment, showChurchPayments} from '../Payment/index';
+import {showChurchPayments} from '../Payment/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
+import dataHandling from '../Error';
 
-export function ChurchReportsTable(config={},fixTableHead) {
-    Object.assign(config, getTabsFilterParam());
-    getChurchReports(config).then(data => {
-        makeChurchReportsTable(data,{},fixTableHead);
-    });
+export function ChurchReportsTable(config = {}, pagination = true) {
+    Object.assign(config, getTabsFilterParam(), getTypeTabsFilterParam());
+    getData(URLS.event.church_report.list(), config).then(data => {
+        makeChurchReportsTable(data, config, pagination);
+    }).catch(err => dataHandling(err));
 }
 
-function getChurchReports(config = {}) {
-    if (!config.is_submitted) {
-        let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
-        config.is_submitted = is_submitted || 'false';
-    }
-    return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.event.church_report.list(),
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: config
-        };
-        let status = {
-            200: function (req) {
-                resolve(req);
-            },
-            403: function () {
-                reject('Вы должны авторизоватся');
-            }
-        };
-        newAjaxRequest(data, status);
-    })
+export function churchReportsTable(config = {}, pagination = true) {
+    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
+    (pagination) && updateHistoryUrl(config);
+    getData(URLS.event.church_report.list(), config).then(data => {
+        makeChurchReportsTable(data, config, pagination);
+    }).catch(err => dataHandling(err));
 }
 
-function makeChurchReportsTable(data, config = {},fixTableHead = true) {
+function getTypeTabsFilterParam() {
+    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
+
+    return {is_submitted};
+}
+
+function makeChurchReportsTable(data, config = {}, pagination = true) {
     let tmpl = $('#databaseChurchReports').html();
     _.map(data.results, item => {
         let date = new Date(reverseDate(item.date, '-')),
@@ -64,200 +51,161 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
     });
     let rendered = _.template(tmpl)(data);
     $('#churchReports').html(rendered);
-    let count = data.count;
-    let pages = Math.ceil(count / CONFIG.pagination_count);
-    let page = config.page || 1;
-    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-    let text = `Показано ${showCount} из ${count}`;
-    let paginationConfig = {
-        container: ".reports__pagination",
-        currentPage: page,
-        pages: pages,
-        callback: churchReportsTable
-    },
-        $input = $('#updateReport').find('input,textarea'),
-        $inputTithe = $('#updateReport').find('.report-tithe');
-    // $('.table__count').text(data.count);
-    makePagination(paginationConfig);
-    makeSortForm(data.table_columns);
-    $('.table__count').text(text);
-    if(fixTableHead){
+    let count = data.count,
+        pages = Math.ceil(count / CONFIG.pagination_count),
+        page = config.page || 1,
+        showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+        text = `Показано ${showCount} из ${count}`,
+        paginationConfig = {
+            container: ".reports__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: churchReportsTable
+        };
+    if (pagination) {
+        makePagination(paginationConfig);
+        makeSortForm(data.table_columns);
+        $('.table__count').text(text);
         fixedTableHead();
+        new OrderTable().sort(churchReportsTable, ".table-wrap th");
     }
-    new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
+    btnControls(pagination, config);
+    btnEditReport();
+}
+
+function btnControls(pagination, config = {}) {
     $("button.complete").on('click', function () {
-        let id = $(this).attr('data-id');
-        completeChurchPayment(id);
+        let id = $(this).attr('data-id'),
+            data = {"done": true};
+        postData(URLS.event.church_report.detail(id), data, {method: 'PATCH'}).then( _ => {
+            (pagination) ? churchReportsTable() : churchReportsTable(config, pagination);
+        }).catch(err => dataHandling(err));
     });
+
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
         showChurchPayments(id);
     });
-    btnDelReport();
+}
 
-    $("#churchReports").find('tr').on('click',function (event) {
-        let target = event.target,
-            reportId = $(this).find('#reportId').data('id'),
-            msg = 'Вы действительно хотите удалить данный отчет',
-            url = URLS.event.church_report.detail(reportId);
-        $('.save-update').attr('disabled',true);
-        if(!$(target).is('a')){
-            getData(url).then(function (data) {
-                let dateReportsFormatted = new Date(data.date.split('.').reverse().join(',')),
-                    eventDay = [dateReportsFormatted.getDate()],
-                    eventMonth = [dateReportsFormatted.getMonth()],
-                    thisMonday = (moment(dateReportsFormatted).day() === 1) ? moment(dateReportsFormatted).format() : (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).subtract(6, 'days').format() : moment(dateReportsFormatted).day(1).format(),
-                    thisSunday = (moment(dateReportsFormatted).day() === 0) ? moment(dateReportsFormatted).format() : moment(dateReportsFormatted).day(7).format();
-                $('#reportDate').datepicker({
-                    autoClose: true,
-                    minDate: new Date(thisMonday),
-                    maxDate: new Date(thisSunday),
-                    onRenderCell: function (date, cellType) {
-                        var currentDay = date.getDate(),
-                            currentMonth = date.getMonth();
-                        if (cellType == 'day' && eventDay.indexOf(currentDay) != -1 && eventMonth.indexOf(currentMonth) != -1) {
-                            return {
-                                html: '<span class="selectedDate">' + currentDay + '</span>'
-                            }
-                        }
-                    },
-                    onSelect: function () {
-                        $('.save-update').attr('disabled',false);
-                    }
-                });
-                completeFields(data);
-                $('#updateReport,.bg').addClass('active');
+function btnEditReport() {
+    $("#churchReports").find('.edit').on('click', function () {
+        let id = $(this).attr('data-id');
+        getData(URLS.event.church_report.detail(id)).then(data => {
+            let dateReportsFormatted = new Date(reverseDate(data.date, ',')),
+                thisMonday = (moment(dateReportsFormatted).day() === 1) ?
+                    moment(dateReportsFormatted).format()
+                    :
+                    (moment(dateReportsFormatted).day() === 0) ?
+                        moment(dateReportsFormatted).subtract(6, 'days').format()
+                        :
+                        moment(dateReportsFormatted).day(1).format(),
+                thisSunday = (moment(dateReportsFormatted).day() === 0) ?
+                    moment(dateReportsFormatted).format()
+                    :
+                    moment(dateReportsFormatted).day(7).format();
+            $('#reportDate').datepicker({
+                autoClose: true,
+                minDate: new Date(thisMonday),
+                maxDate: new Date(thisSunday),
             });
-            $input.each(function (i, elem) {
-                $(elem).on('input', function () {
-                    $('.save-update').attr('disabled',false);
-                })
-            });
-            $inputTithe.each(function (i,elem) {
-                $(elem).removeClass('error');
-                $(elem).on('input', function () {
-                    let tithe = parseFloat($('#reportTithe').val()),
-                        donat = parseFloat($('#reportDonations').val());
-                    if ($('#reportTithe').val() === '' && $('#reportDonations').val() === ''){
-                        $('#reportTransferPayments').val('0.0');
-                    }else if ($('#reportDonations').val() === ''){
-                        $('#reportTransferPayments').val(((tithe+0)*0.15).toFixed(1));
-                    }else if ($('#reportTithe').val() === ''){
-                        $('#reportTransferPayments').val(((0+donat)*0.15).toFixed(1));
-                    }else{
-                        $('#reportTransferPayments').val(((tithe+donat)*0.15).toFixed(1));
-                    }
-                })
-            });
-            $.validate({
-                lang: 'ru',
-                form: '#updateReport'
-            });
+            $('#chReportForm').get(0).reset();
+            completeFields(data);
+            $('#editReport, .bg').addClass('active');
+        }).catch(err => dataHandling(err));
+    });
+}
+
+export function calcTransPayments() {
+    $('#reportTithe, #reportDonations').on('input', function () {
+        let tithe = $('#reportTithe').val() || 0,
+            donat = $('#reportDonations').val() || 0,
+            calc = (+tithe + +donat) * 0.15;
+        $('#reportTransferPayments').val(calc.toFixed(1));
+    });
+}
+
+export function deleteReport(callback, config = {}, pagination = true) {
+    let msg = 'Вы действительно хотите удалить данный отчет',
+        id = $('#delete_report').attr('data-id');
+    showConfirm('Удаление', msg, function () {
+        deleteData(URLS.event.church_report.detail(id)).then(function () {
+            $('.preloader').css('display', 'block');
+            callback(config, pagination);
+            showAlert('Отчет удален');
+            $('#editReport, .bg').removeClass('active');
+        }).catch(err => dataHandling(err));
+    });
+}
+
+function completeFields (data) {
+    $('#delete_report').attr('data-id', data.id);
+    $('#send_report').attr({
+        'data-id': data.id,
+        'data-status': data.status
+    });
+    $('#reportChurch').text(data.church.title).attr('data-id', data.church.id);
+    $("#reportPastor").text(data.pastor.fullname).attr('data-id', data.pastor.id);
+    $('#reportDate').val((data.status === 2) ? data.date : '');
+    $('#reportCountPeople').val((data.status === 2) ? data.total_peoples : '');
+    $('#reportCountNewPeople').val((data.status === 2) ? data.total_new_peoples : '');
+    $('#reportCountRepentance').val((data.status === 2) ? data.total_repentance : '');
+    $('#reportTithe').val((data.status === 2) ? data.total_tithe : '');
+    $('#reportDonations').val((data.status === 2) ? data.total_donations : '');
+    $('#reportTransferPayments').val(data.transfer_payments);
+    $('#reportPastorTithe').val((data.status === 2) ? data.total_pastor_tithe : '');
+    $('#reportComment').val(data.comment);
+    $('.cur_name').text(`(${data.currency.short_name})`);
+    $('#report_title').text((data.status === 2) ? 'Редактирование' : 'Подача');
+    $('#send_report').text((data.status === 2) ? 'Сохранить' : 'Подать');
+    if (!data.can_submit) {
+        showAlert(data.cant_submit_cause);
+        $('#send_report').attr({disabled: true});
+    } else {
+        $('#send_report').attr({disabled: false});
+    }
+}
+
+function reportData() {
+    let data = {},
+        $input = $('#editReport').find('input, textarea');
+    $input.each(function () {
+        let field = $(this).attr('name');
+        if (field) {
+            if (field === 'date') {
+                data[field] = reverseDate($(this).val(), '-');
+            } else {
+                data[field] = $(this).val();
+            }
         }
     });
+    return data;
 }
 
-function btnDelReport() {
-    $("button.delete_btn").on('click', function () {
-        let id = $(this).attr('data-id');
-        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
-            deleteChurchPayment(id).then(() => {
-                showAlert('Отчет успешно удален!');
-                $('.preloader').css('display', 'block');
-                let page = $('.pagination__input').val();
-                churchReportsTable({page: page, church: currentСhurch}, false);
-            }).catch((error) => {
-                let errKey = Object.keys(error),
-                    html = errKey.map(errkey => `${error[errkey]}`);
-                showAlert(html[0], 'Ошибка');
-            });
-        }, () => {
-        });
-    });
-}
-
-export function deleteReport(config = {}, fixedHead = true) {
-    let msg = 'Вы действительно хотите удалить данный отчет',
-        reportId = parseInt($('#updateReport').find('#id_report').text()),
-        url = URLS.event.church_report.detail(reportId);
-    showConfirm('Удаление', msg, function () {
-        deleteData(url).then(function () {
-            churchReportsTable(config,fixedHead);
-            showAlert('Отчет удален');
-        })
-    });
-}
-
-function completeFields(data) {
-    $('#id_report').text(data.id);
-    $('#reportChurch').text(data.church.title);
-    $("#reportPastor").text(data.pastor.fullname);
-    $('#reportChurch').data('id',data.church.id);
-    $("#reportPastor").data('id',data.pastor.id);
-    $('#reportDate').val(data.date);
-    $('#reportCountPeople').val(data.total_peoples);
-    $('#reportCountNewPeople').val(data.total_new_peoples);
-    $('#reportCountRepentance').val(data.total_repentance);
-    $('#reportTithe').val(data.total_tithe);
-    $('#reportDonations').val(data.total_donations);
-    $('#reportTransferPayments').val(data.transfer_payments);
-    $('#reportPastorTithe').val(data.total_pastor_tithe);
-    $('#reportComment').val(data.comment);
-    $('#updateReport').attr('data-status',data.status);
-}
-
-function savedData() {
-    return {
-        "id": parseInt($('#id_report').text()),
-        "pastor": $('#reportPastor').data('id'),
-        "church": $('#reportChurch').data('id'),
-        "date": $('#reportDate').val().split('.').reverse().join('-'),
-        "total_peoples": $('#reportCountPeople').val(),
-        "total_new_peoples": $('#reportCountNewPeople').val(),
-        "total_repentance": $('#reportCountRepentance').val(),
-        "transfer_payments": $('#reportTransferPayments').val(),
-        "total_tithe": $('#reportTithe').val(),
-        "total_donations": $('#reportDonations').val(),
-        "total_pastor_tithe": $('#reportPastorTithe').val(),
-        "comment": $('#reportComment').val(),
-    }
-}
-export function saveReport(config={},fixedHead=true) {
-    let reportId = parseInt($('#updateReport').find('#id_report').text()),
-        saveUrl = URLS.event.church_report.detail(reportId),
-        createUrl = URLS.event.church_report.submit(reportId),
-        data = savedData(),
-        status = parseInt($('#updateReport').attr('data-status'));
-    if(status === 2){
-        let config = {
-            method: 'PATCH',
-        };
-        postData(saveUrl, data, config).then(function () {
-            churchReportsTable(config,fixedHead);
-            showAlert("Отчет изменен");
-            $('#updateReport,.bg').removeClass('active');
-        });
-    }else if (status === 1){
-        postData(createUrl, data).then(function () {
-            churchReportsTable(config,fixedHead);
-            showAlert("Отчет заполнен");
-            $('#updateReport,.bg').removeClass('active');
-        });
-    }
-}
-
-export function churchReportsTable(config = {},fixedHead=true) {
-    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
-    config.is_submitted = is_submitted;
-    Object.assign(config, getSearch('search_title'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getTabsFilterParam());
-    updateHistoryUrl(config);
-    getChurchReports(config).then(data => {
-        makeChurchReportsTable(data, config,fixedHead);
-    })
+export function sendReport(pagination = true, option = {}) {
+    const ID = $('#send_report').attr('data-id'),
+        status = $('#send_report').attr('data-status'),
+        URL = (status === '2') ?
+            URLS.event.church_report.detail(ID)
+            :
+            URLS.event.church_report.submit(ID),
+        MSG = (status === '2') ?
+            'Изменения в отчете поданы'
+            :
+            'Отчет успешно подан';
+    let data = reportData(),
+        config = {},
+        page = $('.pagination__input').val();
+    (status === '2') && (config.method = 'PUT');
+    postData(URL, data, config).then(function () {
+        let conf = {page};
+        (!pagination) && (Object.assign(conf, option));
+        churchReportsTable(conf, pagination);
+        showAlert(MSG);
+        $('#editReport, .bg').removeClass('active');
+    }).catch(err => dataHandling(err));
 }
 
 export function createChurchPayment(id, sum, description) {
@@ -547,27 +495,4 @@ function submitReports(config) {
         };
         newAjaxRequest(data, status, reject)
     })
-}
-
-function deleteChurchPayment(id) {
-    let url = URLS.event.church_report.detail(id),
-        defaultOption = {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(resp => {
-            if (resp.status >= 200 && resp.status < 300) {
-                return resp;
-            } else {
-                let json = resp.json();
-                return json.then(err => {
-                    throw err;
-                });
-            }
-        });
-    }
 }

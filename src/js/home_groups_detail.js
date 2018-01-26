@@ -6,8 +6,19 @@ import 'select2/dist/css/select2.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import URLS from './modules/Urls/index';
-import {createHomeGroupUsersTable, makeUsersFromDatabaseList, editHomeGroups,
-        reRenderTable,updateHomeGroup} from "./modules/HomeGroup/index";
+import errorHandling from './modules/Error';
+import {
+    createHomeGroupUsersTable,
+    makeUsersFromDatabaseList,
+    reRenderTable,
+    updateHomeGroup
+} from "./modules/HomeGroup/index";
+import {
+    HomeReportsTable,
+    sendReport,
+    btnControlsImg,
+    deleteReport
+} from "./modules/Reports/home_group";
 import updateSettings from './modules/UpdateSettings/index';
 import {postData} from "./modules/Ajax/index";
 import exportTableData from './modules/Export/index';
@@ -21,6 +32,11 @@ import pasteLink from './modules/pasteLink';
 $('document').ready(function () {
     let $homeGroup = $('#home_group');
     const ID = $homeGroup.data('id');
+    let configReport = {
+        home_group: ID,
+        last_5: true
+    },
+        $statusTabs = $('#statusTabs');
 
     createHomeGroupUsersTable({}, ID);
 
@@ -79,24 +95,24 @@ $('document').ready(function () {
     $('.create_report').on('click',function () {
         $('#addHomeGroupReport').addClass('active');
         $('.bg').addClass('active');
-    })
+        $('#addHomeGroupReport').find('#dateReport').val('');
+    });
 
     $('.add-report').on('click',function (e) {
         e.preventDefault();
-        let type = $(this).parent().closest('form').find('#typeReport').val(),
+        let type_id = $(this).parent().closest('form').find('#typeReport').val(),
             date = $(this).parent().closest('form').find('#dateReport').val().trim().split('.').reverse().join('-'),
             data = {
-                type_id:type,
-                date: date
+                type_id,
+                date
             },
-            idHomeGroup = $('#editHomeGroupForm').data('id');
-        postData(URLS.home_group.create_report(idHomeGroup),data).then(function () {
+            ID = $('#editHomeGroupForm').data('id');
+        postData(URLS.home_group.create_report(ID),data).then(function () {
+            HomeReportsTable(configReport, false);
             $('#addHomeGroupReport').removeClass('active');
             $('.bg').removeClass('active');
             showAlert('Отчет успешно создан');
-        }).catch(err => {
-            showAlert(err.message);
-        })
+        }).catch(err => errorHandling(err));
     });
 
     $('#typeReport').select2();
@@ -194,47 +210,6 @@ $('document').ready(function () {
                 $(this).addClass('active');
             }
         }
-
-        // if ($(this).hasClass('active')) {
-        //     $input.each(function (i, el) {
-        //         if (!$(this).attr('disabled')) {
-        //             $(this).attr('disabled', true);
-        //         }
-        //         $(this).attr('readonly', true);
-        //         if ($(el).is('select')) {
-        //             if (!$(this).is('.no_select')) {
-        //                 $(this).select2('destroy');
-        //             }
-        //         }
-        //     });
-        //     $(this).removeClass('active');
-        // } else {
-        //     let leaderId = $('#homeGroupLeader').val(),
-        //         churchId = $('#editHomeGroupForm').attr('data-departament_id');
-        //     $input.each(function (i, el) {
-        //         console.log($(this).is('#homeGroupLeader'));
-        //         if (!$(this).hasClass('no__edit')) {
-        //             if ($(this).attr('disabled')) {
-        //                 $(this).attr('disabled', false);
-        //             }
-        //             if (!$(el).is('#church')) {
-        //                 $(this).attr('readonly', false);
-        //             }
-        //             if ($(el).is('#homeGroupLeader')) {
-        //                 getPotentialLeadersForHG({church: churchId}).then(function (res) {
-        //                     return res.map(function (leader) {
-        //                         return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
-        //                     });
-        //                 }).then(function (data) {
-        //                     $('#homeGroupLeader').html(data).prop('disabled', false).select2();
-        //                 });
-        //             }
-        //         }
-        //     });
-        //     $(this).addClass('active');
-        // }
-        //  $('#first_name,#file').attr('disabled',false);
-        // $('#first_name,#file').attr('readonly',false);
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
@@ -325,9 +300,6 @@ $('document').ready(function () {
                 }
             }
         });
-        // updateHomeGroup(idHomeGroup, formData, success);
-        // editHomeGroups($(this), idHomeGroup);
-
 
         pasteLink($('#homeGroupLeader'), liderLink);
         if (webLink == '' ) {
@@ -349,4 +321,33 @@ $('document').ready(function () {
             });
         }
     });
+
+    $.validate({
+        lang: 'ru',
+        form: '#homeReportForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            sendReport(false, configReport);
+
+            return false;
+        }
+    });
+
+    btnControlsImg();
+    HomeReportsTable(configReport, false);
+
+    $statusTabs.find('button').on('click', function () {
+        $('.preloader').css('display', 'block');
+        $statusTabs.find('li').removeClass('current');
+        $(this).closest('li').addClass('current');
+        HomeReportsTable(configReport, false);
+    });
+
+    $('#delete_report').on('click', function (e) {
+        e.preventDefault();
+        deleteReport(HomeReportsTable, configReport, false);
+    });
+
 });
