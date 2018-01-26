@@ -523,7 +523,6 @@ $('document').ready(function () {
         }
     });
 
-
     ChurchReportsTable(configReport, false);
     btnNeed();
     btnPartners();

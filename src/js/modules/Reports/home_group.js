@@ -18,18 +18,18 @@ import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 import dataHandling from '../Error';
 
-export function HomeReportsTable(config = {}) {
+export function HomeReportsTable(config = {}, pagination = true) {
     Object.assign(config, getTypeTabsFilterParam());
     getData(URLS.event.home_meeting.list(), config).then(data => {
-        makeHomeReportsTable(data);
+        makeHomeReportsTable(data, config, pagination);
     }).catch(err => dataHandling(err));
 }
 
-export function homeReportsTable(config = {}) {
+export function homeReportsTable(config = {}, pagination = true) {
     Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
-    updateHistoryUrl(config);
+    (pagination) && updateHistoryUrl(config);
     getData(URLS.event.home_meeting.list(), config).then(data => {
-        makeHomeReportsTable(data, config);
+        makeHomeReportsTable(data, config, pagination);
     }).catch(err => dataHandling(err));
 }
 
@@ -39,7 +39,7 @@ function getTypeTabsFilterParam() {
     return {is_submitted};
 }
 
-function makeHomeReportsTable(data, config = {}) {
+function makeHomeReportsTable(data, config = {}, pagination = true) {
     let tmpl = $('#databaseHomeReports').html();
     _.map(data.results, item => {
         let date = new Date(reverseDate(item.date, '-')),
@@ -61,12 +61,13 @@ function makeHomeReportsTable(data, config = {}) {
         pages: pages,
         callback: homeReportsTable
     };
-    // $('.table__count').text(data.count);
-    makePagination(paginationConfig);
-    makeSortForm(data.table_columns);
-    fixedTableHead();
-    $('.table__count').text(text);
-    new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    if (pagination) {
+        makePagination(paginationConfig);
+        makeSortForm(data.table_columns);
+        fixedTableHead();
+        $('.table__count').text(text);
+        new OrderTable().sort(homeReportsTable, ".table-wrap th");
+    }
     $('.preloader').css('display', 'none');
     btnControls();
     btnEditReport();
@@ -167,7 +168,7 @@ function reportData() {
     if ($('#reportDonations').attr('type') != 'hidden') {
         data.append('total_sum', $('#reportDonations').val());
     }
-    if ($('#reportImage')[0].files.length > 0) {
+    if ($('#reportImage').closest('label').is(":visible") && ($('#reportImage')[0].files.length > 0)) {
         data.append('image', $('#reportImage')[0].files[0]);
     }
     $items.each(function () {
@@ -184,13 +185,13 @@ function reportData() {
     return data;
 }
 
-export function deleteReport(callback, config = {}, fixedHead = true) {
+export function deleteReport(callback, config = {}, pagination = true) {
     let msg = 'Вы действительно хотите удалить данный отчет',
         id = $('#delete_report').attr('data-id');
     showConfirm('Удаление', msg, function () {
         deleteData(URLS.event.home_meeting.detail(id)).then(function () {
             $('.preloader').css('display', 'block');
-            callback(config, fixedHead);
+            callback(config, pagination);
             showAlert('Отчет удален');
             $('#editReport, .bg').removeClass('active');
         }).catch(err => dataHandling(err));
@@ -235,11 +236,15 @@ function completeFields(data) {
             .val((data.status === 2) ? data.total_sum : '')
             .closest('label')
             .css('display', 'block');
+        $('#reportImage').closest('label').css('display', 'block');
+        $('#hg_attds').closest('label').css('display', 'block');
     } else {
         $('#reportDonations')
             .attr('type', 'hidden')
             .closest('label')
             .css('display', 'none');
+        $('#reportImage').closest('label').css('display', 'none');
+        $('#hg_attds').closest('label').css('display', 'none');
     }
     if (!data.can_submit) {
         showAlert(data.cant_submit_cause);

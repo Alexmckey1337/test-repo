@@ -28,7 +28,7 @@ export function ChurchReportsTable(config = {}, pagination = true) {
 
 export function churchReportsTable(config = {}, pagination = true) {
     Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
-    updateHistoryUrl(config);
+    (pagination) && updateHistoryUrl(config);
     getData(URLS.event.church_report.list(), config).then(data => {
         makeChurchReportsTable(data, config, pagination);
     }).catch(err => dataHandling(err));
