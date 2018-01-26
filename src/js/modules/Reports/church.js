@@ -141,6 +141,7 @@ export function deleteReport(callback, config = {}, pagination = true) {
 }
 
 function completeFields (data) {
+    console.log(data);
     $('#delete_report').attr('data-id', data.id);
     $('#send_report').attr({
         'data-id': data.id,

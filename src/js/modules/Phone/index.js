@@ -265,10 +265,11 @@ function btnPlayrecord() {
         btnPlay = $('.playerControll').not(this);
         getAudioFile(URLS.phone.play(file)).then(myBlob => {
             let objectURL = URL.createObjectURL(myBlob),
-                player = $('#wavesurferPlayer'),
+                player = $(this).parent().parent().parent().parent().parent().find('#wavesurferPlayer'),
                 playerHeight = parseInt($(this).parent().parent().height()),
                 playerPosition = $(this).parent().parent().position(),
                 playerWidth = parseInt($(this).parent().parent().width()) - parseInt($(this).parent().width()) - 22;
+            console.log($(player));
 
             $(btnPlay).addClass('load').removeClass('active');
             $(player).css({

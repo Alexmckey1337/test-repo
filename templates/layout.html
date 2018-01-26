@@ -68,9 +68,16 @@
                             </ul>
                         </li>
                     </ul>
-{#                    <div class="bottom-sidebar">#}
-{#                        <a href="{% url "calls" %}" class="menu__item menu__item_phone"></a>#}
-{#                    </div>#}
+                    <div class="bottom-sidebar">
+                        <ul>
+                            <li class="menu__item">
+                                <i class="material-icons">&#xE5C3;</i>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
             </div>
         {% endblock sidebar %}
         <div id="container">

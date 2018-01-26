@@ -71,8 +71,10 @@
       }
     }
   }
+  &>ul{
+    flex:1;
+  }
   ul {
-    flex: 1;
     li {
       box-sizing: border-box;
       position: relative;
@@ -206,6 +208,29 @@
       color: #fff;
       &:hover {
         color: #3caeda;
+      }
+    }
+  }
+  .bottom-sidebar{
+    .menu__item{
+      text-align: center;
+      height: 75px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      .sidebar-submenu{
+        bottom: 0;
+        top: auto;
+      }
+      &:hover{
+        i{
+          color: #3caeda;
+        }
+      }
+      i{
+        font-size:3em;
+        color: #cecece;
       }
     }
   }
