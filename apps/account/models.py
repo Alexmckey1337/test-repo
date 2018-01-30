@@ -38,6 +38,10 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     """
     steplen = 6
 
+    locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='users',
+                                 null=True, blank=True, verbose_name=_('Locality'),
+                                 help_text=_('City/village/etc'))
+
     region = models.CharField(_('Region'), max_length=50, blank=True)
     district = models.CharField(_('District'), max_length=50, blank=True)
     address = models.CharField(_('Address'), max_length=300, blank=True)
