@@ -120,3 +120,30 @@ class City(models.Model):
 
     def __str__(self):
         return self.name
+
+    def country_name(self):
+        return self.country.name
+
+    def area_name(self):
+        return self.area.name
+
+    def district_name(self):
+        try:
+            return District.objects.get(pk=self.rajon)
+        except District.DoesNotExist:
+            return ''
+
+
+class District(models.Model):
+    name = models.CharField(_('Name'), max_length=128)
+    area_id = models.PositiveIntegerField(_('Area'), default=0, db_index=True)
+    country = models.ForeignKey('location.Country', on_delete=models.PROTECT,
+                                related_name='districts', verbose_name=_('Country'))
+    capital = models.PositiveIntegerField(_('Capital'), default=0)
+    english = models.CharField(_('English name'), max_length=64, blank=True)
+
+    class Meta:
+        db_table = 'geo_rajon'
+
+    def __str__(self):
+        return self.name

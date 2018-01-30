@@ -17,6 +17,7 @@ from rest_framework.utils import model_meta
 from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from apps.account.models import CustomUser as User, CustomUser
+from apps.location.models import City
 from common.fields import ReadOnlyChoiceField
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
@@ -35,6 +36,7 @@ BASE_USER_FIELDS = (
     'born_date', 'coming_date', 'repentance_date',
 
     'country', 'region', 'city', 'district', 'address', 'marker',
+    'locality',
     # #################################################
     'image', 'image_source',
 
@@ -74,6 +76,20 @@ class DepartmentTitleSerializer(serializers.ModelSerializer):
         model = Department
         fields = ('id', 'title')
         read_only_fields = ('title',)
+
+
+class CityReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ('id', 'name', 'country_name', 'area_name', 'district_name')
+        read_only_fields = ('name', 'country_name', 'area_name', 'district_name')
+
+
+class CityTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ('id', 'name')
+        read_only_fields = ('name',)
 
 
 class HierarchyTitleSerializer(serializers.ModelSerializer):
@@ -364,11 +380,13 @@ class UserSingleSerializer(BaseUserSerializer):
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    locality = CityReadSerializer()
 
 
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
     get_church = ChurchNameSerializer(read_only=True)
+    locality = CityTitleSerializer()
 
     class Meta(UserSingleSerializer.Meta):
         fields = BASE_USER_FIELDS + ('get_church',)
