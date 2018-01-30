@@ -233,10 +233,10 @@
                     <td>
                         <% if (results[index].status == '2') { %>
                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                            <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                            <span><%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %></span>
                         </button>
                         <% } else { %>
-                        <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                        <%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %>
                         <% } %>
                     </td>
                     <% } else { %>
@@ -274,6 +274,15 @@
                         <% } %>
                         <% } %>
                     </td>
+                        <% } else if (key === 'total_tithe'
+                                    || key === 'total_donations'
+                                    || key === 'total_pastor_tithe'
+                                    || key === 'transfer_payments') { %>
+                        <td>
+                            <% if (results[index][key] != null) { %>
+                            <%= results[index][key].replace('.', ',') %>
+                            <% } %>
+                        </td>
                     <% } else if(key == 'pastor') { %>
                     <% if (results[index][key] != null) { %>
                     <td>
