@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from apps.location.models import OldCountry, OldRegion, OldCity
+from apps.location.models import OldCountry, OldRegion, OldCity, City
 
 
 class OldCountryAdmin(admin.ModelAdmin):
@@ -36,4 +36,13 @@ class OldCityAdmin(admin.ModelAdmin):
         model = OldCity
 
 
+class CityAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ['name']
+
+    class Meta:
+        model = OldCity
+
+
 admin.site.register(OldCity, OldCityAdmin)
+admin.site.register(City, CityAdmin)
