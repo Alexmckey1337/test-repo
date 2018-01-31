@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block header.top.h1 %}<h1>Звонки</h1>{% endblock %}
+{% block header.search %}{% endblock %}
 
 {% block header.buttons %}
     <div class="top-buttons-wrap">
@@ -14,9 +15,9 @@
                 <li>
                     <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
                 </li>
-                <li>
-                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
             {% endblock %}
         </ul>
     </div>
@@ -25,14 +26,15 @@
 {% block main.content %}
     {% block pagination_top %}
         <div class="table__count"></div>
-        <div class="pagination reports__pagination"><!--pagination -->
+        <div class="pagination calls__pagination"><!--pagination -->
         </div><!--End pagination -->
     {% endblock %}
 
     {% block table %}
         <!--Table -->
-            <div class="table table-wrap clearfix" id="tablePhone">
-                <div class="table scrollbar-inner" id="tablePhoneWrap">
+            <div class="table table-wrap clearfix playerParent" id="tablePhone">
+                <div class="table scrollbar-inner " id="tablePhoneWrap">
+
                 </div>
             {% include "partials/player.html" %}
             </div>
@@ -41,7 +43,7 @@
 
     {% block pagination_bottom %}
         <div class="table__count"></div>
-        <div class="pagination reports__pagination"></div>
+        <div class="pagination calls__pagination"></div>
     {% endblock %}
 {% endblock %}
 
@@ -119,6 +121,7 @@
         <div class="pop_cont">
             <div class="top-text">
                 <h3>Добавить ...</h3>
+                <input type="number" name="search" id="searchPhone" placeholder="Поиск">
                 <span class="close_pop">×</span>
             </div>
             <div class="main-text">

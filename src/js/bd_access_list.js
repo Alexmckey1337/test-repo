@@ -9,7 +9,7 @@ import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
 import makeSelect from './modules/MakeAjaxSelect/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {PhoneTable, phoneTable,getDataUserPhone} from "./modules/Phone/index";
+import {BdAccessTable, bdAccessTable} from "./modules/Controls/bg_access_list";
 import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
@@ -35,18 +35,18 @@ $('document').ready(function () {
     }
 
     if (path == undefined) {
-        PhoneTable(configData);
+        BdAccessTable(configData);
     }
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
-        phoneTable();
+        bdAccessTable();
     }
 
     // Events
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
         $('.preloader').css('display', 'block');
-        phoneTable();
+        bdAccessTable();
     }, 500));
     $('#filter_button').on('click', function () {
         filterInit();
@@ -54,33 +54,13 @@ $('document').ready(function () {
         $('.bg').addClass('active');
     });
     $('.apply-filter').on('click', function () {
-        applyFilter(this, phoneTable);
+        applyFilter(this, bdAccessTable);
     });
     $('.clear-filter').on('click', function () {
         refreshFilter(this);
     });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(phoneTable);
-    });
-    $('#add-phone').on('click',function () {
-        $('#searchPhone').val('');
-        getDataUserPhone();
-        $('#popupAddUserToPhone').css('display', 'block');
-    });
-    $('.close_pop').on('click',function () {
-        $('#popupAddUserToPhone').css('display', 'none');
-    })
-    $('.date_filter').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#searchPhone').keypress(function (event) {
-        if (event.which === 13) {
-            let value = $(this).val(),
-                config = {search: value};
-            getDataUserPhone(config);
-        }
+        updateSettings(bdAccessTable);
     });
 });

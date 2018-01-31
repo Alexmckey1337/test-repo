@@ -1,6 +1,5 @@
-from django.urls import path
-
 from apps.controls import views
+from django.urls import reverse, path
 
 
 app_name = 'controls'
