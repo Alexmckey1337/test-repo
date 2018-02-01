@@ -10,4 +10,5 @@ router_v1_0.register('cities', views.OldCityViewSet)
 
 urlpatterns = [
     path('', include(router_v1_0.urls)),
+    path('city/', views.CitySearchListView.as_view())
 ]
