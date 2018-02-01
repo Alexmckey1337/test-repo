@@ -100,10 +100,11 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         'country', 'region', 'city', 'district', 'address', 'born_name', 'facebook', 'vkontakte',
         'odnoklassniki', 'description', 'hierarchy', 'master', 'repentance_date',
         'coming_date', 'spiritual_level', 'extra_phone_numbers', 'cchurch', 'hhome_group',
+        'locality', 'is_dead', 'is_stable',
     )
 
     tracking_reverse_fields = (
-        'divisions', 'departments'
+        'divisions', 'departments', 'marker',
     )
 
     def __str__(self):

@@ -129,7 +129,7 @@ class City(models.Model):
 
     def district_name(self):
         try:
-            return District.objects.get(pk=self.rajon)
+            return District.objects.get(pk=self.rajon).name
         except District.DoesNotExist:
             return ''
 
