@@ -31,4 +31,48 @@
         display: flex;
         justify-content: center;
     }
+    .user-id {
+        width: 60px;
+        display: inline-block;
+    }
+    .editPassword{
+        cursor: pointer;
+        color: #3caeda;
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+}
+#newPassword{
+    display: none;
+    .top-text{
+        margin-bottom:20px;
+    }
+    .pop_cont{
+        max-width: 500px !important;
+    }
+}
+#passwordForm{
+    display: flex;
+    flex-direction: column;
+    label{
+        display: flex;
+        justify-content: space-between;
+        &:not(:last-child){
+            margin-bottom:10px;
+        }
+    }
+    input {
+        height: 25px;
+        border-radius: 3px;
+        border: 1px solid #cdd0d4;
+        padding: 6px 5px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        margin-right: 10px;
+        width: 250px;
+    }
+    button{
+        margin-top:10px;
+    }
 }

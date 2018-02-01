@@ -312,7 +312,6 @@ $('document').ready(function () {
     //Parsing URL
     if (path != undefined) {
         let filterParam = parseUrlQuery();
-        console.log(filterParam);
         filterInit(filterParam);
     }
 });

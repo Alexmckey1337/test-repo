@@ -43,7 +43,7 @@
         <div class="table__count"></div>
         <div class="pagination bd_access__pagination"></div>
     {% endblock %}
-    <button id="sendTableData">Отправить</button>
+{#    <button id="sendTableData">Отправить</button>#}
 {% endblock %}
 
 {% block popup %}
@@ -55,27 +55,32 @@
             <div class="popup_body">
                 <div class="container">
                     <label>
-                        <span class="label_block">ФИО</span>
-                        <input type="text" data-filter="fio">
-                    </label>
-                    <label>
                         <span class="label_block">Иерархия</span>
                         <input type="text" data-filter="pastor">
                     </label>
                     <label>
                         <span class="label_block">Персонал</span>
-                        <input type="checkbox" data-filter="is_staff">
-                        <span></span>
+                        <select name="is_staff" class="selectbd" data-filter="is_staff">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
                     </label>
                     <label>
                         <span class="label_block">Активный</span>
-                        <input type="checkbox" data-filter="is_active">
-                        <span></span>
+                        <select name="is_active" class="selectbd" data-filter="is_active">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
                     </label>
                     <label>
                         <span class="label_block">Имеет право входа</span>
-                        <input type="checkbox" data-filter="can_login">
-                        <span></span>
+                        <select name="can_login" class="selectbd" data-filter="can_login">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
                     </label>
                 </div>
             </div>
@@ -83,6 +88,24 @@
                 <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
                 <button class="close-popup">Отменить</button>
                 <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+    <div class="pop-up__table passwordPopup" id="newPassword">
+        <div class="pop_cont">
+            <div class="top-text"><h3>Изменить пароль</h3></div>
+            <div class="main-text">
+                <form id="passwordForm" data-id="у">
+                    <label>
+                        <span>Введите новый пароль: </span>
+                        <input type="password" name="newPassword">
+                    </label>
+                    <label>
+                        <span>Повторите пароль: </span>
+                        <input type="password" name="confirmPassword" class="confirmPass">
+                    </label>
+                    <button>Отправить</button>
+                </form>
             </div>
         </div>
     </div>

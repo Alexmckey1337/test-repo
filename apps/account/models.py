@@ -130,6 +130,12 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         return self.get_descendants().filter(hierarchy__level=1)
 
     @property
+    def has_usable_password(self):
+        if self.password:
+            return True
+        return False
+
+    @property
     def link(self):
         return self.get_absolute_url()
 

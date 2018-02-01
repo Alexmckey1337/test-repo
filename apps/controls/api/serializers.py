@@ -17,14 +17,13 @@ class DatabaseAccessListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'link', 'fullname', 'hierarchy', 'is_staff', 'is_active',
-                  'can_login')
+                  'can_login', 'has_usable_password')
 
 
 class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'fullname', 'username', 'password', 'is_staff',
-                  'is_active', 'can_login')
+        fields = ('id', 'password')
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):

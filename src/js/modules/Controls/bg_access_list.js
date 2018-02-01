@@ -83,6 +83,7 @@ function createBdAccessTable(data,block) {
                                 <th>Персонал</th>
                                 <th>Активный</th>                                        
                                 <th>Имеет право входа</th>
+                                <th>Id и пароль</th>
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
@@ -111,6 +112,9 @@ function createBdAccessTable(data,block) {
                                     <div></div>
                                 </label>
                             </td>
+                            <td>
+                                <span class="user-id">${item.id}</span><span class="editPassword">${item.has_usable_password ? 'Изменить пароль' : 'Создать пароль'}</span>
+                            </td>
                         </tr>
                             `;
     }).join('')}</tbody>
@@ -125,51 +129,73 @@ function btnControll() {
         checkbox = $('.tableBdAccess').find('input[type="checkbox"]');
     checkbox.each(function (i,el) {
         $(el).on('change',function () {
-            $(this).toggleClass('change');
-            let tr = $(this).closest('tr');
-            tr.each(function (i,el) {
-                let input = $(el).find('input[type="checkbox"]');
-                function isComplete(elem) {
-                    return $(elem).hasClass('change');
-                }
-                if([...input].some(isComplete)){
-                    $(el).addClass('change_row');
-                }else{
-                    $(el).removeClass('change_row');
-                }
+            obj.data.length = 0;
+            let prop = $(this).attr('name'),
+            data = {
+                user_id: $(this).closest('tr').data('id'),
+            };
+            if ($(this).is(':checked')) {
+                data[prop] = 'True';
+            } else {
+                data[prop] = 'False';
+            }
+            obj.data.push(data);
+            postData(URLS.controls.bd_access_submit(), obj).then(function () {
+                // BdAccessTable();
             });
+            // $(this).toggleClass('change');
+            // let tr = $(this).closest('tr');
+            // tr.each(function (i,el) {
+            //     let input = $(el).find('input[type="checkbox"]');
+            //     function isComplete(elem) {
+            //         return $(elem).hasClass('change');
+            //     }
+            //     if([...input].some(isComplete)){
+            //         $(el).addClass('change_row');
+            //     }else{
+            //         $(el).removeClass('change_row');
+            //     }
+            // });
         });
     });
-    $('#sendTableData').on('click', function (e) {
-        e.preventDefault();
-        function isComplete(elem) {
-            return $(elem).hasClass('change_row');
-        }
-        obj.data.length = 0;
-        let tr = $('.tableBdAccess').find('.change_row');
-        tr.each(function (i, el) {
-            let input = $(el).find('.change'),
-                data = {
-                    user_id: $(el).data('id')
-                }
-            input.each(function (j, elem) {
-                let prop = $(elem).attr('name');
-                if ($(elem).is(':checked')) {
-                    data[prop] = 'True';
-                } else {
-                    data[prop] = 'False';
-                }
-            });
-            obj.data.push(data);
+    // $('#sendTableData').on('click', function (e) {
+    //     e.preventDefault();
+    //     function isComplete(elem) {
+    //         return $(elem).hasClass('change_row');
+    //     }
+    //     obj.data.length = 0;
+    //     let tr = $('.tableBdAccess').find('.change_row');
+    //     tr.each(function (i, el) {
+    //         let input = $(el).find('.change'),
+    //             data = {
+    //                 user_id: $(el).data('id')
+    //             }
+    //         input.each(function (j, elem) {
+    //             let prop = $(elem).attr('name');
+    //             if ($(elem).is(':checked')) {
+    //                 data[prop] = 'True';
+    //             } else {
+    //                 data[prop] = 'False';
+    //             }
+    //         });
+    //         obj.data.push(data);
+    //     });
+    //     if ([...tr].some(isComplete)) {
+    //         postData(URLS.controls.bd_access_submit(), obj).then(function () {
+    //             checkbox.each(function (i, el) {
+    //                 $(this).removeClass('change').closest('tr').removeClass('change_row');
+    //             });
+    //             bdAccessTable();
+    //             showAlert('Сохранено');
+    //         });
+    //     }
+    //     console.log(obj);
+    // });
+    $('.editPassword').on('click',function () {
+        let userId = Number($(this).closest('td').find('.user-id').text());
+        $('.passwordPopup').css({
+            'display': 'block'
         });
-        if ([...tr].some(isComplete)) {
-            postData(URLS.controls.bd_access_submit(), obj).then(function () {
-                checkbox.each(function (i, el) {
-                    $(this).removeClass('change').closest('tr').removeClass('change_row');
-                });
-                bdAccessTable();
-                showAlert('Сохранено');
-            });
-        }
+        $('#passwordForm').data('id', userId);
     });
 }

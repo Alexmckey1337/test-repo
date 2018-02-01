@@ -40,7 +40,6 @@ $('document').ready(function () {
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
-        phoneTable();
     }
 
     // Events

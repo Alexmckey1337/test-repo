@@ -18,8 +18,9 @@ const USER = {
 };
 
 const CONTROLS = {
-    bd_access: () => '/api/controls/db_access/',
-    bd_access_submit: () => '/api/controls/db_access/submit/',
+    bd_access: () => `/api/controls/db_access/`,
+    bd_access_submit: () => `/api/controls/db_access/submit/`,
+    password_submit: (id) => `/api/controls/db_access/${id}/`
 }
 
 const SUMMIT = {
