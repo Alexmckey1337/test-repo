@@ -725,8 +725,10 @@ class ChurchReportStatsView(views.APIView):
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
-        if not pastor_tree:
+        if not pastor_tree and self.request.user.is_staff:
             return ''
+        if not pastor_tree:
+            pastor_tree = self.request.user.id
         try:
             pastor = CustomUser.objects.get(pk=pastor_tree)
         except CustomUser.DoesNotExist:
