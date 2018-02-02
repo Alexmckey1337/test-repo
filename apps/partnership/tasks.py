@@ -72,7 +72,7 @@ def telegram_users_to_kick():
 
 @app.task(name='kick_from_telegram')
 def kick_from_telegram(telegram_user_id):
-    telegram_user = TelegramUser.objects.get(telegram_id=telegram_user_id)
+    telegram_user = TelegramUser.objects.get(id=telegram_user_id)
 
     r = requests.delete('http://hola.nodeads.com:8888/bot/partner/',
                         params={'user_id': telegram_user.telegram_id,
