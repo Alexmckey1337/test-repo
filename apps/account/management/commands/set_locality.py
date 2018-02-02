@@ -11,8 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.set_users()
-        # self.set_churches()
-        # self.set_hg()
+        self.set_churches()
+        self.set_hg()
 
     def set_users(self):
         users = CustomUser.objects.filter(locality__isnull=True)
@@ -30,15 +30,15 @@ class Command(BaseCommand):
             city = cc[1].strip()
             country = cc[0].strip()
             region = cc[2].strip()
-            params = {'name': city, 'country__name': country, 'area__name': region}
+            params = {'name__iexact': city, 'country__name__iexact': country, 'area__name__iexact': region}
             if city == '':
                 without_city.append(cc)
                 ok = False
             if country == '':
                 without_country.append(cc)
-                del params['country__name']
+                del params['country__name__iexact']
             if region == '':
-                del params['area__name']
+                del params['area__name__iexact']
             if not ok:
                 continue
             try:
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             except City.DoesNotExist:
                 if region:
                     try:
-                        del params['area__name']
+                        del params['area__name__iexact']
                         c = City.objects.get(**params)
                         success.append(cc)
                         CustomUser.objects.filter(pk__in=uu).update(locality=c)
