@@ -11,7 +11,6 @@ from edem.settings.celery import app
 from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser
 from apps.account.models import CustomUser
 import requests
-from time import sleep
 
 logger = logging.getLogger(__name__)
 
