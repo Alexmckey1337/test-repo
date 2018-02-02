@@ -6,51 +6,41 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
+import getData, {postData, deleteData} from '../Ajax/index';
 import {getFilterParam, getTabsFilterParam} from "../Filter/index"
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {btnDeals} from "../Deals/index";
-import {completeChurchPayment, showChurchPayments} from '../Payment/index';
+import {showChurchPayments} from '../Payment/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
+import dataHandling from '../Error';
 
-export function ChurchReportsTable(config={},fixTableHead) {
-    Object.assign(config, getTabsFilterParam());
-    getChurchReports(config).then(data => {
-        makeChurchReportsTable(data,{},fixTableHead);
-    });
+export function ChurchReportsTable(config = {}, pagination = true) {
+    Object.assign(config, getTabsFilterParam(), getTypeTabsFilterParam());
+    getData(URLS.event.church_report.list(), config).then(data => {
+        makeChurchReportsTable(data, config, pagination);
+    }).catch(err => dataHandling(err));
 }
 
-function getChurchReports(config = {}) {
-    if (!config.is_submitted) {
-        let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
-        config.is_submitted = is_submitted || 'false';
-    }
-    return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.event.church_report.list(),
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: config
-        };
-        let status = {
-            200: function (req) {
-                resolve(req);
-            },
-            403: function () {
-                reject('Вы должны авторизоватся');
-            }
-        };
-        newAjaxRequest(data, status);
-    })
+export function churchReportsTable(config = {}, pagination = true) {
+    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
+    (pagination) && updateHistoryUrl(config);
+    getData(URLS.event.church_report.list(), config).then(data => {
+        makeChurchReportsTable(data, config, pagination);
+    }).catch(err => dataHandling(err));
 }
 
-function makeChurchReportsTable(data, config = {},fixTableHead = true) {
+function getTypeTabsFilterParam() {
+    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
+
+    return {is_submitted};
+}
+
+function makeChurchReportsTable(data, config = {}, pagination = true) {
     let tmpl = $('#databaseChurchReports').html();
     _.map(data.results, item => {
         let date = new Date(reverseDate(item.date, '-')),
@@ -61,63 +51,161 @@ function makeChurchReportsTable(data, config = {},fixTableHead = true) {
     });
     let rendered = _.template(tmpl)(data);
     $('#churchReports').html(rendered);
-    let count = data.count;
-    let pages = Math.ceil(count / CONFIG.pagination_count);
-    let page = config.page || 1;
-    let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-    let text = `Показано ${showCount} из ${count}`;
-    let paginationConfig = {
-        container: ".reports__pagination",
-        currentPage: page,
-        pages: pages,
-        callback: churchReportsTable
-    };
-    // $('.table__count').text(data.count);
-    makePagination(paginationConfig);
-    makeSortForm(data.table_columns);
-    $('.table__count').text(text);
-    if(fixTableHead){
+    let count = data.count,
+        pages = Math.ceil(count / CONFIG.pagination_count),
+        page = config.page || 1,
+        showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+        text = `Показано ${showCount} из ${count}`,
+        paginationConfig = {
+            container: ".reports__pagination",
+            currentPage: page,
+            pages: pages,
+            callback: churchReportsTable
+        };
+    if (pagination) {
+        makePagination(paginationConfig);
+        makeSortForm(data.table_columns);
+        $('.table__count').text(text);
         fixedTableHead();
+        new OrderTable().sort(churchReportsTable, ".table-wrap th");
     }
-    new OrderTable().sort(churchReportsTable, ".table-wrap th");
     $('.preloader').hide();
     btnDeals();
+    btnControls(pagination, config);
+    btnEditReport();
+}
+
+function btnControls(pagination, config = {}) {
     $("button.complete").on('click', function () {
-        let id = $(this).attr('data-id');
-        completeChurchPayment(id);
+        let id = $(this).attr('data-id'),
+            data = {"done": true};
+        postData(URLS.event.church_report.detail(id), data, {method: 'PATCH'}).then( _ => {
+            (pagination) ? churchReportsTable() : churchReportsTable(config, pagination);
+        }).catch(err => dataHandling(err));
     });
+
     $('.show_payments').on('click', function () {
         let id = $(this).data('id');
         showChurchPayments(id);
     });
-    $("button.delete_btn").on('click', function () {
+}
+
+function btnEditReport() {
+    $("#churchReports").find('.edit').on('click', function () {
         let id = $(this).attr('data-id');
-        showConfirm('Удаление', 'Вы действительно хотите удалить данный отчет?', function () {
-            deleteChurchPayment(id).then(() => {
-                showAlert('Отчет успешно удален!');
-                $('.preloader').css('display', 'block');
-                let page = $('.pagination__input').val();
-                churchReportsTable({page: page,church: currentСhurch},false);
-            }).catch((error) => {
-                let errKey = Object.keys(error),
-                    html = errKey.map(errkey => `${error[errkey]}`);
-                showAlert(html[0], 'Ошибка');
+        getData(URLS.event.church_report.detail(id)).then(data => {
+            let dateReportsFormatted = new Date(reverseDate(data.date, ',')),
+                thisMonday = (moment(dateReportsFormatted).day() === 1) ?
+                    moment(dateReportsFormatted).format()
+                    :
+                    (moment(dateReportsFormatted).day() === 0) ?
+                        moment(dateReportsFormatted).subtract(6, 'days').format()
+                        :
+                        moment(dateReportsFormatted).day(1).format(),
+                thisSunday = (moment(dateReportsFormatted).day() === 0) ?
+                    moment(dateReportsFormatted).format()
+                    :
+                    moment(dateReportsFormatted).day(7).format();
+            $('#reportDate').datepicker({
+                autoClose: true,
+                minDate: new Date(thisMonday),
+                maxDate: new Date(thisSunday),
             });
-        }, () => {
-        });
+            $('#chReportForm').get(0).reset();
+            completeFields(data);
+            $('#editReport, .bg').addClass('active');
+        }).catch(err => dataHandling(err));
     });
 }
 
-export function churchReportsTable(config = {},fixedHead=true) {
-    let is_submitted = $('#statusTabs').find('.current').find('button').attr('data-is_submitted');
-    config.is_submitted = is_submitted;
-    Object.assign(config, getSearch('search_title'));
-    Object.assign(config, getFilterParam());
-    Object.assign(config, getTabsFilterParam());
-    updateHistoryUrl(config);
-    getChurchReports(config).then(data => {
-        makeChurchReportsTable(data, config,fixedHead);
-    })
+export function calcTransPayments() {
+    $('#reportTithe, #reportDonations').on('input', function () {
+        let tithe = $('#reportTithe').val() || 0,
+            donat = $('#reportDonations').val() || 0,
+            calc = (+tithe + +donat) * 0.15;
+        $('#reportTransferPayments').val(calc.toFixed(1));
+    });
+}
+
+export function deleteReport(callback, config = {}, pagination = true) {
+    let msg = 'Вы действительно хотите удалить данный отчет',
+        id = $('#delete_report').attr('data-id');
+    showConfirm('Удаление', msg, function () {
+        deleteData(URLS.event.church_report.detail(id)).then(function () {
+            $('.preloader').css('display', 'block');
+            callback(config, pagination);
+            showAlert('Отчет удален');
+            $('#editReport, .bg').removeClass('active');
+        }).catch(err => dataHandling(err));
+    });
+}
+
+function completeFields (data) {
+    $('#delete_report').attr('data-id', data.id);
+    $('#send_report').attr({
+        'data-id': data.id,
+        'data-status': data.status
+    });
+    $('#reportChurch').text(data.church.title).attr('data-id', data.church.id);
+    $("#reportPastor").text(data.pastor.fullname).attr('data-id', data.pastor.id);
+    $('#reportDate').val((data.status === 2) ? data.date : '');
+    $('#reportCountPeople').val((data.status === 2) ? data.total_peoples : '');
+    $('#reportCountNewPeople').val((data.status === 2) ? data.total_new_peoples : '');
+    $('#reportCountRepentance').val((data.status === 2) ? data.total_repentance : '');
+    $('#reportTithe').val((data.status === 2) ? data.total_tithe : '');
+    $('#reportDonations').val((data.status === 2) ? data.total_donations : '');
+    $('#reportTransferPayments').val(data.transfer_payments);
+    $('#reportPastorTithe').val((data.status === 2) ? data.total_pastor_tithe : '');
+    $('#reportComment').val(data.comment);
+    $('.cur_name').text(`(${data.currency.short_name})`);
+    $('#report_title').text((data.status === 2) ? 'Редактирование' : 'Подача');
+    $('#send_report').text((data.status === 2) ? 'Сохранить' : 'Подать');
+    if (!data.can_submit) {
+        showAlert(data.cant_submit_cause);
+        $('#send_report').attr({disabled: true});
+    } else {
+        $('#send_report').attr({disabled: false});
+    }
+}
+
+function reportData() {
+    let data = {},
+        $input = $('#editReport').find('input, textarea');
+    $input.each(function () {
+        let field = $(this).attr('name');
+        if (field) {
+            if (field === 'date') {
+                data[field] = reverseDate($(this).val(), '-');
+            } else {
+                data[field] = $(this).val();
+            }
+        }
+    });
+    return data;
+}
+
+export function sendReport(pagination = true, option = {}) {
+    const ID = $('#send_report').attr('data-id'),
+        status = $('#send_report').attr('data-status'),
+        URL = (status === '2') ?
+            URLS.event.church_report.detail(ID)
+            :
+            URLS.event.church_report.submit(ID),
+        MSG = (status === '2') ?
+            'Изменения в отчете поданы'
+            :
+            'Отчет успешно подан';
+    let data = reportData(),
+        config = {},
+        page = $('.pagination__input').val();
+    (status === '2') && (config.method = 'PUT');
+    postData(URL, data, config).then(function () {
+        let conf = {page};
+        (!pagination) && (Object.assign(conf, option));
+        churchReportsTable(conf, pagination);
+        showAlert(MSG);
+        $('#editReport, .bg').removeClass('active');
+    }).catch(err => dataHandling(err));
 }
 
 export function createChurchPayment(id, sum, description) {
@@ -407,27 +495,4 @@ function submitReports(config) {
         };
         newAjaxRequest(data, status, reject)
     })
-}
-
-function deleteChurchPayment(id) {
-    let url = URLS.event.church_report.detail(id),
-        defaultOption = {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-    if (typeof url === "string") {
-        return fetch(url, defaultOption).then(resp => {
-            if (resp.status >= 200 && resp.status < 300) {
-                return resp;
-            } else {
-                let json = resp.json();
-                return json.then(err => {
-                    throw err;
-                });
-            }
-        });
-    }
 }

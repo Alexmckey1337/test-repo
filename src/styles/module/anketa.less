@@ -1407,18 +1407,31 @@
     padding-top:0;
   }
 }
-.recordIptel{
+#iptelBlock{
+  position: relative;
+}
+.recordIptel {
   cursor: pointer;
   text-align: center;
-  p{
+  display: flex;
+  justify-content: center;
+  p {
     display: none;
   }
-  svg{
-    width: 30px;
-    height: 30px;
-    display: none;
-    &.active{
-      display: inline-block;
+  .playerControll {
+    .btnPlay {
+      display: inline;
+    }
+    .btnStop {
+      display: none;
+    }
+    &.active {
+      .btnPlay {
+        display: none;
+      }
+      .btnStop {
+        display: inline;
+      }
     }
   }
 }

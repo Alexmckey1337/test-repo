@@ -3,37 +3,46 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from apps.location.models import Country, Region, City
+from apps.location.models import OldCountry, OldRegion, OldCity, City
 
 
-class CountryAdmin(admin.ModelAdmin):
+class OldCountryAdmin(admin.ModelAdmin):
     list_display = ('title', 'phone_code',)
     search_fields = ['title']
 
     class Meta:
-        model = Country
+        model = OldCountry
 
 
-admin.site.register(Country, CountryAdmin)
+admin.site.register(OldCountry, OldCountryAdmin)
 
 
-class RegionAdmin(admin.ModelAdmin):
+class OldRegionAdmin(admin.ModelAdmin):
     list_display = ('title',)
     search_fields = ['title']
 
     class Meta:
-        model = Region
+        model = OldRegion
 
 
-admin.site.register(Region, RegionAdmin)
+admin.site.register(OldRegion, OldRegionAdmin)
+
+
+class OldCityAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+    search_fields = ['title']
+
+    class Meta:
+        model = OldCity
 
 
 class CityAdmin(admin.ModelAdmin):
-    list_display = ('title',)
-    search_fields = ['title']
+    list_display = ('name',)
+    search_fields = ['name']
 
     class Meta:
-        model = City
+        model = OldCity
 
 
+admin.site.register(OldCity, OldCityAdmin)
 admin.site.register(City, CityAdmin)

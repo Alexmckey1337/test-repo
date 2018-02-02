@@ -76,6 +76,7 @@ const HOME_MEETING = {
     stats: () => `/api/events/home_meetings/statistics/`,
     dashboard_count: () => `/api/events/home_meetings/dashboard_counts/`,
     summary: () => `/api/events/home_meetings/meetings_summary/`,
+    cleanImg: (id) => `/api/events/home_meetings/${id}/clean_image/`,
 };
 
 const EVENT = {
@@ -167,8 +168,9 @@ const PHONE = {
     user: () => `/api/asterisk_users/`,
     changeUser: () => `/api/change_asterisk_user/`,
     lastThree: (id) => `/api/calls_to_user/?user_id=${id}&range=last_3`,
-    filterMonth: (id,date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
+    filterMonth: (id, date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
     // detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
+    play: (file) => `https://vocrm.net/file/?file_name=${file}`,
 };
 
 const URLS = {

@@ -45,6 +45,7 @@ class ChurchReportPagination(MeetingPagination):
 
 class MeetingVisitorsPagination(MeetingPagination):
     category = 'attend'
+    page_size = 1000
 
 
 class MeetingSummaryPagination(MeetingPagination):

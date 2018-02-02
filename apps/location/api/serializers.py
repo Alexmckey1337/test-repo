@@ -3,22 +3,36 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from apps.location.models import Country, Region, City
+from apps.location.models import OldCountry, OldRegion, OldCity, City
 
 
-class CountrySerializer(serializers.HyperlinkedModelSerializer):
+class OldCountrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Country
+        model = OldCountry
         fields = ('id', 'title', 'code', 'phone_code',)
 
 
-class RegionSerializer(serializers.HyperlinkedModelSerializer):
+class OldRegionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Region
+        model = OldRegion
         fields = ('id', 'title',)
 
 
-class CitySerializer(serializers.HyperlinkedModelSerializer):
+class OldCitySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = OldCity
+        fields = ('id', 'title',)
+
+
+class CityTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = City
-        fields = ('id', 'title',)
+        fields = ('id', 'name')
+        read_only_fields = ('name',)
+
+
+class CityReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ('id', 'name', 'country_name', 'area_name', 'district_name')
+        read_only_fields = ('name', 'country_name', 'area_name', 'district_name')

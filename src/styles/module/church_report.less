@@ -78,3 +78,55 @@
   padding: 0;
   margin-top: 20px;
 }
+#editReport{
+  &.home-group{
+    .popup_body{
+      overflow: auto;
+    }
+  }
+  label{
+    &.hidden{
+      display: none;
+    }
+    .input{
+      display: flex;
+      justify-content: space-between;
+      #clear_img{
+        width: 30px;
+        padding: 0;
+        i{
+          color: #fff;
+        }
+      }
+    }
+    span{
+      &+p{
+        width: 250px;
+        padding-top: 7px;
+      }
+    }
+    textarea{
+      width:250px;
+      border-radius: 4px;
+      resize: none;
+    }
+  }
+  input{
+    &[type='file']{
+      opacity: 1;
+      border:none;
+      width: 200px !important;
+    }
+  }
+}
+.selectedDate{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #5cc4ef;
+  border-radius: 4px;
+}

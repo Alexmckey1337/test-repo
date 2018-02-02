@@ -13,22 +13,25 @@ import {
     setOptionsToPotentialLeadersSelect,
     makeUsersFromDatabaseList,
     reRenderTable,
-    editChurches,
     updateChurch,
 } from "./modules/Church/index";
-import {ChurchReportsTable} from './modules/Reports/church';
+import {
+    ChurchReportsTable,
+    sendReport,
+    deleteReport,
+    calcTransPayments,
+    createChurchPayment
+} from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
-import accordionInfo from './modules/accordionInfo';
 import {dataURLtoBlob} from './modules/Avatar/index';
-import getSearch from './modules/Search/index';
-import {getFilterParam} from "./modules/Filter/index";
 import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
+
 import {
     btnNeed,
     btnPartners,
@@ -40,21 +43,23 @@ import {
 
 $('document').ready(function () {
     const CHURCH_ID = $('#church').data('id');
-    const D_ID = $('#added_home_group_church').data('department');
+    const D_ID = $('#added_home_group_church').data('department'),
+          ChID = $('#editChurchForm').attr('data-id');
     let responsibleList = false,
         link = $('.get_info .active').data('link'),
         ChIsPartner = $('.left-contentwrap').attr('data-partner'),
-        idChurch = $('#editChurchForm').data('id');
+        configReport = {
+            church: ChID,
+            last_5: true
+        };
 
     if (ChIsPartner === 'True') {
         renderDealTable({done: 'False'});
         renderPaymentTable();
     }
+
     createChurchesDetailsTable({}, CHURCH_ID, link);
 
-    $('#added_home_group_pastor').select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
     $('#added_home_group_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
@@ -151,16 +156,21 @@ $('document').ready(function () {
             data = {
                 date: date
             };
-        postData(URLS.church.create_report(idChurch),data).then(function () {
+        postData(URLS.church.create_report(ChID),data).then(function () {
             $('#addChurchReport').removeClass('active');
             $('.bg').removeClass('active');
             showAlert('Отчет успешно создан');
             $('.preloader').css('display', 'block');
-            ChurchReportsTable({church:idChurch},false);
+            ChurchReportsTable(configReport, false);
         }).catch(err => {
             showAlert(err.message);
         });
-    })
+    });
+
+    $('#delete_report').on('click', function (e) {
+        e.preventDefault();
+        deleteReport(ChurchReportsTable, configReport, false);
+    });
 
     $('#typeReport').select2();
 
@@ -181,14 +191,14 @@ $('document').ready(function () {
         }
     });
 
-    // accordionInfo();
-
     $('#opening_date,#dateReport').datepicker({
         dateFormat: 'dd.mm.yyyy',
         autoClose: true
     });
 
-    $('#addHomeGroup, #popup-create_partners, #popup-create_deal').find('.pop_cont').on('click', function (e) {
+    $('#addHomeGroup, #popup-create_partners, #popup-create_deal, #editReport, #popup-create_payment')
+        .find('.pop_cont')
+        .on('click', function (e) {
         e.stopPropagation();
     });
 
@@ -262,53 +272,7 @@ $('document').ready(function () {
                 });
             }
         }
-        // $edit.each(function () {
-        //     if ($(this).hasClass('active')) {
-        //         noEdit = true;
-        //     }
-        // });
 
-        // if ($(this).hasClass('active')) {
-        //     $input.each(function (i, el) {
-        //         if (!$(this).attr('disabled')) {
-        //             $(this).attr('disabled', true);
-        //         }
-        //         $(this).attr('readonly', true);
-        //         if ($(el).is('select')) {
-        //             if ($(this).is(':not([multiple])')) {
-        //                 if (!$(this).is('.no_select')) {
-        //                     $(this).select2('destroy');
-        //                 }
-        //             }
-        //         }
-        //     });
-        //     $(this).removeClass('active');
-        // } else {
-        //     if ($(this).attr('data-edit-block') === 'editDepartment') {
-        //         makePastorList(department, '#editPastorSelect', pastor);
-        //         makeDepartmentList('#editDepartmentSelect', department).then(function () {
-        //             $('#editDepartmentSelect').on('change', function () {
-        //                 let id = parseInt($(this).val());
-        //                 makePastorList(id, '#editPastorSelect');
-        //             })
-        //         });
-        //     } else if ($(this).attr('data-edit-block') === 'editCurrency') {
-        //         $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
-        //             $('.select2-search__field').focus();
-        //         });
-        //     }
-        //     $input.each(function (i, elem) {
-        //         if (!$(this).hasClass('no__edit')) {
-        //             if ($(this).attr('disabled')) {
-        //                 $(this).attr('disabled', false);
-        //             }
-        //             $(this).attr('readonly', false);
-        //         }
-        //     });
-        //     $(this).addClass('active');
-        // }
-        // $('#first_name,#file').attr('disabled',false);
-        // $('#first_name,#file').attr('readonly',false);
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
@@ -541,21 +505,70 @@ $('document').ready(function () {
 
     $('.tabs_report').find('button').on('click', function () {
         $('.preloader').css('display', 'block');
-        let is_submitted = $(this).attr('data-is_submitted');
-        let config = {
-            church:idChurch,
-            is_submitted
-        };
-        ChurchReportsTable(config,false);
-        $('.tabs_report').find('li').removeClass('active');
-        $(this).closest('li').addClass('active');
+        $('.tabs_report').find('li').removeClass('current');
+        $(this).closest('li').addClass('current');
+        ChurchReportsTable(configReport, false);
     });
 
+    $.validate({
+        lang: 'ru',
+        form: '#chReportForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            sendReport(false, configReport);
 
-    ChurchReportsTable({church:idChurch},false);
+            return false;
+        }
+    });
+
+    ChurchReportsTable(configReport, false);
     btnNeed();
     btnPartners();
     btnDeal();
     tabs();
+    calcTransPayments();
+
+    //Payments
+    $("#popup-create_payment .top-text span").on('click', () => {
+        $('#new_payment_sum').val('');
+        $('#popup-create_payment textarea').val('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#new_payment_rate').val(1);
+        $('#in_user_currency').text('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $('#payment-form').on('submit', function (e) {
+        e.preventDefault();
+    });
+
+    $('#sent_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
+    $('#complete-payment').on('click', _.debounce(function (e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        let id = $(this).attr('data-id'),
+            sum = $('#new_payment_sum').val(),
+            description = $('#popup-create_payment textarea').val();
+        createChurchPayment(id, sum, description).then(() => {
+            ChurchReportsTable(configReport, false);
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
+            showAlert('Оплата прошла успешно.');
+            $('#complete-payment').prop('disabled', false);
+        }).catch(err => errorHandling(err));
+    }, 500));
 
 });

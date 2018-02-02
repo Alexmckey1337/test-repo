@@ -91,20 +91,6 @@
                     </li>
                 </ul>
             </div>
-            <div id="period_expired" class="period">
-                <p>Период с <input type="text" id="expired_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                           id="expired_datepicker_to"
-                                                                                                           readonly="readonly"><a
-                        id="show-all-expired" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
-            <div id="period_done" class="period">
-                <p>Период с <input type="text" id="done_datepicker_from" readonly="readonly"> по <input type="text"
-                                                                                                        id="done_datepicker_to"
-                                                                                                        readonly="readonly"><a
-                        id="show-all-done" href="javascript:void(0);">Показать
-                    все</a></p>
-            </div>
         </div>
         <div class="table__count"></div>
         <div class="pagination reports__pagination"><!--pagination -->
@@ -127,6 +113,8 @@
 {% endblock %}
 
 {% block popup %}
+    {% include "event/partials/home_report.html" %}
+
     <div class="popap popap_slide" id='filterPopup'>
         <div class="pop_cont">
             <div class='popup_text'>
@@ -188,6 +176,7 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/home_reports.bundle.js" %}"></script>
@@ -213,11 +202,8 @@
                 <% for( var key in table_columns) { %>
                 <% if(table_columns[key].active) { %>
                 <% if(key == 'id') { %>
-                <td class="edit">
-                    {% if user.is_staff %}
-                    <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
-                    {% endif %}
-                    <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
+                    <%= results[index][key] %>
                     <% if (results[index].image != null) { %>
                     <button class="view_img" data-img="<%= results[index].image %>"></button>
                     <% } %>

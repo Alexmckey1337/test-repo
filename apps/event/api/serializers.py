@@ -151,7 +151,7 @@ class MeetingStatisticSerializer(serializers.ModelSerializer):
     total_visits = serializers.IntegerField()
     total_absent = serializers.IntegerField()
     new_repentance = serializers.IntegerField()
-    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=1)
     reports_in_progress = serializers.IntegerField()
     reports_submitted = serializers.IntegerField()
     reports_expired = serializers.IntegerField()
@@ -195,11 +195,11 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
     date = serializers.DateField(default=datetime.now().date())
     total_peoples = serializers.IntegerField(source='count_people', required=False)
     total_donations = serializers.DecimalField(source='donations', max_digits=13,
-                                               decimal_places=0, required=False)
+                                               decimal_places=1, required=False)
     total_pastor_tithe = serializers.DecimalField(source='pastor_tithe', max_digits=13,
-                                                  decimal_places=0, required=False)
+                                                  decimal_places=1, required=False)
     total_tithe = serializers.DecimalField(source='tithe', max_digits=13,
-                                           decimal_places=0, required=False)
+                                           decimal_places=1, required=False)
     currency_donations = serializers.CharField(required=False, allow_blank=True)
     transfer_payments = serializers.DecimalField(max_digits=12, decimal_places=1, read_only=True)
     total_new_peoples = serializers.IntegerField(source='new_people', required=False)
@@ -207,9 +207,9 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
 
-    total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=0, read_only=True,
+    total_sum = DecimalWithCurrencyField(max_digits=12, decimal_places=1, read_only=True,
                                          currency_field='currency')
-    value = serializers.DecimalField(max_digits=12, decimal_places=0, read_only=True)
+    value = serializers.DecimalField(max_digits=12, decimal_places=1, read_only=True)
     payment_status = serializers.IntegerField(read_only=True)
     currency = CurrencySerializer(read_only=True)
 
@@ -266,10 +266,10 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
     total_peoples = serializers.IntegerField()
     total_new_peoples = serializers.IntegerField()
     total_repentance = serializers.IntegerField()
-    total_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
-    total_donations = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_tithe = serializers.DecimalField(max_digits=13, decimal_places=1)
+    total_donations = serializers.DecimalField(max_digits=13, decimal_places=1)
     total_transfer_payments = serializers.DecimalField(max_digits=13, decimal_places=1)
-    total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=0)
+    total_pastor_tithe = serializers.DecimalField(max_digits=13, decimal_places=1)
     church_reports_in_progress = serializers.IntegerField()
     church_reports_submitted = serializers.IntegerField()
     church_reports_expired = serializers.IntegerField()

@@ -416,14 +416,15 @@
                         <div class="pagination users__pagination"></div>
                     </div>
                 </div>
-                <div class="a-block a-sdelki">
+                <div class="a-block a-sdelki a-report">
                     <div class="top-s">
                         <h3>Отчеты</h3>
+                        <a href="{% url 'events:church_report_list' %}">Все отчеты</a>
                     </div>
                     <div class="accordion-block">
                         <div class="tab-status">
-                            <ul class="tabs_report church-tabs">
-                                <li class="active">
+                            <ul id="statusTabs" class="tabs_report church-tabs">
+                                <li class="current">
                                     <button data-is_submitted="false"><span>Отчет к заполнению</span></button>
                                 </li>
                                 <li>
@@ -433,11 +434,6 @@
 
                             <button class="create_report">Добавить отчет</button>
                         </div>
-                        <div class="top-pag">
-                            <div class="table__count"></div>
-                            <div class="pagination users__pagination"><!--pagination -->
-                            </div><!--End pagination -->
-                        </div>
                         <div class="table-wrap  clearfix" id="church_reports">
                             <!--Table -->
                             <div class="table scrollbar-inner" id="churchReports"></div>
@@ -445,8 +441,6 @@
                                 <p></p>
                             </div>
                         </div><!--End Table -->
-                        <div class="table__count"></div>
-                        <div class="pagination users__pagination"></div>
                     </div>
                 </div>
             </div>
@@ -460,6 +454,11 @@
 {% endblock %}
 
 {% block popup %}
+    {% include "event/partials/church_report.html" %}
+    {% include "payment/partials/create_payment.html" with date="report" %}
+    {% include "payment/partials/payments_detail.html" %}
+    {% include "partials/find_duplicate_deals.html" %}
+
     <div class="popap popap_slide" id='addHomeGroup'>
         <div class="pop_cont">
             <div class="popup_text">
@@ -579,7 +578,6 @@
             </div>
         </div>
     </div>
-    {% include "partials/find_duplicate_deals.html" %}
     <div class="popap_slide" id='addChurchReport'>
         <div class="pop_cont">
             <div class="popup_text">
@@ -603,7 +601,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script>let currentСhurch = {{ church.id }}</script>
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
     <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
@@ -697,7 +694,7 @@
         <table id="header-fixed"></table>
     </script>
     <script type="text/template" id="databaseChurchReports">
-         <table id="table-1">
+         <table>
                 <thead>
                 <tr>
                     <% for( var key in table_columns) { %>
@@ -709,18 +706,15 @@
                 </thead>
                 <tbody>
                 <% for( var index in results) { %>
-                <tr  <% if (results[index].status === 3) { %>
+                <tr <% if (results[index].status === 3) { %>
                     class="tr_red"
             <% } %>
             >
                     <% for( var key in table_columns) { %>
                     <% if(table_columns[key].active) { %>
                     <% if(key == 'id') { %>
-                    <td class="edit">
-                        {% if user.is_staff %}
-                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
-                        {% endif %}
-                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                    <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
+                        <%= results[index][key] %>
                     </td>
                     <% } else if (key == 'church') { %>
                     <% if (results[index][key] != null) { %>
@@ -800,6 +794,5 @@
                 <% } %>
                 </tbody>
             </table>
-            <table id="header-fixed"></table>
     </script>
 {% endblock %}

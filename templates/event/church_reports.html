@@ -102,21 +102,10 @@
 
 {% block popup %}
     {% include "payment/partials/create_payment.html" with date="report" %}
-    <div id="popup-payments" class="pop-up-splash">
-        <div class="flex-wrap">
-            <div class="splash-screen">
-                <div class="top-text">
-                    <h3>Платежи</h3>
-                    <span>&times;</span>
-                </div>
-                <table></table>
-                <div class="splash-bauttons">
-                    {#                    <button class="detail" data-detail-url="{% url "payment:deal" pk=0 %}">{% trans "Detail" %}</button>#}
-                    <button class="close">Закрыть</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "payment/partials/payments_detail.html" %}
+    {% include "event/partials/church_report.html" %}
+
+
     <div id="popup" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -201,6 +190,8 @@
             </div>
         </div>
     </div>
+
+
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/church_reports.bundle.js" %}"></script>
@@ -219,18 +210,15 @@
                 </thead>
                 <tbody>
                 <% for( var index in results) { %>
-                <tr  <% if (results[index].status === 3) { %>
+                <tr <% if (results[index].status === 3) { %>
                     class="tr_red"
             <% } %>
             >
                     <% for( var key in table_columns) { %>
                     <% if(table_columns[key].active) { %>
                     <% if(key == 'id') { %>
-                    <td class="edit">
-                        {% if user.is_staff %}
-                        <button class="delete_btn" data-id="<%= results[index][key] %>"></button>
-                        {% endif %}
-                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>
+                    <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
+                        <%= results[index][key] %>
                     </td>
                     <% } else if (key == 'church') { %>
                     <% if (results[index][key] != null) { %>
@@ -245,10 +233,10 @@
                     <td>
                         <% if (results[index].status == '2') { %>
                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                            <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                            <span><%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %></span>
                         </button>
                         <% } else { %>
-                        <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                        <%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %>
                         <% } %>
                     </td>
                     <% } else { %>
@@ -286,6 +274,15 @@
                         <% } %>
                         <% } %>
                     </td>
+                        <% } else if (key === 'total_tithe'
+                                    || key === 'total_donations'
+                                    || key === 'total_pastor_tithe'
+                                    || key === 'transfer_payments') { %>
+                        <td>
+                            <% if (results[index][key] != null) { %>
+                            <%= results[index][key].replace('.', ',') %>
+                            <% } %>
+                        </td>
                     <% } else if(key == 'pastor') { %>
                     <% if (results[index][key] != null) { %>
                     <td>

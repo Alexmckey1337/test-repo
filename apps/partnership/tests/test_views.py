@@ -29,6 +29,27 @@ FIELD_CODES = (
 )
 
 
+def partner_qs(self):
+    self.base_qs = self.queryset
+    queryset = self.base_qs.select_related(
+        'user', 'user__hierarchy', 'user__master', 'responsible',
+        'currency', 'group', 'user__cchurch', 'user__hhome_group__church').extra(
+        select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
+                        ELSE 0 END)
+             FROM "partnership_deal" U0
+             WHERE U0.id IN (SELECT U1.id
+                             FROM "partnership_deal" U1
+                             WHERE U1."partnership_id" = ("partnership_partnership"."id")
+                             ORDER BY U1.date_created DESC
+                             LIMIT 3)
+             GROUP BY U0."partnership_id") = 3
+             AND partnership_partnergroup.title = '1+1' THEN 1
+             ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
+                                      'user__first_name', 'user__middle_name')
+
+    return queryset
+
+
 @pytest.mark.django_db
 class TestPartnershipViewSet:
     @pytest.mark.parametrize(
@@ -125,7 +146,7 @@ class TestPartnershipViewSet:
     def test_user_list_filter_by_hierarchy(
             self, monkeypatch, api_login_client, user_factory, partner_factory, hierarchy_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         other_hierarchy = hierarchy_factory()
         hierarchy = hierarchy_factory()
         partner_factory.create_batch(10, user__hierarchy=hierarchy)
@@ -142,7 +163,7 @@ class TestPartnershipViewSet:
     def test_user_list_filter_by_department(
             self, monkeypatch, api_login_client, partner_factory, user_factory, department_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         other_department = department_factory()
         department = department_factory()
         partners = partner_factory.create_batch(10)
@@ -162,7 +183,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         master = partner_factory(user__username='master')
         # partner_factory.create_batch(10, user__master=master.user)
         for i in range(10):
@@ -180,7 +201,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_multi_master(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         master = partner_factory(user__username='master')
         other_master = partner_factory(user__username='other_master')
         # partner_factory.create_batch(10, user__master=master.user)
@@ -205,7 +226,7 @@ class TestPartnershipViewSet:
 
     def test_user_list_filter_by_master_tree(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner = partner_factory()  # count: + 0, = 0, all_users_count: +1, = 1
 
         # partner_factory.create_batch(3, user__master=partner.user)  # count: + 3, = 3, all_users_count: +3, = 4
@@ -240,7 +261,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_fio(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner_factory.create_batch(10)
         partner_factory(user__last_name='searchlast', user__first_name='searchfirst')
 
@@ -256,7 +277,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_email(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner_factory.create_batch(10)
         partner_factory(user__email='mysupermail@test.com')
         partner_factory(user__email='test@mysupermail.com')
@@ -273,7 +294,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_phone(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner_factory.create_batch(10)
         partner_factory(user__phone_number='+380990002246')
         partner_factory(user__phone_number='+380992299000')
@@ -290,7 +311,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_country(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__country='Ukraine')
 
@@ -306,7 +327,7 @@ class TestPartnershipViewSet:
 
     def test_user_search_by_city(self, monkeypatch, api_login_client, partner_factory, user_factory):
         monkeypatch.setattr(PartnershipViewSet, 'permission_list_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', lambda self: Partnership.objects.order_by('id'))
+        monkeypatch.setattr(PartnershipViewSet, 'get_queryset', partner_qs)
         partner_factory.create_batch(10)
         partner_factory.create_batch(8, user__city='Tokio')
 

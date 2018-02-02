@@ -252,16 +252,14 @@ $(document).ready(function () {
         }));
     });
     $('#skin_id').select2();
-    $('.top-s').on('click',function () {
-        let block = $(this).parent().children('.accordion-block');
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $(block).slideDown(300);
-
-        } else {
-            $(this).addClass('active');
-            $(block).slideUp(300);
+    $('.top-s').on('click',function (event) {
+        let block = $(this).parent().children('.accordion-block'),
+            target = event.target;
+        if ($(target).hasClass('top-s') || $(target).is('h3')) {
+            $(this).toggleClass('active');
+            $(block).slideToggle(300);
         }
+
     });
 
     let $createUser = $('#createUser');

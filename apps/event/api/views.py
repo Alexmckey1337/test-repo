@@ -27,7 +27,8 @@ from apps.account.models import CustomUser
 from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter, ChurchReportStatusFilter)
+    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter,
+    ChurchReportStatusFilter, CommonGroupsLast5Filter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
     MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
@@ -104,7 +105,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        MeetingFilterByMaster,
-                       MeetingStatusFilter)
+                       MeetingStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
@@ -402,7 +404,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        ChurchReportPaymentStatusFilter,
-                       ChurchReportStatusFilter,)
+                       ChurchReportStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_class = ChurchReportFilter
 
@@ -754,8 +757,10 @@ class ChurchReportStatsView(views.APIView):
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
-        if not pastor_tree:
+        if not pastor_tree and self.request.user.is_staff:
             return ''
+        if not pastor_tree:
+            pastor_tree = self.request.user.id
         try:
             pastor = CustomUser.objects.get(pk=pastor_tree)
         except CustomUser.DoesNotExist:

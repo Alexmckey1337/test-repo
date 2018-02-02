@@ -33,8 +33,7 @@
     "gulp-changed": "^3.0.0",
     "gulp-fontmin": "^0.7.4",
     "hint.css": "^2.5.0",
-    "howler": "^2.0.5",
-    "inputmask": "^3.3.11",
+    "inputmask": "^3.3.10",
     "jquery": "^3.2.1",
     "jquery-file-download": "^1.4.6",
     "jquery-form-validator": "^2.3.64",
@@ -50,7 +49,7 @@
     "select2": "^4.0.6-rc.1",
     "sortablejs": "^1.6.0",
     "style-loader": "^0.16.1",
-    "webaudio-wav-stream-player": "^1.0.11",
+    "wavesurfer.js": "^2.0.2",
     "whatwg-fetch": "^2.0.3"
   },
   "scripts": {

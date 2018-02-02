@@ -15,6 +15,7 @@ const gulp = require('gulp'),
 
 const paths = {
     styles: './src/styles/*.less',
+    stylesWatch: './src/styles/**/*.less',
     scripts: './src/js/**/*.js',
     images: './src/img/**/*',
     fonts: './src/fonts/**/*'
@@ -51,7 +52,7 @@ gulp.task('font', ['clean'], function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(paths.styles, ['less']);
+    gulp.watch(paths.stylesWatch, ['less']);
     gulp.watch(paths.html, ['html']);
 });
 

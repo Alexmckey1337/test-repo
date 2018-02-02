@@ -20,9 +20,6 @@ from rest_framework.viewsets import ModelViewSet
 from apps.account.models import CustomUser
 from apps.analytics.decorators import log_perform_create, log_perform_update
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
-from apps.payment.models import Payment
-from common.filters import FieldSearchFilter
-from common.views_mixins import ModelWithoutDeleteViewSet
 from apps.group.api.filters import FilterChurchPartnerMasterTree
 from apps.partnership.api.filters import (
     FilterByPartnerBirthday, DealDateAndValueFilter, FilterPartnerMasterTreeWithSelf,
@@ -50,11 +47,16 @@ from apps.partnership.api.serializers import (
     ChurchDealSerializer,
     ChurchPartnerCreateSerializer, ChurchPartnerUpdateSerializer,
     PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
-    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer, ChurchDealDuplicateSerializer)
+    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer,
+    ChurchDealDuplicateSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
     ChurchPartner, \
     ChurchPartnerLog, ChurchDeal
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
+from apps.payment.models import Payment
+from common.filters import FieldSearchFilter
+from common.views_mixins import ModelWithoutDeleteViewSet
+from apps.summit.api.permissions import HasAPIAccess
 
 
 class PartnershipViewSet(
@@ -87,6 +89,7 @@ class PartnershipViewSet(
                        'user__facebook',
                        'user__vkontakte', 'value', 'responsible__last_name', 'group', 'group__title',
                        'user__department',)
+
     field_search_fields = {
         'search_fio': ('user__last_name', 'user__first_name', 'user__middle_name', 'user__search_name'),
         'search_email': ('user__email',),
@@ -112,7 +115,36 @@ class PartnershipViewSet(
         return self.serializer_class
 
     def get_queryset(self):
+        if self.action in ('list', 'retrieve'):
+            self.base_qs = self.queryset.for_user(user=self.request.user)
+            queryset = self.base_qs.select_related(
+                'user', 'user__hierarchy', 'user__master', 'responsible',
+                'currency', 'group', 'user__cchurch', 'user__hhome_group__church').extra(
+                select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
+                        ELSE 0 END)
+             FROM "partnership_deal" U0
+             WHERE U0.id IN (SELECT U1.id
+                             FROM "partnership_deal" U1
+                             WHERE U1."partnership_id" = ("partnership_partnership"."id")
+                             ORDER BY U1.date_created DESC
+                             LIMIT 3)
+             GROUP BY U0."partnership_id") = 3
+             AND partnership_partnergroup.title = '1+1' THEN 1
+             ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
+                                      'user__first_name', 'user__middle_name')
+
+            return queryset
         return self.queryset.for_user(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @log_perform_update
     def perform_update(self, serializer, **kwargs):
@@ -176,6 +208,24 @@ class PartnershipViewSet(
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
 
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    def is_partner(self, request):
+        phone_number = request.query_params.get('phone_number')
+
+        if not phone_number or len(phone_number) < 10:
+            raise exceptions.ValidationError(
+                {'message': 'Invalid parameter {phone_number} or parameter is not passed'}
+            )
+        phone_number = phone_number[:10]
+
+        if Partnership.objects.filter(
+                user__phone_number__contains=phone_number, is_active=True).exists():
+            is_partner = True
+        else:
+            is_partner = False
+
+        return Response({'is_partner': is_partner}, status.HTTP_200_OK)
+
 
 class ChurchPartnerViewSet(
     LogAndCreateUpdateDestroyMixin,
@@ -225,6 +275,9 @@ class ChurchPartnerViewSet(
         return self.serializer_class
 
     def get_queryset(self):
+        if self.action in ('list', 'retrieve'):
+            return self.queryset.select_related(
+                'church__department', 'church__pastor', 'responsible', 'group', 'currency')
         return self.queryset.all()
 
     def get_permissions(self):
@@ -797,7 +850,9 @@ class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
                 serializer.initial_data.get('level') < self.request.user.partner_role.level):
-            raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
+            raise ValidationError(
+                {'detail': _('Вы не можете назначать пользователям уровень выше вашего.')}
+            )
 
 
 class SetPartnerRoleView(CheckPartnerLevelMixin, GenericAPIView):
@@ -840,7 +895,9 @@ class DeletePartnerRoleView(DestroyAPIView):
 
     def perform_destroy(self, instance):
         if Partnership.objects.filter(responsible=instance.user).exists():
-            raise ValidationError({'detail': _('Пользователь является ответственным по партнерам')})
+            raise ValidationError(
+                {'detail': _('Пользователь является ответственным по партнерам')}
+            )
         PartnerRoleLog.delete_partner_role(instance)
         instance.delete()
 
