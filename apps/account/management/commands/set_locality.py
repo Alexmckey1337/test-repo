@@ -11,14 +11,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.set_users()
-        self.set_churches()
-        self.set_hg()
+        # self.set_churches()
+        # self.set_hg()
 
     def set_users(self):
-        users = CustomUser.objects.all()
+        users = CustomUser.objects.filter(locality__isnull=True)
         ucc = defaultdict(list)
-        for u in users.values('pk', 'country', 'city'):
-            ucc[(u['country'], u['city'])].append(u['pk'])
+        for u in users.values('pk', 'country', 'city', 'region'):
+            ucc[(u['country'], u['city'], u['region'])].append(u['pk'])
 
         not_exist = list()
         multi = list()
@@ -26,18 +26,34 @@ class Command(BaseCommand):
         without_city = list()
         success = list()
         for cc, uu in ucc.items():
+            ok = True
             city = cc[1].strip()
             country = cc[0].strip()
-            if city == '' or country == '':
-                if city == '':
-                    without_city.append(cc)
-                if country == '':
-                    without_country.append(cc)
+            region = cc[2].strip()
+            params = {'name': city, 'country__name': country, 'area__name': region}
+            if city == '':
+                without_city.append(cc)
+                ok = False
+            if country == '':
+                without_country.append(cc)
+                del params['country__name']
+            if region == '':
+                del params['area__name']
+            if not ok:
                 continue
             try:
-                c = City.objects.get(name=cc[1], country__name=cc[0])
+                c = City.objects.get(**params)
             except City.DoesNotExist:
-                not_exist.append(cc)
+                if region:
+                    try:
+                        del params['area__name']
+                        c = City.objects.get(**params)
+                        success.append(cc)
+                        CustomUser.objects.filter(pk__in=uu).update(locality=c)
+                    except (City.DoesNotExist, City.MultipleObjectsReturned):
+                        not_exist.append(cc)
+                else:
+                    not_exist.append(cc)
             except City.MultipleObjectsReturned:
                 multi.append(cc)
             else:
