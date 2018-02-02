@@ -24,6 +24,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
             'email', 'first_name', 'last_name', 'middle_name', 'search_name', 'master', 'departments', 'hierarchy',
             'spiritual_level', 'phone_number', 'extra_phone_numbers', 'skype', 'facebook', 'vkontakte', 'image',
             'born_date', 'country', 'region', 'city', 'district', 'address',
+            'locality',
             'description', 'repentance_date', 'coming_date', 'marker',
         )}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'can_login', 'is_superuser', 'user_permissions')}),
@@ -31,6 +32,8 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
         (_('Groups'), {'fields': ('groups',)}),
     )
     readonly_fields = ('master',)
+    autocomplete_fields = ('locality',)
+    search_fields = ('locality',)
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
 

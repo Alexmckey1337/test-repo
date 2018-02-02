@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.account.api.serializers import DepartmentTitleSerializer
 from apps.account.models import CustomUser
+from apps.location.api.serializers import CityTitleSerializer
 from common.fields import ReadOnlyChoiceField
 from apps.event.models import ChurchReport
 from apps.group.models import Church, HomeGroup
@@ -58,12 +59,13 @@ class HomeGroupSerializer(serializers.ModelSerializer):
         model = HomeGroup
         fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
                   'church', 'leader', 'address', 'phone_number', 'get_title',
-                  'website', 'count_users', 'image')
+                  'website', 'count_users', 'image', 'locality')
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = UserNameSerializer()
+    locality = CityTitleSerializer()
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
@@ -102,7 +104,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'image', 'region', 'stable_count',
-                  'count_people', 'count_home_groups')
+                  'count_people', 'count_home_groups', 'locality')
 
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')
@@ -121,12 +123,13 @@ class ChurchSerializer(serializers.ModelSerializer):
 class BaseChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
+    locality = CityTitleSerializer()
 
     class Meta:
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'report_currency', 'region')
+                  'phone_number', 'report_currency', 'region', 'locality')
 
 
 class ChurchListSerializer(BaseChurchListSerializer):
@@ -135,7 +138,7 @@ class ChurchListSerializer(BaseChurchListSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'region', 'stable_count',
-                  'count_people', 'count_home_groups')
+                  'count_people', 'count_home_groups', 'locality')
 
 
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):

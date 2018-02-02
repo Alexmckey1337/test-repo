@@ -41,6 +41,7 @@ urlpatterns = [
     path('churches/<int:pk>/', views.ChurchDetailView.as_view(), name='church_detail'),
     path('home_groups/<int:pk>/', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
 
+    path('sc/', views.search_city, name='search_city'),
     path('privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
     path('ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
     path('structure/', views.structure, name='structure-top'),

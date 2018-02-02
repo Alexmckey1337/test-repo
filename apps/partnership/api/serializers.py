@@ -90,7 +90,7 @@ class ChurchPartnerTableSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partnership
-        fields = ('id', 'church', 'fullname',) + BASE_PARTNER_FIELDS
+        fields = ('id', 'church', 'fullname',) + BASE_CHURCH_PARTNER_FIELDS
 
 
 class ChurchPartnerSerializer(serializers.ModelSerializer):

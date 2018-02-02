@@ -179,6 +179,9 @@ class ProfileAbstract(models.Model):
     )
     responsible = models.CharField(_('Name of master'), max_length=255, blank=True, editable=False)
 
+    is_dead = models.BooleanField(_('Is Dead'), default=False)
+    is_stable = models.BooleanField(_('Is Stable'), default=True)
+
     class Meta:
         abstract = True
 
@@ -188,6 +191,10 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='summit_profiles')
     summit = models.ForeignKey('Summit', on_delete=models.PROTECT, related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True, db_index=True)
+
+    locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='profiles',
+                                 null=True, blank=True, verbose_name=_('Locality'),
+                                 help_text=_('City/village/etc'))
 
     #: The amount paid for the summit
     value = models.DecimalField(_('Paid amount'), max_digits=12, decimal_places=0,
@@ -261,6 +268,9 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
         self.city = self.user.city
         self.country = self.user.country
         self.spiritual_level = self.user.spiritual_level
+        self.locality = self.user.locality
+        self.is_dead = self.user.is_dead
+        self.is_stable = self.user.is_stable
 
         pastor = self.user.get_pastor()
         self.pastor = pastor.fullname if pastor else ''

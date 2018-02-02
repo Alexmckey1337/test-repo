@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMixin,
                     ChurchHomeGroupMixin, ExportViewSetMixin):
-    queryset = Church.objects.select_related('pastor', 'department')
+    queryset = Church.objects.select_related('pastor', 'department', 'locality')
 
     serializer_class = ChurchSerializer
     serializer_list_class = ChurchListSerializer
@@ -362,7 +362,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
 
 class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
-    queryset = HomeGroup.objects.all().select_related('leader', 'church')
+    queryset = HomeGroup.objects.all().select_related('leader', 'church', 'locality')
 
     serializer_class = HomeGroupSerializer
     serializer_list_class = HomeGroupListSerializer

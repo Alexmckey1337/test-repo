@@ -44,6 +44,9 @@ class CommonGroup(models.Model):
 
 
 class Church(LogModel, CommonGroup):
+    locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='churches',
+                                 null=True, blank=True, verbose_name=_('Locality'),
+                                 help_text=_('City/village/etc'))
     department = models.ForeignKey('hierarchy.Department', related_name='churches',
                                    on_delete=models.PROTECT, verbose_name=_('Department'))
     pastor = models.ForeignKey('account.CustomUser', related_name='church',
@@ -61,7 +64,7 @@ class Church(LogModel, CommonGroup):
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
         'department', 'pastor', 'country',
-        'is_open', 'report_currency', 'image', 'region',
+        'is_open', 'report_currency', 'image', 'region', 'locality',
     )
 
     tracking_reverse_fields = ()
@@ -108,6 +111,9 @@ class Church(LogModel, CommonGroup):
 
 
 class HomeGroup(LogModel, CommonGroup):
+    locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='home_groups',
+                                 null=True, blank=True, verbose_name=_('Locality'),
+                                 help_text=_('City/village/etc'))
     leader = models.ForeignKey('account.CustomUser', related_name='home_group',
                                on_delete=models.PROTECT, verbose_name=_('Leader'))
     church = models.ForeignKey('Church', related_name='home_group',
@@ -120,7 +126,7 @@ class HomeGroup(LogModel, CommonGroup):
 
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
-        'leader', 'church', 'active', 'image',
+        'leader', 'church', 'active', 'image', 'locality',
     )
 
     def save(self, *args, **kwargs):

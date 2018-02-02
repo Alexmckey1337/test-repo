@@ -136,6 +136,12 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+            <% }  else if (key == 'locality' || key == 'user.locality') { %>
+            <% if (results[index][key] != null ) { %>
+            <td><%= results[index][key].name %></td>
+            <% } else { %>
+            <td></td>
+            <% } %>
                         <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>

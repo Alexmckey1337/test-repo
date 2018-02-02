@@ -32,6 +32,8 @@ church_columns = {
         'id': 0, 'title': 'Количество людей', 'ordering_title': '', 'number': 13, 'active': True, 'editable': True},
     'count_home_groups': {
         'id': 0, 'title': 'Количество домашних групп', 'ordering_title': '', 'number': 14, 'active': True, 'editable': True},
+    'locality': {
+        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 15, 'active': True, 'editable': True},
 }
 
 user_columns = {
@@ -69,6 +71,8 @@ user_columns = {
         'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'spiritual_level', 'number': 16, 'active': True, 'editable': True},
     'get_church': {
         'id': 0, 'title': 'Церковь', 'ordering_title': '', 'number': 17, 'active': True, 'editable': True},
+    'locality': {
+        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 18, 'active': True, 'editable': True},
 }
 
 partner_columns = {
@@ -106,12 +110,14 @@ partner_columns = {
         'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'user__spiritual_level', 'number': 16, 'active': True, 'editable': True},
     'user.get_church': {
         'id': 0, 'title': 'Церковь', 'ordering_title': '', 'number': 17, 'active': True, 'editable': True},
+    'user.locality': {
+        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 18, 'active': True, 'editable': True},
     'group': {
-        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 18, 'active': True, 'editable': False},
+        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 19, 'active': True, 'editable': False},
     'responsible': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 19, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 20, 'active': True, 'editable': True},
     'value': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 20, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 21, 'active': True, 'editable': True},
 }
 
 church_partner_columns = {
@@ -135,12 +141,14 @@ church_partner_columns = {
         'id': 0, 'title': 'Страна', 'ordering_title': 'church__country', 'number': 9, 'active': True, 'editable': True},
     'church.opening_date': {
         'id': 0, 'title': 'Дата открытия', 'ordering_title': 'church__opening_date', 'number': 10, 'active': True, 'editable': True},
+    'church.locality': {
+        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 11, 'active': True, 'editable': True},
     'group': {
-        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 11, 'active': True, 'editable': False},
+        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 12, 'active': True, 'editable': False},
     'responsible': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 12, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 13, 'active': True, 'editable': True},
     'value': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 13, 'active': True, 'editable': True},
+        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 14, 'active': True, 'editable': True},
 }
 
 home_group_columns = {
@@ -162,6 +170,8 @@ home_group_columns = {
         'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'website', 'number': 8, 'active': True, 'editable': True},
     'count_users': {
         'id': 0, 'title': 'Количество людей', 'ordering_title': 'count_users', 'number': 9, 'active': True, 'editable': True},
+    'locality': {
+        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 10, 'active': True, 'editable': True},
 }
 
 summit_columns = {
