@@ -443,8 +443,9 @@ class ChurchPartnerLog(PartnershipAbstractModel):
 
 
 class TelegramGroup(models.Model):
-    title = models.CharField('Название Группы', max_length=255)
-    join_url = models.URLField('Ссылка на группу')
+    title = models.CharField(_('Group Title'), max_length=255)  # CHAT_ID = -317988135
+    join_url = models.URLField(_('Join url'))
+    chat_id = models.CharField(_('Chat ID'), max_length=255)
 
     class Meta:
         verbose_name = 'Группа в Telegram'
@@ -452,15 +453,16 @@ class TelegramGroup(models.Model):
         ordering = ('-id',)
 
     def __str__(self):
-        return 'Telegram Группа "%s"' % self.title
+        return 'Telegram Группа: "%s"' % self.title
 
 
 class TelegramUser(models.Model):
-    user = models.ForeignKey('account.CustomUser', related_name='telegram_users', on_delete=models.PROTECT,
-                             verbose_name=_('Telegram User'))
+    user = models.ForeignKey('account.CustomUser', related_name='telegram_users',
+                             on_delete=models.PROTECT, verbose_name=_('Telegram User'))
 
     telegram_id = models.IntegerField(_('Telegram ID'))
-    group_id = models.IntegerField(_('Group ID'))
+    telegram_group = models.ForeignKey('TelegramGroup', related_name='telegram_users',
+                                       verbose_name=_('Telegram Group'), on_delete=models.PROTECT)
     is_active = models.BooleanField(_('Is Active Partner'), default=True)
     synced = models.BooleanField(_('Is synced?'), default=True)
 
@@ -468,6 +470,7 @@ class TelegramUser(models.Model):
         verbose_name = 'Пользователь Telegram'
         verbose_name_plural = 'Пользователи Telegram'
         ordering = ('-id',)
+        unique_together = ['user', 'telegram_id', 'telegram_group']
 
     def __str__(self):
-        return 'Пользователь Telegram %s' % self.user
+        return 'Пользователь Telegram: %s' % self.user

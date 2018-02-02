@@ -1,6 +1,6 @@
 asgi_redis
 celery==3.1.25
-channels
+channels<2.0.0
 django>=1.10
 django-allauth
 django-cors-middleware

@@ -47,5 +47,22 @@ class DealAdmin(admin.ModelAdmin):
 admin.site.register(Deal, DealAdmin)
 admin.site.register(PartnerGroup)
 
-admin.site.register(TelegramGroup)
-admin.site.register(TelegramUser)
+
+@admin.register(TelegramUser)
+class TelegramUser(admin.ModelAdmin):
+    list_display = ('user', 'is_active', 'synced')
+
+    class Meta:
+        model = TelegramUser
+
+
+@admin.register(TelegramGroup)
+class TelegramGroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'join_url')
+
+    class Meta:
+        model = TelegramGroup
+
+
+admin.register(TelegramGroupAdmin)
+admin.register(TelegramUser)

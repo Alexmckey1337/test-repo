@@ -9,6 +9,8 @@ from common.fields import DecimalWithCurrencyField
 from apps.group.api.serializers import ChurchListSerializer, BaseChurchListSerializer
 from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
 from apps.payment.api.serializers import CurrencySerializer
+from apps.account.models import CustomUser
+from apps.partnership.models import TelegramUser
 
 
 BASE_PARTNER_FIELDS = (
@@ -42,6 +44,12 @@ class PartnershipUpdateSerializer(serializers.ModelSerializer):
         responsible = validated_data.get('responsible')
         if responsible:
             Deal.objects.filter(partnership=instance, done=False).update(responsible=responsible)
+
+        if validated_data.get('is_active') is False and instance.is_active is True:
+            if not Partnership.objects.filter(user_id=instance.user.id,
+                                              is_active=True).exclude(id=instance.id).exists():
+
+                TelegramUser.objects.filter(user=instance.user).update(is_active=False, synced=False)
 
         return super(PartnershipUpdateSerializer, self).update(instance, validated_data)
 

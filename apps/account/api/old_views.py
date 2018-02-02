@@ -72,6 +72,7 @@ def login_view(request):
             user = authenticate(username=user.username, password=data['password'])
     else:
         user = None
+    print('1')
     if user is not None:
         login(request, user)
         response_dict['uid'] = user.id

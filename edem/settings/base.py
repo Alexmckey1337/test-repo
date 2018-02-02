@@ -296,6 +296,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'delete_expired_export',
         'schedule': crontab(hour=5, minute=0)
     },
+    'telegram_users_to_kick': {
+        'task': 'telegram_users_to_kick',
+        'schedule': crontab(minute=0, hour=0)
+    }
 }
 
 REST_AUTH_SERIALIZERS = {
