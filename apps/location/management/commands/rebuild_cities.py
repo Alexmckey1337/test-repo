@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.management.base import BaseCommand
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -8,7 +10,7 @@ es = Elasticsearch(['es'])
 
 
 class Command(BaseCommand):
-    def set_data(self, cities, index_name='vocrm', doc_type_name='city'):
+    def set_data(self, cities, index_name='city', doc_type_name='doc'):
         districts = {d['id']: {'name': d['name'], 'english': d['english']}
                      for d in District.objects.values('id', 'name', 'english')}
         cities = cities.iterator(chunk_size=10000)
@@ -19,6 +21,7 @@ class Command(BaseCommand):
                 'english': c.english,
                 'level': c.level,
                 'vid': c.vid,
+                'added': datetime.now(),
                 'timezone': c.timezone,
                 'area': {
                     'id': c.area.id,
@@ -56,7 +59,7 @@ class Command(BaseCommand):
                 '_source': body,
             }
 
-    def set_mapping(self, es, index_name="vocrm", doc_type_name="city"):
+    def set_mapping(self, es, index_name="city", doc_type_name="doc"):
         country = {
             "properties": {
                 "id": {
@@ -144,7 +147,7 @@ class Command(BaseCommand):
             }
         }
         my_mapping = {
-            "city": {
+            "doc": {
                 "properties": {
                     "pk": {
                         "type": "long"
@@ -166,6 +169,9 @@ class Command(BaseCommand):
                     },
                     "location": {
                         "type": "geo_point"
+                    },
+                    "added": {
+                        "type": "date"
                     },
                     "area": area,
                     "country": country,
