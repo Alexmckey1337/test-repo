@@ -3,6 +3,8 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
+import * as moment from 'moment';
+import 'moment/locale/ru';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
@@ -12,19 +14,50 @@ import {regLegendPlagin} from "./modules/Chart/config";
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
         urlPastors = URLS.church.available_pastors(),
-        urlChurch = URLS.church.for_select();
+        urlChurch = URLS.church.for_select(),
+        today = moment().format('MMMM YYYY');
     let $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter'),
         $churchFilter = $('#church_filter'),
         init = false,
-        path = window.location.href.split('?')[1];
+        path = window.location.href.split('?')[1],
+        year = moment().year(),
+        month = ("0" + (moment().month() + 1)).slice(-2),
+        dateInterval = `m:${year}${month}`;
 
     regLegendPlagin();
+
+    moment.locale('ru');
+
+    $('#calendar_range').datepicker({
+        autoClose: true,
+        view: 'months',
+        minView: 'months',
+        dateFormat: 'MM yyyy',
+        maxDate: new Date(),
+        onSelect: function (formattedDate, date) {
+            if (!date) return;
+            let year = moment(date).year(),
+                month = ("0" + (moment(date).month() + 1)).slice(-2),
+                dateInterval = `m:${year}${month}`;
+            $('#calendar_range').attr('data-interval', dateInterval);
+            $('.tab-status ').find('.range').removeClass('active');
+            churchStatistics(true);
+        }
+    }).val(today).attr('data-interval', dateInterval);
 
     function initFilterAfterParse(set) {
         if (set.last) {
             $('.tab-home-stats').find('.range').removeClass('active');
             $('.tab-home-stats').find(`.range[data-range='${set.last}']`).addClass('active');
+        }
+        if (set.interval) {
+            let year = set.interval.slice(2, 6),
+                month = set.interval.slice(6),
+                date = moment(`${+month}-${+year}`, "MM-YYYY").format('MMMM YYYY');
+
+            console.log(year, month, date);
+            $('#calendar_range').attr('data-interval', set.interval).val(date);
         }
         (async () => {
             if (set.pastor_tree) {
@@ -97,6 +130,7 @@ $('document').ready(function () {
     $('.tab-home-stats').find('.range').on('click', function () {
         $(this).closest('.tab-home-stats').find('.range').removeClass('active');
         $(this).addClass('active');
+        $('#calendar_range').val('');
         churchStatistics(true);
     });
 
@@ -148,6 +182,12 @@ $('document').ready(function () {
 
     $('.resetFilter').on('click',function () {
         $treeFilter.val('ВСЕ').trigger('change');
+    });
+
+    $('#tab_currency').on('click', 'button', function () {
+        $('#tab_currency').find('button').removeClass('active');
+        $(this).addClass('active');
+        churchStatistics(true);
     });
 
     //Parsing URL
