@@ -73,7 +73,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
             'referer': request.META.get('HTTP_REFERER', ''),
             'path': request.META.get('PATH_INFO', ''),
             'method': request.META.get('REQUEST_METHOD', ''),
-            'query_params': dict(request.GET.items()),
+            'query_params': dict(list(request.GET.lists())),
             'query_string': request.META.get('QUERY_STRING', ''),
             'status_code': response.status_code,
             'user': {'id': request.user.id, 'name': request.user.fullname},
