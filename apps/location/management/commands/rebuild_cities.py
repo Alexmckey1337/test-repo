@@ -18,6 +18,7 @@ class Command(BaseCommand):
             body = {
                 'pk': c.id,
                 'name': c.name,
+                'city': c.name,
                 'english': c.english,
                 'level': c.level,
                 'vid': c.vid,
@@ -155,6 +156,11 @@ class Command(BaseCommand):
                     "name": {
                         "type": "text"
                     },
+                    "city": {
+                        "type": "text",
+                        "analyzer": "autocomplete",
+                        "search_analyzer": "autocomplete_search"
+                    },
                     "english": {
                         "type": "text"
                     },
@@ -181,7 +187,32 @@ class Command(BaseCommand):
         }
         es.indices.delete(index=index_name, ignore_unavailable=True)
         create_index = es.indices.create(index=index_name, body={
-            'settings': {'number_of_shards': 1},
+            'settings': {
+                'number_of_shards': 1,
+                "analysis": {
+                    "analyzer": {
+                        "autocomplete": {
+                            "tokenizer": "autocomplete",
+                            "filter": [
+                                "lowercase"
+                            ]
+                        },
+                        "autocomplete_search": {
+                            "tokenizer": "lowercase"
+                        }
+                    },
+                    "tokenizer": {
+                        "autocomplete": {
+                            "type": "edge_ngram",
+                            "min_gram": 2,
+                            "max_gram": 10,
+                            "token_chars": [
+                                "letter"
+                            ]
+                        }
+                    }
+                }
+            },
             'mappings': my_mapping,
         })
         mapping_index = es.indices.put_mapping(index=index_name, doc_type=doc_type_name, body=my_mapping)

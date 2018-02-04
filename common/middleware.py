@@ -1,9 +1,16 @@
+import logging
+from datetime import datetime
+from time import time
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.deprecation import MiddlewareMixin
+from elasticsearch import Elasticsearch
 from rest_framework import exceptions
 
 from apps.account.auth_backends import CustomUserTokenAuthentication
 from apps.account.models import CustomUser
+
+logger = logging.getLogger('middleware')
 
 
 class RestAuthMiddlewareMixin:
@@ -48,3 +55,44 @@ class ManagerAuthenticationMiddleware(MiddlewareMixin, RestAuthMiddlewareMixin):
                 request.hard_user = request.user
             except ObjectDoesNotExist:
                 pass
+
+
+class AnalyticsMiddleware(MiddlewareMixin):
+    start_time = 0
+    content = ''
+
+    def process_request(self, request):
+        request.start_time = time()
+
+    def get_content(self, request, response):
+        content = {
+            'duration': round(time() - request.start_time, 3),
+            'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+            'host': request.META.get('HTTP_HOST', ''),
+            'referer': request.META.get('HTTP_REFERER', ''),
+            'path': request.META.get('PATH_INFO', ''),
+            'method': request.META.get('REQUEST_METHOD', ''),
+            'query_params': dict(request.GET.items()),
+            'query_string': request.META.get('QUERY_STRING', ''),
+            'status_code': response.status_code,
+            'user': {'id': request.user.id, 'name': request.user.fullname},
+            'timestamp': datetime.now(),
+        }
+        real_user = getattr(request, 'real_user', None)
+        if real_user is not None:
+            content['real_user'] = {'id': real_user.id, 'name': real_user.fullname}
+        else:
+            content['real_user'] = content['user'].copy()
+        return content
+
+    def process_response(self, request, response):
+        try:
+            self.content = self.get_content(request, response)
+            t = time()
+            es = Elasticsearch(['es'])
+            es.index(index='request', doc_type='doc', body=self.content)
+            logger.debug(f'{time() - t:.3f}')
+            # logger.debug(self.content)
+        except Exception as err:
+            logger.error(err)
+        return response

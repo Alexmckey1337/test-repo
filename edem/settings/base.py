@@ -88,6 +88,7 @@ LOCAL_APPS = (
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = (
+    'common.middleware.AnalyticsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -349,6 +350,11 @@ LOGGING = {
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+        'middleware': {
+            'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },
