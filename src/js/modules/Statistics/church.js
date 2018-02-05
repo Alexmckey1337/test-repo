@@ -25,7 +25,7 @@ export function makeStatsTable(data, isGroup, curType) {
     $('#tableChRepFinStats').html('').append(tablePeoples);
 }
 
-function getTransformData(data, isGroup, curType = 'all') {
+function getTransformData(data, isGroup = '1m', curType = 'all') {
     let dataFinances = [
             {
                 title: 'Пожертвования',
@@ -39,6 +39,10 @@ function getTransformData(data, isGroup, curType = 'all') {
             {
                 title: '15% к перечислению',
             },
+            {
+                title: 'Сумма платежей/отчётов',
+            },
+
         ],
         dataPeoples = [
             {
@@ -60,15 +64,11 @@ function getTransformData(data, isGroup, curType = 'all') {
     }
 
     headers.map((item, index) => {
-        let elem = data[index].result;
+        let elem = data[index].result,
+            sumPayments,
+            sumReports;
         dataFinances[0][item] = _.reduce(elem, (sum, val, key) => {
-            if (curType === 'uah' && key === 'uah') {
-                return sum + val.donations;
-            } else if (curType === 'rur' && key === 'rur') {
-                return sum + val.donations;
-            } else if (curType === 'usd' && key === 'usd') {
-                return sum + val.donations;
-            } else if (curType === 'eur' && key == 'eur') {
+            if (curType === key) {
                 return sum + val.donations;
             } else if (curType === 'all') {
                 return sum + val.donations;
@@ -77,13 +77,7 @@ function getTransformData(data, isGroup, curType = 'all') {
             }
         }, 0);
         dataFinances[1][item] = _.reduce(elem, (sum, val, key) => {
-            if (curType === 'uah' && key === 'uah') {
-                return sum + val.tithe;
-            } else if (curType === 'rur' && key === 'rur') {
-                return sum + val.tithe;
-            } else if (curType === 'usd' && key === 'usd') {
-                return sum + val.tithe;
-            } else if (curType === 'eur' && key === 'eur') {
+            if (curType === key) {
                 return sum + val.tithe;
             } else if (curType === 'all') {
                 return sum + val.tithe;
@@ -92,13 +86,7 @@ function getTransformData(data, isGroup, curType = 'all') {
             }
         }, 0);
         dataFinances[2][item] = _.reduce(elem, (sum, val, key) => {
-            if (curType === 'uah' && key === 'uah') {
-                return sum + val.pastor_tithe;
-            } else if (curType === 'rur' && key === 'rur') {
-                return sum + val.pastor_tithe;
-            } else if (curType === 'usd' && key === 'usd') {
-                return sum + val.pastor_tithe;
-            } else if (curType === 'eur' && key === 'eur') {
+            if (curType === key) {
                 return sum + val.pastor_tithe;
             } else if (curType === 'all') {
                 return sum + val.pastor_tithe;
@@ -107,20 +95,33 @@ function getTransformData(data, isGroup, curType = 'all') {
             }
         }, 0);
         dataFinances[3][item] = _.reduce(elem, (sum, val, key) => {
-            if (curType === 'uah' && key === 'uah') {
-                return sum + val.transfer_payments;
-            } else if (curType === 'rur' && key === 'rur') {
-                return sum + val.transfer_payments;
-            } else if (curType === 'usd' && key === 'usd') {
-                return sum + val.transfer_payments;
-            } else if (curType === 'eur' && key === 'eur') {
-                return sum + val.transfer_payments;
+            if (curType === key) {
+                return (+sum + val.transfer_payments).toFixed(1)
             } else if (curType === 'all') {
-                return +sum.toFixed(1) + +val.transfer_payments;
+                return (+sum + +val.transfer_payments).toFixed(1);
             } else {
-                return +sum.toFixed(1);
+                return sum;
             }
         }, 0);
+        sumPayments = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return (+sum + val.payments_sum).toFixed(1);
+            } else if (curType === 'all') {
+                return (+sum + +val.payments_sum).toFixed(1);
+            } else {
+                return sum;
+            }
+        }, 0);
+        sumReports = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return (+sum + +val.transfer_payments + +val.pastor_tithe).toFixed(1);
+            } else if (curType === 'all') {
+                return (+sum + +val.transfer_payments  + +val.pastor_tithe).toFixed(1);
+            } else {
+                return sum;
+            }
+        }, 0);
+        dataFinances[4][item] = `${sumPayments} / ${sumReports} (долг ${(sumReports - sumPayments).toFixed(1)})`;
         dataPeoples[0][item] = _.reduce(elem, (sum, val, key) => sum + val.count_people, 0);
         dataPeoples[1][item] = _.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0);
         dataPeoples[2][item] = _.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0);
@@ -150,9 +151,7 @@ function createFinanceTable(headers, body) {
                             return `<tr>
                                     <td>${item.title}</td>
                                     ${headers.map(el => {
-                                        return `
-                                            <td>${beautifyNumber(item[el])}</td>
-                                        `
+                                        return `<td>${beautifyNumber(item[el])}</td>`
                                     }).join('')}
                                 </tr>`;
                         }).join('')}

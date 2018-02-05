@@ -23,7 +23,7 @@ $('document').ready(function () {
         path = window.location.href.split('?')[1],
         year = moment().year(),
         month = ("0" + (moment().month() + 1)).slice(-2),
-        dateInterval = `m:${year}${month}`;
+        dateInterval = `m:${year}${month}-${year}${month}`;
 
     regLegendPlagin();
 
@@ -39,7 +39,7 @@ $('document').ready(function () {
             if (!date) return;
             let year = moment(date).year(),
                 month = ("0" + (moment(date).month() + 1)).slice(-2),
-                dateInterval = `m:${year}${month}`;
+                dateInterval = `m:${year}${month}-${year}${month}`;
             $('#calendar_range').attr('data-interval', dateInterval);
             $('.tab-status ').find('.range').removeClass('active');
             churchStatistics(true);
@@ -52,8 +52,8 @@ $('document').ready(function () {
             $('.tab-home-stats').find(`.range[data-range='${set.last}']`).addClass('active');
         }
         if (set.interval) {
-            let year = set.interval.slice(2, 6),
-                month = set.interval.slice(6),
+            let year = set.interval.split('-')[1].slice(0, 4),
+                month = set.interval.split('-')[1].slice(4),
                 date = moment(`${+month}-${+year}`, "MM-YYYY").format('MMMM YYYY');
 
             console.log(year, month, date);
@@ -109,7 +109,7 @@ $('document').ready(function () {
 
                     return res;
                 });
-                await getData(urlChurch).then(data => {
+                await getData(urlChurch, config).then(data => {
                     const churches = data.map(option => `<option value="${option.id}">${option.get_title}</option>`);
                     $churchFilter.html('<option value="ВСЕ">ВСЕ</option>').append(churches);
 

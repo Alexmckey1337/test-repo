@@ -26,7 +26,7 @@ export function initCharts(data, update, isGroup, curType) {
     }
 }
 
-function makeChartConfig(data, isGroup, curType) {
+function makeChartConfig(data, isGroup = '1m', curType) {
     let labels,
         allPeoples = [],
         newPeoples = [],
@@ -41,20 +41,13 @@ function makeChartConfig(data, isGroup, curType) {
         :
         labels = data.map(item => `${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
 
-
     labels.map((item, index) => {
         let elem = data[index].result;
         allPeoples.push(_.reduce(elem, (sum, val, key) => sum + val.count_people, 0));
         newPeoples.push(_.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0));
         repentances.push(_.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0));
         donations.push(_.reduce(elem, (sum, val, key) => {
-                if (curType === 'uah' && key === 'uah') {
-                    return sum + val.donations;
-                } else if (curType === 'rur' && key === 'rur') {
-                    return sum + val.donations;
-                } else if (curType === 'usd' && key === 'usd') {
-                    return sum + val.donations;
-                } else if (curType === 'eur' && key == 'eur') {
+                if (curType === key) {
                     return sum + val.donations;
                 } else if (curType === 'all') {
                     return sum + val.donations;
@@ -63,13 +56,7 @@ function makeChartConfig(data, isGroup, curType) {
                 }
             }, 0));
         tithe.push(_.reduce(elem, (sum, val, key) => {
-                if (curType === 'uah' && key === 'uah') {
-                    return sum + val.tithe;
-                } else if (curType === 'rur' && key === 'rur') {
-                    return sum + val.tithe;
-                } else if (curType === 'usd' && key === 'usd') {
-                    return sum + val.tithe;
-                } else if (curType === 'eur' && key == 'eur') {
+                if (curType === key) {
                     return sum + val.tithe;
                 } else if (curType === 'all') {
                     return sum + val.tithe;
@@ -78,13 +65,7 @@ function makeChartConfig(data, isGroup, curType) {
                 }
             }, 0));
         pastorTithe.push(_.reduce(elem, (sum, val, key) => {
-                if (curType === 'uah' && key === 'uah') {
-                    return sum + val.pastor_tithe;
-                } else if (curType === 'rur' && key === 'rur') {
-                    return sum + val.pastor_tithe;
-                } else if (curType === 'usd' && key === 'usd') {
-                    return sum + val.pastor_tithe;
-                } else if (curType === 'eur' && key == 'eur') {
+                if (curType === key) {
                     return sum + val.pastor_tithe;
                 } else if (curType === 'all') {
                     return sum + val.pastor_tithe;
@@ -93,16 +74,10 @@ function makeChartConfig(data, isGroup, curType) {
                 }
             }, 0));
         percent.push(_.reduce(elem, (sum, val, key) => {
-                if (curType === 'uah' && key === 'uah') {
-                    return sum + val.transfer_payments;
-                } else if (curType === 'rur' && key === 'rur') {
-                    return sum + val.transfer_payments;
-                } else if (curType === 'usd' && key === 'usd') {
-                    return sum + val.transfer_payments;
-                } else if (curType === 'eur' && key == 'eur') {
-                    return sum + val.transfer_payments;
+                if (curType === key) {
+                    return (+sum + +val.transfer_payments).toFixed(1);
                 } else if (curType === 'all') {
-                    return sum + val.transfer_payments;
+                    return (+sum + +val.transfer_payments).toFixed(1);
                 } else {
                     return sum;
                 }
@@ -186,8 +161,8 @@ function makeChartConfig(data, isGroup, curType) {
         }],
         callbackFinChart = {
             footer: (tooltipItems, data) => {
-                let sumDon = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
-                    sumTithe = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                let sumDon = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                    sumTithe = data.datasets[tooltipItems[2].datasetIndex].data[tooltipItems[2].index],
                     totalSum = sumDon + sumTithe;
                 return `Общая сумма: ${beautifyNumber(totalSum)}`;
             },
