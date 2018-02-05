@@ -9,14 +9,13 @@ import URLS from './modules/Urls/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {BdAccessTable, bdAccessTable} from "./modules/Controls/summits_list";
+import {SummitListTable, summitListTable} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
 import {postData} from './modules/Ajax/index';
 
 $('document').ready(function () {
     let configData = {},
-        init = false,
-        reg = /(?=.*\d)((?=.*[a-z])|(?=.*[A-Z])).{8,20}/g;
+        init = false;
     const path = window.location.href.split('?')[1];
 
     $('.selectbd').select2();
@@ -38,13 +37,13 @@ $('document').ready(function () {
     }
 
     if (path == undefined) {
-        BdAccessTable(configData);
+        SummitListTable(configData);
     }
 
     // Events
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
         $('.preloader').css('display', 'block');
-        bdAccessTable();
+        summitListTable();
     }, 500));
     $('#filter_button').on('click', function () {
         filterInit();
@@ -52,50 +51,16 @@ $('document').ready(function () {
         $('.bg').addClass('active');
     });
     $('.apply-filter').on('click', function () {
-        applyFilter(this, bdAccessTable);
+        applyFilter(this, summitListTable);
     });
     $('.clear-filter').on('click', function () {
         refreshFilter(this);
     });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(bdAccessTable);
+        updateSettings(summitListTable);
     });
-    $('#passwordForm').on('input', 'input', function () {
-        let newPass = $(this).closest('form').find('input[name="newPassword"]').val(),
-            confirmPass = $(this).val();
-        if ($(this).attr('name') === 'confirmPassword') {
-            $('#passwordForm').find('.errorTxt').addClass('error').removeClass('green').find('span').text('').text('Пароли не совпадают');
-            if (newPass === confirmPass) {
-                $('#passwordForm').find('.errorTxt').removeClass('error').addClass('green').find('span').text('').text('Пароли совпадают');
-            }
-        } else if ($(this).attr('name') === 'newPassword') {
-            let result = String(newPass).search(reg);
-            if(result === -1 && $(this).val() != ''){
-                $('#passwordForm').find('.errorTxt').removeClass('green').addClass('error').find('span').text('').text('Пароль не валидный');
-            }else {
-                $('#passwordForm').find('.errorTxt').removeClass('green').removeClass('error').find('span').text('');
-            }
-        }
-    });
-    $('#passwordForm').on('submit', function (e) {
-        e.preventDefault();
-        let newPass = $(this).find('input[name="newPassword"]').val(),
-            confirmPass = $(this).find('input[name="confirmPassword"]').val(),
-            userId = $('#passwordForm').data('id'),
-            data = {
-                'password': confirmPass
-            };
-        if (newPass === confirmPass) {
-            postData(URLS.controls.password_submit(userId), data, {method: "PUT"}).then(function () {
-                $('#newPassword').css({
-                    'display': 'none'
-                });
-                bdAccessTable();
-                showAlert('Пароль успешно изменен');
-            })
-        }
-    });
+
 
     if (path != undefined) {
         let filterParam = parseUrlQuery();

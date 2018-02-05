@@ -167,7 +167,7 @@ export function makeIptelTable(data,block) {
                                 <th data-order="src">Кто</th>
                                 <th data-order="dst">Кому</th>                                        
                                 <th data-order="billsec">Длительность (сек)</th>
-                                <th data-order="record">Запись</th>
+                                <th data-order="no_ordering">Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {

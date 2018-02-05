@@ -42,7 +42,7 @@ class SummitPanelListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Summit
-        fields = ('id', 'type', 'start_date', 'end_date', 'status')
+        fields = ('id', 'description', 'type', 'start_date', 'end_date', 'status')
 
 
 class SummitPanelCreateUpdateSerializer(serializers.ModelSerializer):

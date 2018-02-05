@@ -9,7 +9,7 @@
         <ul class="top-buttons">
             {% block header.buttons.add %}
                 <li>
-                    <button id="add-summits"><i class="fa fa-mobile" aria-hidden="true"></i></button>
+                    <button id="add">Добавить саммит</button>
                 </li>
                 <li>
                     <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
@@ -25,14 +25,14 @@
 {% block main.content %}
     {% block pagination_top %}
         <div class="table__count"></div>
-        <div class="pagination summits_access__pagination"><!--pagination -->
+        <div class="pagination summit__pagination"><!--pagination -->
         </div><!--End pagination -->
     {% endblock %}
 
     {% block table %}
         <!--Table -->
-            <div class="table table-wrap clearfix" id="tableSummitsAccess">
-                <div class="table table-wrap scrollbar-inner " id="tableSummitsAccessWrap">
+            <div class="table table-wrap clearfix" id="tableSummitsList">
+                <div class="table table-wrap scrollbar-inner " id="tableSummitListWrap">
 
                 </div>
             </div>
@@ -41,7 +41,7 @@
 
     {% block pagination_bottom %}
         <div class="table__count"></div>
-        <div class="pagination summits_access__pagination"></div>
+        <div class="pagination summit__pagination"></div>
     {% endblock %}
 {% endblock %}
 
@@ -54,36 +54,28 @@
             <div class="popup_body">
                 <div class="container">
                     <label>
-                        <span class="label_block">Иерархия</span>
-                        <select class="selectbd" data-filter="hierarchy" id="hierarchies_filter">
+                        <span class="label_block">Тип</span>
+                        <select class="selectbd" data-filter="type" id="type_filter">
                                 <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type.title }}</option>
                                 {% endfor %}
                         </select>
                     </label>
                     <label>
-                        <span class="label_block">Персонал</span>
-                        <select name="is_staff" class="selectbd" data-filter="is_staff">
-                            <option value="">ВСЕ</option>
-                            <option value="True">Да</option>
-                            <option value="False">Нет</option>
-                        </select>
+                        <span class="label_block">Дата начала</span>
+                        <input type="text" data-filter="start_date">
                     </label>
                     <label>
-                        <span class="label_block">Активный</span>
-                        <select name="is_active" class="selectbd" data-filter="is_active">
-                            <option value="">ВСЕ</option>
-                            <option value="True">Да</option>
-                            <option value="False">Нет</option>
-                        </select>
+                        <span class="label_block">Дата окончания</span>
+                        <input type="text" data-filter="end_date">
                     </label>
                     <label>
-                        <span class="label_block">Имеет право входа</span>
-                        <select name="can_login" class="selectbd" data-filter="can_login">
+                        <span class="label_block">Статус</span>
+                        <select name="status" class="selectbd" data-filter="status">
                             <option value="">ВСЕ</option>
-                            <option value="True">Да</option>
-                            <option value="False">Нет</option>
+                            <option value="True">Открытые</option>
+                            <option value="False">Закрытые</option>
                         </select>
                     </label>
                 </div>

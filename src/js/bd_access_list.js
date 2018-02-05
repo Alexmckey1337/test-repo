@@ -93,6 +93,8 @@ $('document').ready(function () {
                 });
                 bdAccessTable();
                 showAlert('Пароль успешно изменен');
+            }).catch(function (err) {
+                console.log(err);
             })
         }else if($('.errorTxt').hasClass('novalid')){
             $('.errorTxt').removeClass('green').addClass('error').find('span').text('').text('Пароль не валидный');

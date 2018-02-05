@@ -40,7 +40,7 @@ function formatRepo(data) {
 export function BdAccessTable(config) {
     getData(URLS.controls.bd_access(), config).then(data => {
         makeBdAccessTable(data);
-    });
+    }).catch(err => {console.log(err)});
 
 }
 
@@ -69,7 +69,7 @@ export function bdAccessTable(config = {}) {
     updateHistoryUrl(config);
     getData(URLS.controls.bd_access(), config).then(data => {
         makeBdAccessTable(data, config);
-    });
+    }).catch(err => {console.log(err)});;
 }
 
 function createBdAccessTable(data,block) {
@@ -81,7 +81,7 @@ function createBdAccessTable(data,block) {
                                 <th data-order="is_staff">Персонал</th>
                                 <th data-order="is_active">Активный</th>                                        
                                 <th data-order="can_login">Имеет право входа</th>
-                                <th data-order="">Id и пароль</th>
+                                <th data-order="no_ordering">Id и пароль</th>
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
@@ -136,7 +136,7 @@ function btnControll() {
             data[prop] = 'False';
         }
         obj.data.push(data);
-        postData(URLS.controls.bd_access_submit(), obj);
+        postData(URLS.controls.bd_access_submit(), obj).catch(err => {console.log(err)});;
 
     });
 
