@@ -142,7 +142,8 @@ def all_calls(request):
 
     result = {
         'pages': pages_count,
-        'result': calls_data[page_from:page_to]
+        'result': calls_data[page_from:page_to],
+        'count': len(calls_data)
     }
 
     return Response(result, status=status.HTTP_200_OK)

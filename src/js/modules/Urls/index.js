@@ -17,6 +17,13 @@ const USER = {
     managers: () => `/api/users/partner_managers/`,
 };
 
+const CONTROLS = {
+    bd_access: () => `/api/controls/db_access/`,
+    bd_access_submit: () => `/api/controls/db_access/submit/`,
+    password_submit: (id) => `/api/controls/db_access/${id}/`,
+    summit_access: () => `/api/controls/summit_panel/`,
+}
+
 const SUMMIT = {
     users: (summitId) => `/api/summits/${summitId}/users/`,
     stats: (summitId) => `/api/summits/${summitId}/stats/`,
@@ -194,6 +201,7 @@ const URLS = {
     exports: () => `/api/notifications/exports/`,
     scan_code: () => `/api/summit_attends/accept_mobile_code`,
     summit: SUMMIT,
+    controls: CONTROLS,
     user: USER,
     partner: PARTNER,
     deal: DEAL,

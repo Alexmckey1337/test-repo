@@ -1,1 +1,96 @@
-summit panel LIST
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Саммиты</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="add">Добавить саммит</button>
+                </li>
+                <li>
+                    <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="table__count"></div>
+        <div class="pagination summit__pagination"><!--pagination -->
+        </div><!--End pagination -->
+    {% endblock %}
+
+    {% block table %}
+        <!--Table -->
+            <div class="table table-wrap clearfix" id="tableSummitsList">
+                <div class="table table-wrap scrollbar-inner " id="tableSummitListWrap">
+
+                </div>
+            </div>
+        <!--End Table -->
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination summit__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap popap_slide" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <label>
+                        <span class="label_block">Тип</span>
+                        <select class="selectbd" data-filter="type" id="type_filter">
+                                <option value="">ВСЕ</option>
+                                {% for type in types %}
+                                    <option value="{{ type.id }}">{{ type.title }}</option>
+                                {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Дата начала</span>
+                        <input type="text" data-filter="start_date">
+                    </label>
+                    <label>
+                        <span class="label_block">Дата окончания</span>
+                        <input type="text" data-filter="end_date">
+                    </label>
+                    <label>
+                        <span class="label_block">Статус</span>
+                        <select name="status" class="selectbd" data-filter="status">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Открытые</option>
+                            <option value="False">Закрытые</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "js/summits_list.bundle.js" %}"></script>
+{% endblock %}
+
+

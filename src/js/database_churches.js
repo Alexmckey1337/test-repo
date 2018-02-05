@@ -194,7 +194,6 @@ $('document').ready(function () {
     //Parsing URL
     if (PATH != undefined) {
         let filterParam = parseUrlQuery();
-        console.log(filterParam);
         filterInit(filterParam);
     }
 

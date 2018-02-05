@@ -794,7 +794,7 @@
 .user-wrap{
   display: flex;
   align-items: center;
-  background-color: #434a5599;
+  background-color: #898d93;
   height: 23px;
 
   select{
@@ -1467,20 +1467,28 @@
     margin-bottom:15px;
     display: flex;
     align-items: center;
-    .iptel-month{
-      margin-left: 30px;
-      height: 30px;
+    justify-content: space-between;
+    input{
+      height: 25px;
       border-radius: 3px;
-      outline: none;
-      padding-left: 10px;
-      border: 1px solid #cdd0d4;
-      text-transform: capitalize;
+      border:1px solid #cdd0d4;
+      padding: 6px 5px;
+      box-sizing: border-box;
+      margin-right: 10px;
+      width: 250px;
     }
   }
+  //.iptel-month{
+  //    margin-left: 30px;
+  //    height: 30px;
+  //    border-radius: 3px;
+  //    outline: none;
+  //    padding-left: 10px;
+  //    border: 1px solid #cdd0d4;
+  //    text-transform: capitalize;
+  //  }
 }
-//#iptelBlock{
-//  height: 600px;
-//}
+
 .iptelPlayer{
   position: absolute;
   top:0;
@@ -1494,6 +1502,7 @@
 .iptel-month{
   max-height: 525px;
   overflow-y: auto;
+  position: relative;
 }
 
 #title {

@@ -9,10 +9,11 @@ from apps.summit.api.serializers import SummitTypeSerializer
 from apps.payment.api.serializers import CurrencySerializer
 from apps.zmail.models import ZMailTemplate
 from apps.account.api.serializers import HierarchyTitleSerializer
+from django.contrib.auth import password_validation
 
 
 class DatabaseAccessListSerializer(serializers.ModelSerializer):
-    hierarchy = HierarchyTitleSerializer()
+    hierarchy = HierarchyTitleSerializer(read_only=True)
 
     class Meta:
         model = CustomUser
@@ -25,11 +26,14 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'password')
 
+    def validate_password(self, value):
+        password_validation.validate_password(password=value, user=CustomUser)
+        return value
+
     def update(self, instance, validated_data):
         if validated_data.get('password'):
             new_password = make_password(validated_data.pop('password'))
             instance.set_password(new_password)
-            instance.save()
 
         return super(DatabaseAccessDetailSerializer, self).update(instance, validated_data)
 
@@ -39,7 +43,7 @@ class SummitPanelListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Summit
-        fields = ('id', 'type', 'start_date', 'end_date', 'status')
+        fields = ('id', 'description', 'type', 'start_date', 'end_date', 'status')
 
 
 class SummitPanelCreateUpdateSerializer(serializers.ModelSerializer):
