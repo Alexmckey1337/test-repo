@@ -53,16 +53,16 @@ export function PhoneTable(config) {
 }
 
 function makePhoneTable(data, config = {}) {
-    let count = data.pages,
+    let count = data.count,
         page = config['page'] || 1,
         pages = Math.ceil(count / CONFIG.pagination_count),
         showCount = (count < CONFIG.pagination_count) ? count : data.result.length,
         text = `Показано ${showCount} из ${count}`,
         paginationConfig = {
-            container: ".users__pagination",
+            container: ".calls__pagination",
             currentPage: page,
             pages: pages,
-            callback: makePhoneTable
+            callback: phoneTable
         };
     makePagination(paginationConfig);
     $('.table__count').text(text);
@@ -88,7 +88,6 @@ export function phoneTable(config = {}) {
 }
 
 function addUserToPhone(data, block) {
-    console.log(data);
     let wrap = `${data.result.map(item => {
         return `<form class="form-addUser">
                     <p class="form-addUser__phone">${item.extension}</p>
@@ -146,13 +145,13 @@ function addUserToPhone(data, block) {
     makeSelect($('.selectPh.active'), '/api/users/for_select/', parseFunc, formatRepo);
 }
 
-export function getDataUserPhone() {
-    $('#tableAddUserToPhone').html('');
-    getDataPhone(URLS.phone.user()).then(data => {
+export function getDataUserPhone(config = {}) {
+    getDataPhone(URLS.phone.user(), config).then(data => {
+        $('#tableAddUserToPhone').html('');
         if (data.status === '503') {
             let err = document.createElement('p');
             $(err).text(data.message).addClass('errorText');
-            $('#popupAddUserToPhone').find('.main-text').append(err);
+            $('#tableAddUserToPhone').append(err);
         } else {
             addUserToPhone(data, '#tableAddUserToPhone');
         }
@@ -163,12 +162,12 @@ export function makeIptelTable(data,block) {
     let table = `<table class="tableIptel">
                         <thead>
                             <tr>
-                                <th>Тип</th>
-                                <th>Дата</th>
-                                <th>Кто</th>
-                                <th>Кому</th>                                        
-                                <th>Длительность (сек)</th>
-                                <th>Запись</th>
+                                <th data-order="type">Тип</th>
+                                <th data-order="call_date">Дата</th>
+                                <th data-order="src">Кто</th>
+                                <th data-order="dst">Кому</th>                                        
+                                <th data-order="billsec">Длительность (сек)</th>
+                                <th data-order="no_ordering">Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {
@@ -249,6 +248,11 @@ export function makeIptelTable(data,block) {
     btnDownloadRecord();
     btnClosePlayer();
 }
+
+$('.pop-up__table').find('.close_pop').on('click', function () {
+    wavesurfer.stop();
+});
+
 function btnClosePlayer() {
     $('.closePlayer').on('click',function(){
         wavesurfer.stop();
@@ -265,11 +269,10 @@ function btnPlayrecord() {
         btnPlay = $('.playerControll').not(this);
         getAudioFile(URLS.phone.play(file)).then(myBlob => {
             let objectURL = URL.createObjectURL(myBlob),
-                player = $('#wavesurferPlayer'),
-                playerHeight = parseInt($(this).parent().parent().height()),
-                playerPosition = $(this).parent().parent().position(),
-                playerWidth = parseInt($(this).parent().parent().width()) - parseInt($(this).parent().width()) - 22;
-
+                player = $(this).closest('.playerParent').find('.phone'),
+                playerHeight = parseInt($(this).closest('tr').height()),
+                playerPosition = $(this).closest('tr').position(),
+                playerWidth = parseInt($(this).closest('tr').width()) - parseInt($(this).parent().width()) - 26;
             $(btnPlay).addClass('load').removeClass('active');
             $(player).css({
                 'height':playerHeight,
@@ -291,7 +294,13 @@ function btnPlayrecord() {
             } else {
                 wavesurfer.playPause();
             }
-        }).catch(err => errorHandling(err));
+        }).catch(err => {
+            if(err.status === 404){
+                console.log(err.message);
+            }else {
+                errorHandling(err);
+            }
+        });
     });
 }
 

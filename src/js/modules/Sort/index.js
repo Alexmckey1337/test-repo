@@ -3,6 +3,7 @@ import 'jquery-ui/ui/widgets/sortable.js';
 import 'jquery-ui/themes/base/sortable.css';
 
 export default function makeSortForm(data) {
+    console.log(data);
     let sortFormTmpl, obj, rendered;
     sortFormTmpl = document.getElementById("sortForm").innerHTML;
     obj = {};

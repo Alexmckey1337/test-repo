@@ -665,7 +665,7 @@
                         <span id="monthBtn">Звонки за месяц</span>
                     </div>
                     <div class="a-iptel__wrap accordion-block">
-                        <div id="iptelBlock">
+                        <div id="iptelBlock" class="playerParent">
                             {% include "partials/player.html" %}
                         </div>
                     </div>
@@ -832,6 +832,7 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -1020,8 +1021,6 @@
             </div>
         </div>
 
-    </div>
-    <div class="clearfix"></div>
 {% endblock %}
 
 {% block popup %}
@@ -1172,7 +1171,7 @@
                 <span class="close_pop">×</span>
             </div>
             <div class="main-text">
-                <div class="iptel-month" id="tableMonthIptel"></div>
+                <div class="iptel-month" id="tableMonthIptel">{% include "partials/player.html" %}</div>
             </div>
         </div>
     </div>

@@ -71,8 +71,10 @@
       }
     }
   }
+  &>ul{
+    flex:1;
+  }
   ul {
-    flex: 1;
     li {
       box-sizing: border-box;
       position: relative;
@@ -135,6 +137,9 @@
         }
         &#summits__item:before {
           content: '\f274';
+        }
+        &#controls__item:before {
+          content: '\f013';
         }
         &#turn_aside {
           &.active {
@@ -206,6 +211,33 @@
       color: #fff;
       &:hover {
         color: #3caeda;
+      }
+    }
+  }
+  .bottom-sidebar{
+    .menu__item{
+      text-align: center;
+      height: 75px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      .sidebar-submenu{
+        bottom: 0;
+        top: auto;
+        a{
+          text-transform: none;
+          text-align: left;
+        }
+      }
+      &:hover{
+        i{
+          color: #3caeda;
+        }
+      }
+      i{
+        font-size:3em;
+        color: #cecece;
       }
     }
   }
@@ -340,6 +372,7 @@
 #popupMonth,
 #playerPopup,
 #create_duplicate_pop,
+#newPassword,
 #create_special_pop,#popupAddUserToPhone{
   .pop_cont{
     height: auto;

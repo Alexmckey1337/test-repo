@@ -1,0 +1,114 @@
+#tableBdAccessWrap{
+    input{
+        &[type='checkbox']{
+            & + div {
+                border: 1px solid #eee;
+                background-color: transparent;
+                border-radius: 3px;
+                width: 20px;
+                height: 20px;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                &::before {
+                    content: '';
+                    font-family: FontAwesome;
+                    text-align: center;
+                    color: #3caeda;
+                }
+            }
+            &:checked{
+                &+div{
+                    &::before{
+                        content: '\f00c';
+                    }
+                }
+            }
+        }
+    }
+    label{
+        display: flex;
+        justify-content: center;
+    }
+    .user-id {
+        width: 60px;
+        display: inline-block;
+    }
+    .editPassword{
+        cursor: pointer;
+        color: #3caeda;
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+}
+#newPassword{
+    display: none;
+    .top-text{
+        margin-bottom:20px;
+    }
+    .pop_cont{
+        max-width: 500px !important;
+    }
+}
+#passwordForm{
+    display: flex;
+    flex-direction: column;
+    label{
+        display: flex;
+        justify-content: space-between;
+        &:not(:last-child){
+            margin-bottom:10px;
+        }
+    }
+    input {
+        height: 25px;
+        border-radius: 3px;
+        border: 1px solid #cdd0d4;
+        padding: 6px 5px;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        margin-right: 10px;
+        width: 250px;
+    }
+    button{
+        margin-top:10px;
+    }
+    .errorTxt{
+        text-align: center;
+        margin-bottom:10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i {
+            font-size: 10px;
+            display: none;
+            margin-right: 5px;
+        }
+        &.error{
+            color: red;
+            .complete{
+                display: none;
+            }
+            .close{
+                display: inline;
+                color: red;
+            }
+        }
+        &.green{
+            color: green;
+            .complete{
+                display: inline;
+                color: green;
+            }
+            .close{
+                display: none;
+            }
+        }
+    }
+    .ruleText{
+        color: #d3d3d3;
+        line-height: 1.5;
+    }
+}

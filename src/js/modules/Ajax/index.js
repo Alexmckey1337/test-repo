@@ -39,6 +39,7 @@ export default function getData(url, options = {}, config = {}) {
         });
     }
 }
+
 export function getDataPhone(url, options = {}, config = {}) {
 
     let keys = Object.keys(options);
@@ -155,6 +156,12 @@ export function getAudioFile(url) {
                 return resp.blob();
             }else if (resp.status === 503) {
                 throw Error('Служба Asterisk временно недоступна, повторите попытку позже');
+            }else if (resp.status === 404) {
+                let error = {
+                    status: 404,
+                    message: "Файл не найден"
+                };
+                throw error;
             } else {
                 return resp.json().then(err => {
                     throw err;

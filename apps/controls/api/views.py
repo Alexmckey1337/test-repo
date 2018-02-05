@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, filters, exceptions
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilter
 from rest_framework.permissions import IsAdminUser
 from apps.summit.models import Summit, SummitType
 from apps.controls.api.serializers import (
@@ -23,7 +23,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     queryset = CustomUser.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
-    )
+    ).order_by('last_name', 'first_name', 'middle_name')
 
     serializer_list_class = DatabaseAccessListSerializer
     serializer_retrieve_class = DatabaseAccessDetailSerializer
@@ -32,9 +32,12 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
+                       OrderingFilter,
                        )
 
-    filter_fields = ('is_staff', 'is_active', 'can_login')
+    filter_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy')
+
+    ordering_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy__level', 'last_name')
 
     field_search_fields = {
         'search_fio': ('first_name', 'last_name', 'middle_name')
@@ -52,7 +55,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             raise exceptions.ValidationError({'message': _('Parameter {data} is required')})
 
         for obj in data:
-            user_id = obj.pop('user_id')
+            user_id = obj.pop('user_id', None)
             if not user_id:
                 raise exceptions.ValidationError(
                     {'message': _('Parameter {user_id} must be passed for each object in {data}')})

@@ -68,9 +68,20 @@
                             </ul>
                         </li>
                     </ul>
-{#                    <div class="bottom-sidebar">#}
-{#                        <a href="{% url "calls" %}" class="menu__item menu__item_phone"></a>#}
-{#                    </div>#}
+                    {% if user.is_staff %}
+                    <div class="bottom-sidebar">
+                        <ul>
+                            <li class="menu__item">
+                                <i class="material-icons">&#xE5C3;</i>
+                                <ul class="sidebar-submenu">
+                                    <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
+                                    <li><a href="{% url "controls:main" %}">{% trans "Права доступа к базе данных" %}</a></li>
+{#                                    <li><a href="{% url "controls:main" %}">{% trans "Саммиты" %}</a></li>#}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
             </div>
         {% endblock sidebar %}
         <div id="container">

@@ -5,19 +5,21 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import URLS from './modules/Urls/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
-import makeSelect from './modules/MakeAjaxSelect/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {PhoneTable, phoneTable,getDataUserPhone} from "./modules/Phone/index";
+import {SummitListTable, summitListTable} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
+import {postData} from './modules/Ajax/index';
 
 $('document').ready(function () {
     let configData = {},
         init = false;
     const path = window.location.href.split('?')[1];
 
-    $('.selectdb').select2();
+    $('.selectbd').select2();
+
     function filterInit(set = null) {
         if (!init) {
             if (set != null) {
@@ -34,15 +36,14 @@ $('document').ready(function () {
         $('.apply-filter').trigger('click');
     }
 
-    if (path === undefined) {
-        PhoneTable(configData);
+    if (path == undefined) {
+        SummitListTable(configData);
     }
-
 
     // Events
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
         $('.preloader').css('display', 'block');
-        phoneTable();
+        summitListTable();
     }, 500));
     $('#filter_button').on('click', function () {
         filterInit();
@@ -50,35 +51,17 @@ $('document').ready(function () {
         $('.bg').addClass('active');
     });
     $('.apply-filter').on('click', function () {
-        applyFilter(this, phoneTable);
+        applyFilter(this, summitListTable);
     });
     $('.clear-filter').on('click', function () {
         refreshFilter(this);
     });
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
-        updateSettings(phoneTable);
+        updateSettings(summitListTable);
     });
-    $('#add-phone').on('click',function () {
-        $('#searchPhone').val('');
-        getDataUserPhone();
-        $('#popupAddUserToPhone').css('display', 'block');
-    });
-    $('.close_pop').on('click',function () {
-        $('#popupAddUserToPhone').css('display', 'none');
-    })
-    $('.date_filter').datepicker({
-        dateFormat: 'yyyy-mm-dd',
-        autoClose: true,
-        position: "left top",
-    });
-    $('#searchPhone').keypress(function (event) {
-        if (event.which === 13) {
-            let value = $(this).val(),
-                config = {search: value};
-            getDataUserPhone(config);
-        }
-    });
+
+
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
