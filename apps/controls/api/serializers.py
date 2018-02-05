@@ -32,10 +32,10 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):
-            new_password = make_password(validated_data.pop('password'))
+            new_password = validated_data.pop('password')
             instance.set_password(new_password)
-
-        return super(DatabaseAccessDetailSerializer, self).update(instance, validated_data)
+            instance.save()
+            return instance
 
 
 class SummitPanelListSerializer(serializers.ModelSerializer):
