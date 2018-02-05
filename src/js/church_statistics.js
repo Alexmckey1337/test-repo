@@ -15,7 +15,7 @@ $('document').ready(function () {
     const USER_ID = $('body').data('user'),
         urlPastors = URLS.church.available_pastors(),
         urlChurch = URLS.church.for_select(),
-        today = moment().format('MMMM YYYY');
+        today = moment().format('MMM YYYY');
     let $treeFilter = $('#tree_filter'),
         $pastorFilter = $('#pastor_filter'),
         $churchFilter = $('#church_filter'),
@@ -33,7 +33,7 @@ $('document').ready(function () {
         autoClose: true,
         view: 'months',
         minView: 'months',
-        dateFormat: 'MM yyyy',
+        dateFormat: 'M yyyy',
         maxDate: new Date(),
         onSelect: function (formattedDate, date) {
             if (!date) return;
@@ -54,7 +54,7 @@ $('document').ready(function () {
         if (set.interval) {
             let year = set.interval.split('-')[1].slice(0, 4),
                 month = set.interval.split('-')[1].slice(4),
-                date = moment(`${+month}-${+year}`, "MM-YYYY").format('MMMM YYYY');
+                date = moment(`${+month}-${+year}`, "MM-YYYY").format('MMM YYYY');
 
             console.log(year, month, date);
             $('#calendar_range').attr('data-interval', set.interval).val(date);
