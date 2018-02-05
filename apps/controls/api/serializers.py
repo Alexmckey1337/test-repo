@@ -9,10 +9,11 @@ from apps.summit.api.serializers import SummitTypeSerializer
 from apps.payment.api.serializers import CurrencySerializer
 from apps.zmail.models import ZMailTemplate
 from apps.account.api.serializers import HierarchyTitleSerializer
+from django.contrib.auth import password_validation
 
 
 class DatabaseAccessListSerializer(serializers.ModelSerializer):
-    hierarchy = HierarchyTitleSerializer()
+    hierarchy = HierarchyTitleSerializer(read_only=True)
 
     class Meta:
         model = CustomUser
@@ -24,6 +25,9 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'password')
+
+    def validate_password(self, value):
+        password_validation.validate_password(password=value, user=CustomUser)
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):
