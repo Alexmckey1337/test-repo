@@ -162,12 +162,12 @@ export function makeIptelTable(data,block) {
     let table = `<table class="tableIptel">
                         <thead>
                             <tr>
-                                <th>Тип</th>
-                                <th>Дата</th>
-                                <th>Кто</th>
-                                <th>Кому</th>                                        
-                                <th>Длительность (сек)</th>
-                                <th>Запись</th>
+                                <th data-order="type">Тип</th>
+                                <th data-order="call_date">Дата</th>
+                                <th data-order="src">Кто</th>
+                                <th data-order="dst">Кому</th>                                        
+                                <th data-order="billsec">Длительность (сек)</th>
+                                <th data-order="record">Запись</th>
                             </tr>
                         </thead>
                         <tbody>${data.result.map(item => {

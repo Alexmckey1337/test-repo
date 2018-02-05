@@ -72,9 +72,9 @@ $('document').ready(function () {
         } else if ($(this).attr('name') === 'newPassword') {
             let result = String(newPass).search(reg);
             if(result === -1 && $(this).val() != ''){
-                $('#passwordForm').find('.errorTxt').removeClass('green').addClass('error').find('span').text('').text('Пароль не валидный');
+                $('#passwordForm').find('.errorTxt').removeClass('green').addClass('error,novalid').find('span').text('').text('Пароль не валидный');
             }else {
-                $('#passwordForm').find('.errorTxt').removeClass('green').removeClass('error').find('span').text('');
+                $('#passwordForm').find('.errorTxt').removeClass('green').removeClass('error, novalid').find('span').text('');
             }
         }
     });
@@ -86,7 +86,7 @@ $('document').ready(function () {
             data = {
                 'password': confirmPass
             };
-        if (newPass === confirmPass) {
+        if (newPass === confirmPass && !$('#passwordForm').hasClass('novalid') && newPass != '') {
             postData(URLS.controls.password_submit(userId), data, {method: "PUT"}).then(function () {
                 $('#newPassword').css({
                     'display': 'none'
