@@ -58,6 +58,7 @@ class ChurchFilter(django_filters.FilterSet):
 class CommonGroupMasterTreeFilter(BaseFilterBackend):
     level = None
     search = None
+    owner_field_prefix = ''
 
     def filter_queryset(self, request, queryset, view):
         master_id = request.query_params.get('master_tree', None)
@@ -67,7 +68,10 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
             return queryset
 
         if master.is_leaf():
-            return queryset.filter(pk=master_id, hierarchy__level__gte=self.level)
+            return queryset.filter(**{
+                '{}_id'.format(self.owner_field_prefix): master_id,
+                '{}__hierarchy__level__gte'.format(self.owner_field_prefix): self.level
+            })
 
         users = CustomUser.get_tree(master).filter(hierarchy__level__gte=self.level)
 
@@ -77,16 +81,19 @@ class CommonGroupMasterTreeFilter(BaseFilterBackend):
 class FilterChurchMasterTree(CommonGroupMasterTreeFilter):
     level = 2
     search = 'pastor_id__in'
+    owner_field_prefix = 'pastor'
 
 
 class FilterChurchPartnerMasterTree(CommonGroupMasterTreeFilter):
     level = 2
     search = 'church__pastor_id__in'
+    owner_field_prefix = 'church__pastor'
 
 
 class FilterHomeGroupMasterTree(CommonGroupMasterTreeFilter):
     level = 1
     search = 'leader_id__in'
+    owner_field_prefix = 'leader'
 
 
 class FilterHGLeadersByMasterTree(BaseFilterBackend):
