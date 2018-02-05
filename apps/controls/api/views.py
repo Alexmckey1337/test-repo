@@ -34,7 +34,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                        FieldSearchFilter,
                        )
 
-    filter_fields = ('is_staff', 'is_active', 'can_login')
+    filter_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy')
 
     field_search_fields = {
         'search_fio': ('first_name', 'last_name', 'middle_name')

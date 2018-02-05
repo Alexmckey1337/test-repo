@@ -1,1 +1,124 @@
-summit panel LIST
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Права доступа к базе данных</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="add-summits"><i class="fa fa-mobile" aria-hidden="true"></i></button>
+                </li>
+                <li>
+                    <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+                </li>
+{#                <li>#}
+{#                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>#}
+{#                </li>#}
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    {% block pagination_top %}
+        <div class="table__count"></div>
+        <div class="pagination bd_access__pagination"><!--pagination -->
+        </div><!--End pagination -->
+    {% endblock %}
+
+    {% block table %}
+        <!--Table -->
+            <div class="table table-wrap clearfix" id="tableBdAccess">
+                <div class="table scrollbar-inner " id="tableBdAccessWrap">
+
+                </div>
+            </div>
+        <!--End Table -->
+    {% endblock %}
+
+    {% block pagination_bottom %}
+        <div class="table__count"></div>
+        <div class="pagination bd_access__pagination"></div>
+    {% endblock %}
+{% endblock %}
+
+{% block popup %}
+    <div class="popap popap_slide" id='filterPopup'>
+        <div class="pop_cont">
+            <h2 class='popup_text'>
+                Фильтр
+            </h2>
+            <div class="popup_body">
+                <div class="container">
+                    <label>
+                        <span class="label_block">Иерархия</span>
+                        <select class="selectbd" data-filter="hierarchy" id="hierarchies_filter">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Персонал</span>
+                        <select name="is_staff" class="selectbd" data-filter="is_staff">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Активный</span>
+                        <select name="is_active" class="selectbd" data-filter="is_active">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Имеет право входа</span>
+                        <select name="can_login" class="selectbd" data-filter="can_login">
+                            <option value="">ВСЕ</option>
+                            <option value="True">Да</option>
+                            <option value="False">Нет</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="container">
+                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
+                <button class="close-popup">Отменить</button>
+                <button class="apply-filter">Применить</button>
+            </div>
+        </div>
+    </div>
+    <div class="pop-up__table passwordPopup" id="newPassword">
+        <div class="pop_cont">
+            <div class="top-text"><h3>Изменить пароль</h3></div>
+            <div class="main-text">
+                <form id="passwordForm" data-id="у">
+                    <label>
+                        <span>Введите новый пароль: </span>
+                        <input type="password" name="newPassword">
+                    </label>
+                    <label>
+                        <span>Повторите пароль: </span>
+                        <input type="password" name="confirmPassword" class="confirmPass">
+                    </label>
+                    <div class="errorTxt"><i class="material-icons complete">&#xE876;</i><i class="material-icons close">&#xE5CD;</i><span></span></div>
+                    <div><span class="ruleText">* Пароль должен содержать 8 символов, и не может состоять только из цифр.</span></div>
+                    <button>Сохранить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static "js/summits_list.bundle.js" %}"></script>
+{% endblock %}
+
+

@@ -56,7 +56,12 @@
                 <div class="container">
                     <label>
                         <span class="label_block">Иерархия</span>
-                        <input type="text" data-filter="pastor">
+                        <select class="selectbd" data-filter="hierarchy" id="hierarchies_filter">
+                                <option value="">ВСЕ</option>
+                                {% for hierarchy in hierarchies %}
+                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
+                                {% endfor %}
+                        </select>
                     </label>
                     <label>
                         <span class="label_block">Персонал</span>
@@ -104,7 +109,9 @@
                         <span>Повторите пароль: </span>
                         <input type="password" name="confirmPassword" class="confirmPass">
                     </label>
-                    <button>Отправить</button>
+                    <div class="errorTxt"><i class="material-icons complete">&#xE876;</i><i class="material-icons close">&#xE5CD;</i><span></span></div>
+                    <div><span class="ruleText">* Пароль должен содержать 8 символов, и не может состоять только из цифр.</span></div>
+                    <button>Сохранить</button>
                 </form>
             </div>
         </div>

@@ -37,10 +37,7 @@ $('document').ready(function () {
     if (path == undefined) {
         PhoneTable(configData);
     }
-    if (path != undefined) {
-        let filterParam = parseUrlQuery();
-        filterInit(filterParam);
-    }
+
 
     // Events
     $('input[name="fullsearch"]').on('keyup', _.debounce(function (e) {
@@ -82,4 +79,8 @@ $('document').ready(function () {
             getDataUserPhone(config);
         }
     });
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        filterInit(filterParam);
+    }
 });

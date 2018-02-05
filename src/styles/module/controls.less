@@ -75,4 +75,40 @@
     button{
         margin-top:10px;
     }
+    .errorTxt{
+        text-align: center;
+        margin-bottom:10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i {
+            font-size: 10px;
+            display: none;
+            margin-right: 5px;
+        }
+        &.error{
+            color: red;
+            .complete{
+                display: none;
+            }
+            .close{
+                display: inline;
+                color: red;
+            }
+        }
+        &.green{
+            color: green;
+            .complete{
+                display: inline;
+                color: green;
+            }
+            .close{
+                display: none;
+            }
+        }
+    }
+    .ruleText{
+        color: #d3d3d3;
+        line-height: 1.5;
+    }
 }

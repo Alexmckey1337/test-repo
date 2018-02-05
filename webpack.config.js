@@ -12,6 +12,7 @@ module.exports = {
         tasks: ['babel-polyfill', './tasks.js'],
         phone: ['babel-polyfill', './phone.js'],
         db_access: ['babel-polyfill', './db_access.js'],
+        summits_list: ['babel-polyfill', './summits_list.js'],
         bd_access_list:['babel-polyfill','./bd_access_list.js'],
         restorepass: ['babel-polyfill', './restorepass.js'],
         editpass: ['babel-polyfill', './editpass.js'],

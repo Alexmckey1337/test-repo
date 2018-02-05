@@ -67,13 +67,6 @@
                                 <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
                             </ul>
                         </li>
-                        <li>
-                            <a data-title="Управление" id="controls__item" class="menu__item"></a>
-                            <ul class="sidebar-submenu">
-                                <li class="menu__item_title">Управление</li>
-{#                                <li><a href="{% url 'controls:db_access' %}">Права доступа к базе данных</a></li>#}
-                            </ul>
-                        </li>
                     </ul>
                     <div class="bottom-sidebar">
                         <ul>
@@ -81,7 +74,7 @@
                                 <i class="material-icons">&#xE5C3;</i>
                                 <ul class="sidebar-submenu">
                                     <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
-{#                                    <li><a href="{% url "controls" %}">{% trans "Права доступа к базе данных" %}</a></li>#}
+                                    <li><a href="{% url "controls:main" %}">{% trans "Права доступа к базе данных" %}</a></li>
                                 </ul>
                             </li>
                         </ul>

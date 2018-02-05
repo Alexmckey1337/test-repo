@@ -9,7 +9,7 @@ import URLS from './modules/Urls/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {BdAccessTable, bdAccessTable} from "./modules/Controls/bg_access_list";
+import {BdAccessTable, bdAccessTable} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
 import {postData} from './modules/Ajax/index';
 
