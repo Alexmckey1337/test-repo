@@ -28,6 +28,7 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         password_validation.validate_password(password=value, user=CustomUser)
+        return value
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):
