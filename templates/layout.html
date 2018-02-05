@@ -68,6 +68,7 @@
                             </ul>
                         </li>
                     </ul>
+                    {% if user.is_staff %}
                     <div class="bottom-sidebar">
                         <ul>
                             <li class="menu__item">
@@ -79,6 +80,7 @@
                             </li>
                         </ul>
                     </div>
+                    {% endif %}
             </div>
         {% endblock sidebar %}
         <div id="container">
