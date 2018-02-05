@@ -107,7 +107,7 @@ class CitySearchListView(generics.GenericAPIView):
     def get_es_data(self, c, city, country, area, district):
         ret = CitySearch()
 
-        s = Search(using=c, index='vocrm').query('match', name=city)
+        s = Search(using=c, index='city').query('match', city={'query': city, 'operator': 'and'})
         s.aggs.bucket('countries', 'terms', field='country.name.keyword', min_doc_count=1, size=100)
         s.aggs.bucket('areas', 'terms', field='area.name.keyword', min_doc_count=1, size=100)
         s.aggs.bucket('districts', 'terms', field='district.name.keyword', min_doc_count=1, size=100)
