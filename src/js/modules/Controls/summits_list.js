@@ -60,7 +60,7 @@ function makeSummitListTable(data, config = {}) {
         };
     makePagination(paginationConfig);
     $('.table__count').text(text);
-    $('#tableSummitAccessWrap').html('');
+    $('#tableSummitListWrap').html('');
     createSummitListTable(data, '#tableSummitListWrap');
     new OrderTable().sort(summitListTable, ".table-wrap th");
     $('.preloader').hide();
