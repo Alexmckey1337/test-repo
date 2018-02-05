@@ -442,10 +442,35 @@ class ChurchPartnerLog(PartnershipAbstractModel):
         )
 
 
-# class TelegramGroup(models.Model):
-#     user = models.ForeignKey('CustomUser', related_name='telegram_group', on_delete=models.PROTECT,
-#                              verbose_name=_('Telegram Group'))
-#
-#     telegram_id = models.CharField(_('Telegram ID'), max_length=255)
-#     is_active = models.BooleanField(_('Is Active Partner'), default=True)
-#     synced = models.BooleanField(_('Is synced?'), default=True)
+class TelegramGroup(models.Model):
+    title = models.CharField(_('Group Title'), max_length=255)  # CHAT_ID = -317988135
+    join_url = models.URLField(_('Join url'))
+    chat_id = models.CharField(_('Chat ID'), max_length=255)
+
+    class Meta:
+        verbose_name = 'Группа в Telegram'
+        verbose_name_plural = 'Группы в Telegram'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return 'Telegram Группа: "%s"' % self.title
+
+
+class TelegramUser(models.Model):
+    user = models.ForeignKey('account.CustomUser', related_name='telegram_users',
+                             on_delete=models.PROTECT, verbose_name=_('Telegram User'))
+
+    telegram_id = models.IntegerField(_('Telegram ID'))
+    telegram_group = models.ForeignKey('TelegramGroup', related_name='telegram_users',
+                                       verbose_name=_('Telegram Group'), on_delete=models.PROTECT)
+    is_active = models.BooleanField(_('Is Active Partner'), default=True)
+    synced = models.BooleanField(_('Is synced?'), default=True)
+
+    class Meta:
+        verbose_name = 'Пользователь Telegram'
+        verbose_name_plural = 'Пользователи Telegram'
+        ordering = ('-id',)
+        unique_together = ['user', 'telegram_id', 'telegram_group']
+
+    def __str__(self):
+        return 'Пользователь Telegram: %s' % self.user

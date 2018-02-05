@@ -8,7 +8,9 @@ from decimal import Decimal
 from django.db.models import OuterRef, Exists
 
 from edem.settings.celery import app
-from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner
+from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser
+from apps.account.models import CustomUser
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,6 @@ class DealKeyError(Exception):
 
 
 def partnerships_deactivate_raw():
-
     def make_partners_list(key='done'):
         if key not in ['done', 'expired']:
             raise DealKeyError('Invalid key')
@@ -46,6 +47,42 @@ def partnerships_deactivate_raw():
 
     partners_to_deactivate = set(make_partners_list(key='done')) & set(make_partners_list(key='expired'))
     Partnership.objects.filter(id__in=partners_to_deactivate).update(is_active=False)
+    telegram_users_to_deactivate(partners_to_deactivate)
+
+
+def telegram_users_to_deactivate(deactivate_partners):
+    users = CustomUser.objects.filter(partners__id__in=deactivate_partners,
+                                      telegram_users__is_active__isnull=False)
+    for user in users:
+        if not user.partners.filter(is_active=True).exists():
+            telegram_user = TelegramUser.objects.get(user=user, is_active=True)
+            telegram_user.is_active = False
+            telegram_user.synced = False
+            telegram_user.save()
+
+
+@app.task(name='telegram_users_to_kick')
+def telegram_users_to_kick():
+    users_to_kick = TelegramUser.objects.filter(synced=False)
+
+    if users_to_kick:
+        for telegram_user in users_to_kick:
+            kick_from_telegram.apply_async(args=[telegram_user.id])
+
+
+@app.task(name='kick_from_telegram')
+def kick_from_telegram(telegram_user_id):
+    telegram_user = TelegramUser.objects.get(id=telegram_user_id)
+
+    r = requests.delete('http://hola.nodeads.com:8888/bot/partner/',
+                        params={'user_id': telegram_user.telegram_id,
+                                'chat_id': telegram_user.telegram_group.chat_id})
+
+    if r.status_code == 200:
+        telegram_user.synced = True
+        telegram_user.save()
+    else:
+        print(r.status_code)
 
 
 @app.task(name='create_new_deals')
@@ -91,6 +128,6 @@ def deals_to_expired():
                                         done=False)
     expired_deals.update(expired=True)
 
-    church_expired_deals = ChurchDeal.objects.filter(date_created__lt=date(current_year, current_month, 1), expired=False,
-                                              done=False)
+    church_expired_deals = ChurchDeal.objects.filter(date_created__lt=date(current_year, current_month, 1),
+                                                     expired=False, done=False)
     church_expired_deals.update(expired=True)

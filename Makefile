@@ -2,6 +2,7 @@
 
 APP?=vocrm
 CONTAINER_IMAGE?=reg.sobsam.com/${APP}
+TAG?=latest
 
 install:
 	pip install -r requirements/production.txt
@@ -32,7 +33,7 @@ collectstatic:
 	rm -rf ./node_modules/
 
 build: collectstatic
-	docker build -t $(CONTAINER_IMAGE):latest .
+	docker build -t $(CONTAINER_IMAGE):$(TAG) .
 
 push: build
-	docker push $(CONTAINER_IMAGE):latest
+	docker push $(CONTAINER_IMAGE):$(TAG)

@@ -193,6 +193,12 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         return self.get_pastor()
 
     @property
+    def has_usable_password(self):
+        if self.password:
+            return True
+        return False
+
+    @property
     def fullname(self):
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
 
