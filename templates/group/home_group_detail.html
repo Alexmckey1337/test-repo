@@ -184,7 +184,7 @@
                             </form>
                         </div>
                     </li>
-                    <li >
+                    <li>
                         <div class="right-info__block">
                             <div class="popup_body">
                                 <div class="container">
@@ -217,37 +217,6 @@
         </div>
         <div class="right-contentwrap">
             <div class="right-content">
-{#                <div class="a-block a-church">#}
-{#                    <div class="top-s">#}
-{#                        <h3>Сводная информация</h3>#}
-{#                    </div>#}
-{#                    <div class="info info-calc accordion-block">#}
-{#                        <div class="popup_body">#}
-{#                            <div class="container container_block">#}
-{#                                <label>#}
-{#                                    <span class="label_block">Количество людей:</span>#}
-{#                                    <p class="count"><span id="users_count">{{ users_count }}</span></p>#}
-{#                                </label>#}
-{#                                <label>#}
-{#                                    <span class="label_block">Количество Отцов:</span>#}
-{#                                    <p class="count"><span id="fathers_count">{{ fathers_count }}</span></p>#}
-{#                                </label>#}
-{#                                <label>#}
-{#                                    <span class="label_block">Количество Юношей:</span>#}
-{#                                    <p class="count"><span id="juniors_count">{{ juniors_count }}</span></p>#}
-{#                                </label>#}
-{#                                <label>#}
-{#                                    <span class="label_block">Количество Младенцев:</span>#}
-{#                                    <p class="count"><span id="babies_count">{{ babies_count }}</span></p>#}
-{#                                </label>#}
-{#                                <label>#}
-{#                                    <span class="label_block">Количество Партнеров:</span>#}
-{#                                    <p class="count"><span id="partners_count">{{ partners_count }}</span></p>#}
-{#                                </label>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
                 <div class="a-block a-church">
                     <div class="top-s">
                         <h3>Таблица</h3>
@@ -278,30 +247,23 @@
                     </div>
                     <div class="accordion-block">
                         <div class="tab-status">
-                            <ul class="tabs_report church-tabs">
-                                {% for type in report_types %}
-                                    <li data-status="True">
-                                        <button><span>{{ type }}</span></button>
-                                    </li>
-                                {% endfor %}
+                            <ul id="statusTabs" class="tabs_report church-tabs">
+                                <li class="current">
+                                    <button data-is_submitted="false">Отчёты к заполнению</button>
+                                </li>
+                                <li>
+                                    <button data-is_submitted="true">Заполненные отчёты</button>
+                                </li>
                             </ul>
-
                             <button class="create_report">Добавить отчет</button>
-                        </div>
-                        <div class="top-pag">
-                            <div class="table__count"></div>
-                            <div class="pagination users__pagination"><!--pagination -->
-                            </div><!--End pagination -->
                         </div>
                         <div class="table-wrap  clearfix" id="home_group_reports">
                             <!--Table -->
-                            <div class="table scrollbar-inner" id="tableHomeGroupReports"></div>
+                            <div class="table scrollbar-inner" id="homeReports"></div>
                             <div class="query-none">
                                 <p></p>
                             </div>
                         </div><!--End Table -->
-                        <div class="table__count"></div>
-                        <div class="pagination users__pagination"></div>
                     </div>
                 </div>
             </div>
@@ -314,6 +276,7 @@
 {% endblock %}
 
 {% block popup %}
+    {% include "event/partials/home_report.html" %}
     <div class="popap popap_slide" id='filterPopup'>
         <div class="pop_cont">
             <h2 class='popup_text'>
@@ -563,5 +526,70 @@
             </tbody>
         </table>
         <table id="header-fixed"></table>
+    </script>
+        <script type="text/template" id="databaseHomeReports">
+        <table>
+            <thead>
+            <tr>
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
+                <% } %>
+                <% } %>
+            </tr>
+            </thead>
+            <tbody>
+            <% for( var index in results) { %>
+            <tr <% if (results[index].status === 'expired') { %>
+                    class="tr_red"
+            <% } %>
+            >
+                <% for( var key in table_columns) { %>
+                <% if(table_columns[key].active) { %>
+                <% if(key == 'id') { %>
+                <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
+                    <%= results[index][key] %>
+                    <% if (results[index].image != null) { %>
+                    <button class="view_img" data-img="<%= results[index].image %>"></button>
+                    <% } %>
+                </td>
+                <% } else if (key == 'home_group') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if(key == 'owner') { %>
+                <% if (results[index][key] != null) { %>
+                <td>
+                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+                </td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else if (key == 'type') { %>
+                <% if (results[index][key] != null) { %>
+                <td><%= results[index][key].name %></td>
+                <% } else { %>
+                <td></td>
+                <% } %>
+                <% } else { %>
+                <td><% if (results[index][key] === true ) { %>
+                    <p class="text__center">✔</p>
+                    <% } else if (results[index][key] === false){ %>
+
+                    <% } else { %>
+                    <%= results[index][key] %>
+                    <% } %>
+                </td>
+                <% } %>
+                <% } %>
+                <% } %>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
     </script>
 {% endblock %}

@@ -4,13 +4,18 @@ from __future__ import unicode_literals
 import calendar
 import json
 import logging
+from collections import defaultdict
 from datetime import datetime
+from operator import or_
+from pprint import pprint
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField, F)
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
+from functools import reduce
 from rest_framework import status, filters, exceptions, views
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.parsers import JSONParser, FormParser
@@ -22,7 +27,8 @@ from apps.account.models import CustomUser
 from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
-    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter, ChurchReportStatusFilter)
+    EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter,
+    ChurchReportStatusFilter, CommonGroupsLast5Filter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
     MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
@@ -36,6 +42,7 @@ from apps.event.api.serializers import (
     MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
+from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 
@@ -48,6 +55,27 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
                                    'reports_expired', 'reports_in_progress')
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+
+
+def by_currencies(func):
+    def wrap(self, result, weeks):
+        stats = dict()
+        for currency, res in result.items():
+            stats[currency] = func(self, res, weeks)
+        return stats
+    return wrap
+
+
+def reverse_currencies(func):
+    def wrap(*args, **kwargs):
+        result = defaultdict(dict)
+        data_by_currencies = func(*args, **kwargs)
+        for currency, data in data_by_currencies.items():
+            for d in data:
+                result[(d.pop('year'), d.pop('month'), d.pop('week'))][currency] = d
+
+        return [{'date': {'year': d[0], 'month': d[1], 'week': d[2]}, 'result': r} for d, r in result.items()]
+    return wrap
 
 
 class IntervalFormatError(Exception):
@@ -77,7 +105,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        MeetingFilterByMaster,
-                       MeetingStatusFilter)
+                       MeetingStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 
@@ -375,7 +404,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        ChurchReportPaymentStatusFilter,
-                       ChurchReportStatusFilter,)
+                       ChurchReportStatusFilter,
+                       CommonGroupsLast5Filter,)
 
     filter_class = ChurchReportFilter
 
@@ -536,6 +566,8 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
 class ChurchReportStatsView(views.APIView):
     SQL = """
         SELECT
+          c.code,
+          array_agg(r.id) ids,
           date_part('year', r.date) _year,
           date_part('week', r.date) week,
           sum(r.count_people) count_people,
@@ -547,12 +579,15 @@ class ChurchReportStatsView(views.APIView):
           sum(r.pastor_tithe) pastor_tithe
         FROM event_churchreport r
           JOIN account_customuser a ON r.pastor_id = a.user_ptr_id
+          JOIN payment_currency c ON r.currency_id = c.id
         {filter}
-        GROUP BY date_part('year', r.date), date_part('week', r.date)
+        GROUP BY date_part('year', r.date), date_part('week', r.date), c.code
         ORDER BY date_part('year', r.date), date_part('week', r.date);
     """
     WEEKS_TEMPLATE = "(date_part('week', r.date) BETWEEN {w1} AND {w2} AND date_part('year', r.date) = {year})"
     YEARS_TEMPLATE = "date_part('year', r.date) IN ({years})"
+
+    payment_content_type = ContentType.objects.get_for_model(ChurchReport)
 
     @staticmethod
     def strpyear(datestr):
@@ -722,8 +757,10 @@ class ChurchReportStatsView(views.APIView):
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
-        if not pastor_tree:
+        if not pastor_tree and self.request.user.is_staff:
             return ''
+        if not pastor_tree:
+            pastor_tree = self.request.user.id
         try:
             pastor = CustomUser.objects.get(pk=pastor_tree)
         except CustomUser.DoesNotExist:
@@ -750,26 +787,32 @@ class ChurchReportStatsView(views.APIView):
         with connection.cursor() as connect:
             connect.execute(query)
             result = connect.fetchall()
-        logger.info(query)
-        logger.info(result)
-        return [
-            {
-                'year': int(r[0]),
-                'week': int(r[1]),
-                'month': self.week_to_month(int(r[0]), int(r[1])),
-                'count_people': int(r[2]),
-                'count_new_people': int(r[3]),
-                'count_repentance': int(r[4]),
-                'tithe': r[5],
-                'donations': r[6],
-                'transfer_payments': r[7],
-                'pastor_tithe': r[8],
-            }
-            for r in result
-        ]
+        # logger.info(query)
+        # logger.info(result)
+        d = defaultdict(list)
+        for r in result:
+            d[r[0]].append({
+                'ids': set(r[1]),
+                'year': int(r[2]),
+                'week': int(r[3]),
+                'month': self.week_to_month(int(r[2]), int(r[3])),
+                'count_people': int(r[4]),
+                'count_new_people': int(r[5]),
+                'count_repentance': int(r[6]),
+                'tithe': r[7],
+                'donations': r[8],
+                'transfer_payments': r[9],
+                'pastor_tithe': r[10],
+            })
+        return d
 
     def group_by(self, y, m, w, aggr_by_key):
+        ids = aggr_by_key('ids', lambda a: reduce(or_, a), default=set())
         return {
+            # 'ids': ids,
+            'payments_sum': Payment.objects.filter(
+                object_id__in=ids,
+                content_type=self.payment_content_type).aggregate(eff_sum=Sum('effective_sum'))['eff_sum'] or 0,
             'year': y,
             'week': w,
             'month': m,
@@ -782,9 +825,11 @@ class ChurchReportStatsView(views.APIView):
             'pastor_tithe': aggr_by_key('pastor_tithe'),
         }
 
+    @reverse_currencies
+    @by_currencies
     def group_by_week(self, result, weeks):
-        def aggr_by_key(key, func=sum):
-            return func([r.get(key, 0) for r in result if (r['year'] == y and r['week'] == w)] or [0])
+        def aggr_by_key(key, func=sum, default=0):
+            return func([r.get(key, default) for r in result if (r['year'] == y and r['week'] == w)] or [default])
 
         y = weeks['from']['year']
         for w in range(weeks['from']['week'][0], weeks['from']['week'][1] + 1):
@@ -803,16 +848,18 @@ class ChurchReportStatsView(views.APIView):
                 m = self.week_to_month(y, w)
                 yield self.group_by(y, m, w, aggr_by_key)
 
+    @reverse_currencies
+    @by_currencies
     def group_by_month(self, result, weeks):
-        def aggr_by_key(key, func=sum):
-            return func([r.get(key, 0) for r in result if (r['year'] == y and r['month'] == m)] or [0])
+        def aggr_by_key(key, func=sum, default=0):
+            return func([r.get(key, default) for r in result if (r['year'] == y and r['month'] == m)] or [default])
 
         y = weeks['from']['year']
         months = set()
         for w in range(weeks['from']['week'][0], weeks['from']['week'][1] + 1):
             months.add(self.week_to_month(y, w))
         for m in months:
-            yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+            yield self.group_by(y, m, tuple(self.get_weeks_of_month(y, m)), aggr_by_key)
 
         for y in range(weeks['from']['year'] + 1, weeks['to']['year']):
             year_weeks = self.get_weeks_of_year(y)
@@ -820,7 +867,7 @@ class ChurchReportStatsView(views.APIView):
             for w in range(year_weeks[0], year_weeks[1] + 1):
                 months.add(self.week_to_month(y, w))
             for m in months:
-                yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+                yield self.group_by(y, m, tuple(self.get_weeks_of_month(y, m)), aggr_by_key)
 
         y = weeks['to']['year']
         if y > weeks['from']['year']:
@@ -828,21 +875,23 @@ class ChurchReportStatsView(views.APIView):
             for w in range(weeks['to']['week'][0], weeks['to']['week'][1] + 1):
                 months.add(self.week_to_month(y, w))
             for m in months:
-                yield self.group_by(y, m, list(self.get_weeks_of_month(y, m)), aggr_by_key)
+                yield self.group_by(y, m, tuple(self.get_weeks_of_month(y, m)), aggr_by_key)
 
+    @reverse_currencies
+    @by_currencies
     def group_by_year(self, result, weeks):
-        def aggr_by_key(key, func=sum):
-            return func([r.get(key, 0) for r in result if r['year'] == y] or [0])
+        def aggr_by_key(key, func=sum, default=0):
+            return func([r.get(key, default) for r in result if r['year'] == y] or [default])
 
         y = weeks['from']['year']
-        yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+        yield self.group_by(y, (1, 12), tuple(self.get_weeks_of_year(y)), aggr_by_key)
 
         for y in range(weeks['from']['year'] + 1, weeks['to']['year']):
-            yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+            yield self.group_by(y, (1, 12), tuple(self.get_weeks_of_year(y)), aggr_by_key)
 
         y = weeks['to']['year']
         if y > weeks['from']['year']:
-            yield self.group_by(y, (1, 12), list(self.get_weeks_of_year(y)), aggr_by_key)
+            yield self.group_by(y, (1, 12), tuple(self.get_weeks_of_year(y)), aggr_by_key)
 
     def get(self, request, *args, **kwargs):
         try:

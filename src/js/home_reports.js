@@ -3,16 +3,23 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'select2';
 import 'select2/dist/css/select2.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
 import getData from './modules/Ajax/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import getSearch from './modules/Search/index';
-import {getFilterParam, getTabsFilterParam} from "./modules/Filter/index";
 import parseUrlQuery from './modules/ParseUrl/index';
-import {HomeReportsTable, homeReportsTable} from "./modules/Reports/home_group";
+import {
+    HomeReportsTable,
+    homeReportsTable,
+    deleteReport,
+    sendReport,
+    btnControlsImg
+} from "./modules/Reports/home_group";
 import updateSettings from './modules/UpdateSettings/index';
 import reverseDate from './modules/Date/index';
+import {showAlert} from "./modules/ShowNotifications/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -223,9 +230,14 @@ $('document').ready(function () {
 
     $('#filter_button').on('click', function () {
         filterInit();
-        //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
         $('.bg').addClass('active');
+    });
+
+    $('#delete_report').on('click', function (e) {
+        e.preventDefault();
+        let page = $('.pagination__input').val();
+        deleteReport(homeReportsTable.bind(this, {page}));
     });
 
     $('#date_range').datepicker({
@@ -365,4 +377,19 @@ $('document').ready(function () {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
     }
+
+    $.validate({
+        lang: 'ru',
+        form: '#homeReportForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            sendReport();
+
+            return false;
+        }
+    });
+
+    btnControlsImg();
 });

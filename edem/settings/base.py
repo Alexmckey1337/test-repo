@@ -88,6 +88,7 @@ LOCAL_APPS = (
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = (
+    'common.middleware.AnalyticsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -290,12 +291,16 @@ CELERYBEAT_SCHEDULE = {
     # Executes every monday evening at 20:00 A.M
     'processing_church_reports': {
         'task': 'processing_church_reports',
-        'schedule': crontab(hour=20, minute=0, day_of_week='mon')
+        'schedule': crontab(hour=8, minute=0, day_of_week=2)
     },
     'delete_expired_export': {
         'task': 'delete_expired_export',
         'schedule': crontab(hour=5, minute=0)
     },
+    'telegram_users_to_kick': {
+        'task': 'telegram_users_to_kick',
+        'schedule': crontab(minute=0, hour=0)
+    }
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -345,6 +350,11 @@ LOGGING = {
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+        'middleware': {
+            'level': 'DEBUG',
             'handlers': ['console', 'file'],
             'propagate': False,
         },

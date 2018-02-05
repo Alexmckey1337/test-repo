@@ -1,23 +1,23 @@
 import pytest
 from pytest_factoryboy import register
 
-from apps.location.factories import CountryFactory, RegionFactory, CityFactory
+from apps.location.factories import OldCountryFactory, OldRegionFactory, OldCityFactory
 
-register(CountryFactory)
-register(RegionFactory)
-register(CityFactory)
-
-
-@pytest.fixture
-def country(country_factory):
-    return country_factory()
+register(OldCountryFactory)
+register(OldRegionFactory)
+register(OldCityFactory)
 
 
 @pytest.fixture
-def region(region_factory, country):
-    return region_factory(country=country)
+def country(old_country_factory):
+    return old_country_factory()
 
 
 @pytest.fixture
-def city(city_factory, country, region):
-    return city_factory(country=country, region=region)
+def region(old_region_factory, country):
+    return old_region_factory(country=country)
+
+
+@pytest.fixture
+def city(old_city_factory, country, region):
+    return old_city_factory(country=country, region=region)

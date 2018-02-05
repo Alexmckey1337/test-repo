@@ -17,7 +17,13 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from apps.account.models import CustomUser
 from apps.summit.utils import NumberedCanvas
 
-__all__ = ['privacy_policy', 'ticket_scanner', 'calls', 'structure', 'structure_to_pdf', 'app_download']
+__all__ = ['privacy_policy', 'ticket_scanner', 'calls', 'structure', 'structure_to_pdf', 'app_download',
+           'search_city']
+
+
+def search_city(request):
+    ctx = {}
+    return render(request, 'search_city.html', context=ctx)
 
 
 def privacy_policy(request):

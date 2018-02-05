@@ -57,7 +57,8 @@ logger = logging.getLogger(__name__)
 
 
 def is_list_of_ints(lst):
-    return isinstance(lst, (list, tuple)) and all([isinstance(i, int) or (isinstance(i, str) and i.isdigit()) for i in lst])
+    return isinstance(lst, (list, tuple)) and all([isinstance(i, int)
+                                                   or (isinstance(i, str) and i.isdigit()) for i in lst])
 
 
 def get_reverse_fields(cls, obj):

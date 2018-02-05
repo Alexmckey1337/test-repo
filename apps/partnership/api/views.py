@@ -47,14 +47,16 @@ from apps.partnership.api.serializers import (
     ChurchDealSerializer,
     ChurchPartnerCreateSerializer, ChurchPartnerUpdateSerializer,
     PartnerRoleSerializer, CreatePartnerRoleSerializer, DealDuplicateSerializer, LastDealSerializer,
-    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer, ChurchDealDuplicateSerializer)
+    LastDealPaymentSerializer, LastChurchDealSerializer, LastChurchDealPaymentSerializer,
+    ChurchDealDuplicateSerializer)
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
-    ChurchPartner, \
-    ChurchPartnerLog, ChurchDeal
+    ChurchPartner, ChurchPartnerLog, ChurchDeal, TelegramUser, TelegramGroup
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
 from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
+from apps.summit.api.permissions import HasAPIAccess
+from django.db import transaction, IntegrityError
 
 
 class PartnershipViewSet(
@@ -205,6 +207,50 @@ class PartnershipViewSet(
         PartnerRoleLog.log_partner_role(manager.partner_role)
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
+
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    def add_to_telegram_group(self, request):
+        phone_number = request.query_params.get('phone_number')
+        if not phone_number or len(phone_number) < 10:
+            raise exceptions.ValidationError(
+                {'message': 'Invalid parameter {phone_number} or parameter is not passed'}
+            )
+        phone_number = phone_number[:10]
+
+        telegram_id = request.query_params.get('telegram_id')
+        if not telegram_id:
+            raise exceptions.ValidationError({'message': 'Parameter {telegram_id} must be passed'})
+
+        data = {'data': []}
+
+        partner = Partnership.objects.filter(
+            user__phone_number__contains=phone_number, is_active=True)
+
+        if partner:
+            user = partner.first().user
+            if not TelegramGroup.objects.filter(title='VoPartners').exists():
+                raise exceptions.ValidationError({'message': _('TelegramGroup object must be created.')})
+            telegram_group = TelegramGroup.objects.get(title='VoPartners')
+
+            try:
+                with transaction.atomic():
+                    telegram_user, created = TelegramUser.objects.get_or_create(user=user,
+                                                                                telegram_id=telegram_id,
+                                                                                telegram_group=telegram_group)
+                    telegram_user.is_active = True
+                    telegram_user.synced = True
+                    telegram_user.save()
+
+            except IntegrityError as e:
+                print(e)
+                data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+                return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+            data.get('data').append(
+                {'title': telegram_group.title, 'join_url': telegram_group.join_url}
+            )
+
+        return Response(data, status.HTTP_200_OK)
 
 
 class ChurchPartnerViewSet(
@@ -829,8 +875,10 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
 class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
-                serializer.initial_data.get('level') < self.request.user.partner_role.level):
-            raise ValidationError({'detail': _('Вы не можете назначать пользователям уровень выше вашего.')})
+                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
+            raise ValidationError(
+                {'detail': _('Вы не можете назначать пользователям уровень выше вашего.')}
+            )
 
 
 class SetPartnerRoleView(CheckPartnerLevelMixin, GenericAPIView):
@@ -873,7 +921,9 @@ class DeletePartnerRoleView(DestroyAPIView):
 
     def perform_destroy(self, instance):
         if Partnership.objects.filter(responsible=instance.user).exists():
-            raise ValidationError({'detail': _('Пользователь является ответственным по партнерам')})
+            raise ValidationError(
+                {'detail': _('Пользователь является ответственным по партнерам')}
+            )
         PartnerRoleLog.delete_partner_role(instance)
         instance.delete()
 

@@ -4,28 +4,28 @@ import factory.fuzzy
 from . import models
 
 
-class CountryFactory(factory.DjangoModelFactory):
+class OldCountryFactory(factory.DjangoModelFactory):
     class Meta:
-        model = models.Country
+        model = models.OldCountry
 
     code = factory.Sequence(lambda n: n)
     title = factory.Sequence(lambda n: 'Country {}'.format(n))
 
 
-class RegionFactory(factory.DjangoModelFactory):
+class OldRegionFactory(factory.DjangoModelFactory):
     class Meta:
-        model = models.Region
+        model = models.OldRegion
 
     code = factory.Sequence(lambda n: n)
     title = factory.Sequence(lambda n: 'Region {}'.format(n))
-    country = factory.SubFactory(CountryFactory)
+    country = factory.SubFactory(OldCountryFactory)
 
 
-class CityFactory(factory.DjangoModelFactory):
+class OldCityFactory(factory.DjangoModelFactory):
     class Meta:
-        model = models.City
+        model = models.OldCity
 
     code = factory.Sequence(lambda n: n)
     title = factory.Sequence(lambda n: 'City {}'.format(n))
-    region = factory.SubFactory(RegionFactory)
-    country = factory.SubFactory(CountryFactory)
+    region = factory.SubFactory(OldRegionFactory)
+    country = factory.SubFactory(OldCountryFactory)

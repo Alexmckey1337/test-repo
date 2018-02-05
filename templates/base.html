@@ -92,33 +92,37 @@
                 <% for( var key in user_table) { %>
                     <% if(user_table[key].active) { %>
                         <% if (key === 'fullname') { %>
-                            <% if(results[index].is_stable_newbie) { %>
-                                <% if (results[index][key] != null) { %>
-                                    <td class="edit"><i class="material-icons is_stable_icon">&#xE877;</i><a href="/account/<%= results[index].id %>"
-                                                        title="<%= results[index][key] %>"
-                                                        data-link="<%= results[index].link %>"
-                                                        data-id="<%=results[index].id %>"
-                                                        <% if(results[index].ankets_id) { %>
-                                                            data-ankets="<%= results[index].ankets_id %>"
-                                                        <% } %>><%= results[index][key] %></a>
-                                        </td>
-                                <% } else { %>
-                                    <td></td>
+                            <% if (results[index][key] != null) { %>
+                            <td class="edit">
+                                <% if(results[index].is_stable_newbie) { %>
+                                <i class="material-icons is_stable_icon">&#xE877;</i>
                                 <% } %>
+                                <a href="/account/<%= results[index].id %>"
+                                   title="<%= results[index][key] %>"
+                                   data-link="<%= results[index].link %>"
+                                   data-id="<%=results[index].id %>"
+                                <% if(results[index].ankets_id) { %>
+                                data-ankets="<%= results[index].ankets_id %>"
+                                <% } %>><%= results[index][key] %></a>
+                            </td>
+                            <% } else { %>
+                            <td></td>
                             <% } %>
                         <% } else if (key === 'user.fullname') { %>
-                            <% if(results[index].is_stable_newbie) { %>
-                                <% if (results[index][key] != null) { %>
-                                <td class="edit"><i class="material-icons is_stable_icon">&#xE877;</i><a href="/account/<%= results[index].user.id %>"
-                                                    title="<%= results[index][key] %>"
-                                                    data-id="<%=results[index].user.id %>"
-                                    <% if(results[index].user.ankets_id) { %>
-                                    data-ankets="<%= results[index].user.ankets_id %>"
-                                    <% } %>><%= results[index][key] %></a>
-                                </td>
-                                <% } else { %>
-                                <td></td>
+                            <% if (results[index][key] != null) { %>
+                            <td class="edit">
+                                <% if(results[index].is_stable_newbie) { %>
+                                <i class="material-icons is_stable_icon">&#xE877;</i>
                                 <% } %>
+                                <a href="/account/<%= results[index].user.id %>"
+                                   title="<%= results[index][key] %>"
+                                   data-id="<%=results[index].user.id %>"
+                                <% if(results[index].user.ankets_id) { %>
+                                data-ankets="<%= results[index].user.ankets_id %>"
+                                <% } %>><%= results[index][key] %></a>
+                            </td>
+                            <% } else { %>
+                            <td></td>
                             <% } %>
                         <% } else if(key == 'get_title') { %>
                             <% if (results[index][key] != null) { %>
@@ -132,6 +136,12 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
+            <% }  else if (key == 'locality' || key == 'user.locality') { %>
+            <% if (results[index][key] != null ) { %>
+            <td><%= results[index][key].name %></td>
+            <% } else { %>
+            <td></td>
+            <% } %>
                         <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>

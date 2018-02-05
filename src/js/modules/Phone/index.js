@@ -256,9 +256,9 @@ $('.pop-up__table').find('.close_pop').on('click', function () {
 function btnClosePlayer() {
     $('.closePlayer').on('click',function(){
         wavesurfer.stop();
-        $('.phone').css({
+        $('#wavesurferPlayer').css({
             'display':'none'
-        })
+        });
         $('.playerControll').removeClass('active').addClass('load');
     })
 }
@@ -269,7 +269,7 @@ function btnPlayrecord() {
         btnPlay = $('.playerControll').not(this);
         getAudioFile(URLS.phone.play(file)).then(myBlob => {
             let objectURL = URL.createObjectURL(myBlob),
-                player = $(this).closest('.playerParent').find('.phone'),
+                player = $(this).closest('.playerParent').find('#wavesurferPlayer'),
                 playerHeight = parseInt($(this).closest('tr').height()),
                 playerPosition = $(this).closest('tr').position(),
                 playerWidth = parseInt($(this).closest('tr').width()) - parseInt($(this).parent().width()) - 26;
@@ -345,7 +345,7 @@ function btnDownloadRecord() {
             progressColor: '#3caeda'
     });
 
-    $('.phone').on('click', '#play', function () {
+    $('#wavesurferPlayer').on('click', '#play', function () {
         if ($(this).hasClass('load')) {
             let url = $(this).attr('data-url');
             $(this).removeClass('load');

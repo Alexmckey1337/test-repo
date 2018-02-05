@@ -1,8 +1,9 @@
 'use strict';
 import 'chart.js/dist/Chart.bundle.min.js';
 import {CHARTCOLORS, setConfig, setMixedConfig} from "./config";
+import beautifyNumber from '../beautifyNumber';
 
-export function initCharts(data, update, isGroup) {
+export function initCharts(data, update, isGroup, curType) {
     let {
         configPeoplesChart,
         configFinChart,
@@ -13,10 +14,10 @@ export function initCharts(data, update, isGroup) {
         selectPeoplesChart,
         selectFinChart,
         selectFinPastorTithe,
-    } = makeChartConfig(data, isGroup);
+    } = makeChartConfig(data, isGroup, curType);
     if (update) {
-        updateFinChart(optionPeoplesChart);
-        updateFinChart(optionFinChart);
+        updateChart(optionPeoplesChart);
+        updateChart(optionFinChart);
         updateFinPastorTithe(optionFinPastorTithe);
     } else {
         renderChart(selectPeoplesChart, configPeoplesChart);
@@ -25,7 +26,7 @@ export function initCharts(data, update, isGroup) {
     }
 }
 
-function makeChartConfig(data, isGroup) {
+function makeChartConfig(data, isGroup = '1m', curType) {
     let labels,
         allPeoples = [],
         newPeoples = [],
@@ -35,20 +36,52 @@ function makeChartConfig(data, isGroup) {
         pastorTithe = [],
         percent = [];
 
-    (isGroup === '1m') ?
-        labels = data.map(item => `${item.week} нед. ${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`)
+        (isGroup === '1m') ?
+        labels = data.map(item => `${item.date.week} нед. ${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`)
         :
-        labels = data.map(item => `${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`);
+        labels = data.map(item => `${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
 
     labels.map((item, index) => {
-        let elem = data[index];
-        allPeoples.push(elem.count_people);
-        newPeoples.push(elem.count_new_people);
-        repentances.push(elem.count_repentance);
-        donations.push(elem.donations);
-        tithe.push(elem.tithe);
-        pastorTithe.push(elem.pastor_tithe);
-        percent.push(elem.transfer_payments);
+        let elem = data[index].result;
+        allPeoples.push(_.reduce(elem, (sum, val, key) => sum + val.count_people, 0));
+        newPeoples.push(_.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0));
+        repentances.push(_.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0));
+        donations.push(_.reduce(elem, (sum, val, key) => {
+                if (curType === key) {
+                    return sum + val.donations;
+                } else if (curType === 'all') {
+                    return sum + val.donations;
+                } else {
+                    return sum;
+                }
+            }, 0));
+        tithe.push(_.reduce(elem, (sum, val, key) => {
+                if (curType === key) {
+                    return sum + val.tithe;
+                } else if (curType === 'all') {
+                    return sum + val.tithe;
+                } else {
+                    return sum;
+                }
+            }, 0));
+        pastorTithe.push(_.reduce(elem, (sum, val, key) => {
+                if (curType === key) {
+                    return sum + val.pastor_tithe;
+                } else if (curType === 'all') {
+                    return sum + val.pastor_tithe;
+                } else {
+                    return sum;
+                }
+            }, 0));
+        percent.push(_.reduce(elem, (sum, val, key) => {
+                if (curType === key) {
+                    return (+sum + +val.transfer_payments).toFixed(1);
+                } else if (curType === 'all') {
+                    return (+sum + +val.transfer_payments).toFixed(1);
+                } else {
+                    return sum;
+                }
+            }, 0));
     });
     let datasetsFinChart = {
             labels: labels,
@@ -76,13 +109,14 @@ function makeChartConfig(data, isGroup) {
                 }]
         },
         datasetsFinPastorTitheChart = [{
-            label: "Десятина пастора",
+            label: "Десятины пастора",
             borderColor: CHARTCOLORS.green,
             backgroundColor: CHARTCOLORS.green,
             data: pastorTithe,
             lineTension: 0,
             fill: false,
         }],
+
         datasetsPeoplesChart = [{
             label: "Всего людей",
             borderColor: CHARTCOLORS.yellow,
@@ -127,10 +161,10 @@ function makeChartConfig(data, isGroup) {
         }],
         callbackFinChart = {
             footer: (tooltipItems, data) => {
-                let sumDonations = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+                let sumDon = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
                     sumTithe = data.datasets[tooltipItems[2].datasetIndex].data[tooltipItems[2].index],
-                    totalSum = sumDonations + sumTithe;
-                return `Общая сумма: ${totalSum}`;
+                    totalSum = sumDon + sumTithe;
+                return `Общая сумма: ${beautifyNumber(totalSum)}`;
             },
         },
         configFinChart = setMixedConfig(datasetsFinChart, titleFinChart, callbackFinChart),
@@ -139,9 +173,9 @@ function makeChartConfig(data, isGroup) {
         optionFinChart = {
             chart: window.ChartFin,
             labels: labels,
-            line1: percent,
-            line2: donations,
-            line3: tithe,
+            l1: percent,
+            l2: donations,
+            l3: tithe,
         },
         optionFinPastorTithe = {
             chart: window.ChartFinPastor,
@@ -151,9 +185,9 @@ function makeChartConfig(data, isGroup) {
         optionPeoplesChart = {
             chart: window.ChartPeoples,
             labels: labels,
-            line1: allPeoples,
-            line2: newPeoples,
-            line3: repentances,
+            l1: allPeoples,
+            l2: newPeoples,
+            l3: repentances,
         },
         selectPeoplesChart = 'chart_peoples',
         selectFinChart = 'chart_finances',
@@ -172,11 +206,11 @@ function makeChartConfig(data, isGroup) {
     }
 }
 
-function updateFinChart({chart, labels, line1, line2, line3}) {
+function updateChart({chart, labels, l1, l2, l3 }) {
     chart.data.labels = labels;
-    chart.data.datasets[0].data = line1;
-    chart.data.datasets[1].data = line2;
-    chart.data.datasets[2].data = line3;
+    chart.data.datasets[0].data = l1;
+    chart.data.datasets[1].data = l2;
+    chart.data.datasets[2].data = l3;
     chart.update();
 }
 

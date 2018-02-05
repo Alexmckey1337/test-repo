@@ -170,6 +170,11 @@ LOGGING['loggers']['apps.account.api.views'] = {
     'handlers': ['console', 'sentry', 'file'],
     'propagate': False,
 }
+LOGGING['loggers']['middleware'] = {
+    'level': 'INFO',
+    'handlers': ['console', 'sentry', 'file'],
+    'propagate': False,
+}
 LOGGING['loggers']['apps.event.api.views'] = {
     'level': 'INFO',
     'handlers': ['console', 'sentry', 'file'],

@@ -46,7 +46,8 @@
 {% block main.content %}
     <div class="container-full content-managerStats">
         <div class="tab-status tab-home-stats">
-            <button class="range active" data-range="1m">1 мес.</button>
+{#            <button class="range active" data-range="1m">1 мес.</button>#}
+            <input id="calendar_range" type="text" readonly>
             <button class="range" data-range="3m">3 мес.</button>
             <button class="range" data-range="6m">6 мес.</button>
             <button class="range range__last_item" data-range="12m">1 год.</button>
@@ -77,9 +78,9 @@
         </div>
 
         {% block table %}
-        <div class="table-wrap table-wrap_margin clearfix"><!--Table -->
-            <div class="table scrollbar-inner" id="tableChRepFinStats"></div>
-        </div>
+            <div class="table-wrap table-wrap_margin clearfix"><!--Table -->
+                <div class="table scrollbar-inner" id="tableChRepFinStats"></div>
+            </div>
             <div class="charts">
                 <div class="chart">
                     <canvas id="chart_finances"></canvas>
@@ -88,9 +89,16 @@
                     <canvas id="chart_finances_pastor"></canvas>
                 </div>
             </div>
-        <div class="table-wrap clearfix"><!--Table -->
-            <div class="table scrollbar-inner" id="tableChRepUserStats"></div>
-        </div>
+            <div id="tab_currency">
+                <button class="active" data-curr="all">Все валюты</button>
+                <button data-curr="uah">uah</button>
+                <button data-curr="rur">rur</button>
+                <button data-curr="usd">usd</button>
+                <button data-curr="eur">eur</button>
+            </div>
+            <div class="table-wrap clearfix"><!--Table -->
+                <div class="table scrollbar-inner" id="tableChRepUserStats"></div>
+            </div>
         {% endblock %}
 
     </div>

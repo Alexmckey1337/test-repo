@@ -96,7 +96,7 @@ class Meeting(AbstractStatusModel):
                                       related_name='meeting_types')
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
-                                    decimal_places=0, default=0)
+                                    decimal_places=1, default=0)
 
     image = models.ImageField(_('Event Image'), upload_to=get_event_week(), blank=True, null=True)
 
@@ -161,9 +161,9 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     count_people = models.IntegerField(_('Count People'), default=0)
     new_people = models.IntegerField(_('New People'), default=0)
     count_repentance = models.IntegerField(_('Number of Repentance'), default=0)
-    tithe = models.DecimalField(_('Tithe'), max_digits=12, decimal_places=0, default=0)
+    tithe = models.DecimalField(_('Tithe'), max_digits=12, decimal_places=1, default=0)
     donations = models.DecimalField(_('Donations'), max_digits=12,
-                                    decimal_places=0, default=0)
+                                    decimal_places=1, default=0)
     currency_donations = models.CharField(_('Donations in Currency'),
                                           max_length=150, blank=True)
     comment = models.TextField(_('Comment'), blank=True)
@@ -171,7 +171,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     transfer_payments = models.DecimalField(_('Transfer Payments'), max_digits=12,
                                             decimal_places=1, default=0, blank=True)
     pastor_tithe = models.DecimalField(_('Pastor Tithe'), max_digits=12,
-                                       decimal_places=0, default=0)
+                                       decimal_places=1, default=0)
 
     payments = GenericRelation('payment.Payment', related_query_name='church_reports',
                                on_delete=models.PROTECT)

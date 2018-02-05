@@ -34,7 +34,7 @@ $('document').ready(function () {
         $('.apply-filter').trigger('click');
     }
 
-    if (path == undefined) {
+    if (path === undefined) {
         PhoneTable(configData);
     }
 

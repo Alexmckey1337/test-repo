@@ -38,6 +38,10 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     """
     steplen = 6
 
+    locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='users',
+                                 null=True, blank=True, verbose_name=_('Locality'),
+                                 help_text=_('City/village/etc'))
+
     region = models.CharField(_('Region'), max_length=50, blank=True)
     district = models.CharField(_('District'), max_length=50, blank=True)
     address = models.CharField(_('Address'), max_length=300, blank=True)
@@ -96,10 +100,11 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         'country', 'region', 'city', 'district', 'address', 'born_name', 'facebook', 'vkontakte',
         'odnoklassniki', 'description', 'hierarchy', 'master', 'repentance_date',
         'coming_date', 'spiritual_level', 'extra_phone_numbers', 'cchurch', 'hhome_group',
+        'locality', 'is_dead', 'is_stable',
     )
 
     tracking_reverse_fields = (
-        'divisions', 'departments'
+        'divisions', 'departments', 'marker',
     )
 
     def __str__(self):
@@ -192,6 +197,12 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
 
     def get_sotnik(self):
         return self.get_pastor()
+
+    @property
+    def has_usable_password(self):
+        if self.password:
+            return True
+        return False
 
     @property
     def fullname(self):

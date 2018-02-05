@@ -34,6 +34,7 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
         if validated_data.get('password'):
             new_password = make_password(validated_data.pop('password'))
             instance.set_password(new_password)
+            instance.save()
 
         return super(DatabaseAccessDetailSerializer, self).update(instance, validated_data)
 

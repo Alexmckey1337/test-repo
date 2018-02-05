@@ -102,21 +102,10 @@
 
 {% block popup %}
     {% include "payment/partials/create_payment.html" with date="report" %}
-    <div id="popup-payments" class="pop-up-splash">
-        <div class="flex-wrap">
-            <div class="splash-screen">
-                <div class="top-text">
-                    <h3>Платежи</h3>
-                    <span>&times;</span>
-                </div>
-                <table></table>
-                <div class="splash-bauttons">
-                    {#                    <button class="detail" data-detail-url="{% url "payment:deal" pk=0 %}">{% trans "Detail" %}</button>#}
-                    <button class="close">Закрыть</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "payment/partials/payments_detail.html" %}
+    {% include "event/partials/church_report.html" %}
+
+
     <div id="popup" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -201,74 +190,8 @@
             </div>
         </div>
     </div>
-    <div class="popap popap_slide" id='updateReport' data-status="">
-        <div class="pop_cont">
-            <div class='popup_text'><h2>Редактирование отчета</h2></div>
-            <div class="popup_body">
-                <div class="container">
-                    <label class="hidden">
-                        <span class="label_block">№ отчета</span>
-                        <p class="hidden" id="id_report"></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <p id="reportChurch" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Пастор церкви</span>
-                        <p id="reportPastor" data-id=""></p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата</span>
-                        <input type="text" id="reportDate">
-                    </label>
-                    <label>
-                        <p class="update-title">Отчет по людям</p>
-                    </label>
-                    <label>
-                        <span class="label_block">К-во людей на собрании</span>
-                        <input type="number" id="reportCountPeople">
-                    </label>
-                    <label>
-                        <span class="label_block">К-во новых людей</span>
-                        <input type="number" id="reportCountNewPeople">
-                    </label>
-                    <label>
-                        <span class="label_block">К-во покаяний</span>
-                        <input type="number" id="reportCountRepentance">
-                    </label>
-                    <label>
-                        <span class="label_block">Коментарий</span>
-                        <textarea id="reportComment"></textarea>
-                    </label>
-                    <label>
-                        <p class="update-title">Отчет по финансам</p>
-                    </label>
-                    <label>
-                        <span class="label_block">Десятины</span>
-                        <input type="number" value="0" id="reportTithe" class="report-tithe" data-validation="number required" data-validation-allowing="float" >
-                    </label>
-                    <label>
-                        <span class="label_block">Пожертвования</span>
-                        <input type="number" value="0" id="reportDonations" class="report-tithe" data-validation="number required" data-validation-allowing="float" >
-                    </label>
-                    <label>
-                        <span class="label_block">15% к перечислению</span>
-                        <input type="number" id="reportTransferPayments" disabled="disabled">
-                    </label>
-                    <label>
-                        <span class="label_block">Десятина пастора</span>
-                        <input type="number" id="reportPastorTithe">
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button id="delete_report" data-id=""></button>
-                <button class="close-popup">Отменить</button>
-                <button class="save-update" disabled="disabled">Сохранить</button>
-            </div>
-        </div>
-    </div>
+
+
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/church_reports.bundle.js" %}"></script>
@@ -295,11 +218,7 @@
                     <% if(table_columns[key].active) { %>
                     <% if(key == 'id') { %>
                     <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
-                        {% if user.is_staff %}
-                        {#<button class="delete_btn" data-id="<%= results[index][key] %>"></button>#}
-                        {% endif %}
-                            <%= results[index][key] %>
-{#                        <a href="./<%= results[index][key] %>" class="reports_id"><%= results[index][key] %></a>#}
+                        <%= results[index][key] %>
                     </td>
                     <% } else if (key == 'church') { %>
                     <% if (results[index][key] != null) { %>
@@ -314,10 +233,10 @@
                     <td>
                         <% if (results[index].status == '2') { %>
                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                            <span><%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %></span>
+                            <span><%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %></span>
                         </button>
                         <% } else { %>
-                        <%= results[index].total_sum %> / <%= results[index].value %> <%= results[index].currency.short_name %>
+                        <%= results[index].total_sum.replace('.', ',') %> / <%= results[index].value.replace('.', ',') %> <%= results[index].currency.short_name %>
                         <% } %>
                     </td>
                     <% } else { %>
@@ -355,6 +274,15 @@
                         <% } %>
                         <% } %>
                     </td>
+                        <% } else if (key === 'total_tithe'
+                                    || key === 'total_donations'
+                                    || key === 'total_pastor_tithe'
+                                    || key === 'transfer_payments') { %>
+                        <td>
+                            <% if (results[index][key] != null) { %>
+                            <%= results[index][key].replace('.', ',') %>
+                            <% } %>
+                        </td>
                     <% } else if(key == 'pastor') { %>
                     <% if (results[index][key] != null) { %>
                     <td>

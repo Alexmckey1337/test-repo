@@ -6,26 +6,26 @@ import updateHistoryUrl from '../History/index';
 import {initCharts} from '../Chart/church_stats';
 
 export function churchStatistics(update = false) {
-    let config = Object.assign({}, getPreFilterParam());
-    console.log('Will be save -->', config);
+    let config = Object.assign({}, getPreFilterParam()),
+        curType = $('#tab_currency').find('button.active').attr('data-curr');
     updateHistoryUrl(config);
-    (config.last != '1m') && (config.group_by = 'month');
+    (config.last) && (config.group_by = 'month');
     getData(URLS.event.church_report.statistics(), config).then(data => {
         $('.preloader').css('display', 'none');
-        makeStatsTable(data, config.last);
-        initCharts(data, update, config.last);
+        makeStatsTable(data, config.last, curType);
+        initCharts(data, update, config.last, curType);
     })
 }
 
-export function makeStatsTable(data, isGroup) {
-    let formatedData = getTransformData(data, isGroup),
+export function makeStatsTable(data, isGroup, curType) {
+    let formatedData = getTransformData(data, isGroup, curType),
         tableFinances = createFinanceTable(formatedData.headers, formatedData.dataFinances),
         tablePeoples = createPeoplesTable(formatedData.headers, formatedData.dataPeoples);
     $('#tableChRepUserStats').html('').append(tableFinances);
     $('#tableChRepFinStats').html('').append(tablePeoples);
 }
 
-function getTransformData(data, isGroup) {
+function getTransformData(data, isGroup = '1m', curType = 'all') {
     let dataFinances = [
             {
                 title: 'Пожертвования',
@@ -39,6 +39,10 @@ function getTransformData(data, isGroup) {
             {
                 title: '15% к перечислению',
             },
+            {
+                title: 'Сумма платежей/отчётов',
+            },
+
         ],
         dataPeoples = [
             {
@@ -54,22 +58,74 @@ function getTransformData(data, isGroup) {
         headers;
 
     if (isGroup === '1m') {
-        headers = data.map(item => `${item.week} нед. ${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`);
+        headers = data.map(item => `${item.date.week} нед. ${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
     } else {
-        headers = data.map(item => `${item.year}-${(item.month < 10) ? '0' + item.month : item.month}`);
+        headers = data.map(item => `${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`);
     }
 
     headers.map((item, index) => {
-        let elem = data[index];
-        dataFinances[0][item] = elem.donations;
-        dataFinances[1][item] = elem.tithe;
-        dataFinances[2][item] = elem.pastor_tithe;
-        dataFinances[3][item] = elem.transfer_payments;
-        dataPeoples[0][item] = elem.count_people;
-        dataPeoples[1][item] = elem.count_new_people;
-        dataPeoples[2][item] = elem.count_repentance;
+        let elem = data[index].result,
+            sumPayments,
+            sumReports;
+        dataFinances[0][item] = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return sum + val.donations;
+            } else if (curType === 'all') {
+                return sum + val.donations;
+            } else {
+                return sum;
+            }
+        }, 0);
+        dataFinances[1][item] = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return sum + val.tithe;
+            } else if (curType === 'all') {
+                return sum + val.tithe;
+            } else {
+                return sum;
+            }
+        }, 0);
+        dataFinances[2][item] = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return sum + val.pastor_tithe;
+            } else if (curType === 'all') {
+                return sum + val.pastor_tithe;
+            } else {
+                return sum;
+            }
+        }, 0);
+        dataFinances[3][item] = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return (+sum + val.transfer_payments).toFixed(1)
+            } else if (curType === 'all') {
+                return (+sum + +val.transfer_payments).toFixed(1);
+            } else {
+                return sum;
+            }
+        }, 0);
+        sumPayments = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return (+sum + val.payments_sum).toFixed(1);
+            } else if (curType === 'all') {
+                return (+sum + +val.payments_sum).toFixed(1);
+            } else {
+                return sum;
+            }
+        }, 0);
+        sumReports = _.reduce(elem, (sum, val, key) => {
+            if (curType === key) {
+                return (+sum + +val.transfer_payments + +val.pastor_tithe).toFixed(1);
+            } else if (curType === 'all') {
+                return (+sum + +val.transfer_payments  + +val.pastor_tithe).toFixed(1);
+            } else {
+                return sum;
+            }
+        }, 0);
+        dataFinances[4][item] = `${sumPayments} / ${sumReports} (долг ${(sumReports - sumPayments).toFixed(1)})`;
+        dataPeoples[0][item] = _.reduce(elem, (sum, val, key) => sum + val.count_people, 0);
+        dataPeoples[1][item] = _.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0);
+        dataPeoples[2][item] = _.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0);
     });
-
     return {
         headers,
         dataFinances,
@@ -95,10 +151,8 @@ function createFinanceTable(headers, body) {
                             return `<tr>
                                     <td>${item.title}</td>
                                     ${headers.map(el => {
-                                        return `
-                                            <td>${beautifyNumber(item[el])}</td>
-                                        `
-                            }).join('')}
+                                        return `<td>${beautifyNumber(item[el])}</td>`
+                                    }).join('')}
                                 </tr>`;
                         }).join('')}
                     </tbody>
@@ -139,13 +193,18 @@ function createPeoplesTable(headers, body) {
 
 function getPreFilterParam() {
     let $filterFields = $('.prefilter_select').find('select'),
+        rangeActive = $('.tab-home-stats').find('.range.active'),
         data = {};
     $filterFields.each(function () {
         if ($(this).val() === "ВСЕ") return;
         let prop = $(this).attr('data-filter');
         $(this).val() && (data[prop] = $(this).val());
     });
-    data.last = $('.tab-home-stats').find('.range.active').attr('data-range');
+
+    rangeActive.length ?
+        (data.last = rangeActive.attr('data-range'))
+        :
+        (data.interval = $('#calendar_range').attr('data-interval'));
 
     return data;
 }
