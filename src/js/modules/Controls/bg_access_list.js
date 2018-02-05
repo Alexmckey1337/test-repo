@@ -199,7 +199,6 @@ function btnControll() {
         $('#passwordForm').data('id', userId).find('input').each(function (i,el) {
             $(el).val('');
         });
-        $('.errorTxt').find('span').text('');
-
+        $('.errorTxt').removeClass('error').removeClass('green').removeClass('novalid').find('span').text('');
     });
 }

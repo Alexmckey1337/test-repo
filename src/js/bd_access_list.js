@@ -66,15 +66,15 @@ $('document').ready(function () {
             confirmPass = $(this).val();
         if ($(this).attr('name') === 'confirmPassword') {
             $('#passwordForm').find('.errorTxt').addClass('error').removeClass('green').find('span').text('').text('Пароли не совпадают');
-            if (newPass === confirmPass) {
+            if (newPass === confirmPass && newPass !='') {
                 $('#passwordForm').find('.errorTxt').removeClass('error').addClass('green').find('span').text('').text('Пароли совпадают');
             }
         } else if ($(this).attr('name') === 'newPassword') {
             let result = String(newPass).search(reg);
             if(result === -1 && $(this).val() != ''){
-                $('#passwordForm').find('.errorTxt').removeClass('green').addClass('error,novalid').find('span').text('').text('Пароль не валидный');
+                $('#passwordForm').find('.errorTxt').removeClass('green').addClass('error').addClass('novalid').find('span').text('').text('Пароль не валидный');
             }else {
-                $('#passwordForm').find('.errorTxt').removeClass('green').removeClass('error, novalid').find('span').text('');
+                $('#passwordForm').find('.errorTxt').removeClass('green').removeClass('error').removeClass('novalid').find('span').text('');
             }
         }
     });
@@ -86,7 +86,7 @@ $('document').ready(function () {
             data = {
                 'password': confirmPass
             };
-        if (newPass === confirmPass && !$('#passwordForm').hasClass('novalid') && newPass != '') {
+        if (newPass === confirmPass && !$('.errorTxt').hasClass('novalid') && newPass != '') {
             postData(URLS.controls.password_submit(userId), data, {method: "PUT"}).then(function () {
                 $('#newPassword').css({
                     'display': 'none'
@@ -94,6 +94,10 @@ $('document').ready(function () {
                 bdAccessTable();
                 showAlert('Пароль успешно изменен');
             })
+        }else if($('.errorTxt').hasClass('novalid')){
+            $('.errorTxt').removeClass('green').addClass('error').find('span').text('').text('Пароль не валидный');
+        }else if(newPass === '' || confirmPass === ''){
+            $('.errorTxt').removeClass('green').addClass('error').find('span').text('').text('Заполните все поля');
         }
     });
 

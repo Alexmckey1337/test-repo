@@ -103,11 +103,11 @@
                 <form id="passwordForm" data-id="у">
                     <label>
                         <span>Введите новый пароль: </span>
-                        <input type="password" name="newPassword">
+                        <input type="password" name="newPassword" minlength="8" required>
                     </label>
                     <label>
                         <span>Повторите пароль: </span>
-                        <input type="password" name="confirmPassword" class="confirmPass">
+                        <input type="password" name="confirmPassword" class="confirmPass" minlength="8" required>
                     </label>
                     <div class="errorTxt"><i class="material-icons complete">&#xE876;</i><i class="material-icons close">&#xE5CD;</i><span></span></div>
                     <div><span class="ruleText">* Пароль должен содержать 8 символов, и не может состоять только из цифр.</span></div>
