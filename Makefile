@@ -32,7 +32,7 @@ collectstatic:
 	npm run build
 	rm -rf ./node_modules/
 
-build: collectstatic
+build:
 	docker build -t $(CONTAINER_IMAGE):$(TAG) .
 
 push: build
