@@ -192,9 +192,9 @@ $(document).ready(function () {
                 clearDealForm();
                 $('#send_new_deal').prop('disabled', false);
                 $('#popup-create_deal').css('display', 'none');
-            }).catch((err) => {
+            }).catch(err => {
                 $('#send_new_deal').prop('disabled', false);
-                showAlert(err);
+                errorHandling(err);
             });
         } else {
             showAlert('Заполните поле суммы и дату.');

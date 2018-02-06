@@ -42,6 +42,7 @@ export function btnDeals() {
 }
 
 function clearSumChange(total) {
+    $('#payment-form').get(0).reset();
     $('#new_payment_sum').val('');
     $('#new_payment_rate').val('').prop('readonly', false);
     $('#sent_date').val(moment(new Date()).format('DD.MM.YYYY'));
