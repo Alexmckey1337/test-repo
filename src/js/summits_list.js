@@ -5,13 +5,10 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
-import URLS from './modules/Urls/index';
-import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {SummitListTable, summitListTable} from "./modules/Controls/summits_list";
+import {SummitListTable, summitListTable, addSummit} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
-import {postData} from './modules/Ajax/index';
 
 $('document').ready(function () {
     let configData = {},
@@ -60,13 +57,19 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         updateSettings(summitListTable);
     });
-
+    $('#add').on('click',function () {
+        $('#addSammit').addClass('active');
+        $('.bg').addClass('active');
+    });
     $('.summit-date').datepicker({
         dateFormat: 'dd-mm-yyyy',
         autoClose: true,
         position: "bottom center",
     });
-
+    $('#addSammit').find('form').on('submit',function (e) {
+        e.preventDefault();
+        addSummit(this);
+    })
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);

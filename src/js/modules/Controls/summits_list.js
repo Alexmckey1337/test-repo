@@ -89,7 +89,6 @@ function createSummitListTable(data,block) {
         return `<tr data-id="${item.id}">
                             <td class="edit">
                                 ${item.description === ''?item.type.title:item.description}
-                                <button class="view_img" data-img="${item.type.image}"></button>
                             </td>
                             <td>
                                 ${item.type.title}
@@ -112,4 +111,24 @@ function createSummitListTable(data,block) {
 }
 function btnControll() {
 
+}
+export function addSummit(el) {
+    let label = $(el).find('label'),
+        data = {};
+    $(label).each(function (i, el) {
+        let input = $(el).find('input, select, textarea');
+        if($(input).hasClass('summit-date')){
+            data[$(input).attr('name')] = $(input).val().split('-').reverse().join('-');
+        } else {
+            data[$(input).attr('name')] = $(input).val();
+        }
+    });
+    postData(URLS.controls.summit_access(),data).then(function () {
+        showAlert('Саммит успешно создан');
+        $('#addSammit').removeClass('active');
+        $('.bg').removeClass('active');
+        summitListTable();
+    }).catch(function (err) {
+        console.log(err);
+    });
 }
