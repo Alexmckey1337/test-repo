@@ -47,7 +47,8 @@ class SummitPanelListSerializer(serializers.ModelSerializer):
 
 
 class SummitPanelCreateUpdateSerializer(serializers.ModelSerializer):
-    zmail_template = serializers.PrimaryKeyRelatedField(queryset=ZMailTemplate.objects.all())
+    zmail_template = serializers.PrimaryKeyRelatedField(queryset=ZMailTemplate.objects.all(),
+                                                        required=False, allow_null=True)
 
     class Meta:
         model = Summit
