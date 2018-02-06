@@ -81,6 +81,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
 class SummitPanelViewSet(ModelWithoutDeleteViewSet):
     queryset = Summit.objects.all()
+
     serializer_list_class = SummitPanelListSerializer
     serializer_retrieve_class = SummitPanelDetailSerializer
     serializer_create_update_class = SummitPanelCreateUpdateSerializer

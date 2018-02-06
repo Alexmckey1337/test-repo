@@ -333,7 +333,7 @@ class StatsByManagersMixin:
     def _get_sum_church_pay(self, year, month):
         raw = """
           select u.user_ptr_id,
-          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 100 and
+          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 103 and
           pay.object_id in (select d.id from partnership_churchdeal d where d.responsible_id = u.user_ptr_id and
           to_char(d.date_created, 'YYYY-MM') = '{year}-{month:02d}')) sum
           from account_customuser u
@@ -851,7 +851,7 @@ class StatsByMonthsMixin:
               to_char(d.date_created, 'YYYY-MM'),
               sum(p.sum)
             FROM payment_payment p
-              JOIN partnership_churchdeal d ON p.object_id = d.id AND p.content_type_id = 100
+              JOIN partnership_churchdeal d ON p.object_id = d.id AND p.content_type_id = 103
             WHERE d.date_created >= '{month}-01' {manager}
             GROUP BY to_char(d.date_created, 'YYYY-MM')
             ORDER BY to_char(d.date_created, 'YYYY-MM') DESC;
