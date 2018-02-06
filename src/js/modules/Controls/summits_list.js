@@ -60,7 +60,7 @@ function makeSummitListTable(data, config = {}) {
         };
     makePagination(paginationConfig);
     $('.table__count').text(text);
-    $('#tableSummitAccessWrap').html('');
+    $('#tableSummitListWrap').html('');
     createSummitListTable(data, '#tableSummitListWrap');
     new OrderTable().sort(summitListTable, ".table-wrap th");
     $('.preloader').hide();
@@ -78,17 +78,17 @@ function createSummitListTable(data,block) {
     let table = `<table class="tableSummitList">
                         <thead>
                             <tr>
-                                <th data-order="">Название саммита</th>
-                                <th data-order="">Тип саммита</th>
-                                <th data-order="">Дата начала</th>
-                                <th data-order="">Дата окончания</th>                                        
-                                <th data-order="">Статус</th>
+                                <th data-order="no_ordering">Название саммита</th>
+                                <th data-order="no_ordering">Тип саммита</th>
+                                <th data-order="no_ordering">Дата начала</th>
+                                <th data-order="no_ordering">Дата окончания</th>                                        
+                                <th data-order="no_ordering">Статус</th>
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
         return `<tr data-id="${item.id}">
-                            <td>
-                                ${item.description}
+                            <td class="edit">
+                                ${item.description === ''?item.type.title:item.description}
                                 <button class="view_img" data-img="${item.type.image}"></button>
                             </td>
                             <td>

@@ -61,6 +61,11 @@ $('document').ready(function () {
         updateSettings(summitListTable);
     });
 
+    $('.summit-date').datepicker({
+        dateFormat: 'dd-mm-yyyy',
+        autoClose: true,
+        position: "bottom center",
+    });
 
     if (path != undefined) {
         let filterParam = parseUrlQuery();
