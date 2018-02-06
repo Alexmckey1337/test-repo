@@ -17,7 +17,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from apps.account.abstract_models import CustomUserAbstract
 from apps.analytics.decorators import log_change_payment
 from apps.notification.backend import RedisBackend
 from apps.payment.models import get_default_currency, AbstractPaymentPurpose
@@ -137,8 +136,24 @@ def validate_master_path(value):
 class ProfileAbstract(models.Model):
     """ Cloned the user when create/update profile """
 
+    #: Field for name in the native language of the user
+    search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True, db_index=True)
     first_name = models.CharField(_('Fisrt name'), max_length=255, blank=True, editable=False, db_index=True)
     last_name = models.CharField(_('Last name'), max_length=255, blank=True, editable=False, db_index=True)
+    middle_name = models.CharField(_('Middle name'), max_length=40, blank=True, db_index=True)
+
+    city = models.CharField(_('City'), max_length=255, blank=True, db_index=True)
+    country = models.CharField(_('Country'), max_length=255, blank=True, db_index=True)
+
+    RENEGADE, BABY, JUNIOR, FATHER = 0, 1, 2, 3
+    SPIRITUAL_LEVEL_CHOICES = (
+        (RENEGADE, _('Renegade')),
+        (BABY, _('Baby')),
+        (JUNIOR, _('Junior')),
+        (FATHER, _('Father')),
+    )
+    spiritual_level = models.PositiveSmallIntegerField(
+        _('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1, db_index=True)
 
     pastor = models.CharField(_('Name of pastor'), max_length=255, blank=True, editable=False)
     bishop = models.CharField(_('Name of bishop'), max_length=255, blank=True, editable=False)
@@ -159,6 +174,8 @@ class ProfileAbstract(models.Model):
     #: User who added a profile
     creator = models.ForeignKey('account.CustomUser', related_name='added_profiles', editable=False,
                                 null=True, blank=True, verbose_name=_('Creator'), on_delete=models.SET_NULL)
+    author = models.ForeignKey('account.CustomUser', related_name='regs',
+                               null=True, blank=True, verbose_name=_('Author'), on_delete=models.SET_NULL)
 
     divisions = models.ManyToManyField('status.Division', verbose_name=_('Divisions'), editable=False)
     divisions_title = models.CharField(_('Divisions title'), max_length=255, blank=True, editable=False)
@@ -187,7 +204,7 @@ class ProfileAbstract(models.Model):
 
 
 @python_2_unicode_compatible
-class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
+class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='summit_profiles')
     summit = models.ForeignKey('Summit', on_delete=models.PROTECT, related_name='ankets', verbose_name='Саммит',
                                blank=True, null=True, db_index=True)
@@ -261,6 +278,15 @@ class SummitAnket(CustomUserAbstract, ProfileAbstract, AbstractPaymentPurpose):
             super(SummitAnket, self).save(*args, **kwargs)
 
     def update_archive_fields(self):
+        """
+        DON'T SAVE TO DATABASE
+
+        You must save the object yourself
+
+        For example:
+            profile.update_archive_fields()
+            profile.save()
+        """
         self.first_name = self.user.first_name
         self.last_name = self.user.last_name
         self.middle_name = self.user.middle_name

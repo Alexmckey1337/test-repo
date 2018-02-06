@@ -134,7 +134,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
 
     filter_class = ProfileFilter
     ordering_fields = (
-        'first_name', 'last_name', 'responsible',
+        'first_name', 'last_name', 'responsible', 'author__last_name',
         'spiritual_level', 'divisions_title', 'department', 'user__facebook', 'country', 'city',
         'code', 'value', 'description',
         'middle_name', 'user__born_date', 'country',
@@ -172,7 +172,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
             summit__status=Summit.CLOSE
         )
         qs = self.summit.ankets.annotate(
-            has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
+            has_email=Exists(emails), has_achievement=Exists(other_summits)) \
             .base_queryset().annotate_total_sum().annotate_full_name().order_by(
             'user__last_name', 'user__first_name', 'user__middle_name')
         return qs.for_user(self.request.user)

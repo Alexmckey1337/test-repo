@@ -412,7 +412,7 @@ class UserShortSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserForSelectSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source='full_name')
+    title = serializers.CharField(source='fullname')
 
     class Meta:
         model = User

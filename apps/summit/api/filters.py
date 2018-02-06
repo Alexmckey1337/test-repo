@@ -155,10 +155,11 @@ class ProfileFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=CustomUser.objects.all())
     department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
+    author = django_filters.ModelMultipleChoiceFilter(name="author", queryset=CustomUser.objects.all())
 
     class Meta:
         model = SummitAnket
-        fields = ['master', 'hierarchy', 'department', 'ticket_status']
+        fields = ['master', 'hierarchy', 'department', 'author', 'ticket_status']
 
 
 class FilterByHasEmail(BaseFilterBackend):

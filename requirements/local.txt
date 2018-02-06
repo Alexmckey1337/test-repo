@@ -8,10 +8,10 @@ Werkzeug==0.11.15
 # Tests
 coverage==4.3.4
 django-coverage-plugin==1.3.1
-factory_boy==2.8.1
+factory_boy
 pytest
 pytest-factoryboy
--e git+https://github.com/pytest-dev/pytest-django.git@master#egg=pytest-django
+pytest-django
 pytest-sugar
 pytest-xdist
 
