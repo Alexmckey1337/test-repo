@@ -3,6 +3,8 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
@@ -17,6 +19,7 @@ import {
 } from './modules/Deals/index';
 import updateSettings from './modules/UpdateSettings/index';
 import reverseDate from './modules/Date/index';
+import errorHandling from './modules/Error';
 
 $(document).ready(function () {
         let date = new Date(),
@@ -72,35 +75,6 @@ $(document).ready(function () {
     $('#payment-form').on('submit', function (e) {
         e.preventDefault();
     });
-
-    $('#complete-payment').on('click', _.debounce(function (e) {
-        e.preventDefault();
-        $(this).prop('disabled', true);
-        let id = $(this).attr('data-id'),
-            data = {
-                "sum": $('#new_payment_sum').val(),
-                "description": $('#popup-create_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
-                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
-                "operation": $('#operation').val()
-            },
-            type = $('#statusTabs').find('.current button').attr('data-type'),
-            url = (type === 'people') ? URLS.deal.create_uah_payment(id) : URLS.church_deal.create_uah_payment(id);
-
-        postData(url, data).then(function () {
-            updateDealsTable();
-            $('#new_payment_sum').val('');
-            $('#popup-create_payment textarea').val('');
-            $('#complete-payment').prop('disabled', false);
-            $('#popup-create_payment').css('display', 'none');
-        }).catch((res) => {
-            let error = JSON.parse(res.responseText),
-                errKey = Object.keys(error),
-                html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            $('#complete-payment').prop('disabled', false);
-            showAlert(html);
-        });
-    }, 500));
 
     $('#popup-payments .detail').on('click', function () {
         let url = $(this).attr('data-detail-url');
@@ -244,6 +218,45 @@ $(document).ready(function () {
     });
 
     $('#date_range').val(`${thisMonthStart}-${thisMonthEnd}`);
+
+    //Payments
+    function submitPayment() {
+        let id = $('#complete-payment').attr('data-id'),
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-create_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+                "operation": $('#operation').val()
+            },
+            type = $('#statusTabs').find('.current button').attr('data-type'),
+            url = (type === 'people') ? URLS.deal.create_uah_payment(id) : URLS.church_deal.create_uah_payment(id);
+
+        postData(url, data).then(function () {
+            updateDealsTable();
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#complete-payment').prop('disabled', false);
+            $('#popup-create_payment').css('display', 'none');
+        }).catch(err => {
+            errorHandling(err);
+            $('#complete-payment').prop('disabled', false);
+        });
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#payment-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitPayment();
+            $('#complete-payment').prop('disabled', true);
+
+            return false;
+        }
+    });
 
 });
 

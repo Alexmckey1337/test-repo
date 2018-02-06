@@ -7,7 +7,7 @@ import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
-import getData from './modules/Ajax/index';
+import getData, {postData} from './modules/Ajax/index';
 import parseUrlQuery from './modules/ParseUrl/index';
 import updateSettings from './modules/UpdateSettings/index';
 import {showAlert} from "./modules/ShowNotifications/index";
@@ -19,8 +19,8 @@ import {
     deleteReport,
     calcTransPayments
 } from "./modules/Reports/church";
-import {createChurchPayment} from "./modules/Reports/church";
 import reverseDate from './modules/Date/index';
+import errorHandling from './modules/Error';
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -283,28 +283,6 @@ $('document').ready(function () {
         e.preventDefault();
     });
 
-    $('#complete-payment').on('click', _.debounce(function (e) {
-        e.preventDefault();
-        $(this).prop('disabled', true);
-        let id = $(this).attr('data-id'),
-            sum = $('#new_payment_sum').val(),
-            description = $('#popup-create_payment textarea').val();
-        createChurchPayment(id, sum, description).then(() => {
-            churchReportsTable();
-            $('#new_payment_sum').val('');
-            $('#popup-create_payment textarea').val('');
-            $('#popup-create_payment').css('display', 'none');
-            showAlert('Оплата прошла успешно.');
-            $('#complete-payment').prop('disabled', false);
-        }).catch((res) => {
-            let error = JSON.parse(res.responseText),
-                errKey = Object.keys(error),
-                html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-            $('#complete-payment').prop('disabled', false);
-            showAlert(html);
-        });
-    }, 500));
-
     $('#sent_date').datepicker({
         dateFormat: "dd.mm.yyyy",
         startDate: new Date(),
@@ -326,6 +304,42 @@ $('document').ready(function () {
         },
         onSuccess: function () {
             sendReport();
+
+            return false;
+        }
+    });
+
+    function submitPayment() {
+        let id = $('#complete-payment').attr('data-id'),
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-create_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+                "operation": $('#operation').val()
+            };
+        postData(URLS.event.church_report.create_uah_payment(id), data).then(() => {
+            churchReportsTable();
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#popup-create_payment').css('display', 'none');
+            showAlert('Оплата прошла успешно.');
+            $('#complete-payment').prop('disabled', false);
+        }).catch(err => {
+            errorHandling(err);
+            $('#complete-payment').prop('disabled', false);
+        });
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#payment-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitPayment();
+            $('#complete-payment').prop('disabled', true);
 
             return false;
         }
