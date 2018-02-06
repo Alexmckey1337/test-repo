@@ -54,13 +54,6 @@ $('document').ready(function () {
 
     });
 
-    // $("#firsVisit").datepicker().datepicker({
-    //     dateFormat: 'yyyy-mm-dd',
-    //     maxDate: new Date(),
-    //     setDate: new Date(),
-    //     autoClose: true,
-    // });
-
     $("#bornDate").datepicker({
         minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
         maxDate: new Date(),
@@ -79,27 +72,14 @@ $('document').ready(function () {
         }
     });
 
-        // $('#repentanceDate').datepicker({
-    //     dateFormat: 'yyyy-mm-dd',
-    //     onSelect: function (formattedDate) {
-    //         (formattedDate) && $('#spir_level').prop('disabled', false);
-    //     }
-    // });
-    //
-    // $('#bornDate').datepicker({
-    //     dateFormat: 'yyyy-mm-dd'
-    // });
-
-    // $('#partnerFrom').datepicker({
-    //     dateFormat: 'yyyy-mm-dd',
-    //     maxDate: new Date(),
-    //     setDate: new Date(),
-    //     autoClose: true,
-    // });
     $('#phone').inputmask('phone', {
         onKeyValidation: function () {
             $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
-        }
+        },
+        onKeyDown: _.debounce(function () {
+            $('#createUser').find('._preloader').css('opacity', '1');
+            makeDuplicateCount();
+        }, 500),
     });
 
     $('#extra_phone').find('.extra_phone_numbers').inputmask('phone', {
@@ -107,18 +87,6 @@ $('document').ready(function () {
             $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
         },
         "clearIncomplete": true,
-        // "onincomplete": function () {
-        //     console.log('INCOMPLETE');
-        //     return flagCorrectPhone = true;
-        // },
-        // "oncomplete": function () {
-        //     console.log('COMPLETE');
-        //     return flagCorrectPhone = false;
-        // },
-        // "oncleared": function () {
-        //     console.log('CLEAR');
-        //     return flagCorrectPhone = false;
-        // }
     });
 
     $('#addExtraPhone').on('click', function () {
@@ -207,7 +175,7 @@ $('document').ready(function () {
         e.stopPropagation();
     });
 
-    let inputs = $('#first_name, #last_name, #middle_name, #phoneNumber');
+    let inputs = $('#first_name, #last_name, #middle_name');
     inputs.on('focusout', function () {
         $('#createUser').find('._preloader').css('opacity', '1');
         makeDuplicateCount();
@@ -222,25 +190,12 @@ $('document').ready(function () {
         $('.pop-up__table').hide();
     });
 
-    $('#last_name, #first_name, #middle_name, #phoneNumber').keypress(function (event) {
+    $('#last_name, #first_name, #middle_name').keypress(function (event) {
         let keycode = (event.keyCode ? event.keyCode : event.which);
         if (keycode == '13') {
-            event.preventDefault();
             $('#createUser').find('._preloader').css('opacity', '1');
             makeDuplicateCount();
         }
-        event.stopPropagation();
-    });
-
-    $("#createUser").find('input').each(function () {
-
-        $(this).keypress(function (event) {
-            let keycode = (event.keyCode ? event.keyCode : event.which);
-            if (keycode == '13') {
-                event.preventDefault();
-            }
-            event.stopPropagation();
-        });
     });
 
 });

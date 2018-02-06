@@ -81,7 +81,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
 
 class SummitPanelViewSet(ModelWithoutDeleteViewSet):
-    queryset = Summit.objects.all()
+    queryset = Summit.objects.order_by('-end_date')
 
     serializer_list_class = SummitPanelListSerializer
     serializer_retrieve_class = SummitPanelDetailSerializer
@@ -94,7 +94,7 @@ class SummitPanelViewSet(ModelWithoutDeleteViewSet):
                        filters.OrderingFilter,
                        )
 
-    ordering_fields = ('type', 'status', 'from_date', 'to_date')
+    ordering_fields = ('type', 'status', 'start_date', 'end_date')
 
     filter_class = SummitPanelDateFilter
 
