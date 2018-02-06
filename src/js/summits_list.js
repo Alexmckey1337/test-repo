@@ -9,6 +9,7 @@ import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {SummitListTable, summitListTable, addSummit} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
+import {showAlert} from "./modules/ShowNotifications/index";
 
 $('document').ready(function () {
     let configData = {},
@@ -58,16 +59,34 @@ $('document').ready(function () {
         updateSettings(summitListTable);
     });
     $('#add').on('click',function () {
-        $('#addSammit').addClass('active');
+        $('#addSammit').addClass('active').addClass('add').removeClass('change');
         $('.bg').addClass('active');
+        let clear_btn = $('#addSammit').find('.add-summit');
+        refreshFilter($(clear_btn));
     });
     $('.summit-date').datepicker({
-        dateFormat: 'dd-mm-yyyy',
+        dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "bottom center",
     });
-    $('#addSammit').find('form').on('submit',function (e) {
+    $('.add-summit').on('click',function (e) {
         e.preventDefault();
+        let flag = false;
+        $('.must').each(function () {
+            console.log($(this));
+            $(this).validate(
+                function (valid) {
+                    console.log(valid);
+                    return flag = valid;
+                });
+            return flag;
+        });
+
+        if (!flag) {
+            showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
+        } else {
+
+        }
         addSummit(this);
     })
     if (path != undefined) {

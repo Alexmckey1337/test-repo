@@ -97,12 +97,11 @@
                     <div class="container">
                         <label>
                             <span class="label_block">Название</span>
-                            <input type="text" name="description">
+                            <input type="text" name="description" >
                         </label>
                         <label>
                             <span class="label_block">Тип</span>
-                            <select class="selectbd type_filter" name="type">
-                                <option value="">ВСЕ</option>
+                            <select class="selectbd must" name="type" data-validation="required">
                                 {% for type in summit_types %}
                                     <option value="{{ type.id }}">{{ type.title }}</option>
                                 {% endfor %}
@@ -110,17 +109,16 @@
                         </label>
                         <label>
                             <span class="label_block">Дата начала</span>
-                            <input type="text" name="start_date" class="summit-date">
+                            <input type="text" name="start_date" class="summit-date must" data-validation="required">
                         </label>
                         <label>
                             <span class="label_block">Дата окончания</span>
-                            <input type="text" name="end_date" class="summit-date">
+                            <input type="text" name="end_date" class="summit-date must" data-validation="required">
                         </label>
                         <label>
                             <span class="label_block">Статус</span>
-                            <select name="status" class="selectbd">
-                                <option value="">ВСЕ</option>
-                                <option value="open">Открытые</option>
+                            <select name="status must" class="selectbd" data-validation="required">
+                                <option value="open" selected>Открытые</option>
                                 <option value="close">Закрытые</option>
                             </select>
                         </label>
@@ -130,25 +128,23 @@
                         </label>
                         <label>
                             <span class="label_block">Полная стоимость</span>
-                            <input type="number" name="full_cost">
+                            <input type="number" name="full_cost" class="must" data-validation="required">
                         </label>
                         <label>
                             <span class="label_block">Специальная стоимость</span>
-                            <input type="number" name="special_cost">
+                            <input type="number" name="special_cost" class="must" data-validation="required">
                         </label>
                         <label>
                             <span class="label_block">Валюта</span>
                             <select class="selectbd" name="currency">
-                                <option value="">ВСЕ</option>
                                 {% for currency in currencies %}
                                     <option value="{{ currency.id }}">{{ currency }}</option>
                                 {% endfor %}
                             </select>
                         </label>
                         <label>
-                            <span class="label_block">Email</span>
+                            <span class="label_block">Шаблон для рассылок</span>
                             <select class="selectbd" name="zmail_template">
-                                <option value="">ВСЕ</option>
                                 {% for mail in zmail_templates %}
                                     <option value="{{ mail.id }}">{{ mail }}</option>
                                 {% endfor %}
@@ -159,6 +155,7 @@
                 <div class="container">
                     <button class="close-popup">Отменить</button>
                     <button class="add-summit">Добавить</button>
+                    <button class="save-summit">Сохранить</button>
                 </div>
             </form>
         </div>

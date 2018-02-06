@@ -113,13 +113,33 @@
     }
 }
 #addSammit{
-    .add-summit {
+    .add-summit,save-summit {
         position: relative;
         &:before {
             font: 1.2em FontAwesome;
-            content: "\f067";
             position: absolute;
             left: 1.5em;
+        }
+    }
+    .add-summit {
+        &::before {
+            content: "\f067";
+        }
+    }
+    .save-summit {
+        &::before {
+            content: "\f0c7";
+        }
+    }
+    &.add{
+        .save-summit{
+            display: none;
+        }
+
+    }
+    &.change{
+        .add-summit{
+            display: none;
         }
     }
 }

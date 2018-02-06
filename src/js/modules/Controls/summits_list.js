@@ -12,6 +12,7 @@ import getSearch from '../Search/index';
 import OrderTable from '../Ordering/index';
 import {showAlert} from "../ShowNotifications/index";
 import makePagination from '../Pagination/index';
+import {refreshFilter} from "../Filter/index";
 import updateHistoryUrl from '../History/index';
 import makeSelect from '../MakeAjaxSelect/index';
 
@@ -79,15 +80,15 @@ function createSummitListTable(data,block) {
                         <thead>
                             <tr>
                                 <th data-order="no_ordering">Название саммита</th>
-                                <th data-order="no_ordering">Тип саммита</th>
-                                <th data-order="no_ordering">Дата начала</th>
-                                <th data-order="no_ordering">Дата окончания</th>                                        
-                                <th data-order="no_ordering">Статус</th>
+                                <th data-order="type">Тип саммита</th>
+                                <th data-order="start_date">Дата начала</th>
+                                <th data-order="end_date">Дата окончания</th>                                        
+                                <th data-order="status">Статус</th>
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
-        return `<tr data-id="${item.id}">
-                            <td class="edit">
+        return `<tr>
+                            <td class="edit" data-id="${item.id}">
                                 ${item.description === ''?item.type.title:item.description}
                             </td>
                             <td>
@@ -110,18 +111,24 @@ function createSummitListTable(data,block) {
     btnControll();
 }
 function btnControll() {
+    $(".tableSummitList").find('.edit').on('click', function () {
+        let clear_btn = $('#addSammit').find('.add-summit'),
+            id = $(this).data('id');
+        $('#addSammit').addClass('active').addClass('change').removeClass('add');
+        $('.bg').addClass('active');
+        refreshFilter($(clear_btn));
+        getData(URLS.controls.summit_detail(id)).then(function (data) {
+            completeForm(data);
+        });
 
+    });
 }
 export function addSummit(el) {
-    let label = $(el).find('label'),
+    let label = $(el).closest('form').find('label'),
         data = {};
     $(label).each(function (i, el) {
         let input = $(el).find('input, select, textarea');
-        if($(input).hasClass('summit-date')){
-            data[$(input).attr('name')] = $(input).val().split('-').reverse().join('-');
-        } else {
-            data[$(input).attr('name')] = $(input).val();
-        }
+        data[$(input).attr('name')] = $(input).val();
     });
     postData(URLS.controls.summit_access(),data).then(function () {
         showAlert('Саммит успешно создан');
@@ -131,4 +138,23 @@ export function addSummit(el) {
     }).catch(function (err) {
         console.log(err);
     });
+}
+
+function completeForm(data) {
+    for (let key in data) {
+        if (key != 'id') {
+            let input = $('#addSammit').find('[name = ' + key + ']');
+            if (key === 'type') {
+                $(input).val(data[key].id).trigger('change');
+            } else if (key === 'status') {
+                $(input).val(data[key]).trigger('change');
+            } else if (key === 'currency') {
+                $(input).val(data[key].id).trigger('change');
+            } else if (key === 'zmail_template') {
+                $(input).val(data[key]).trigger('change');
+            } else {
+                $(input).val(data[key]);
+            }
+        }
+    }
 }
