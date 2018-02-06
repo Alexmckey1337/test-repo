@@ -69,59 +69,59 @@ function getTransformData(data, isGroup = '1m', curType = 'all') {
             sumReports;
         dataFinances[0][item] = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return sum + val.donations;
+                return (+sum + +val.donations).toFixed(2);
             } else if (curType === 'all') {
-                return sum + val.donations;
+                return (+sum + +val.donations).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
         dataFinances[1][item] = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return sum + val.tithe;
+                return (+sum + +val.tithe).toFixed(2);
             } else if (curType === 'all') {
-                return sum + val.tithe;
+                return (+sum + +val.tithe).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
         dataFinances[2][item] = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return sum + val.pastor_tithe;
+                return (+sum + +val.pastor_tithe).toFixed(2);
             } else if (curType === 'all') {
-                return sum + val.pastor_tithe;
+                return (+sum + +val.pastor_tithe).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
         dataFinances[3][item] = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return (+sum + val.transfer_payments).toFixed(1)
+                return (+sum + +val.transfer_payments).toFixed(2);
             } else if (curType === 'all') {
-                return (+sum + +val.transfer_payments).toFixed(1);
+                return (+sum + +val.transfer_payments).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
         sumPayments = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return (+sum + val.payments_sum).toFixed(1);
+                return (+sum + +val.payments_sum).toFixed(2);
             } else if (curType === 'all') {
-                return (+sum + +val.payments_sum).toFixed(1);
+                return (+sum + +val.payments_sum).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
         sumReports = _.reduce(elem, (sum, val, key) => {
             if (curType === key) {
-                return (+sum + +val.transfer_payments + +val.pastor_tithe).toFixed(1);
+                return (+sum + +val.transfer_payments + +val.pastor_tithe).toFixed(2);
             } else if (curType === 'all') {
-                return (+sum + +val.transfer_payments  + +val.pastor_tithe).toFixed(1);
+                return (+sum + +val.transfer_payments  + +val.pastor_tithe).toFixed(2);
             } else {
                 return sum;
             }
         }, 0);
-        dataFinances[4][item] = `${sumPayments} / ${sumReports} (долг ${(sumReports - sumPayments).toFixed(1)})`;
+        dataFinances[4][item] = `${sumPayments} / ${sumReports} (долг ${(sumReports - sumPayments).toFixed(2)})`;
         dataPeoples[0][item] = _.reduce(elem, (sum, val, key) => sum + val.count_people, 0);
         dataPeoples[1][item] = _.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0);
         dataPeoples[2][item] = _.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0);

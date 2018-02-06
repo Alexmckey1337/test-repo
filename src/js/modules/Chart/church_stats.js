@@ -48,36 +48,36 @@ function makeChartConfig(data, isGroup = '1m', curType) {
         repentances.push(_.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0));
         donations.push(_.reduce(elem, (sum, val, key) => {
                 if (curType === key) {
-                    return sum + val.donations;
+                    return (+sum + +val.donations).toFixed(2);
                 } else if (curType === 'all') {
-                    return sum + val.donations;
+                    return (+sum + +val.donations).toFixed(2);
                 } else {
                     return sum;
                 }
             }, 0));
         tithe.push(_.reduce(elem, (sum, val, key) => {
                 if (curType === key) {
-                    return sum + val.tithe;
+                    return (+sum + +val.tithe).toFixed(2);
                 } else if (curType === 'all') {
-                    return sum + val.tithe;
+                    return (+sum + +val.tithe).toFixed(2);
                 } else {
                     return sum;
                 }
             }, 0));
         pastorTithe.push(_.reduce(elem, (sum, val, key) => {
                 if (curType === key) {
-                    return sum + val.pastor_tithe;
+                    return (+sum + +val.pastor_tithe).toFixed(2);
                 } else if (curType === 'all') {
-                    return sum + val.pastor_tithe;
+                    return (+sum + +val.pastor_tithe).toFixed(2);
                 } else {
                     return sum;
                 }
             }, 0));
         percent.push(_.reduce(elem, (sum, val, key) => {
                 if (curType === key) {
-                    return (+sum + +val.transfer_payments).toFixed(1);
+                    return (+sum + +val.transfer_payments).toFixed(2);
                 } else if (curType === 'all') {
-                    return (+sum + +val.transfer_payments).toFixed(1);
+                    return (+sum + +val.transfer_payments).toFixed(2);
                 } else {
                     return sum;
                 }
@@ -163,7 +163,7 @@ function makeChartConfig(data, isGroup = '1m', curType) {
             footer: (tooltipItems, data) => {
                 let sumDon = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
                     sumTithe = data.datasets[tooltipItems[2].datasetIndex].data[tooltipItems[2].index],
-                    totalSum = sumDon + sumTithe;
+                    totalSum = (+sumDon + +sumTithe).toFixed(2);
                 return `Общая сумма: ${beautifyNumber(totalSum)}`;
             },
         },
