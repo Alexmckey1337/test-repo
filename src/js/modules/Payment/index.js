@@ -179,6 +179,7 @@ function getPaymentDetail(id) {
 function createUpdatePayment(data, name, id) {
     let rate = data.rate,
         rateField = $('#new_payment_rate');
+    $('#payment-form').get(0).reset();
     $('#payment_name').text(name);
     $('#payment_date').text(data.created_at);
     rateField.val(rate).prop('readonly', false);

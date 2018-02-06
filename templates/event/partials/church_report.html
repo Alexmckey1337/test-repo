@@ -51,36 +51,36 @@
                 </label>
                 <label>
                     <span class="label_block">Десятины <span class="cur_name"></span></span>
-                    <input type="number"
+                    <input type="text"
                            id="reportTithe"
                            class="report-tithe"
                            name="total_tithe"
-                           data-validation="number required"
-                           data-validation-allowing="float">
+                           data-validation="custom"
+                           data-validation-regexp="^[0-9]{1,8}(\.[0-9]{1,2})?$">
                 </label>
                 <label>
                     <span class="label_block">Пожертвования <span class="cur_name"></span></span>
-                    <input type="number"
+                    <input type="text"
                            id="reportDonations"
                            class="report-tithe"
                            name="total_donations"
-                           data-validation="number required"
-                           data-validation-allowing="float">
+                           data-validation="custom"
+                           data-validation-regexp="^[0-9]{1,8}(\.[0-9]{1,2})?$">
                 </label>
                 <label>
                     <span class="label_block">15% к перечислению <span class="cur_name"></span></span>
-                    <input type="number"
+                    <input type="text"
                            name="transfer_payments"
                            id="reportTransferPayments"
                            disabled="disabled">
                 </label>
                 <label>
                     <span class="label_block">Десятина пастора <span class="cur_name"></span></span>
-                    <input type="number"
+                    <input type="text"
                            id="reportPastorTithe"
                            name="total_pastor_tithe"
-                           data-validation="number required"
-                           data-validation-allowing="float">
+                           data-validation="custom"
+                           data-validation-regexp="^[0-9]{1,8}(\.[0-9]{1,2})?$">
                 </label>
             </div>
         </div>

@@ -337,14 +337,14 @@
                             </form>
                         </div>
                     </li>
-{#                    {% if not account.is_partner %}#}
-{#                        <li id="editPartnership">#}
-{#                            <div class="right-info__block">#}
-{#                                <div class="success__block"></div>#}
-{#                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}#}
-{#                            </div>#}
-{#                        </li>#}
-{#                    {% endif %}#}
+                    {% if not account.is_partner %}
+                        <li id="editPartnership">
+                            <div class="right-info__block">
+                                <div class="success__block"></div>
+                                {% include "account/partials/partner_form.html" with user=account is_supervisor=request.user.is_partner_supervisor_or_high %}
+                            </div>
+                        </li>
+                    {% endif %}
                     <li id="editVisit">
                         <div class="right-info__block">
                             <h4>Духовный уровень</h4>
@@ -832,7 +832,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-{#                {% endif %}#}
                         {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
@@ -1172,9 +1171,7 @@
                 <span class="close_pop">×</span>
             </div>
             <div class="main-text">
-                <div class="iptel-month playerParent" id="tableMonthIptel">
-                    {% include "partials/player.html" %}
-                </div>
+                <div class="iptel-month" id="tableMonthIptel">{% include "partials/player.html" %}</div>
             </div>
         </div>
     </div>

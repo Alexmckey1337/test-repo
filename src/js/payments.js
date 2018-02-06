@@ -3,6 +3,8 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
@@ -12,11 +14,12 @@ import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
 import {createPaymentsTable} from "./modules/Payment/index";
 import {
     deleteDealsPayment,
-    updateDealsPayment,
     cleanUpdateDealsPayment,
     getPreFilterParam
 } from "./modules/Payment/index";
 import makeSelect from './modules/MakeAjaxSelect';
+import {postData} from "./modules/Ajax/index";
+import errorHandling from './modules/Error';
 
 $(document).ready(function () {
     let date = new Date(),
@@ -141,30 +144,6 @@ $(document).ready(function () {
         e.preventDefault();
     });
 
-    $('#complete-payment').on('click', _.debounce(function (e) {
-        e.preventDefault();
-        $(this).prop('disabled', true);
-        let id = $(this).attr('data-id'),
-            data = {
-                "sum": $('#new_payment_sum').val(),
-                "description": $('#popup-update_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
-                "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
-            };
-        updateDealsPayment(id, data).then(function () {
-            let page = $('.pagination__input').val();
-            $('#popup-update_payment').css('display', 'none');
-            cleanUpdateDealsPayment();
-            $('.preloader').css('display', 'block');
-            createPaymentsTable({page: page});
-            showAlert('Платеж успешно изменен!');
-            $('#complete-payment').prop('disabled', false);
-        }).catch((res) => {
-            $('#complete-payment').prop('disabled', false);
-            showAlert(res, 'Ошибка');
-        });
-    }, 500));
-
     function parse(data, params) {
         params.page = params.page || 1;
         const results = [];
@@ -195,5 +174,43 @@ $(document).ready(function () {
 
     makeSelect($('#manager'), URLS.payment.supervisors(), parse, formatRepo);
     makeSelect($('#search_purpose_manager_fio'), URLS.user.managers(), parse, formatRepo);
+
+    //Payments
+    function submitPayment() {
+        let id = $('#complete-payment').attr('data-id'),
+            data = {
+                "sum": $('#new_payment_sum').val(),
+                "description": $('#popup-update_payment textarea').val(),
+                "rate": $('#new_payment_rate').val(),
+                "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
+            };
+        postData(URLS.payment.edit_payment(id), data, {method: 'PATCH'}).then(function () {
+            let page = $('.pagination__input').val();
+            $('#popup-update_payment').css('display', 'none');
+            cleanUpdateDealsPayment();
+            $('.preloader').css('display', 'block');
+            createPaymentsTable({page: page});
+            showAlert('Платеж успешно изменен!');
+            $('#complete-payment').prop('disabled', false);
+        }).catch(err => {
+            errorHandling(err);
+            $('#complete-payment').prop('disabled', false);
+        });
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#payment-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitPayment();
+            $('#complete-payment').prop('disabled', true);
+
+            return false;
+        }
+    });
+
 
 });

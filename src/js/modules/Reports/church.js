@@ -123,7 +123,7 @@ export function calcTransPayments() {
         let tithe = $('#reportTithe').val() || 0,
             donat = $('#reportDonations').val() || 0,
             calc = (+tithe + +donat) * 0.15;
-        $('#reportTransferPayments').val(calc.toFixed(1));
+        $('#reportTransferPayments').val(calc.toFixed(2));
     });
 }
 

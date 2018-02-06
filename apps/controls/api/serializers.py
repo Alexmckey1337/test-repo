@@ -32,11 +32,10 @@ class DatabaseAccessDetailSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):
-            new_password = make_password(validated_data.pop('password'))
+            new_password = validated_data.pop('password')
             instance.set_password(new_password)
             instance.save()
-
-        return super(DatabaseAccessDetailSerializer, self).update(instance, validated_data)
+            return instance
 
 
 class SummitPanelListSerializer(serializers.ModelSerializer):
@@ -48,7 +47,8 @@ class SummitPanelListSerializer(serializers.ModelSerializer):
 
 
 class SummitPanelCreateUpdateSerializer(serializers.ModelSerializer):
-    zmail_template = serializers.PrimaryKeyRelatedField(queryset=ZMailTemplate.objects.all())
+    zmail_template = serializers.PrimaryKeyRelatedField(queryset=ZMailTemplate.objects.all(),
+                                                        required=False, allow_null=True)
 
     class Meta:
         model = Summit

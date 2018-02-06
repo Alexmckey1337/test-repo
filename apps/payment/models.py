@@ -120,7 +120,7 @@ class Currency(models.Model):
 @python_2_unicode_compatible
 class Payment(LogModel):
     #: Sum of the payment
-    sum = models.DecimalField(_('Sum'), max_digits=12, decimal_places=0,
+    sum = models.DecimalField(_('Sum'), max_digits=12, decimal_places=2,
                               default=Decimal('0'))
     #: Currency of sum
     currency_sum = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency of sum'),

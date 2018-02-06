@@ -89,7 +89,7 @@ class UserListMixin(BaseUserListMixin):
                   filter_backends=(filters.OrderingFilter,))
     def users(self, request, pk):
         instance = self.get_object()
-        queryset = getattr(instance, self.user_field).all()
+        queryset = getattr(instance, self.user_field).order_by('last_name', 'first_name', 'middle_name')
         queryset = self.filter_queryset(queryset)
 
         search = request.query_params.get('search', '').strip()
@@ -106,7 +106,7 @@ class AllUserListMixin(BaseUserListMixin):
                   ordering_fields=GROUP_USER_ORDERING_FIELDS,
                   filter_backends=(ChurchAllUserFilter, filters.OrderingFilter,))
     def all_users(self, request, pk):
-        queryset = CustomUser.objects.all()
+        queryset = CustomUser.objects.order_by('last_name', 'first_name', 'middle_name')
         queryset = self.filter_queryset(queryset)
 
         search = request.query_params.get('search', '').strip()

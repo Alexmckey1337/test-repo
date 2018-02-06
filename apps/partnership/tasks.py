@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import logging
+import requests
 from datetime import datetime, date
 from decimal import Decimal
 
@@ -10,7 +11,8 @@ from django.db.models import OuterRef, Exists
 from edem.settings.celery import app
 from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser
 from apps.account.models import CustomUser
-import requests
+from rest_framework.generics import get_object_or_404
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,12 +55,14 @@ def partnerships_deactivate_raw():
 def telegram_users_to_deactivate(deactivate_partners):
     users = CustomUser.objects.filter(partners__id__in=deactivate_partners,
                                       telegram_users__is_active__isnull=False)
-    for user in users:
-        if not user.partners.filter(is_active=True).exists():
-            telegram_user = TelegramUser.objects.get(user=user, is_active=True)
-            telegram_user.is_active = False
-            telegram_user.synced = False
-            telegram_user.save()
+
+    if users:
+        for user in users:
+            if not user.partners.filter(is_active=True).exists():
+                telegram_user = get_object_or_404(TelegramUser, user=user, is_active=True)
+                telegram_user.is_active = False
+                telegram_user.synced = False
+                telegram_user.save()
 
 
 @app.task(name='telegram_users_to_kick')

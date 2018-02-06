@@ -16,6 +16,7 @@ from apps.controls.api.serializers import (
     DatabaseAccessListSerializer, DatabaseAccessDetailSerializer, SummitPanelListSerializer,
     SummitPanelDetailSerializer, SummitPanelCreateUpdateSerializer, SummitTypePanelSerializer
 )
+from .filters import SummitPanelDateFilter
 
 
 class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -32,7 +33,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       OrderingFilter,
+                       filters.OrderingFilter,
                        )
 
     filter_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy')
@@ -80,7 +81,8 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
 
 class SummitPanelViewSet(ModelWithoutDeleteViewSet):
-    queryset = Summit.objects.all()
+    queryset = Summit.objects.order_by('-end_date')
+
     serializer_list_class = SummitPanelListSerializer
     serializer_retrieve_class = SummitPanelDetailSerializer
     serializer_create_update_class = SummitPanelCreateUpdateSerializer
@@ -88,9 +90,13 @@ class SummitPanelViewSet(ModelWithoutDeleteViewSet):
     permission_classes = (IsAdminUser,)
 
     filter_backends = (rest_framework.DjangoFilterBackend,
-                       FieldSearchFilter)
+                       FieldSearchFilter,
+                       filters.OrderingFilter,
+                       )
 
-    filter_fields = ('type', 'start_date', 'end_date', 'status')
+    ordering_fields = ('type', 'status', 'start_date', 'end_date')
+
+    filter_class = SummitPanelDateFilter
 
     field_search_fields = {
         'search_title': ('type__title',)

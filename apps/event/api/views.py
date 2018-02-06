@@ -264,7 +264,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                   pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
-        visitors = meeting.home_group.uusers.all()
+        visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name')
 
         page = self.paginate_queryset(visitors)
         if page is not None:
