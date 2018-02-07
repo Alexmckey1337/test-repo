@@ -18,16 +18,17 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 import dataHandling from '../Error';
+import {getOrderingData} from "../Ordering/index";
 
 export function ChurchReportsTable(config = {}, pagination = true) {
-    Object.assign(config, getTabsFilterParam(), getTypeTabsFilterParam());
+    Object.assign(config, getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData());
     getData(URLS.event.church_report.list(), config).then(data => {
         makeChurchReportsTable(data, config, pagination);
     }).catch(err => dataHandling(err));
 }
 
 export function churchReportsTable(config = {}, pagination = true) {
-    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
+    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData());
     (pagination) && updateHistoryUrl(config);
     getData(URLS.event.church_report.list(), config).then(data => {
         makeChurchReportsTable(data, config, pagination);
