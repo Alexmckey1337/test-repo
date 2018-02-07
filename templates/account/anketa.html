@@ -964,8 +964,8 @@
                         <div class="accordion-block">
                             <div class="tab-status">
                                 <ul id="tabs3" class="history-tabs church-tabs">
-                                    <li data-tab="1"><a href="#"><span>Действия пользователя</span></a></li>
-                                    <li data-tab="2"><a href="#"><span>Действия над пользователем</span></a></li>
+                                    <li data-tab="2"><a href="#"><span>Действия пользователя</span></a></li>
+                                    <li data-tab="1"><a href="#"><span>Действия над пользователем</span></a></li>
                                 </ul>
                             </div>
                             <div class="history-tabs-block" data-main_tab="1">
@@ -1171,7 +1171,10 @@
                 <span class="close_pop">×</span>
             </div>
             <div class="main-text">
-                <div class="iptel-month" id="tableMonthIptel">{% include "partials/player.html" %}</div>
+                <div class="iptel-month" id="tableMonthIptel">
+                    {% include "partials/player.html" %}
+                    <div id="tableMonthIptelWrap"></div>
+                </div>
             </div>
         </div>
     </div>

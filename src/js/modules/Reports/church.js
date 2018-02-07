@@ -80,7 +80,7 @@ function btnControls(pagination, config = {}) {
         let id = $(this).attr('data-id'),
             data = {"done": true};
         postData(URLS.event.church_report.detail(id), data, {method: 'PATCH'}).then( _ => {
-            (pagination) ? churchReportsTable() : churchReportsTable(config, pagination);
+            (pagination) ? churchReportsTable(config, pagination) : churchReportsTable();
         }).catch(err => dataHandling(err));
     });
 

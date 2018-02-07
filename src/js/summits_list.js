@@ -7,7 +7,7 @@ import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {SummitListTable, summitListTable, addSummit} from "./modules/Controls/summits_list";
+import {SummitListTable, summitListTable, submitSummit, removeValidText} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 
@@ -63,20 +63,21 @@ $('document').ready(function () {
         $('.bg').addClass('active');
         let clear_btn = $('#addSammit').find('.add-summit');
         refreshFilter($(clear_btn));
+        $('#addSammit').find('.popup_text').find('h2').text('Добавить саммит');
+        removeValidText($('#addSammit'));
     });
     $('.summit-date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "bottom center",
     });
-    $('.add-summit').on('click',function (e) {
+    $('.add-summit, .save-summit').on('click',function (e) {
         e.preventDefault();
-        let flag = false;
+        let flag = false,
+            target = e.target;
         $('.must').each(function () {
-            console.log($(this));
             $(this).validate(
                 function (valid) {
-                    console.log(valid);
                     return flag = valid;
                 });
             return flag;
@@ -85,9 +86,9 @@ $('document').ready(function () {
         if (!flag) {
             showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
         } else {
-
+            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
         }
-        addSummit(this);
+
     })
     if (path != undefined) {
         let filterParam = parseUrlQuery();
