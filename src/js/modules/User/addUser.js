@@ -16,7 +16,7 @@ export function addUserToHomeGroup(user_id, hg_id, exist = false) {
         data: {
             home_group_id: hg_id
         }
-    }
+    };
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -39,7 +39,7 @@ export function addUserToChurch(user_id, id, exist = false) {
         data: {
             church_id: id
         }
-    }
+    };
     return new Promise(function (resolve, reject) {
         let codes = {
             200: function (data) {
@@ -61,8 +61,7 @@ export function createNewUser(callback) {
         formData = new FormData(oldForm),
         divisions = $('#chooseDivision').val() || [],
         spirLevel = $('#spir_level').val() || null,
-        church = $('#church_list').val() || null,
-        hG = $('#home_groups_list').val() || null,
+        locality = $('#chooseCity').attr('data-id') || null,
         send_image = $('#file').prop("files").length || false,
         url = URLS.user.list(),
         arrPhones = [],
@@ -73,21 +72,14 @@ export function createNewUser(callback) {
         };
 
     formData.append('divisions', JSON.stringify(divisions));
-
     if (spirLevel !== null) {
         formData.append('spiritual_level', spirLevel);
     }
-
     formData.append('departments', JSON.stringify($('#chooseDepartment').val()));
-
     if ($phoneNumber.val()) {
         let phoneNumber = $phoneNumber.inputmask('unmaskedvalue');
         formData.append('phone_number', phoneNumber)
     }
-
-    // (church) && formData.append('churches_title', JSON.stringify(church));
-    // (hG) && formData.append('home_groups', JSON.stringify(hG));
-
     $extraPhoneNumbers.each(function () {
         if ($(this).inputmask("isComplete")) {
             let val = $(this).inputmask('unmaskedvalue');
@@ -95,14 +87,7 @@ export function createNewUser(callback) {
         }
     });
     formData.append('extra_phone_numbers', JSON.stringify(arrPhones));
-    // if ($('#partner').is(':checked')) {
-    //     let partner = {};
-    //     partner.value = parseInt($('#val_partnerships').val()) || 0;
-    //     partner.currency = parseInt($('#payment_currency').val());
-    //     partner.date = $('#partnerFrom').val() || null;
-    //     partner.responsible = parseInt($("#chooseManager").val());
-    //     formData.append('partner', JSON.stringify(partner));
-    // }
+    locality && formData.append('locality', locality);
     if (send_image) {
         try {
             let blob;
@@ -118,7 +103,6 @@ export function createNewUser(callback) {
     ajaxSendFormData(config).then(function (data) {
         $preloader.css('display', 'none');
         showPopupAddUser(data);
-        // $('#addNewUserPopup').css('display', 'none');
         $('#addNewUserPopup').removeClass('active');
         if (callback != null) {
             callback(data);
@@ -153,7 +137,6 @@ function showPopupAddUser(data) {
         $('#addPopup').css('display', 'none').remove();
         $('body').addClass('no_scroll');
         $('#addNewUserPopup').find('form').removeClass('active');
-        // clearAddNewUser();
         if (flag) {
             initAddNewUser({
                 getDepartments: false,
@@ -162,7 +145,7 @@ function showPopupAddUser(data) {
             $('#createUser').find('select#chooseDepartment').select2('destroy').find('option').remove();
             initAddNewUser();
         }
-        $('#addNewUserPopup').css('display', 'block');
+        $('#addNewUserPopup').addClass('active');
         $('#addNewUserPopup').find('.body').scrollTop(0);
     });
 }
@@ -170,21 +153,24 @@ function showPopupAddUser(data) {
 function clearAddNewUser() {
     let form = $('#createUser'),
         $select = form.find('#spir_level, #church_list');
-    // form.find('#partner').attr('checked', false);
-    // form.find('.hidden-partner').hide();
     $('#addNewUserPopup').find('.body').scrollTop(0);
-    // $( "#church_list").unbind('change');
     form.get(0).reset();
     form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
     form.find('.anketa-photo').unbind('click');
     form.find('select:not(#payment_currency, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
         .select2('destroy').find('option').remove();
-    form.find('#chooseResponsible, #chooseRegion, #chooseCity, #home_groups_list, #spir_level').prop('disabled', true);
+    form.find('#chooseResponsible, #home_groups_list, #spir_level').prop('disabled', true);
     form.find('input').each(function () {
         $(this).val('');
     });
     form.find('.phone .comment').text('');
     $('#duplicate_count').text('0');
+
+    form.find('.select').each(function () {
+        $(this).text('');
+    });
+
+    $('#chooseCity').attr('data-id', '');
 
     $select.each(function () {
         $(this).val(null).trigger("change");
@@ -192,16 +178,13 @@ function clearAddNewUser() {
     $('.phone_duplicate').each(function () {
         $(this).remove();
     });
-    // form.find('#home_groups_list').html('<option value="">Выберите домашнюю группу</option>').prop('disabled', true);
 }
 
 export function initAddNewUser(config = {}) {
     let configDefault = {
-        getCountries: true,
         getDepartments: true,
         getStatuses: true,
         getDivisions: true,
-        // getCountryCodes: true,
     };
     let $form = $('#createUser'),
         $input = $form.find('input');
@@ -211,50 +194,6 @@ export function initAddNewUser(config = {}) {
     // $form.find('.phone .comment').text('');
     Object.assign(configDefault, config);
     clearAddNewUser();
-    if (configDefault.getCountries) {
-        getCountries().then(function (data) {
-            let rendered = [];
-            let option = document.createElement('option');
-            $(option).val('').text('Выберите страну').attr('disabled', true).attr('selected', true);
-            rendered.push(option);
-            data.forEach(function (item) {
-                let option = document.createElement('option');
-                $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                rendered.push(option);
-            });
-            $('#chooseCountry').html(rendered).on('change', function () {
-                let config = {};
-                config.country = $(this).find(':selected').data('id');
-                getRegions(config).then(function (data) {
-                    let rendered = [];
-                    let option = document.createElement('option');
-                    $(option).val('').text('Выберите регион');
-                    rendered.push(option);
-                    data.forEach(function (item) {
-                        let option = document.createElement('option');
-                        $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                        rendered.push(option);
-                    });
-                    $('#chooseRegion').html(rendered).attr('disabled', false).on('change', function () {
-                        let config = {};
-                        config.region = $(this).find(':selected').data('id');
-                        getCities(config).then(function (data) {
-                            let rendered = [];
-                            let option = document.createElement('option');
-                            $(option).val('').text('Выберите город');
-                            rendered.push(option);
-                            data.forEach(function (item) {
-                                let option = document.createElement('option');
-                                $(option).val(item.title).text(item.title).attr('data-id', item.id);
-                                rendered.push(option);
-                            });
-                            $('#chooseCity').html(rendered).attr('disabled', false).select2();
-                        })
-                    }).select2();
-                })
-            }).select2();
-        });
-    }
     if (configDefault.getDepartments) {
         getDepartments().then(function (data) {
             let departments = data.results;
@@ -333,59 +272,9 @@ export function initAddNewUser(config = {}) {
             $('#chooseDivision').html(rendered).select2();
         });
     }
-    // if (configDefault.getCountryCodes) {
-    //     getCountryCodes().then(function (data) {
-    //         let codes = data;
-    //         let rendered = [];
-    //         codes.forEach(function (item) {
-    //             let option = document.createElement('option');
-    //             $(option).val(item.phone_code).text(item.title + ' ' + item.phone_code);
-    //             if (item.phone_code == '+38') {
-    //                 $(option).attr('selected', true);
-    //             }
-    //             rendered.push(option);
-    //         });
-    //         $('#chooseCountryCode').html(rendered).on('change', function () {
-    //             let code = $(this).val();
-    //             $('#phoneNumberCode').val(code);
-    //         }).trigger('change');
-    //     });
-    // }
 
     $('#spir_level').select2();
     $('#church_list').select2();
-
-    // $('#repentanceDate').datepicker({
-    //     dateFormat: 'yyyy-mm-dd',
-    //     onSelect: function (formattedDate) {
-    //         (formattedDate) && $('#spir_level').prop('disabled', false);
-    //     }
-    // });
-    //
-    // $('#bornDate').datepicker({
-    //     dateFormat: 'yyyy-mm-dd'
-    // });
-
-    // $('#church_list').on('change', function () {
-    //     let config = {};
-    //     if (($(this).val() != "ВСЕ") && ($(this).val() != "") && ($(this).val() != null)) {
-    //         config.church_id = $(this).val();
-    //     }
-    //     getData(URLS.home_group.for_select(), config).then(res => {
-    //         let groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`);
-    //         $('#home_groups_list').html('<option value="">Выберите домашнюю группу</option>').append(groups).attr('disabled', false).select2();
-    //     });
-    // });
-    // $('#chooseCountryCode').select2();
-
-    // $('#partner').on('change', function () {
-    //     let partner = $(this).is(':checked');
-    //     if (partner) {
-    //         $('.hidden-partner').css('display', 'block');
-    //     } else {
-    //         $('.hidden-partner').css('display', 'none');
-    //     }
-    // });
 }
 
 export function addUser2Church(data) {

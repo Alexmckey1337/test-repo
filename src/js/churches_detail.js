@@ -20,7 +20,6 @@ import {
     sendReport,
     deleteReport,
     calcTransPayments,
-    createChurchPayment
 } from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';

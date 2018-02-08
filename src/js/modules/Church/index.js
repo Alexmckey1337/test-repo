@@ -81,11 +81,13 @@ export function clearAddChurchData() {
     $('#added_churches_date').val('');
     $('#added_churches_is_open').prop('checked', false);
     $('#added_churches_title').val('');
-    $('#added_churches_country').val('');
-    $('#added_churches_city').val('');
     $('#added_churches_address').val('');
     $('#added_churches_phone').val('');
     $('#added_churches_site').val('');
+    $('#addChurch').find('.select').each(function () {
+        $(this).text('');
+    });
+    $('#added_churches_city').attr('data-id', '');
 }
 
 export function saveChurches(el) {
@@ -221,9 +223,7 @@ function getAddChurchData() {
         "title": $('#added_churches_title').val(),
         "department": $('#department_select').val(),
         "pastor": $('#pastor_select').val(),
-        "country": $('#added_churches_country').val(),
-        "city": $('#added_churches_city').val(),
-        "region": $('#added_churches_region').val(),
+        "locality": $('#added_churches_city').attr('data-id'),
         "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val(),

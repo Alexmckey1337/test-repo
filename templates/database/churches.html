@@ -156,16 +156,21 @@
                           </select>
                         </label>
                         <label>
+                            <span class="label_block">Город</span>
+                            <span id="added_churches_city" data-id="" class="chooseCity select select_small"></span>
+                            <a href="{% url 'search_city' %}" class="search_city_link">Выбрать город</a>
+                        </label>
+                        <label>
                             <span class="label_block">Страна</span>
-                            <input type="text" id="added_churches_country" required>
+                            <span class="select chooseCountry"></span>
                         </label>
                         <label>
                             <span class="label_block">Область</span>
-                            <input type="text" id="added_churches_region" required>
+                            <span class="select chooseRegion"></span>
                         </label>
                         <label>
-                            <span class="label_block">Город</span>
-                            <input type="text" id="added_churches_city" required>
+                            <span class="label_block">Район</span>
+                            <span class="select chooseDistrict"></span>
                         </label>
 
                         <label>
@@ -243,6 +248,8 @@
                     <option value="<%= pastor %>"><%= pastor %></option>
                 </select>
             </label>
+
+
             <label>
                 <span class="label_block">Страна</span>
                 <input type="text" id="country" value="<%=country %>">
@@ -255,6 +262,8 @@
                 <span class="label_block">Нас.пункт:</span>
                 <input type="text" id="city" value="<%=city %>">
             </label>
+
+
             <label>
                 <span class="label_block">Адрес:</span>
                 <input type="text" id="address" value="<%=address %>">

@@ -169,6 +169,12 @@ $('document').ready(function () {
     });
 
     $('#addChurch').find('form').on('submit', function (event) {
+        let id = $('#added_churches_city').attr('data-id');
+        if (!id) {
+            event.preventDefault();
+            showAlert('Укажите город');
+            return
+        }
         addChurch(event, this, createChurchesTable)
     });
 
@@ -196,5 +202,30 @@ $('document').ready(function () {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
     }
+
+    $(window).on('storage', function (event) {
+        if (event.key === 'location') {
+            let location = JSON.parse(localStorage.location);
+            $('.chooseCity').each(function () {
+                $(this).text(location.city ? location.city : '').attr('data-id', location.id ? location.id : null);
+            });
+            $('.chooseCountry').each(function () {
+                $(this).text(location.country ? location.country : '');
+            });
+            $('.chooseRegion').each(function () {
+                $(this).text(location.area ? location.area : '');
+            });
+            $('.chooseDistrict').each(function () {
+                $(this).text(location.district ? location.district : '');
+            });
+            localStorage.removeItem('location');
+        }
+    });
+
+    $('.search_city_link').on('click', function (e) {
+        e.preventDefault();
+        let link = $(this).attr('href');
+        window.open(link, 'searchCity');
+    })
 
 });

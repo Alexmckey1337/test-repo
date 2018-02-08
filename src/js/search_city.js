@@ -1,136 +1,86 @@
 'use strict';
+import URLS from './modules/Urls/index';
+import getData from "./modules/Ajax/index";
+import errorHandling from './modules/Error';
 
 $('document').ready(function () {
-    $('#search_city').on('keyup', _.debounce(function (e) {
+
+    $('#search_city').on('keyup', _.debounce(function () {
         rebuild();
     }, 500));
-    $('#countries').on('click', 'ul li', function () {
-       let country = $(this).find('span').text();
-       $('.selected_block').append(`<span class="selected_country">${country}</span>`);
+
+    $('#cities').on('click', 'li', function () {
+       let id = $(this).attr('data-id') || null,
+           city = $(this).attr('data-city') || null,
+           country = $(this).attr('data-country') || null,
+           area = $(this).attr('data-area') || null,
+           district = $(this).attr('data-district') || null,
+           location = {
+               id,
+               city,
+               country,
+               area,
+               district
+           };
+        localStorage.location = JSON.stringify(location);
+        window.close();
+    });
+
+    $('#countries, #areas, #districts').on('click', 'li', function () {
+       let item = $(this).find('span').text(),
+           container = $(this).closest('ul').attr('id');
+       $('.selected_block').find(`span[data-id="${container}"]`).text(item);
         rebuild();
     });
-    $('#areas').on('click', 'ul li', function () {
-        let area = $(this).find('span').text();
-        $('.selected_block').append(`<span class="selected_area">${area}</span>`);
-        rebuild();
-    });
-    $('#districts').on('click', 'ul li', function () {
-        let district = $(this).find('span').text();
-        $('.selected_block').append(`<span class="selected_district">${district}</span>`);
-        rebuild();
-    });
+
     $('.selected_block').on('click', 'span', function () {
-        $(this).remove();
+        $(this).text('');
         rebuild();
     });
+
     function rebuild() {
         const city = $('#search_city').val();
-        const $country = $('.selected_country');
-        const $area = $('.selected_area');
-        const $district = $('.selected_district');
-        let country = Array();
-        let area = Array();
-        let district = Array();
+        if (city.length < 3) return;
 
-        if (city.length < 3) {
-            return
-        }
-        $country.each(function (i) {
-            country.push($(this).text())
+        let country = $('#selected_country').text(),
+            area = $('#selected_area').text(),
+            district = $('#selected_district').text(),
+            options = {city};
+        $('.preloader').css('display', 'block');
+        country && (options.country = country);
+        area && (options.area = area);
+        district && (options.district = district);
+        getData(URLS.town(), options).then(data => {
+            renderCities(data.cities);
+            renderHelperChoose(data.filters.countries, '#countries');
+            renderHelperChoose(data.filters.areas, '#areas');
+            renderHelperChoose(data.filters.districts, '#districts');
+            $('.preloader').css('display', '');
+        }).catch(err => {
+            errorHandling(err);
+            $('.preloader').css('display', '');
         });
-        $area.each(function (i) {
-            area.push($(this).text())
-        });
-        $district.each(function (i) {
-            district.push($(this).text())
-        });
-        // console.log(city);
-        // console.log(country);
-        // console.log(area);
-        let url = '/api/city/';
-        let options = {
-            'city': city,
-        };
-        if (country.length > 0) {
-            options.country = country
-        }
-        if (area.length > 0) {
-            options.area = area
-        }
-        if (district.length > 0) {
-            options.district = district
-        }
-        let keys = Object.keys(options);
-        if (keys.length) {
-            url += '?';
-            keys.forEach(item => {
-                if (options[item] instanceof Array) {
-                    options[item].forEach(i => {
-                        url += item + '=' + i + "&"
-                    });
-                } else {
-                    url += item + '=' + options[item] + "&"
-                }
-            });
-        }
-        let defaultOption = {
-            method: 'GET',
-            credentials: 'same-origin',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-            })
-        };
-        let initConfig = Object.assign({}, defaultOption, {});
+    }
 
-        fetch(url, initConfig).then(resp => {
-            if (resp.status >= 200 && resp.status < 300) {
-                return resp.json();
-            } else {
-                return resp.json().then(err => {
-                    throw err;
-                });
-            }
-        }).then(data => {
-            let cities = data.cities,
-                countries = data.filters.countries,
-                districts = data.filters.districts,
-                areas = data.filters.areas;
-            $('#cities').html(buildCities(cities));
-            $('#countries').html(buildCountries(countries));
-            $('#areas').html(buildAreas(areas));
-            $('#districts').html(buildDistricts(districts));
-        });
+    function renderCities (cities) {
+        let li = (cities.length > 0) ?
+            cities.map(city => `<li data-id="${city.pk}" 
+                                        data-city="${city.city}" 
+                                        data-country="${city.country}" 
+                                        data-area="${city.area}" 
+                                        data-district="${city.district}">
+                                        ${city.city} -- ${city.country} -- ${city.area} -- ${city.district}
+                                      </li>`).join('')
+            :
+            `<li>Результат отсутствует</li>`;
+        $('#cities').html(li);
     }
-    function buildCities(cities) {
-        let html = '<ul>';
-        cities.forEach(function(city) {
-            html += `<li>${city.city} -- ${city.country} -- ${city.area} -- ${city.district} (${city.score})`;
-        });
-        html += '</ul>';
-        return html
-    }
-    function buildCountries(countries) {
-        let html = '<ul>';
-        countries.forEach(function(country) {
-            html += `<li><span>${country.name}</span> -- ${country.count}`;
-        });
-        html += '</ul>';
-        return html
-    }
-    function buildAreas(areas) {
-        let html = '<ul>';
-        areas.forEach(function(area) {
-            html += `<li><span>${area.name}</span> -- ${area.count}`;
-        });
-        html += '</ul>';
-        return html
-    }
-    function buildDistricts(districts) {
-        let html = '<ul>';
-        districts.forEach(function(d) {
-            html += `<li><span>${d.name}</span> -- ${d.count}`;
-        });
-        html += '</ul>';
-        return html
+
+    function renderHelperChoose (items, selector) {
+        let li = (items.length > 0) ?
+            items.map(item => `<li><span>${item.name}</span> -- ${item.count}</li>`).join('')
+            :
+            `<li>Результат отсутствует</li>`;
+        $(selector).html(li);
     }
 });
