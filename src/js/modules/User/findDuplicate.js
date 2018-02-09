@@ -1,4 +1,5 @@
 'use strict';
+import numeral from 'numeral/min/numeral.min.js';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import makePagination from '../Pagination/index';
@@ -7,7 +8,7 @@ export function makeDuplicateCount(config = {}) {
     let firstName = $('#first_name').val() || null,
         middleName = $('#middle_name').val() || null,
         lastName = $('#last_name').val() || null,
-        phoneNumber = $('#phoneNumber').val() || null;
+        phoneNumber = numeral($('#phone').inputmask('unmaskedvalue')).value() || null;
     (firstName != null) && (config.first_name = firstName);
     (middleName != null) && (config.middle_name = middleName);
     (lastName != null) && (config.last_name = lastName);
@@ -44,7 +45,7 @@ export function makeDuplicateUsers(config = {}) {
     let firstName = $('#first_name').val() || null,
         middleName = $('#middle_name').val() || null,
         lastName = $('#last_name').val() || null,
-        phoneNumber = $('#phoneNumber').val() || null,
+        phoneNumber = numeral($('#phone').inputmask('unmaskedvalue')).value() || null,
         popup = $('#create_duplicate_pop');
     (firstName != null) && (config.first_name = firstName);
     (middleName != null) && (config.middle_name = middleName);

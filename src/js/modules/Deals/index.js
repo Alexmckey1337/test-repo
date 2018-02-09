@@ -21,7 +21,7 @@ export function btnDeals() {
             value = numeral(val).value(),
             total = $(this).attr('data-total_sum'),
             total_sum = isNaN(numeral(total).value()) ? parseFloat(total) : numeral(total).value(),
-            diff = value - total_sum,
+            diff = (value - total_sum).toFixed(2),
             currencyName = $(this).attr('data-currency-name'),
             currencyID = $(this).attr('data-currency-id'),
             payer = $(this).attr('data-name'),
@@ -42,6 +42,7 @@ export function btnDeals() {
 }
 
 function clearSumChange(total) {
+    $('#payment-form').get(0).reset();
     $('#new_payment_sum').val('');
     $('#new_payment_rate').val('').prop('readonly', false);
     $('#sent_date').val(moment(new Date()).format('DD.MM.YYYY'));
@@ -57,7 +58,7 @@ function sumChange(diff, currencyName, currencyID, total) {
     currencies.on('keyup', _.debounce(function () {
         if (currencyID != 2) {
             curr = $(this).val();
-            let uah = Math.round(diff * curr);
+            let uah = parseFloat((diff * curr).toFixed(2));
             payment.val(uah);
             $('#user_payment').text(`${+diff + +total} ${currencyName}`);
         }
@@ -66,7 +67,7 @@ function sumChange(diff, currencyName, currencyID, total) {
         if (currencyID != 2) {
             let pay = $(this).val();
             curr = currencies.val();
-            let result = Math.round(pay / curr);
+            let result = parseFloat((pay / curr).toFixed(2));
             $('#user_payment').text(`${result + +total} ${currencyName}`);
         } else {
             let pay = $(this).val();
@@ -76,7 +77,7 @@ function sumChange(diff, currencyName, currencyID, total) {
     if (currencyID == 2) {
         currencies.val('1.0').prop('readonly', true);
         payment.val(diff);
-        $('#user_payment').text(`${diff + total} ${currencyName}`);
+        $('#user_payment').text(`${(+diff + +total).toFixed(2)} ${currencyName}`);
     }
 }
 

@@ -56,8 +56,9 @@ class CitySearch:
         self.areas = []
         self.districts = []
 
-    def add_city(self, city, country, area, district, score=1):
+    def add_city(self, city, country, area, district, pk, score=1):
         self.cities.append({
+            'pk': pk,
             'city': city,
             'country': country,
             'area': area,
@@ -125,6 +126,7 @@ class CitySearchListView(generics.GenericAPIView):
                 h.country.name if hasattr(h, 'country') else '',
                 h.area.name if hasattr(h, 'area') else '',
                 h.district.name if hasattr(h, 'district') else '',
+                h.pk,
                 h.meta.score
             )
         for t in r.aggregations.countries.buckets:
@@ -154,7 +156,8 @@ class CitySearchListView(generics.GenericAPIView):
                 c.name,
                 c.country.name if c.country else '',
                 c.area.name if c.area else '',
-                districts.get(c.rajon, '')
+                districts.get(c.rajon, ''),
+                c.id,
             )
         districts = {d['id']: d['name']
                      for d in District.objects.values('id', 'name')}

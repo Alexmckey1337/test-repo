@@ -21,7 +21,7 @@ from django.db.models import Q
 class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
-    city = models.CharField(_('City'), max_length=50)
+    city = models.CharField(_('City'), max_length=50, blank=True)
     address = models.CharField(_('Address'), max_length=300, blank=True)
     phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
     website = models.URLField(_('Web Site'), blank=True)
@@ -51,7 +51,7 @@ class Church(LogModel, CommonGroup):
                                    on_delete=models.PROTECT, verbose_name=_('Department'))
     pastor = models.ForeignKey('account.CustomUser', related_name='church',
                                on_delete=models.PROTECT, verbose_name=_('Pastor'))
-    country = models.CharField(_('Country'), max_length=50)
+    country = models.CharField(_('Country'), max_length=50, blank=True)
     is_open = models.BooleanField(default=False)
     report_currency = models.IntegerField(default=get_default_currency, verbose_name=_('Report Currency'))
 

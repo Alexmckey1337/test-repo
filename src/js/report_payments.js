@@ -3,14 +3,22 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import alertify from 'alertifyjs/build/alertify.min.js';
 import 'alertifyjs/build/css/alertify.min.css';
 import 'alertifyjs/build/css/themes/default.min.css';
+import URLS from './modules/Urls';
 import {showAlert} from "./modules/ShowNotifications/index";
-import {createChurchPaymentsTable, updateDealsPayment,
-        cleanUpdateDealsPayment, deleteDealsPayment} from "./modules/Payment/index";
+import {postData} from "./modules/Ajax/index";
+import {
+    createChurchPaymentsTable,
+    cleanUpdateDealsPayment,
+    deleteDealsPayment
+} from "./modules/Payment/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import errorHandling from './modules/Error';
 
 $('document').ready(function () {
     createChurchPaymentsTable({});
@@ -84,17 +92,16 @@ $('document').ready(function () {
         e.preventDefault();
     });
 
-    $('#complete-payment').on('click', _.debounce(function (e) {
-        e.preventDefault();
-        $(this).prop('disabled', true);
-        let id = $(this).attr('data-id'),
+
+    function submitPayment() {
+        let id = $('#complete-payment').attr('data-id'),
             data = {
                 "sum": $('#new_payment_sum').val(),
                 "description": $('#popup-update_payment textarea').val(),
                 "rate": $('#new_payment_rate').val(),
                 "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
             };
-        updateDealsPayment(id, data).then(function () {
+        postData(URLS.payment.edit_payment(id), data, {method: 'PATCH'}).then(function () {
             let page = $('.pagination__input').val();
             $('#popup-update_payment').css('display', 'none');
             cleanUpdateDealsPayment();
@@ -102,10 +109,24 @@ $('document').ready(function () {
             createChurchPaymentsTable({page: page});
             showAlert('Платеж успешно изменен!');
             $('#complete-payment').prop('disabled', false);
-        }).catch((res) => {
+        }).catch(err => {
+            errorHandling(err);
             $('#complete-payment').prop('disabled', false);
-            showAlert(res, 'Ошибка');
         });
-    }, 500))
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#payment-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitPayment();
+            $('#complete-payment').prop('disabled', true);
+
+            return false;
+        }
+    });
 
 });

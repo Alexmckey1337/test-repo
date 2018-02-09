@@ -57,7 +57,7 @@
                         <span class="label_block">Тип</span>
                         <select class="selectbd" data-filter="type" id="type_filter">
                                 <option value="">ВСЕ</option>
-                                {% for type in types %}
+                                {% for type in summit_types %}
                                     <option value="{{ type.id }}">{{ type.title }}</option>
                                 {% endfor %}
                         </select>
