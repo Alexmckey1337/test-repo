@@ -43,6 +43,9 @@ class Profile(NamedTuple):
     phone: str
     ticket_status: str
     attended: str
+    level: int
+    tree: List[int]
+    user_id: int
 
 
 def get_report_by_bishop_or_high(
@@ -52,41 +55,63 @@ def get_report_by_bishop_or_high(
         fio: str = '',
         hierarchy: int = None):
     fio_filter = ['']
+    name_params = list()
     for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
         fio_filter.append(
-            "(bbu.last_name ilike '{name}%%' or "
-            "bbu.first_name ilike '{name}%%' or "
-            "bu.middle_name ilike '{name}%%')".format(name=name))
+            "(bbu.last_name ilike %s or "
+            "bbu.first_name ilike %s or "
+            "bu.middle_name ilike %s)")
+        name_params += ['%'+name+'%'] * 3
     query = """
-            SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id pk,
-              concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
-              bu.phone_number phone_number,
-              array(
-              SELECT exists(
-                SELECT at.id
-                FROM summit_summitattend at
-                WHERE at.anket_id = a.id AND at.date = '{date}') attended
-              FROM summit_summitanket a
-                INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
-              WHERE (u.path like bu.path||'%%' AND u.depth >= bu.depth AND summit_id = {summit_id})
-              ORDER BY u.path) attended
-            FROM summit_summitanket ba
-              INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
-              JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
-              JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
-              JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
-            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio}{hierarchy};
+        SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id pk,
+            concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
+            bu.phone_number phone_number,
+            array(
+                WITH RECURSIVE t AS (
+                  SELECT user_id,
+                    exists(
+                   SELECT at.id
+                   FROM summit_summitattend at
+                   WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}') attended
+                  FROM summit_summitanket
+                    JOIN account_customuser a ON user_id = a.user_ptr_id
+                    JOIN auth_user u ON a.user_ptr_id = u.id
+                  WHERE summit_summitanket.user_id = ba.user_id and summit_id = %s
+                  UNION
+                  SELECT summit_summitanket.user_id ,exists(
+                   SELECT at.id
+                   FROM summit_summitattend at
+                   WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}') attended
+                  FROM summit_summitanket
+                    JOIN t ON summit_summitanket.author_id = t.user_id
+                    JOIN account_customuser customuser ON summit_summitanket.user_id = customuser.user_ptr_id
+                    JOIN auth_user u2 ON customuser.user_ptr_id = u2.id
+                  WHERE summit_summitanket.summit_id = %s
+                )
+                SELECT attended
+                FROM t
+            ) attended
+        FROM summit_summitanket ba
+          INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
+          JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
+          JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
+          JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
+        WHERE summit_id = %s and h.level > 3 {department}{search_fio}{hierarchy};
         """.format(
-        summit_id=summit_id,
         date=report_date.strftime('%Y-%m-%d'),
-        hierarchy_level=3,
-        department=' and bud.department_id = {}'.format(department) if department else '',
+        department=' and bud.department_id = %s' if department else '',
         search_fio=' and '.join(fio_filter),
-        hierarchy=' and h.id = {}'.format(hierarchy) if hierarchy else ''
+        hierarchy=' and h.id = %s' if hierarchy else ''
     )
+    params = [summit_id, summit_id, summit_id]
+    if department:
+        params.append(department)
+    params += name_params
+    if hierarchy:
+        params.append(hierarchy)
     bishops: List[Bishop] = list()
     with connection.cursor() as connect:
-        connect.execute(query)
+        connect.execute(query, params)
         for bishop in connect.fetchall():
             bishops.append(Bishop(*bishop))
 
@@ -370,29 +395,51 @@ class FullSummitParticipantReport(object):
         :return: list of Profile[code, user_name, master_name, phone, ticket_status, attended]
         """
         raw = """
-            SELECT a.code,
-              concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              concat(muu.last_name, ' ', muu.first_name, ' ', mu.middle_name) master_name,
-              u.phone_number phone,
-              a.ticket_status ticket_status,
+        WITH RECURSIVE t AS (
+          SELECT summit_summitanket.code,
+            concat(u.last_name, ' ', u.first_name, ' ', a.middle_name) user_name,
+            concat(mu.last_name, ' ', mu.first_name, ' ', mcu.middle_name) master_name,
+            a.phone_number phone,
+            ticket_status,
+            1 as level, array[user_id] as tree,
               (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
-              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
-            FROM summit_summitanket a
-              INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
-              INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
-              LEFT OUTER JOIN account_customuser mu ON u.master_id = mu.user_ptr_id
-              LEFT OUTER JOIN auth_user muu ON mu.user_ptr_id = muu.id
-              WHERE (u.path like '{path}%%' AND u.depth >= {depth} AND summit_id = {summit_id})
-              ORDER BY u.path;
+               from summit_summitattend at
+               WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}' LIMIT 1) as attended,
+            user_id
+          FROM summit_summitanket
+            JOIN account_customuser a ON user_id = a.user_ptr_id
+            JOIN auth_user u ON a.user_ptr_id = u.id
+            LEFT OUTER JOIN account_customuser mcu ON a.master_id = mcu.user_ptr_id
+            LEFT OUTER JOIN auth_user mu ON mcu.user_ptr_id = mu.id
+          WHERE summit_summitanket.user_id = {master_id} and summit_id = %s
+          UNION
+          SELECT summit_summitanket.code,
+            concat(u2.last_name, ' ', u2.first_name, ' ', customuser.middle_name) user_name,
+            concat(mu2.last_name, ' ', mu2.first_name, ' ', mcu2.middle_name) master_name,
+            customuser.phone_number phone,
+            summit_summitanket.ticket_status,
+            t.level + 1 as level, array_cat(t.tree, array[summit_summitanket.user_id]) as tree,
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
+               from summit_summitattend at
+               WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}' LIMIT 1) as attended,
+            summit_summitanket.user_id
+          FROM summit_summitanket
+            JOIN t ON summit_summitanket.author_id = t.user_id
+            JOIN account_customuser customuser ON summit_summitanket.user_id = customuser.user_ptr_id
+            JOIN auth_user u2 ON customuser.user_ptr_id = u2.id
+            LEFT OUTER JOIN account_customuser mcu2 ON customuser.master_id = mcu2.user_ptr_id
+            LEFT JOIN auth_user mu2 ON mcu2.user_ptr_id = mu2.id
+          WHERE summit_summitanket.summit_id = %s
+        )
+        SELECT code, user_name, master_name, phone, ticket_status, attended, level, tree, user_id
+        FROM t ORDER BY tree;
         """.format(
             date=self.report_date.strftime('%Y-%m-%d'),
-            path=self.master.path,
-            depth=self.master.depth,
-            summit_id=self.summit_id
+            master_id=self.master.id,
         )
         profiles: List[Profile] = list()
         with connection.cursor() as connect:
-            connect.execute(raw)
+            connect.execute(raw, [self.summit_id, self.summit_id])
             for profile in connect.fetchall():
                 profiles.append(Profile(*profile))
 
