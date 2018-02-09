@@ -918,11 +918,11 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
     pagination_class = None
 
     summit = None
-    master = None
+    author = None
 
     def dispatch(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
-        self.master = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
+        self.author = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -941,13 +941,13 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
             else:
                 profile['count'] = count
         disciples_profiles.append(
-            {'user_id': self.master.id, 'full_name': '({})'.format(str(self.master)), 'count': master_count})
+            {'user_id': self.author.id, 'full_name': '({})'.format(str(self.author)), 'count': master_count})
 
         data = [[m['full_name'], [m['count']]] for m in disciples_profiles if m.get('count')]
         return Response(data)
 
     def get_queryset(self):
-        return self.queryset.filter(summit=self.summit, master=self.master)
+        return self.queryset.filter(summit=self.summit, author=self.author)
 
     def check_permissions(self, request):
         super().check_permissions(request)
