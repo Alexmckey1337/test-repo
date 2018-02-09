@@ -32,12 +32,13 @@ $(document).ready(function () {
     getPartners();
 
     $('#sort_save').on('click', function () {
+        let type = $('#statusTabs').find('.current button').attr('data-type'),
+            option = (type === 'people') ? 'partner' : 'church_partner';
         $('.preloader').css('display', 'block');
-        updateSettings(getPartners, 'partner',);
+        updateSettings(getPartners, option);
     });
 
     $('#filter_button').on('click', function () {
-        //$('#filterPopup').css('display', 'block');
          $('#filterPopup').addClass('active');
          $('.bg').addClass('active');
     });
