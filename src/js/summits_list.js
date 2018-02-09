@@ -71,25 +71,25 @@ $('document').ready(function () {
         autoClose: true,
         position: "bottom center",
     });
-    $('.add-summit, .save-summit').on('click',function (e) {
-        e.preventDefault();
-        let flag = false,
-            target = e.target;
-        $('.must').each(function () {
-            $(this).validate(
-                function (valid) {
-                    return flag = valid;
-                });
-            return flag;
-        });
-
-        if (!flag) {
-            showAlert(`Обязательные поля не заполнены либо введены некорректные данные`);
-        } else {
-            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
+    $('.start_date').datepicker({
+        onSelect: function (formattedDate, date, inst) {
+            $('.end_date').datepicker({
+                minDate: new Date(date),
+            });
         }
+    });
+    $.validate({
+        lang: 'ru',
+        form: '#addSammitForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
 
-    })
+            return false;
+        }
+    });
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);

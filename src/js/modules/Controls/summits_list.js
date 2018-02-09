@@ -90,8 +90,8 @@ function createSummitListTable(data,block) {
                         <tbody>${data.results.map(item => {
         return `<tr>
                             <td class="edit" data-id="${item.id}">
-                                ${item.description === ''?item.type.title:item.description}
-                                <button class="delete_btn"></button>
+                                ${item.type.title} ${item.start_date.split('.').reverse().join('-')}
+                                <!--<button class="delete_btn"></button>-->
                             </td>
                             <td>
                                 ${item.type.title}
@@ -103,7 +103,7 @@ function createSummitListTable(data,block) {
                                 ${item.end_date}
                             </td>
                             <td>
-                                ${item.status}
+                                ${item.status === 'open'?'Открытый':'Закрытый'}
                             </td>
                         </tr>
                             `;
@@ -194,5 +194,7 @@ export function removeValidText(form) {
     let errInput = form.find('.has-error');
     errInput.each(function (i, el) {
        $(el).removeClass('has-error').find('.help-block').remove();
+       let inp = $(el).removeClass('has-error').find('input, select, textarea');
+       $(inp).css('border-color', '#cdd0d4');
     });
 };
