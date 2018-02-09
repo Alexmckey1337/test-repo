@@ -107,7 +107,7 @@ class Church(LogModel, CommonGroup):
 
     @property
     def count_home_groups(self):
-        return User.objects.filter(customuser__church=self).count()
+        return self.home_group.count()
 
 
 class HomeGroup(LogModel, CommonGroup):

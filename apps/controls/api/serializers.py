@@ -58,7 +58,7 @@ class SummitPanelCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class SummitPanelDetailSerializer(SummitPanelCreateUpdateSerializer):
-    type = SummitTypeSerializer()
+    type = SummitTypeSerializer(required=True)
     currency = CurrencySerializer()
 
     class Meta(SummitPanelCreateUpdateSerializer.Meta):
