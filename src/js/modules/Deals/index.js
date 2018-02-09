@@ -21,7 +21,7 @@ export function btnDeals() {
             value = numeral(val).value(),
             total = $(this).attr('data-total_sum'),
             total_sum = isNaN(numeral(total).value()) ? parseFloat(total) : numeral(total).value(),
-            diff = value - total_sum,
+            diff = (value - total_sum).toFixed(2),
             currencyName = $(this).attr('data-currency-name'),
             currencyID = $(this).attr('data-currency-id'),
             payer = $(this).attr('data-name'),
@@ -77,7 +77,7 @@ function sumChange(diff, currencyName, currencyID, total) {
     if (currencyID == 2) {
         currencies.val('1.0').prop('readonly', true);
         payment.val(diff);
-        $('#user_payment').text(`${diff + total} ${currencyName}`);
+        $('#user_payment').text(`${(+diff + +total).toFixed(2)} ${currencyName}`);
     }
 }
 

@@ -9,13 +9,14 @@ RUN npm install -g gulp bower webpack
 
 COPY ./.bowerrc /app
 COPY ./bower.json /app
+RUN bower install --config.interactive=false --allow-root
+
 COPY ./gulpfile.js /app
 COPY ./.babelrc /app
 COPY ./webpack.config.js /app
 COPY ./package.json /app/package.json
 
 RUN npm install
-RUN bower install --config.interactive=false --allow-root
 
 COPY ./src /app/src
 
@@ -34,7 +35,7 @@ RUN apt-get update && apt-get install gettext ttf-freefont -y
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements
 
-RUN pip install -r /requirements/production.txt \
+RUN pip install --no-cache-dir -r /requirements/production.txt \
     && groupadd -r django \
     && useradd -r -g django django
 
@@ -59,7 +60,8 @@ RUN sed -i 's/\r//' /entrypoint.sh \
     && chmod +x /asgi_worker.sh \
     && chown django /asgi_worker.sh
 
-COPY --from=frontend  /app/public/static/* /app/public/static/
+COPY --from=frontend  /app/public/static /app/public/static
+RUN chown -R django /app/public/static
 
 WORKDIR /app
 
