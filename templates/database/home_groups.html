@@ -224,11 +224,10 @@
                       class="chooseCity select select_small">
                     <% if (locality) { %>
                         <%= locality.name %>
-                    <% } else { %>
-                        <%= city %>
                     <% } %>
                 </span>
-                <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
+                <a href="{% url 'search_city' %}<% if (!locality) { %><%= '?old_city=' + city.replace(' ', '_') %><% } %>"
+                   class="search_city_link">Выбрать</a>
             </label>
             <label>
                 <span class="label_block">Страна</span>
@@ -254,6 +253,14 @@
                     <% } %>
                 </span>
             </label>
+            <% if (!locality) { %>
+            <label>
+                <span class="label_block">Предположительно</span>
+                <span class="select">
+                    <%= city ? city : '' %>
+                </span>
+            </label>
+            <% } %>
             <label>
                 <span class="label_block">Адрес:</span>
                 <input type="text" id="address" value="<%=address %>">

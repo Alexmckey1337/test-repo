@@ -2,8 +2,10 @@
 import URLS from './modules/Urls/index';
 import getData from "./modules/Ajax/index";
 import errorHandling from './modules/Error';
+import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
+    const path = window.location.href.split('?')[1];
 
     $('#search_city').on('keyup', _.debounce(function () {
         rebuild();
@@ -82,5 +84,17 @@ $('document').ready(function () {
             :
             `<li>Результат отсутствует</li>`;
         $(selector).html(li);
+    }
+
+    function initCity(set) {
+        let city = set.old_city.replace('_', ' ');
+        $('#search_city').val(city);
+        rebuild();
+    }
+
+    //Parsing URL
+    if (path != undefined) {
+        let filterParam = parseUrlQuery();
+        initCity(filterParam);
     }
 });
