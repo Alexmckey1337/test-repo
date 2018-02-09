@@ -65,7 +65,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = UserNameSerializer()
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
 
 class HomeGroupReadSerializer(HomeGroupListSerializer):
@@ -131,7 +131,7 @@ class ChurchReadSerializer(ChurchSerializer):
 class BaseChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
     class Meta:
         model = Church

@@ -42,7 +42,7 @@ $('document').ready(function () {
 
     function rebuild() {
         const city = $('#search_city').val();
-        if (city.length < 3) return;
+        if (city.length < 2) return;
 
         let country = $('#selected_country').text(),
             area = $('#selected_area').text(),
