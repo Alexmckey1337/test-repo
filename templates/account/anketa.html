@@ -229,9 +229,9 @@
                                                    value="{{ account.born_date|date:"d.m.Y" }}" readonly disabled>
                                         </label>
                                         <label>
-                                            <span class="label_block">Город:</span>
+                                            <span class="label_block">Нас.пункт:</span>
                                             <span id="chooseCity" data-id="{{ account.locality.id }}" class="select select_small">{{ account.locality|default:account.city }}</span>
-                                            <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать город</a>
+                                            <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
                                         </label>
                                         <label>
                                             <span class="label_block">Страна:</span>

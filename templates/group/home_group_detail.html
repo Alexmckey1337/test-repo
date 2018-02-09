@@ -172,8 +172,21 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
-                                            <span class="label_block">Город:</span>
-                                            <input type="text" name="city" id="city" value="{{ home_group.city }}" readonly>
+                                            <span class="label_block">Нас. пункт:</span>
+                                            <span data-id="{{ home_group.locality.id }}" class="select select_small chooseCity">{{ home_group.locality|default:home_group.city }}</span>
+                                            <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Страна:</span>
+                                            <span class="select chooseCountry">{{ home_group.locality.country_name }}</span>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Область:</span>
+                                            <span class="select chooseRegion">{{ home_group.locality.area_name }}</span>
+                                        </label>
+                                        <label>
+                                            <span class="label_block">Район:</span>
+                                            <span class="select chooseDistrict">{{ home_group.locality.district_name }}</span>
                                         </label>
                                         <label>
                                             <span class="label_block">Адрес:</span>

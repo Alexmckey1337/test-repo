@@ -13,6 +13,7 @@ import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import parseUrlQuery from './modules/ParseUrl/index';
+import {getLocationDB} from "./modules/Location/index";
 
 $('document').ready(function () {
     let $departmentsFilter = $('#departments_filter'),
@@ -78,9 +79,7 @@ $('document').ready(function () {
         filterChange();
     }
 
-    $('.selectdb').select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
+    $('.selectdb').select2();
 
     $('#added_churches_date, #search_date_open, #opening_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
@@ -203,26 +202,9 @@ $('document').ready(function () {
         filterInit(filterParam);
     }
 
-    $(window).on('storage', function (event) {
-        if (event.key === 'location') {
-            let location = JSON.parse(localStorage.location);
-            $('.chooseCity').each(function () {
-                $(this).text(location.city ? location.city : '').attr('data-id', location.id ? location.id : null);
-            });
-            $('.chooseCountry').each(function () {
-                $(this).text(location.country ? location.country : '');
-            });
-            $('.chooseRegion').each(function () {
-                $(this).text(location.area ? location.area : '');
-            });
-            $('.chooseDistrict').each(function () {
-                $(this).text(location.district ? location.district : '');
-            });
-            localStorage.removeItem('location');
-        }
-    });
+    getLocationDB();
 
-    $('.search_city_link').on('click', function (e) {
+    $('#quickEditCartPopup, #addChurch').on('click', '.search_city_link', function (e) {
         e.preventDefault();
         let link = $(this).attr('href');
         window.open(link, 'searchCity');

@@ -112,7 +112,7 @@
                                    id="search_city">
                     </label>
                     <label>
-                        <span class="label_block">Город</span>
+                        <span class="label_block">Нас.пункт:</span>
                         <input type="text" data-filter="city" placeholder="город или часть названия"
                                    id="search_city">
                     </label>
@@ -156,9 +156,9 @@
                           </select>
                         </label>
                         <label>
-                            <span class="label_block">Город</span>
+                            <span class="label_block">Нас.пункт:</span>
                             <span id="added_churches_city" data-id="" class="chooseCity select select_small"></span>
-                            <a href="{% url 'search_city' %}" class="search_city_link">Выбрать город</a>
+                            <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
                         </label>
                         <label>
                             <span class="label_block">Страна</span>
@@ -172,7 +172,6 @@
                             <span class="label_block">Район</span>
                             <span class="select chooseDistrict"></span>
                         </label>
-
                         <label>
                             <span class="label_block">Пастор</span>
                             <select name="pastor" class="selectdb" id="pastor_select" disabled required>
@@ -248,22 +247,48 @@
                     <option value="<%= pastor %>"><%= pastor %></option>
                 </select>
             </label>
-
-
+            <label>
+                <span class="label_block">Нас.пункт:</span>
+                <span id="update_churches_city" data-id="<% if (locality) { %>
+                                                            <%= locality.id %>
+                                                        <% } %>"
+                      class="chooseCity select select_small">
+                    <% if (locality) { %>
+                        <%= locality.name %>
+                    <% } else { %>
+                        <%= city %>
+                    <% } %>
+                </span>
+                <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
+            </label>
             <label>
                 <span class="label_block">Страна</span>
-                <input type="text" id="country" value="<%=country %>">
+                <span class="select chooseCountry">
+                    <% if (locality) { %>
+                        <%= locality.country_name %>
+                    <% } else { %>
+                        <%= country %>
+                    <% } %>
+                </span>
             </label>
             <label>
                 <span class="label_block">Область:</span>
-                <input type="text" id="region" value="<%=region %>">
+                <span class="select chooseRegion">
+                    <% if (locality) { %>
+                        <%= locality.area_name %>
+                    <% } else { %>
+                        <%= region %>
+                    <% } %>
+                </span>
             </label>
             <label>
-                <span class="label_block">Нас.пункт:</span>
-                <input type="text" id="city" value="<%=city %>">
+                <span class="label_block">Район</span>
+                <span class="select chooseDistrict">
+                    <% if (locality) { %>
+                        <%= locality.district_name %>
+                    <% } %>
+                </span>
             </label>
-
-
             <label>
                 <span class="label_block">Адрес:</span>
                 <input type="text" id="address" value="<%=address %>">

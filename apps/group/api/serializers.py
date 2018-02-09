@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.account.api.serializers import DepartmentTitleSerializer
 from apps.account.models import CustomUser
-from apps.location.api.serializers import CityTitleSerializer
+from apps.location.api.serializers import CityTitleSerializer, CityReadSerializer
 from common.fields import ReadOnlyChoiceField
 from apps.event.models import ChurchReport
 from apps.group.models import Church, HomeGroup
@@ -68,6 +68,10 @@ class HomeGroupListSerializer(HomeGroupSerializer):
     locality = CityTitleSerializer()
 
 
+class HomeGroupReadSerializer(HomeGroupListSerializer):
+    locality = CityReadSerializer()
+
+
 class GroupUserSerializer(serializers.ModelSerializer):
     spiritual_level = ReadOnlyChoiceField(
         choices=CustomUser.SPIRITUAL_LEVEL_CHOICES, read_only=True)
@@ -118,6 +122,10 @@ class ChurchSerializer(serializers.ModelSerializer):
             reports.update(pastor=pastor)
 
         return super(ChurchSerializer, self).update(instance, validated_data)
+
+
+class ChurchReadSerializer(ChurchSerializer):
+    locality = CityReadSerializer()
 
 
 class BaseChurchListSerializer(ChurchSerializer):

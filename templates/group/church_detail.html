@@ -183,16 +183,21 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
+                                            <span class="label_block">Нас. пункт:</span>
+                                            <span data-id="{{ church.locality.id }}" class="select select_small chooseCity">{{ church.locality|default:church.city }}</span>
+                                            <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
+                                        </label>
+                                        <label>
                                             <span class="label_block">Страна:</span>
-                                            <input name="country" type="text" id="country" value="{{ church.country }}" readonly>
+                                            <span class="select chooseCountry">{{ church.locality.country_name|default:church.country }}</span>
                                         </label>
                                         <label>
                                             <span class="label_block">Область:</span>
-                                            <input name="region" type="text" id="region" value="{{ church.region }}" readonly>
+                                            <span class="select chooseRegion">{{ church.locality.area_name|default:church.region }}</span>
                                         </label>
                                         <label>
-                                            <span class="label_block">Нас. пункт:</span>
-                                            <input name="city" type="text" id="city" value="{{ church.city }}" readonly>
+                                            <span class="label_block">Район:</span>
+                                            <span class="select chooseDistrict">{{ church.locality.district_name }}</span>
                                         </label>
                                         <label>
                                             <span class="label_block">Адрес:</span>
@@ -488,9 +493,22 @@
                             </select>
                         </label>
                         <label>
-                            <span class="label_block">Город</span>
-                            <input type="text" id="added_home_group_city" required>
-                        </label>
+                                <span class="label_block">Нас.пункт:</span>
+                                <span id="added_home_group_city" data-id="" class="chooseCity select select_small"></span>
+                                <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
+                            </label>
+                            <label>
+                                <span class="label_block">Страна</span>
+                                <span class="select chooseCountry"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Область</span>
+                                <span class="select chooseRegion"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Район</span>
+                                <span class="select chooseDistrict"></span>
+                            </label>
                         <label>
                             <span class="label_block">Адрес служения</span>
                             <input type="text" id="added_home_group_address">
@@ -643,6 +661,12 @@
                         class="quick-edit"></span></td>
                 <% } else { %>
                 <td></td>
+                <% } %>
+                <% } else if (key == 'locality') { %>
+                <% if (results[index][key] != null) { %>
+                <td><%= results[index][key].name %></td>
+                <% } else { %>
+                <td><%= results[index].city %></td>
                 <% } %>
                 <% } else if (key == 'master' || key == 'pastor' || key == 'leader') { %>
                 <% if (results[index][key] != null) { %>

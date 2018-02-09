@@ -37,7 +37,7 @@ from apps.group.api.serializers import (
     ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-    ChurchDashboardSerializer)
+    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
@@ -55,6 +55,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     queryset = Church.objects.select_related('pastor', 'department', 'locality')
 
     serializer_class = ChurchSerializer
+    serializer_read_class = ChurchReadSerializer
     serializer_list_class = ChurchListSerializer
 
     permission_classes = (IsAuthenticated,)
@@ -91,6 +92,8 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
@@ -365,6 +368,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
     queryset = HomeGroup.objects.all().select_related('leader', 'church', 'locality')
 
     serializer_class = HomeGroupSerializer
+    serializer_read_class = HomeGroupReadSerializer
     serializer_list_class = HomeGroupListSerializer
 
     permission_classes = (IsAuthenticated,)
@@ -399,8 +403,10 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list']:
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
