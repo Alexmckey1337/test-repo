@@ -969,7 +969,7 @@
                                 </ul>
                             </div>
                             <div class="history-tabs-block" data-main_tab="1">
-                                {% if log_messages %}
+                                {% if account.log_messages %}
                                     <table>
                                         <tr>
                                             <th>{% trans "Редактор" %}</th>
@@ -977,7 +977,7 @@
                                             <th>{% trans "Лог" %}</th>
                                             <th>{% trans "Время изменения" %}</th>
                                         </tr>
-                                        {% for log_message in log_messages|slice:"20" %}
+                                        {% for log_message in account.log_messages|slice:"20" %}
                                             <tr>
                                                 <td>
                                                     <a href="{% url "account:detail" log_message.user_id %}">{{ log_message.user }}</a>
