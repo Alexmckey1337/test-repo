@@ -741,7 +741,7 @@
                     <% } else if (key == 'action' ) { %>
                     <td>
                         <% if (results.length) { %>
-                        <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseFloat(results[index].total_sum)-parseFloat(results[index].value))>=0) ) { %>
+                        <% if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((results[index].total_sum.match(/\d+(\.\d+)?/g)[0] - results[index].value.match(/\d+(\.\d+)?/g)[0])>=0) ) { %>
                         <button class="complete inline__button"
                                 data-id="<%= results[index].id%>"
                                 data-name="<%=results[index].church.title%>"
@@ -753,7 +753,7 @@
                                 data-currency-id="<%=results[index].currency.id %>"
                         >Закрыть отчет
                         </button>
-                        <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((parseFloat(results[index].total_sum)-parseFloat(results[index].value))<0) ) { %>
+                        <% } else if (!results[index].done && check_report_permissions && (results[index].status == 2) && ((results[index].total_sum.match(/\d+(\.\d+)?/g)[0] - results[index].value.match(/\d+(\.\d+)?/g)[0])<0) ) { %>
                         <button class="pay inline__button"
                                 data-id="<%= results[index].id%>"
                                 data-name="<%=results[index].church.title%>"
