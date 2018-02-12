@@ -42,6 +42,7 @@ custom_urls = [
          views.HistorySummitStatByMasterDisciplesView.as_view(), name='master-disciples-stats'),
 
     path('summits/<int:pk>/users/', views.SummitProfileListView.as_view(), name='summit-profile-list'),
+    path('summits/<int:pk>/authors/', views.SummitAuthorListView.as_view(), name='summit-authors-list'),
     path('summits/<int:pk>/bishop_high_masters/',
          views.SummitBishopHighMasterListView.as_view(), name='summit-masters'),
     path('summits/<int:pk>/export_users/',

@@ -90,8 +90,20 @@ class SummitProfileCreateSerializer(serializers.ModelSerializer):
         if summit.status == Summit.CLOSE:
             raise serializers.ValidationError(
                 {'message': _('Нельзя добавлять пользователей в закрытый саммит.')})
-        print(summit.status)
         return summit
+
+    def validate(self, attrs):
+        author = attrs.get('author')
+        user = attrs.get('user')
+        if author is None and user.hierarchy.level < 50:  # Главный епископ
+            raise serializers.ValidationError(
+                {'message': _('Автор регистрации обязательное поле')}
+            )
+        if author is not None and not SummitAnket.objects.filter(summit=attrs['summit'], user=author).exists():
+            raise serializers.ValidationError(
+                {'message': _('Автор регистрации должен быть зарегестрирован на саммит')}
+            )
+        return attrs
 
 
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):

@@ -1,14 +1,14 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import collections
 import logging
-from collections import defaultdict
-from datetime import datetime, time
+from datetime import datetime, time, date
 
+import collections
 from celery.result import AsyncResult
+from collections import defaultdict
 from django.conf import settings
-from django.db import transaction, IntegrityError
+from django.db import transaction, IntegrityError, connection
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
     Func, Q, Exists)
@@ -24,6 +24,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet
+from typing import NamedTuple, List
 
 from apps.account.models import CustomUser
 from apps.account.signals import obj_add, obj_delete
@@ -59,6 +60,13 @@ from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
 
 logger = logging.getLogger(__name__)
+
+
+class Attend(NamedTuple):
+    date: date
+    time: time
+    created_at: datetime
+
 
 sent_pulse_emails = {
     9: {34816, 32770, 32784, 32788, 32791, 32792, 32800, 32804, 32810, 32814, 32823, 32828, 32830, 32837, 32838, 32839,
@@ -106,6 +114,27 @@ def get_success_headers(data):
         return {'Location': data[api_settings.URL_FIELD_NAME]}
     except (TypeError, KeyError):
         return {}
+
+
+class SummitAuthorListView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (
+        FieldSearchFilter,
+    )
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
+    }
+
+    summit = None
+
+    def get(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk'))
+        authors = self.filter_queryset(self.get_queryset())
+        authors = [{'id': p[0], 'title': p[1]} for p in authors.values_list('user_id', 'full_name')[:100]]
+        return Response(data=authors)
+
+    def get_queryset(self):
+        return self.summit.ankets.order_by('last_name', 'first_name', 'middle_name').annotate_full_name()
 
 
 class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
@@ -836,13 +865,40 @@ class HistorySummitStatsMixin(GenericAPIView):
 
     summit = None
     _profiles = None
+    _profiles_dates = None
 
     def dispatch(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('summit_id'))
         return super().dispatch(request, *args, **kwargs)
 
-    def get_queryset(self):
-        return self.summit.ankets.all()
+    @property
+    def attends_query(self):
+        # if self.request.query_params.get('master_tree') is not None:
+        query = """
+            SELECT date, time, created_at
+            FROM summit_summitattend WHERE anket_id in (
+                WITH RECURSIVE t as (
+                  SELECT
+                    a.id aid,
+                    a.user_id
+                  FROM summit_summitanket a
+                  {department_join}
+                  WHERE summit_id = {summit_id} {master_tree_filter}
+                      {department_filter}
+                  UNION
+                  SELECT
+                    a.id aid,
+                    a.user_id
+                  FROM summit_summitanket a
+                    JOIN t on a.author_id = t.user_id
+                    {department_join}
+                  WHERE summit_id = {summit_id}
+                      {department_filter}
+                )
+                SELECT aid from t
+            ) AND date BETWEEN '{start}' AND '{end}';
+        """
+        return query
 
     def check_permissions(self, request):
         super().check_permissions(request)
@@ -852,18 +908,102 @@ class HistorySummitStatsMixin(GenericAPIView):
                 request, message=_('You do not have permission to see statistics.')
             )
 
+    def _get_master_tree_filter(self) -> str:
+        master_tree = self.request.query_params.get('master_tree', '')
+        master_tree_filter = f'and a.user_id = {master_tree}' if master_tree else ''
+        return master_tree_filter
+
+    def _get_department_filter(self) -> (str, str):
+        department = self.request.query_params.get('department', '')
+        department_filter = f'and d.id = {department}' if department else ''
+        department_join = """
+            JOIN summit_summitanket_departments ad ON a.id = ad.summitanket_id
+            JOIN hierarchy_department d ON ad.department_id = d.id
+        """ if department else ''
+        return department_filter, department_join
+
+    def _get_filter_attends(self) -> List[Attend]:
+        master_tree_filter = self._get_master_tree_filter()
+        department_filter, department_join = self._get_department_filter()
+
+        query = self.attends_query.format(
+            summit_id=self.summit.id,
+            department_join=department_join,
+            department_filter=department_filter,
+            master_tree_filter=master_tree_filter,
+            start=self.summit.start_date.strftime('%Y-%m-%d'),
+            end=self.summit.end_date.strftime('%Y-%m-%d')
+        )
+
+        attends: List[Attend] = list()
+        with connection.cursor() as connect:
+            connect.execute(query)
+            for attend in connect.fetchall():
+                attends.append(Attend(*attend))
+        return attends
+
+    def _get_all_attends(self) -> List[Attend]:
+        query = f"""
+            SELECT at.date, at.time, at.created_at
+            FROM summit_summitattend at
+              JOIN summit_summitanket a ON at.anket_id = a.id
+            WHERE a.summit_id = {self.summit.id} AND at.date BETWEEN
+                '{self.summit.start_date.strftime('%Y-%m-%d')}' AND
+                '{self.summit.end_date.strftime('%Y-%m-%d')}'
+            ;
+        """
+        attends: List[Attend] = list()
+        with connection.cursor() as connect:
+            connect.execute(query)
+            for attend in connect.fetchall():
+                attends.append(Attend(*attend))
+        return attends
+
+    def _get_profiles_dates(self):
+        master_tree_filter = self._get_master_tree_filter()
+        department_filter, department_join = self._get_department_filter()
+
+        query = f"""
+            WITH RECURSIVE t as (
+                SELECT
+                  a.date,
+                  a.user_id
+                FROM summit_summitanket a
+                  {department_join}
+                WHERE summit_id = {self.summit.id} {master_tree_filter}
+                  {department_filter}
+              UNION
+                SELECT
+                  a.date,
+                  a.user_id
+                FROM summit_summitanket a
+                  JOIN t on a.author_id = t.user_id
+                    {department_join}
+                WHERE summit_id = {self.summit.id}
+                  {department_filter}
+            )
+            SELECT date from t;
+        """
+        dates = list()
+        with connection.cursor() as connect:
+            connect.execute(query)
+            for d, in connect.fetchall():
+                dates.append(d)
+        return dates
+
     @property
-    def profiles(self):
-        if self._profiles is None:
-            self._profiles = self.filter_queryset(self.get_queryset())
-        return self._profiles
+    def profiles_dates(self):
+        if self._profiles_dates is None:
+            self._profiles_dates = self._get_profiles_dates()
+        return self._profiles_dates
+
+    def _count_profiles_by_date(self, date):
+        return len(list(filter(lambda d: d <= date, self.profiles_dates)))
 
     def get_attends(self):
-        filter_attends = SummitAttend.objects.filter(
-            anket__in=Subquery(self.profiles.values('pk')), date__range=(self.summit.start_date, self.summit.end_date))
-        attends = SummitAttend.objects.filter(
-            anket__summit=self.summit, date__range=(self.summit.start_date, self.summit.end_date))
-        return filter_attends, attends
+        fa = self._get_filter_attends()
+        a = self._get_all_attends()
+        return fa, a
 
 
 class HistorySummitAttendStatsView(HistorySummitStatsMixin):
@@ -874,10 +1014,10 @@ class HistorySummitAttendStatsView(HistorySummitStatsMixin):
     def get(self, request, *args, **kwargs):
         filter_attends, attends = self.get_attends()
 
-        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-        attends_by_date = collections.Counter(filter_attends.values_list('date', flat=True))
+        all_attends_by_date = collections.Counter([a.date for a in attends])
+        attends_by_date = collections.Counter([a.date for a in filter_attends])
         for d in all_attends_by_date.keys():
-            attends_by_date[d] = (attends_by_date.get(d, 0), self.profiles.filter(date__lte=d).count())
+            attends_by_date[d] = (attends_by_date.get(d, 0), self._count_profiles_by_date(d))
         return Response([
             (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
@@ -892,11 +1032,11 @@ class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
     def get(self, request, *args, **kwargs):
         filter_attends, attends = self.get_attends()
 
-        all_attends_by_date = collections.Counter(attends.values_list('date', flat=True))
-        filter_attends = filter_attends.values('date', 'time', 'created_at')
+        all_attends_by_date = collections.Counter([a.date for a in attends])
+        # filter_attends = [(a.date, a.time, a.created_at) for a in filter_attends]
         attends_by_date = defaultdict(list)
         for a in filter_attends:
-            attends_by_date[a['date']].append(a['time'] or (a['created_at'].time() if a['created_at'] else None))
+            attends_by_date[a.date].append(a.time or (a.created_at.time() if a.created_at else None))
         for d in all_attends_by_date.keys():
             late_count = len(list(filter(lambda t: t and t > self.start_time, attends_by_date[d])))
             attend_count = len(attends_by_date[d])
@@ -925,29 +1065,52 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
         self.author = get_object_or_404(CustomUser, pk=kwargs.get('master_id'))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_profiles(self):
+        query = f"""
+            WITH RECURSIVE t as (
+              SELECT
+                a.user_id,
+                concat(u.last_name, ' ', u.first_name, ' ', cu.middle_name) full_name,
+                ARRAY[]::INTEGER[] as tree
+              FROM summit_summitanket a
+                JOIN account_customuser cu ON a.user_id = cu.user_ptr_id
+                JOIN auth_user u ON cu.user_ptr_id = u.id
+              WHERE summit_id = {self.summit.id} and a.user_id = {self.author.id}
+              UNION
+              SELECT
+                a.user_id,
+                concat(u.last_name, ' ', u.first_name, ' ', cu.middle_name) full_name,
+                array_cat(t.tree, ARRAY[a.user_id]) as tree
+              FROM summit_summitanket a
+                JOIN t on a.author_id = t.user_id
+                JOIN account_customuser cu ON a.user_id = cu.user_ptr_id
+                JOIN auth_user u ON cu.user_ptr_id = u.id
+              WHERE summit_id = {self.summit.id}
+            )
+            SELECT user_id, full_name, tree from t ORDER BY tree OFFSET 1;
+        """
+        profiles = defaultdict(dict)
+        with connection.cursor() as connect:
+            connect.execute(query)
+            for user_id, name, tree in connect.fetchall():
+                root = tree[0]
+                if user_id == root:
+                    profiles[user_id] = {'full_name': name, 'count': 0}
+                profiles[root]['count'] += 1
+        author_count = 0
+        for user_id, profile in profiles.copy().items():
+            if profile['count'] < 2:
+                author_count += 1
+                del profiles[user_id]
+        if author_count:
+            profiles[self.author.pk] = {'full_name': f'({self.author.fullname})', 'count': author_count}
+        return profiles
+
     def get(self, request, *args, **kwargs):
-        disciples_profiles = list(self.get_queryset().annotate_full_name().values('user_id', 'full_name'))
+        profiles = self.get_profiles()
 
-        master_count = 0
-        for profile in disciples_profiles:
-            master_id = profile['user_id']
-            count = SummitAnket.objects.filter(
-                Q(summit=self.summit) &
-                (Q(master_path__contains=[master_id]) |
-                 Q(user_id=master_id))
-            ).count()
-            if count <= 1:
-                master_count += count
-            else:
-                profile['count'] = count
-        disciples_profiles.append(
-            {'user_id': self.author.id, 'full_name': '({})'.format(str(self.author)), 'count': master_count})
-
-        data = [[m['full_name'], [m['count']]] for m in disciples_profiles if m.get('count')]
+        data = [[m['full_name'], [m['count']]] for m in profiles.values()]
         return Response(data)
-
-    def get_queryset(self):
-        return self.queryset.filter(summit=self.summit, author=self.author)
 
     def check_permissions(self, request):
         super().check_permissions(request)
