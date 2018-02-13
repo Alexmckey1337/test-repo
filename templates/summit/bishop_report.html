@@ -111,11 +111,17 @@
                     ) { %>
                                 <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else if (key == 'absent') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else if (key == 'attend') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else if (key == 'total') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else { %>
                                 <td><%= results[index][key] %></td>
                             <% } %>

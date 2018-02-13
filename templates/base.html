@@ -142,6 +142,12 @@
             <% } else { %>
             <td></td>
             <% } %>
+            <% }  else if (key == 'value') { %>
+            <td>
+            <% if (results[index][key] != null ) { %>
+                <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+            <% } %>
+            </td>
                         <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>

@@ -832,7 +832,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
