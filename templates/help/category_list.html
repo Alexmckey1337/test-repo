@@ -1,0 +1,8 @@
+<h1>Категории:</h1>
+
+{% for category in categories %}
+    <li>{{ category.title }}</li>
+    {% for manual in category.manuals.all %}
+        <ul><a href="{{ manual.get_absolute_url }}">{{ manual.title }}</a></ul>
+    {% endfor %}
+{% endfor %}
