@@ -52,7 +52,6 @@ urlpatterns = [
     path('calls', views.calls, name='calls'),
     path('controls/', include('apps.controls.urls', namespace='controls')),
     path('help/', include('apps.help.urls', namespace='help')),
-    path(r'ckeditor/', include('ckeditor_uploader.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
