@@ -227,10 +227,10 @@
                     </label>
                     <label>
                         <span class="label_block">Ветка</span>
-                        <select class="select__db" data-filter="master_tree" id="master_tree">
+                        <select class="select__db" data-filter="author_tree" id="master_tree">
                             <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% for author in authors %}
+                                <option value="{{ author.user_id }}">{{ author.full_name }}</option>
                             {% endfor %}
                         </select>
                     </label>
@@ -245,10 +245,10 @@
                     </label>
                     <label>
                         <span class="label_block">Ответственный</span>
-                        <select class="select__db" data-filter="master" id="master">
+                        <select class="select__db" data-filter="author" id="master">
                             <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
+                            {% for author in authors %}
+                                <option value="{{ author.user_id }}">{{ author.full_name }}</option>
                             {% endfor %}
                         </select>
                     </label>
@@ -350,7 +350,7 @@
                     <% } else { %>
                     <td></td>
                     <% } %>
-                    <% } else if (key == 'hierarchy' || key == 'church' ) { %>
+                    <% } else if (key == 'hierarchy' || key == 'church' || key == 'author' ) { %>
                     <% if (results[index][key] != null ) { %>
                     <td><%= results[index][key].title %></td>
                     <% } else { %>

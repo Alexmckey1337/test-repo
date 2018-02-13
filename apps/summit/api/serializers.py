@@ -111,10 +111,11 @@ class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='user.phone_number')
     attended = serializers.CharField()
     active = serializers.BooleanField(source='status.active')
+    author = UserForSelectSerializer()
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user_id', 'full_name', 'responsible', 'link',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'author', 'link',
                   'department', 'phone_number', 'code', 'attended', 'active')
 
 

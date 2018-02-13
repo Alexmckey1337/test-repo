@@ -61,7 +61,8 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
         ctx = super(SummitDetailView, self).get_context_data(**kwargs)
         extra_context = {
             'departments': Department.objects.all(),
-            'masters': CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1),
+            'authors': SummitAnket.objects.filter(
+                summit=self.object).annotate_full_name().order_by('last_name', 'first_name', 'middle_name'),
             'hierarchies': Hierarchy.objects.order_by('level'),
         }
         ctx.update(extra_context)

@@ -4,6 +4,8 @@ import coreapi
 import coreschema
 import django_filters
 import rest_framework_filters as filters_new
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
 from django.db.models import OuterRef, Subquery
 from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
@@ -178,6 +180,53 @@ class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
     user_field_prefix = 'user__'
 
 
+class FilterProfileAuthorTree(BaseFilterBackend):
+    include_self_master = True
+    user_field_prefix = ''
+
+    def filter_queryset(self, request, queryset, view):
+        author_id = request.query_params.get('author_tree', None)
+        summit_id = view.summit.id
+        filter_self = '' if self.include_self_master else ' OFFSET 1'
+
+        try:
+            CustomUser.objects.get(pk=author_id)
+        except (ObjectDoesNotExist, ValueError):
+            return queryset
+
+        query = f"""
+            WITH RECURSIVE t AS (
+              SELECT a.user_id, a.id FROM summit_summitanket a
+              WHERE a.user_id = %s AND a.summit_id = {summit_id}
+              UNION
+              SELECT a.user_id, a.id FROM summit_summitanket a
+              JOIN t ON a.author_id = t.user_id
+              WHERE a.summit_id = {summit_id}
+            )
+            SELECT id from t {filter_self};
+        """
+        ids = list()
+        with connection.cursor() as c:
+            c.execute(query, [author_id])
+            for i, in c.fetchall():
+                ids.append(i)
+
+        return queryset.filter(pk__in=ids)
+
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name="author_tree",
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Author tree',
+                    description="Id of user (author) for filter by author tree"
+                )
+            )
+        ]
+
+
 class FilterBySummitAttend(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         is_visited = request.query_params.get('is_visited', 0)
@@ -240,3 +289,15 @@ class FilterHasAchievement(BaseFilterBackend):
             return queryset.filter(has_achievement=False)
 
         return queryset
+
+
+class AuthorFilter(django_filters.FilterSet):
+    level_gt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gt')
+    level_gte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gte')
+    level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
+    level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
+    department = django_filters.ModelMultipleChoiceFilter(name="departments", queryset=Department.objects.all())
+
+    class Meta:
+        model = SummitAnket
+        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']

@@ -179,8 +179,8 @@ home_group_columns = {
 summit_columns = {
     'full_name': {
         'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': True},
-    'responsible': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 2, 'active': True, 'editable': True},
+    'author': {
+        'id': 0, 'title': 'Автор регистрации', 'ordering_title': 'author__last_name', 'number': 2, 'active': True, 'editable': True},
     'spiritual_level': {
         'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'spiritual_level', 'number': 3, 'active': True, 'editable': True},
     'divisions_title': {
@@ -221,6 +221,8 @@ summit_columns = {
         'id': 0, 'title': 'Электронный билет', 'ordering_title': 'status__reg_code_requested', 'number': 21, 'active': True, 'editable': True},
     'has_email': {
         'id': 0, 'title': 'Email отправлен', 'ordering_title': 'has_email', 'number': 22, 'active': True, 'editable': True},
+    'responsible': {
+        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 23, 'active': True, 'editable': True},
 }
 
 meeting_columns = {
@@ -435,14 +437,16 @@ summit_stats_columns = {
         'id': 0, 'title': 'Присутствие', 'ordering_title': 'attended', 'number': 1, 'active': True, 'editable': False},
     'full_name': {
         'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 2, 'active': True, 'editable': False},
-    'responsible': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 3, 'active': True, 'editable': True},
+    'author': {
+        'id': 0, 'title': 'Автор регистрации', 'ordering_title': 'author__last_name', 'number': 3, 'active': True, 'editable': True},
     'phone_number': {
         'id': 0, 'title': 'Номер телефона', 'ordering_title': 'user__phone_number', 'number': 4, 'active': True, 'editable': True},
     'code': {
         'id': 0, 'title': 'Номер билета', 'ordering_title': 'code', 'number': 5, 'active': True, 'editable': True},
     'department': {
         'id': 0, 'title': 'Отдел', 'ordering_title': 'department', 'number': 6, 'active': True, 'editable': True},
+    'responsible': {
+        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 7, 'active': True, 'editable': True},
 }
 
 TABLES = {

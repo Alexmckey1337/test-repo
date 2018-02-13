@@ -34,9 +34,9 @@ from apps.payment.api.serializers import PaymentShowWithUrlSerializer
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.summit.api.filters import (
     FilterByClub, SummitUnregisterFilter, ProfileFilter,
-    FilterProfileMasterTreeWithSelf, HasPhoto, FilterBySummitAttend,
+    HasPhoto, FilterBySummitAttend,
     FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
-    FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement)
+    FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement, FilterProfileAuthorTree, AuthorFilter)
 from apps.summit.api.pagination import (
     SummitPagination, SummitTicketPagination, SummitStatisticsPagination, SummitSearchPagination)
 from apps.summit.api.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
@@ -119,17 +119,20 @@ def get_success_headers(data):
 class SummitAuthorListView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     filter_backends = (
+        rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
+        FilterProfileAuthorTree,
     )
     field_search_fields = {
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
     }
+    filter_class = AuthorFilter
 
     summit = None
 
     def get(self, request, *args, **kwargs):
         self.summit = get_object_or_404(Summit, pk=kwargs.get('pk'))
-        authors = self.filter_queryset(self.get_queryset())
+        authors = self.filter_queryset(self.get_queryset().order_by('last_name', 'first_name', 'middle_name'))
         authors = [{'id': p[0], 'title': p[1]} for p in authors.values_list('user_id', 'full_name')[:100]]
         return Response(data=authors)
 
@@ -175,7 +178,7 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
         rest_framework.DjangoFilterBackend,
         filters.OrderingFilter,
         FieldSearchFilter,
-        FilterProfileMasterTreeWithSelf,
+        FilterProfileAuthorTree,
         FilterByClub,
         HasPhoto,
         FilterByHasEmail,
@@ -244,7 +247,7 @@ class SummitStatisticsView(SummitProfileListView):
 
     ordering_fields = (
         'last_name', 'first_name', 'middle_name',
-        'responsible',
+        'responsible', 'author__last_name',
         'department',
         'code',
         'user__phone_number',
@@ -255,7 +258,7 @@ class SummitStatisticsView(SummitProfileListView):
         rest_framework.DjangoFilterBackend,
         filters.OrderingFilter,
         FieldSearchFilter,
-        FilterProfileMasterTreeWithSelf,
+        FilterProfileAuthorTree,
         HasPhoto,
         FilterBySummitAttendByDate,
         FilterByTime,
