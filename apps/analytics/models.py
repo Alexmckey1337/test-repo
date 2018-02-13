@@ -25,6 +25,13 @@ class LogModel(models.Model):
     def get_tracking_reverse_fields(cls) -> Tuple[str]:
         return cls.tracking_reverse_fields
 
+    @property
+    def log_messages(self):
+        return LogRecord.objects.filter(
+            object_id=self.pk,
+            content_type=ContentType.objects.get_for_model(self)
+        )
+
 
 @python_2_unicode_compatible
 class LogRecord(models.Model):
