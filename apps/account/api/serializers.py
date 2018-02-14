@@ -134,6 +134,12 @@ class ChurchNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title',)
 
 
+class HomeGroupNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HomeGroup
+        fields = ('id', 'title')
+
+
 def exist_users_with_level_not_in_levels(users, levels):
     return users.exclude(hierarchy__level__in=levels).exists()
 
@@ -374,10 +380,11 @@ class UserSingleSerializer(BaseUserSerializer):
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
     get_church = ChurchNameSerializer(read_only=True)
+    get_home_group = HomeGroupNameSerializer(read_only=True)
     locality = CityTitleSerializer()
 
     class Meta(UserSingleSerializer.Meta):
-        fields = BASE_USER_FIELDS + ('get_church',)
+        fields = BASE_USER_FIELDS + ('get_church', 'get_home_group')
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):

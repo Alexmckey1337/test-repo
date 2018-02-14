@@ -73,6 +73,8 @@ user_columns = {
         'id': 0, 'title': 'Церковь', 'ordering_title': '', 'number': 17, 'active': True, 'editable': True},
     'locality': {
         'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 18, 'active': True, 'editable': True},
+    'get_home_group': {
+        'id': 0, 'title': 'Домашняя Группа', 'ordering_title': '', 'number': 19, 'active': True, 'editable': True},
 }
 
 partner_columns = {

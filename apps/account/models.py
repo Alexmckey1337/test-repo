@@ -149,6 +149,10 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
         return self.cchurch or self.hhome_group.church if self.hhome_group else None
 
     @property
+    def get_home_group(self):
+        return self.hhome_group
+
+    @property
     def column_table(self):
         l = OrderedDict()
         if hasattr(self, 'table') and isinstance(self.table, Table):
