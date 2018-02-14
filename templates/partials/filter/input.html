@@ -1,0 +1,8 @@
+<label>
+    <span class="label_block">{{ label }}</span>
+    <input type="{{ input_type|default:"text" }}"
+           data-filter="{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           id="{% if custom_id %}{{ custom_id }}{% else %}search_{{ name }}{% endif %}"
+    >
+</label>

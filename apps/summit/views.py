@@ -1,16 +1,15 @@
-from collections import defaultdict
-
 from celery.result import AsyncResult
+from collections import defaultdict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Case, When, BooleanField, Value
 from django.db.models.functions import Concat
 from django.shortcuts import redirect, get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 
-from apps.account.models import CustomUser
 from apps.hierarchy.models import Department, Hierarchy
 from apps.notification.backend import RedisBackend
 from apps.summit.models import Summit, SummitTicket, SummitAnket, AnketEmail
@@ -59,11 +58,22 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SummitDetailView, self).get_context_data(**kwargs)
+        authors = SummitAnket.objects.filter(
+            summit=self.object).annotate_full_name().order_by('last_name', 'first_name', 'middle_name')
         extra_context = {
             'departments': Department.objects.all(),
-            'authors': SummitAnket.objects.filter(
-                summit=self.object).annotate_full_name().order_by('last_name', 'first_name', 'middle_name'),
+            'authors': [{'id': author.user_id, 'title': author.full_name} for author in authors],
             'hierarchies': Hierarchy.objects.order_by('level'),
+            'ticket_status_options': [
+                {'id': 'none', 'title': _('Не создан')},
+                {'id': 'download', 'title': _('Создан')},
+                {'id': 'print', 'title': _('Напечатано')},
+                {'id': 'given', 'title': _('Выдано')},
+            ],
+            'visited_options': [
+                {'id': '1', 'title': _('Присутствовали')},
+                {'id': '2', 'title': _('Отсутствовали')},
+            ],
         }
         ctx.update(extra_context)
         return ctx

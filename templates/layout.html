@@ -278,6 +278,27 @@
 
     {% block create_user %}{% endblock %}
 
-    {% block popup %}{% endblock %}
+    {% block popup %}
+        {% block popup.filter %}
+            <div class="popap popap_slide" id='filterPopup'>
+                <div class="pop_cont">
+                    <div class='popup_text'>
+                        <h2>Фильтр</h2>
+                    </div>
+                    <div class="popup_body">
+                        <div class="container">
+                            {% block popup.filter.content %}{% endblock %}
+                        </div>
+                    </div>
+                    <div class="container">
+                        <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
+                        <button class="close-popup">Отменить</button>
+                        <button class="apply-filter">Применить</button>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+        {% block popup.other %}{% endblock %}
+    {% endblock %}
 
 {% endblock %}
