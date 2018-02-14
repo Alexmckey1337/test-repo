@@ -103,6 +103,7 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
         ctx['departments'] = Department.objects.all()
         ctx['currencies'] = Currency.objects.all()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx['master_options'] = [{'id': u.pk, 'title': u.fullname} for u in ctx['masters']]
 
         return ctx
 

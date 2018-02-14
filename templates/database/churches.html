@@ -42,7 +42,7 @@
     </div><!--End Table -->
 {% endblock %}
 
-{% block popup %}
+{% block popup.other %}
     <div class="popap popap_slide" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
@@ -51,78 +51,10 @@
             <div class="popup_body"></div>
             <div class="container">
                 {% if user.can_delete_church %}
-                <button id="delete-church"></button>
+                    <button id="delete-church"></button>
                 {% endif %}
                 <button class="close-popup change__text">Отменить</button>
                 <button id="save_church" class="save-user">Сохранить</button>
-            </div>
-        </div>
-    </div>
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Пастор</span>
-                        <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                            <option value="">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Открыта</span>
-                        <select name="search_is_open" data-filter="is_open" id="search_is_open" class="selectdb select__custom">
-                            <option value="ВСЕ">ВСЕ</option>
-                            <option value="2">ДА</option>
-                            <option value="3">НЕТ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата открытия</span>
-                        <input type="text" data-filter="opening_date" id="search_date_open">
-                    </label>
-                    <label>
-                        <span class="label_block">Страна</span>
-                        <input type="text" data-filter="country" placeholder="страна или часть названия"
-                                   id="search_country">
-                    </label>
-                    <label>
-                        <span class="label_block">Область</span>
-                        <input type="text" data-filter="region" placeholder="область или часть названия"
-                                   id="search_city">
-                    </label>
-                    <label>
-                        <span class="label_block">Город</span>
-                        <input type="text" data-filter="city" placeholder="город или часть названия"
-                                   id="search_city">
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
-                    Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -153,7 +85,7 @@
                                 {% for item in request.user.departments.all %}}
                                     <option value="{{ item.id }}">{{ item.title }}</option>}
                                 {% endfor %}}
-                          </select>
+                            </select>
                         </label>
                         <label>
                             <span class="label_block">Страна</span>
@@ -172,11 +104,11 @@
                             <span class="label_block">Пастор</span>
                             <select name="pastor" class="selectdb" id="pastor_select" disabled required>
                                 <option value="0">Выберите пастора</option>
-                         </select>
+                            </select>
                         </label>
                         <label>
-                           <span class="label_block">Адрес служения</span>
-                           <input type="text" id="added_churches_address">
+                            <span class="label_block">Адрес служения</span>
+                            <input type="text" id="added_churches_address">
                         </label>
                         <label>
                             <span class="label_block">Телефон</span>
@@ -203,6 +135,17 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=master_options name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Пастор" options='' name="pastor" %}
+    {% include "partials/filter/select.html" with label="Открыта" options=true_false_options name="is_open" custom_classes="select__custom" empty_value="ВСЕ" %}
+    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" input_type="email" %}
+    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Область" name="region" placeholder="область или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/database_churches.bundle.js" %}"></script>
