@@ -23,9 +23,9 @@ class FilterByClub(BaseFilterBackend):
         """
         params = request.query_params
         summit_id = params.get('summit')
-        is_member = params.get('is_member', None)
-        if summit_id and is_member in ('true', 'false'):
-            is_member = True if is_member == 'true' else False
+        is_member = params.get('is_member', '')
+        if summit_id and is_member.lower() in ('true', 'false'):
+            is_member = True if is_member.lower() == 'true' else False
             summit_type = Summit.objects.get(id=summit_id).type
             users = summit_type.summits.filter(ankets__visited=True).values_list('ankets__user', flat=True)
             if is_member:
@@ -40,9 +40,9 @@ class HasPhoto(BaseFilterBackend):
         Return a filtered queryset.
         """
         params = request.query_params
-        has_photo = params.get('has_photo', None)
-        if has_photo in ('true', 'false'):
-            if has_photo == 'false':
+        has_photo = params.get('has_photo', '')
+        if has_photo.lower() in ('true', 'false'):
+            if has_photo.lower() == 'false':
                 return queryset.filter(user__image='')
             return queryset.exclude(user__image='')
         return queryset
@@ -259,9 +259,9 @@ class FilterBySummitAttendByDate(BaseFilterBackend):
 
 class FilterByElecTicketStatus(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        e_ticket = request.query_params.get('e_ticket', None)
-        if e_ticket in ('true', 'false'):
-            if e_ticket == 'false':
+        e_ticket = request.query_params.get('e_ticket', '')
+        if e_ticket.lower() in ('true', 'false'):
+            if e_ticket.lower() == 'false':
                 return queryset.filter(Q(status__reg_code_requested=None) | Q(status__reg_code_requested=False))
             return queryset.filter(status__reg_code_requested=True)
         return queryset

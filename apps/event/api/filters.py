@@ -47,11 +47,11 @@ class MeetingCustomFilter(filters.BaseFilterBackend):
 
 class MeetingStatusFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        is_submitted = request.query_params.get('is_submitted')
+        is_submitted = request.query_params.get('is_submitted', '')
 
-        if is_submitted == 'true':
+        if is_submitted.lower() == 'true':
             queryset = queryset.filter(status=Meeting.SUBMITTED)
-        if is_submitted == 'false':
+        if is_submitted.lower() == 'false':
             queryset = queryset.filter(status__in=[Meeting.IN_PROGRESS, Meeting.EXPIRED])
 
         return queryset
@@ -59,11 +59,11 @@ class MeetingStatusFilter(filters.BaseFilterBackend):
 
 class ChurchReportStatusFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        is_submitted = request.query_params.get('is_submitted')
+        is_submitted = request.query_params.get('is_submitted', '')
 
-        if is_submitted == 'true':
+        if is_submitted.lower() == 'true':
             queryset = queryset.filter(status=ChurchReport.SUBMITTED)
-        if is_submitted == 'false':
+        if is_submitted.lower() == 'false':
             queryset = queryset.filter(status__in=[ChurchReport.EXPIRED, ChurchReport.IN_PROGRESS])
 
         return queryset
@@ -121,8 +121,8 @@ class ChurchReportPaymentStatusFilter(filters.BaseFilterBackend):
 
 class CommonGroupsLast5Filter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        last_5 = request.query_params.get('last_5')
-        if last_5 == 'true':
+        last_5 = request.query_params.get('last_5', '')
+        if last_5.lower() == 'true':
             queryset = queryset[:5]
 
         return queryset
