@@ -40,47 +40,11 @@
 
 {% block popup.filter.content %}
     {% include "partials/filter/select.html" with label="Отдел" options=departments name="department_id" %}
-    <label>
-        <span class="label_block">Отдел</span>
-        <select class="selectdb" data-filter="department_id" id="departments_filter">
-            <option value="">ВСЕ</option>
-            {% for department in departments %}
-                <option value="{{ department.id }}">{{ department.title }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <span class="label_block">Церковь</span>
-        <select class="selectdb" data-filter="church" id="church_filter">
-            <option value="">ВСЕ</option>
-            {% for church in churches %}
-                <option value="{{ church.id }}">{{ church.get_title }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <span class="label_block">Ветка</span>
-        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-            <option value="">ВСЕ</option>
-            {% for master in masters %}
-                <option value="{{ master.id }}">{{ master.fullname }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <span class="label_block">Лидер</span>
-        <select class="selectdb" data-filter="leader" id="leader_filter">
-            <option value="">ВСЕ</option>
-        </select>
-    </label>
-    <label>
-        <span class="label_block">Дата открытия</span>
-        <input type="text" data-filter="opening_date" id="search_date_open">
-    </label>
-    <label>
-        <span class="label_block">Город</span>
-        <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
-    </label>
+    {% include "partials/filter/select.html" with label="Церковь" options=churches name="church" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=masters name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Лидер" options='' name="leader" %}
+    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
 {% endblock %}
 
 {% block popup.other %}
@@ -127,7 +91,7 @@
                                 <select class="selectdb" id="added_home_group_church_select">
                                     <option value="">Выберите церковь</option>
                                     {% for church in churches %}
-                                        <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                        <option value="{{ church.id }}">{{ church.title }}</option>
                                     {% endfor %}
                                 </select>
                             </label>

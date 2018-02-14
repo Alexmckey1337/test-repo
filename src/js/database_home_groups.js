@@ -21,9 +21,9 @@ $('document').ready(function () {
           urlChurch = URLS.church.for_select();
     let $departmentSelect = $('#department_select'),
         init = false,
-        $departmentsFilter = $('#departments_filter'),
+        $departmentsFilter = $('#department_id_filter'),
         $churchFilter = $('#church_filter'),
-        $treeFilter = $('#tree_filter'),
+        $treeFilter = $('#master_tree_filter'),
         $liderFilter = $('#leader_filter');
 
     function initFilterAfterParse(set) {
@@ -74,7 +74,7 @@ $('document').ready(function () {
             } else {
                 getData(urlHGliders).then(res => {
                     const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`);
-                    // $('#tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
+                    // $('#master_tree_filter').html('<option value="">ВСЕ</option>').append(leaders);
                     $('#leader_filter').html('<option value="">ВСЕ</option>').append(leaders);
                 });
             }
@@ -96,7 +96,7 @@ $('document').ready(function () {
     $('.selectdb').select2().on('select2:open', function () {
         $('.select2-search__field').focus();
     });
-    $('#search_date_open').datepicker({
+    $('#search_opening_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });

@@ -110,8 +110,9 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
         ctx['departments'] = Department.objects.all()
-        ctx['churches'] = Church.objects.all()
-        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx['churches'] = [{'id': c.id, 'title': c.get_title} for c in Church.objects.all()]
+        ctx['masters'] = [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            is_active=True, hierarchy__level__gte=1)]
 
         return ctx
 
