@@ -1,7 +1,5 @@
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.base import TemplateView
@@ -128,7 +126,18 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
-        ctx['currencies'] = Currency.objects.all()
+        currencies = Currency.objects.all()
+        ctx['currencies'] = currencies
+        ctx['currency_options'] = [{'id': c.pk, 'title': c.short_name} for c in currencies]
         ctx['partner_groups'] = PartnerGroup.objects.all()
+        ctx['payment_status_options'] = [
+            {'id': '0', 'title': 'Hе оплачена'},
+            {'id': '1', 'title': 'Оплачена частично'},
+            {'id': '2', 'title': 'Оплачена полностью'},
+        ]
+        ctx['deal_type_options'] = [
+            {'id': '1', 'title': 'Партнерские'},
+            {'id': '2', 'title': 'Десятины'},
+        ]
 
         return ctx

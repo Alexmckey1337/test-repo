@@ -89,7 +89,7 @@
     </div><!-- End tab-content-->
 {% endblock %}
 
-{% block popup %}
+{% block popup.other %}
     {% include "payment/partials/create_payment.html" %}
     {% include "partner/partials/create_deal.html" with btn="delete" title="update" %}
     <div id="popup-payments" class="pop-up-splash">
@@ -101,7 +101,7 @@
                 </div>
                 <table></table>
                 <div class="splash-bauttons">
-{#                    <button class="detail" data-detail-url="{% url "payment:deal" pk=0 %}">{% trans "Detail" %}</button>#}
+                    {#                    <button class="detail" data-detail-url="{% url "payment:deal" pk=0 %}">{% trans "Detail" %}</button>#}
                     <button class="close">Закрыть</button>
                 </div>
             </div>
@@ -140,95 +140,31 @@
             </div>
         </div>
     </div>
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        {% if request.user.is_partner_supervisor_or_high %}
-                            <span class="label_block">Менеджер</span>
-                        {% endif %}
-                        {% if request.user.is_partner_supervisor_or_high %}
-                            <select class="selectdb" data-filter="responsible" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% get_simple_managers as managers %}
-                                {% for manager in managers %}
-                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
-                    </label>
-{#                    <label>#}
-{#                        <span class="label_block">Фильтр по дате сделки</span>#}
-{#                        <p class="birthday">#}
-{#                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">#}
-{#                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">#}
-{#                        </p>#}
-{#                    </label>#}
-                    <label>
-                        <span class="label_block">Фильтр по валюте</span>
-                        <select id="payment_currency" class="selectdb" data-filter="currency_id">
-                            <option value="">ВСЕ</option>
-                            {% for currency in currencies %}
-                                <option value="{{ currency.id }}">{{ currency.short_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Фильтр по сумме сделки</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="from_value" id="value_from">
-                            <input type="text" placeholder="до" data-filter="to_value" id="value_to">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Статус сделки</span>
-                        <select id="﻿payment_status" class="selectdb" data-filter="payment_status">
-                            <option value="">ВСЕ</option>
-                            <option value="0">﻿Hе оплачена</option>
-                            <option value="1">Оплачена частично</option>
-                            <option value="2">﻿Оплачена полностью</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Тип сделки</span>
-                        <select id="﻿payment_status" class="selectdb" data-filter="type">
-                            <option value="">ВСЕ</option>
-                            <option value="1">Партнерские</option>
-                            <option value="2">﻿Десятины</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Закрыта</span>
-                        <select id="﻿payment_done" class="selectdb" data-filter="done">
-                            <option value="">ВСЕ</option>
-                            <option value="2">Да</option>
-                            <option value="3">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">База</span>
-                        <select class="selectdb" data-filter="group" id="group_filter" multiple="multiple">
-{#                            <option value="">ВСЕ</option>#}
-                            {% for group in partner_groups %}
-                                <option value="{{ group.id }}">{{ group.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
     {% include 'partials/find_duplicate.html' %}
     {{ block.super }}
+{% endblock %}
+
+{% block popup.filter.content %}
+    <label>
+        {% if request.user.is_partner_supervisor_or_high %}
+            <span class="label_block">Менеджер</span>
+        {% endif %}
+        {% if request.user.is_partner_supervisor_or_high %}
+            {% get_simple_managers as managers %}
+            <select class="selectdb" data-filter="responsible" id="masters_filter">
+                <option value="">ВСЕ</option>
+                {% for manager in managers %}
+                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </label>
+    {% include "partials/filter/select.html" with label="Фильтр по валюте" options=currency_options name="currency_id" %}
+    {% include "partials/filter/fromto.html" with label="Фильтр по сумме сделки" name="value" pclass="birthday" %}
+    {% include "partials/filter/select.html" with label="Статус сделки" options=payment_status_options name="payment_status" %}
+    {% include "partials/filter/select.html" with label="Тип сделки" options=deal_type_options name="type" %}
+    {% include "partials/filter/select.html" with label="Закрыта" options=true_false_options name="done" %}
+    {% include "partials/filter/select.html" with label="База" options=partner_groups name="group" multiple="true" without_empty="true" %}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}
