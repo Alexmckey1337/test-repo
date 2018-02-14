@@ -112,72 +112,18 @@
     {% endblock %}
 {% endblock %}
 
-{% block popup %}
+{% block popup.other %}
     {% include "event/partials/home_report.html" %}
-
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="master_tree_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                            {% for owner in owners %}
-                                <option value="{{ owner.id }}">{{ owner.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                            {% for church in churches %}
-                                <option value="{{ church.id }}">{{ church.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Лидер домашней группы</span>
-                        <select class="selectdb" data-filter="owner" id="masters_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                            {% for owner in owners %}
-                                <option value="{{ owner.id }}">{{ owner.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Домашняя группа</span>
-                        <select class="selectdb" data-filter="home_group" id="home_group_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                            {% for home_group in home_groups %}
-                                <option value="{{ home_group.id }}">{{ home_group.get_title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
-
 {% endblock %}
+
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=owner_options name="master_tree" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Церковь" options=church_options name="master_tree" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Лидер домашней группы" options=owner_options name="owner" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Домашняя группа" options=hg_options name="home_group" empty_value="ВСЕ" %}
+{% endblock %}
+
 {% block extra_scripts %}
     <script src="{% static "js/home_reports.bundle.js" %}"></script>
 {% endblock %}
