@@ -199,6 +199,12 @@
             <% } else { %>
             <td></td>
             <% } %>
+            <% } else if(key == 'sum_str') { %>
+            <td>
+            <% if (results[index][key] != null) { %>
+                <%= String(results[index][key].replace('.', ',')).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+            <% } %>
+            </td>
             <% } else { %>
             <td><% if (results[index][key] === true ) { %>
                 <p class="text__center">✔</p>

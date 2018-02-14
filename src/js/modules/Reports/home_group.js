@@ -17,16 +17,18 @@ import {showAlert, showConfirm} from "../ShowNotifications/index";
 import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 import dataHandling from '../Error';
+import {convertNum} from "../ConvertNum/index";
+import {getOrderingData} from "../Ordering/index";
 
 export function HomeReportsTable(config = {}, pagination = true) {
-    Object.assign(config, getTypeTabsFilterParam());
+    Object.assign(config, getTypeTabsFilterParam(), getOrderingData());
     getData(URLS.event.home_meeting.list(), config).then(data => {
         makeHomeReportsTable(data, config, pagination);
     }).catch(err => dataHandling(err));
 }
 
 export function homeReportsTable(config = {}, pagination = true) {
-    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam());
+    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData());
     (pagination) && updateHistoryUrl(config);
     getData(URLS.event.home_meeting.list(), config).then(data => {
         makeHomeReportsTable(data, config, pagination);
@@ -166,7 +168,7 @@ function reportData() {
         attends = [];
     data.append('date', reverseDate($('#reportDate').val(), '-'));
     if ($('#reportDonations').attr('type') != 'hidden') {
-        data.append('total_sum', $('#reportDonations').val());
+        data.append('total_sum', convertNum($('#reportDonations').val(), '.'));
     }
     if ($('#reportImage').closest('label').is(":visible") && ($('#reportImage')[0].files.length > 0)) {
         data.append('image', $('#reportImage')[0].files[0]);
@@ -232,8 +234,8 @@ function completeFields(data) {
     $('#date_title').text(dateTitle);
     if (data.type.id === 2) {
         $('#reportDonations')
-            .attr('type', 'number')
-            .val((data.status === 2) ? data.total_sum : '')
+            .attr('type', 'text')
+            .val((data.status === 2) ? convertNum(data.total_sum, ',') : '')
             .closest('label')
             .css('display', 'block');
         $('#reportImage').closest('label').css('display', 'block');

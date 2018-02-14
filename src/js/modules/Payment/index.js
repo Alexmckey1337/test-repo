@@ -15,6 +15,7 @@ import makePagination from '../Pagination/index';
 import OrderTable from '../Ordering/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import reverseDate from '../Date/index';
+import {convertNum} from "../ConvertNum/index";
 
 export function createPayment(data, id) {
     let resData = {
@@ -97,10 +98,10 @@ export function createChurchPaymentsTable(config) {
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "tableChurchReportsPayments",
             currency = data.payments_sum,
-            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
-            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
-            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
-            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
+            uah = (currency.uah.sum != null) ? beautifyNumber(convertNum(currency.uah.sum, ',')) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(convertNum(currency.usd.sum, ',')) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(convertNum(currency.eur.sum, ',')) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(convertNum(currency.rur.sum, ',')) : 0,
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",
@@ -156,7 +157,6 @@ function makeQuickEditPayments(el) {
     let id = $(el).attr('data-id'),
         payer = $(el).attr('data-name');
     getPaymentDetail(id).then(data => {
-        console.log(data);
         createUpdatePayment(data, payer, id);
         $('#popup-update_payment').css('display', 'block');
     });
@@ -182,9 +182,9 @@ function createUpdatePayment(data, name, id) {
     $('#payment-form').get(0).reset();
     $('#payment_name').text(name);
     $('#payment_date').text(data.created_at);
-    rateField.val(rate).prop('readonly', false);
+    rateField.val(convertNum(rate, ',')).prop('readonly', false);
     (data.currency_rate.id == '2') && rateField.prop('readonly', true);
-    $('#new_payment_sum').val(data.sum);
+    $('#new_payment_sum').val(convertNum(data.sum, ','));
     $('#payment_sent_date').val(data.sent_date);
     $('.note').val(data.description);
     $('#complete-payment').attr('data-id', id);
@@ -274,10 +274,10 @@ export function createPaymentsTable(config = {}) {
             showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
             id = "paymentsList",
             currency = data.payments_sum,
-            uah = (currency.uah.sum != null) ? beautifyNumber(currency.uah.sum) : 0,
-            usd = (currency.usd.sum != null) ? beautifyNumber(currency.usd.sum) : 0,
-            eur = (currency.eur.sum != null) ? beautifyNumber(currency.eur.sum) : 0,
-            rub = (currency.rur.sum != null) ? beautifyNumber(currency.rur.sum) : 0,
+            uah = (currency.uah.sum != null) ? beautifyNumber(convertNum(currency.uah.sum, ',')) : 0,
+            usd = (currency.usd.sum != null) ? beautifyNumber(convertNum(currency.usd.sum, ',')) : 0,
+            eur = (currency.eur.sum != null) ? beautifyNumber(convertNum(currency.eur.sum, ',')) : 0,
+            rub = (currency.rur.sum != null) ? beautifyNumber(convertNum(currency.rur.sum, ',')) : 0,
             text = `Показано ${showCount} из ${count} на сумму: ${uah} грн, ${usd} дол, ${eur} евро, ${rub} руб`;
         let paginationConfig = {
             container: ".payments__pagination",

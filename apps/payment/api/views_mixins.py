@@ -82,7 +82,8 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         sent_date = request.data.get('sent_date')
         if not sent_date:
             sent_date = timezone.now().strftime('%Y-%m-%d')
-        if rate == 1 and currency != purpose.currency:
+        if rate == 1 and currency != purpose.currency.id:
+            print(rate, currency, purpose.currency)
             raise ValidationError({'detail': _('Rate must be not 1.00')})
         data = {
             'sum': sum,

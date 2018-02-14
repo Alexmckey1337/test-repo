@@ -19,6 +19,8 @@ import {
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import errorHandling from './modules/Error';
+import reverseDate from './modules/Date/index';
+import {convertNum} from "./modules/ConvertNum/index";
 
 $('document').ready(function () {
     createChurchPaymentsTable({});
@@ -96,10 +98,10 @@ $('document').ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-update_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
-                "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
+                "sent_date": reverseDate($('#payment_sent_date').val() ,'-'),
             };
         postData(URLS.payment.edit_payment(id), data, {method: 'PATCH'}).then(function () {
             let page = $('.pagination__input').val();

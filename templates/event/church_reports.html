@@ -280,7 +280,7 @@
                                     || key === 'transfer_payments') { %>
                         <td>
                             <% if (results[index][key] != null) { %>
-                            <%= results[index][key].replace('.', ',') %>
+                            <%= String(results[index][key].replace('.', ',')).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                             <% } %>
                         </td>
                     <% } else if(key == 'pastor') { %>
