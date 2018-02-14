@@ -88,44 +88,6 @@
                 </label>
             </div>
         </div>
-{#        <div class="pre_filter">#}
-{#            <h1>Отдeл:</h1>#}
-{#            <select class="selectdb" data-filter="department" id="departments_filter">#}
-{#                <option value="">ВСЕ</option>#}
-{#                {% for department in departments %}#}
-{#                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-{#                {% endfor %}#}
-{#            </select>#}
-{#            <div class="preloader_chart">#}
-{#                <div class="_preloader">#}
-{#                    <svg preserveaspectratio="" viewbox="-5 -5 65 65">#}
-{#                        <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>#}
-{#                        <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32" transform="translate(1 2)">#}
-{#                            <animatetransform attributename="transform" dur="1s" from="0 26 27" repeatcount="indefinite"#}
-{#                                              to="360 26 27" type="rotate">#}
-{#                            </animatetransform>#}
-{#                        </path>#}
-{#                    </svg>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#        <div class="pre_filter">#}
-{#                <h1>Ответственный:</h1>#}
-{#                <select data-filter="master_tree" id="master"></select>#}
-{#                <div class="preloader_chart">#}
-{#                    <div class="_preloader">#}
-{#                        <svg preserveaspectratio="" viewbox="-5 -5 65 65">#}
-{#                            <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>#}
-{#                            <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32" transform="translate(1 2)">#}
-{#                                <animatetransform attributename="transform" dur="1s" from="0 26 27"#}
-{#                                                  repeatcount="indefinite"#}
-{#                                                  to="360 26 27" type="rotate">#}
-{#                                </animatetransform>#}
-{#                            </path>#}
-{#                        </svg>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
         <canvas id="chart_attends"></canvas>
         <canvas id="chart_latecomer"></canvas>
         <div class="half_charts">
@@ -137,46 +99,6 @@
 {% endblock %}
 
 {% block popup %}
-    {#    <div class="popap" id='filterPopup'>#}
-    {#        <div class="pop_cont">#}
-    {#            <h2 class='popup_text'>#}
-    {#                Фильтр#}
-    {#            </h2>#}
-    {#            <div class="popup_body">#}
-    {#                <div class="container">#}
-    {#                    <div class="col-6">#}
-    {#                        <div class="label_block-wrapp">#}
-    {#                            <span class="label_block">Отдел</span>#}
-    {#                        </div>#}
-    {#                        <div class="label_block-wrapp">#}
-    {#                            <span class="label_block">Ответственный</span>#}
-    {#                        </div>#}
-    {#                    </div>#}
-    {#                    <div class="col-6">#}
-    {#                        <p class="input_block">#}
-    {#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
-    {#                                <option value="">ВСЕ</option>#}
-    {#                                {% for department in departments %}#}
-    {#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}
-    {#                                {% endfor %}#}
-    {#                            </select>#}
-    {#                        </p>#}
-    {#                        <p class="input_block">#}
-    {#                            <select data-filter="master_tree" id="master"></select>#}
-    {#                        </p>#}
-    {#                    </div>#}
-    {#                </div>#}
-    {#            </div>#}
-    {#            <div class="container">#}
-    {#                <button onclick="refreshFilter(this)" class="clear-filter"><i class="fa fa-refresh"#}
-    {#                                                                              aria-hidden="true"></i>#}
-    {#                    Очистить#}
-    {#                </button>#}
-    {#                <button class="close-popup">Отменить</button>#}
-    {#                <button id="applyFilter" class="apply-filter">Применить</button>#}
-    {#            </div>#}
-    {#        </div>#}
-    {#    </div>#}
 {% endblock %}
 
 {% block extra_scripts %}
