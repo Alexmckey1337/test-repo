@@ -22,31 +22,55 @@
     <link rel="stylesheet" href='{% static "css/main.css" %}'>
 </head>
 
-<body data-user="{{ request.user.id }}">
+<body style="display: block" data-user="{{ request.user.id }}">
 <div id="search_city-container">
-    <label for="search_city">Поиск города</label><input type="text" id="search_city">
+    <label for="search_city">Поиск города</label>
+    <input type="text" id="search_city" placeholder="Не менее 3-х букв">
     <hr>
-    <div class="selected_block"></div>
+    <div class="selected_block">
+        <span id="selected_country" data-id="countries"></span>
+        <span id="selected_area" data-id="areas"></span>
+        <span id="selected_district" data-id="districts"></span>
+    </div>
     <hr>
     <div class="search_res-container">
-        <div class="search_res-cont__block" id="cities">
-            <span>Результат отсутствует</span>
+        <div class="search_res-cont__block">
+            <ul id="cities">
+                <li>Результат отсутствует</li>
+            </ul>
         </div>
-        <div class="search_res-cont__block" id="countries">
-            <span>Результат отсутствует</span>
+        <div class="search_res-cont__block">
+            <ul id="countries">
+                <li>Результат отсутствует</li>
+            </ul>
         </div>
-        <div class="search_res-cont__block" id="areas">
-            <span>Результат отсутствует</span>
+        <div class="search_res-cont__block">
+            <ul id="areas">
+                <li>Результат отсутствует</li>
+            </ul>
         </div>
-        <div class="search_res-cont__block" id="districts">
-            <span>Результат отсутствует</span>
+        <div class="search_res-cont__block">
+            <ul id="districts">
+                <li>Результат отсутствует</li>
+            </ul>
+        </div>
+    </div>
+    <div class="preloader">
+        <div class="_preloader">
+            <svg preserveaspectratio="" viewbox="-5 -5 65 65">
+                <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>
+                <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32" transform="translate(1 2)">
+                    <animatetransform attributename="transform" dur="1s" from="0 26 27" repeatcount="indefinite"
+                                      to="360 26 27" type="rotate">
+                    </animatetransform>
+                </path>
+            </svg>
         </div>
     </div>
 </div>
 <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
 <script>Raven.config('{% sentry_public_dsn %}').install()</script>
 <script src="{% static "js/vendor.bundle.js" %}"></script>
-<script src="{% static "js/main.bundle.js" %}"></script>
 <script src="{% static "js/search_city.bundle.js" %}"></script>
 </body>
 </html>

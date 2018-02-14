@@ -130,6 +130,7 @@ const CHURCH_DEAL = {
     find_duplicates: () => `/api/church_deals/get_duplicates/`,
     check_duplicates: () => `/api/church_deals/check_duplicates/`,
 };
+
 const CHURCH = {
     detail: (churchId) => `/api/churches/${churchId}/`,
     list: () => `/api/churches/`,
@@ -189,6 +190,7 @@ const URLS = {
     country: () => `/api/countries/`,
     region: () => `/api/regions/`,
     city: () => `/api/cities/`,
+    town: () => `/api/city/`,
     department: () => `/api/departments/`,
     division: () => `/api/divisions/`,
     hierarchy: () => `/api/hierarchy/`,

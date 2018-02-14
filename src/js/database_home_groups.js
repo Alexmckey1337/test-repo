@@ -13,6 +13,7 @@ import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import parseUrlQuery from './modules/ParseUrl/index';
+import {getLocationDB} from "./modules/Location/index";
 
 $('document').ready(function () {
     const PATH = window.location.href.split('?')[1],
@@ -87,15 +88,10 @@ $('document').ready(function () {
         filterChange();
     }
 
-    $departmentSelect.select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
-    $('#pastor_select').select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
-    $('.selectdb').select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
+    $departmentSelect.select2();
+    $('#pastor_select').select2();
+    $('.selectdb').select2();
+
     $('#search_date_open').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
@@ -113,7 +109,6 @@ $('document').ready(function () {
         clearAddHomeGroupData();
         updateLeaderSelect();
         setTimeout(function () {
-            //$('#addHomeGroup').css('display', 'block');
             $('#addHomeGroup').addClass('active');
             $('.bg').addClass('active');
         }, 100);
@@ -148,7 +143,6 @@ $('document').ready(function () {
     //Filter
     $('#filter_button').on('click', function () {
         filterInit();
-        //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
         $('.bg').addClass('active');
     });
@@ -202,15 +196,19 @@ $('document').ready(function () {
         });
     }
 
-    $('#added_home_group_church_select').select2().on('select2:open', function () {
-        $('.select2-search__field').focus();
-    });
+    $('#added_home_group_church_select').select2();
 
     $('.save-group').on('click', function () {
         saveHomeGroups(this, createHomeGroupsTable);
     });
 
     $('#addHomeGroup').find('form').on('submit', function (event) {
+        let id = $('#added_home_group_city').attr('data-id');
+        if (!id) {
+            event.preventDefault();
+            showAlert('Укажите город');
+            return
+        }
         addHomeGroup(event, this, createHomeGroupsTable);
     });
 
@@ -259,5 +257,14 @@ $('document').ready(function () {
         console.log(filterParam);
         filterInit(filterParam);
     }
+
+    //Locations
+    getLocationDB();
+
+    $('#quickEditCartPopup, #addHomeGroup').on('click', '.search_city_link', function (e) {
+        e.preventDefault();
+        let link = $(this).attr('href');
+        window.open(link, 'searchCity');
+    })
 
 });

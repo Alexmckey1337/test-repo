@@ -145,7 +145,7 @@ class PartnerUserSerializer(serializers.ModelSerializer):
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
     get_church = ChurchNameSerializer(read_only=True)
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
     class Meta:
         model = User
@@ -374,7 +374,7 @@ class UserSingleSerializer(BaseUserSerializer):
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
     get_church = ChurchNameSerializer(read_only=True)
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
     class Meta(UserSingleSerializer.Meta):
         fields = BASE_USER_FIELDS + ('get_church',)
