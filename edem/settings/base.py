@@ -83,6 +83,7 @@ LOCAL_APPS = (
     'apps.task.apps.TaskConfig',
     'apps.zmail.apps.ZMailConfig',
     'apps.controls.apps.ControlsConfig',
+    'apps.help.apps.HelpConfig',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
