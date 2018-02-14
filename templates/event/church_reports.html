@@ -100,7 +100,7 @@
     {% endblock %}
 {% endblock %}
 
-{% block popup %}
+{% block popup.other %}
     {% include "payment/partials/create_payment.html" with date="report" %}
     {% include "payment/partials/payments_detail.html" %}
     {% include "event/partials/church_report.html" %}
@@ -138,60 +138,13 @@
             </div>
         </div>
     </div>
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Пастор</span>
-                        <select class="selectdb" data-filter="pastor" id="pastor_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="ВСЕ">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Статус сделки</span>
-                        <select id="payment_status" class="selectdb" data-filter="payment_status">
-                            <option value="">ВСЕ</option>
-                            <option value="0">Hе оплачена</option>
-                            <option value="1">Оплачена частично</option>
-                            <option value="2">Оплачена полностью</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
-
-
+{% endblock %}
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка" options='' name="master_tree" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Пастор" options='' name="pastor" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Церковь" options='' name="church" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Статус сделки" options=deal_status_options name="payment_status" %}
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/church_reports.bundle.js" %}"></script>

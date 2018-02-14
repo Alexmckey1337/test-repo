@@ -50,7 +50,7 @@
             <div class="container container_block">
                 <label>
                     <span class="label_block">Отдeл:</span>
-                    <select class="select__db" data-filter="department" id="departments_filter">
+                    <select class="selectdb" data-filter="department" id="departments_filter">
                         <option value="">ВСЕ</option>
                         {% for department in departments %}
                             <option value="{{ department.id }}">{{ department.title }}</option>
@@ -90,7 +90,7 @@
         </div>
 {#        <div class="pre_filter">#}
 {#            <h1>Отдeл:</h1>#}
-{#            <select class="select__db" data-filter="department" id="departments_filter">#}
+{#            <select class="selectdb" data-filter="department" id="departments_filter">#}
 {#                <option value="">ВСЕ</option>#}
 {#                {% for department in departments %}#}
 {#                    <option value="{{ department.id }}">{{ department.title }}</option>#}
@@ -154,7 +154,7 @@
     {#                    </div>#}
     {#                    <div class="col-6">#}
     {#                        <p class="input_block">#}
-    {#                            <select class="select__db" data-filter="department" id="departments_filter">#}
+    {#                            <select class="selectdb" data-filter="department" id="departments_filter">#}
     {#                                <option value="">ВСЕ</option>#}
     {#                                {% for department in departments %}#}
     {#                                    <option value="{{ department.id }}">{{ department.title }}</option>#}

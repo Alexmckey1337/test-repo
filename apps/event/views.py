@@ -70,6 +70,11 @@ def church_report_list(request):
 
     ctx = {
         'departments': Department.objects.all(),
+        'deal_status_options': [
+            {'id': '0', 'title': 'Hе оплачена'},
+            {'id': '1', 'title': 'Оплачена частично'},
+            {'id': '2', 'title': 'Оплачена полностью'},
+        ],
     }
 
     return render(request, 'event/church_reports.html', context=ctx)

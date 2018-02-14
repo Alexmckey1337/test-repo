@@ -20,7 +20,7 @@ def task_list(request):
             {'id': '0', 'title': 'Hе оплачена'},
             {'id': '1', 'title': 'Оплачена частично'},
             {'id': '2', 'title': 'Оплачена полностью'},
-        ]
+        ],
     }
 
     return render(request, 'tasks/task_list.html', context=ctx)
