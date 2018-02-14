@@ -22,6 +22,7 @@ const CONTROLS = {
     bd_access_submit: () => `/api/controls/db_access/submit/`,
     password_submit: (id) => `/api/controls/db_access/${id}/`,
     summit_access: () => `/api/controls/summit_panel/`,
+    summit_detail: (id) => `/api/controls/summit_panel/${id}/`,
 }
 
 const SUMMIT = {

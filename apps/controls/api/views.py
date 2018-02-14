@@ -17,6 +17,7 @@ from apps.controls.api.serializers import (
     SummitPanelDetailSerializer, SummitPanelCreateUpdateSerializer, SummitTypePanelSerializer
 )
 from .filters import SummitPanelDateFilter
+from rest_framework.viewsets import ModelViewSet
 
 
 class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -80,7 +81,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         return Response({'message': _('Успешно сохранено')}, status=status.HTTP_200_OK)
 
 
-class SummitPanelViewSet(ModelWithoutDeleteViewSet):
+class SummitPanelViewSet(ModelViewSet):
     queryset = Summit.objects.order_by('-end_date')
 
     serializer_list_class = SummitPanelListSerializer

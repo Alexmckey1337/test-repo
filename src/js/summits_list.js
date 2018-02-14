@@ -5,13 +5,11 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
-import URLS from './modules/Urls/index';
-import {showAlert} from "./modules/ShowNotifications/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import {SummitListTable, summitListTable} from "./modules/Controls/summits_list";
+import {SummitListTable, summitListTable, submitSummit, removeValidText} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
-import {postData} from './modules/Ajax/index';
+import {showAlert} from "./modules/ShowNotifications/index";
 
 $('document').ready(function () {
     let configData = {},
@@ -60,13 +58,38 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         updateSettings(summitListTable);
     });
-
+    $('#add').on('click',function () {
+        $('#addSammit').addClass('active').addClass('add').removeClass('change');
+        $('.bg').addClass('active');
+        let clear_btn = $('#addSammit').find('.add-summit');
+        refreshFilter($(clear_btn));
+        $('#addSammit').find('.popup_text').find('h2').text('Добавить саммит');
+        removeValidText($('#addSammit'));
+    });
     $('.summit-date').datepicker({
-        dateFormat: 'dd-mm-yyyy',
+        dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "bottom center",
     });
+    $('.start_date').datepicker({
+        onSelect: function (formattedDate, date, inst) {
+            $('.end_date').datepicker({
+                minDate: new Date(date),
+            });
+        }
+    });
+    $.validate({
+        lang: 'ru',
+        form: '#addSammitForm',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
 
+            return false;
+        }
+    });
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);

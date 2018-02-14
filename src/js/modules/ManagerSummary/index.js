@@ -2,6 +2,7 @@
 import URLS from '../Urls';
 import getData from '../Ajax';
 import beautifyNumber from '../beautifyNumber';
+import {convertNum} from "../ConvertNum/index";
 import {initCharts} from "../Chart/partners";
 
 export function renderStats(ID, config = {}, update = false) {
@@ -39,7 +40,7 @@ function createFinanceTable(headers, body) {
                                     <td>${item.title}</td>
                                     ${headers.map(el => {
                                         return `
-                                            <td>${beautifyNumber(item[el])}</td>
+                                            <td>${beautifyNumber(convertNum(item[el], ','))}</td>
                                         `
                             }).join('')}
                                 </tr>`;

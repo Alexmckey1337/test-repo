@@ -13,6 +13,7 @@ import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable, {getOrderingData} from '../Ordering/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import {showPayments} from "../Payment/index";
+import {convertNum} from "../ConvertNum/index";
 
 export function btnDeals() {
     $("button.pay").on('click', function () {
@@ -32,7 +33,7 @@ export function btnDeals() {
         $('#payment_name').text(payer);
         $('#payment_responsible').text(responsible);
         $('#payment_date').text(date);
-        $('#payment_sum, #all_payments').text(`${value} ${currencyName}`);
+        $('#payment_sum, #all_payments').text(`${convertNum(value, ',')} ${currencyName}`);
         clearSumChange(total_sum);
         sumChange(diff, currencyName, currencyID, total_sum);
         $('#complete-payment').prop('disabled', false);
@@ -47,37 +48,37 @@ function clearSumChange(total) {
     $('#new_payment_rate').val('').prop('readonly', false);
     $('#sent_date').val(moment(new Date()).format('DD.MM.YYYY'));
     $('#payment-form').find('textarea').val('');
-    $('#user_payment').text(total);
+    $('#user_payment').text(convertNum(total, ','));
 }
 
 function sumChange(diff, currencyName, currencyID, total) {
     let currencies = $('#new_payment_rate'),
         payment = $('#new_payment_sum'),
         curr;
-    $('#close_sum').text(`${diff} ${currencyName}`);
+    $('#close_sum').text(`${convertNum(diff, ',')} ${currencyName}`);
     currencies.on('keyup', _.debounce(function () {
         if (currencyID != 2) {
-            curr = $(this).val();
+            curr = convertNum($(this).val(), '.');
             let uah = parseFloat((diff * curr).toFixed(2));
-            payment.val(uah);
-            $('#user_payment').text(`${+diff + +total} ${currencyName}`);
+            payment.val(convertNum(uah, ','));
+            $('#user_payment').text(`${convertNum((+diff + +total), ',')} ${currencyName}`);
         }
     }, 500));
     payment.on('keyup', _.debounce(function () {
         if (currencyID != 2) {
-            let pay = $(this).val();
-            curr = currencies.val();
+            let pay = convertNum($(this).val(), '.');
+            curr = convertNum(currencies.val(), '.');
             let result = parseFloat((pay / curr).toFixed(2));
-            $('#user_payment').text(`${result + +total} ${currencyName}`);
+            $('#user_payment').text(`${convertNum((+result + +total), ',')} ${currencyName}`);
         } else {
-            let pay = $(this).val();
-            $('#user_payment').text(`${+pay + +total} ${currencyName}`);
+            let pay = convertNum($(this).val(), '.');
+            $('#user_payment').text(`${convertNum((+pay + +total), ',')} ${currencyName}`);
         }
     }, 500));
-    if (currencyID == 2) {
-        currencies.val('1.0').prop('readonly', true);
-        payment.val(diff);
-        $('#user_payment').text(`${(+diff + +total).toFixed(2)} ${currencyName}`);
+    if (currencyID === '2') {
+        currencies.val('1,0').prop('readonly', true);
+        payment.val(convertNum(diff, ','));
+        $('#user_payment').text(`${convertNum((+diff + +total).toFixed(2), ',')} ${currencyName}`);
     }
 }
 

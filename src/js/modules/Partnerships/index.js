@@ -1,9 +1,13 @@
 'use strict';
+import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
+import 'jquery-form-validator/form-validator/lang/ru.js';
 import URLS from '../Urls';
 import getData, {postData} from "../Ajax/index";
 import {showAlert} from "../ShowNotifications/index";
 import errorHandling from '../Error';
-import {makeDuplicateDeals} from "../Deals/index"
+import {makeDuplicateDeals} from "../Deals/index";
+import {convertNum} from "../ConvertNum/index";
+import reverseDate from '../Date/index';
 
 export function btnNeed() {
     $('.a-note, .a-sdelki').find('.editText').on('click', function () {
@@ -63,7 +67,7 @@ export function btnPartners() {
         $input.each(function () {
             let id = $(this).data('id');
             if ($(this).hasClass('sel__date')) {
-                partnershipData[id] = $(this).val().trim().split('.').reverse().join('-');
+                partnershipData[id] = reverseDate($(this).val(), '-');
             } else if ($(this).hasClass('par__group')) {
                 if ($(this).val() != null) {
                     partnershipData[id] = $(this).val();
@@ -123,50 +127,23 @@ export function btnDeal() {
         popup.css('display', 'block');
     });
 
-    $("#close-deal").on('click', function () {
+    $("#close-deal").on('click', function (e) {
+        e.preventDefault();
         $('#popup-create_deal').css('display', 'none');
     });
 
-    $('#send_new_deal').on('click', function () {
-        let description = $('#popup-create_deal textarea').val(),
-            value = $('#new_deal_sum').val(),
-            date = $('#new_deal_date').val(),
-            type = $('#new_deal_type').val(),
-            typeDeal = $('.partner_block_wrap').first().attr('data-type'),
-            urlDuplicates = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates();
-        if (!value && !date) {
-            showAlert('Заполните все поля.');
-            return;
+    $.validate({
+        lang: 'ru',
+        form: '#deal-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitDeal();
+            $('#send_new_deal').prop('disabled', true);
+
+            return false;
         }
-        let dateFormat = date.trim().split('.').reverse().join('-'),
-            id = $(this).data('partner'),
-            checkDeal = {
-                'date_created': dateFormat,
-                'value': value,
-                'partnership_id': id,
-            },
-            deal = {
-                'date_created': dateFormat,
-                'value': value,
-                'description': description,
-                'partnership': id,
-                'type': type,
-            };
-        $(this).prop('disabled', true);
-        getData(urlDuplicates, checkDeal).then(data => {
-            if(!data.results) {
-                createDeal(deal);
-                return;
-            }
-            $('.preloader').css('display', 'block');
-            $('#send_new_deal').prop('disabled', false);
-            $('#hard_create').attr('data-date_created', dateFormat)
-                .attr('data-value', value)
-                .attr('data-description', description)
-                .attr('data-partnership', id)
-                .attr('data-type', type);
-            makeDuplicateDeals(checkDeal);
-        });
     });
 
     $('#hard_create').on('click', function () {
@@ -179,6 +156,46 @@ export function btnDeal() {
         };
         createDeal(deal);
         $('.pop-up_duplicate__table').css('display', 'none');
+    });
+}
+
+function submitDeal() {
+    let description = $('#popup-create_deal textarea').val(),
+        value = $('#new_deal_sum').val(),
+        date = $('#new_deal_date').val(),
+        type = $('#new_deal_type').val(),
+        typeDeal = $('.partner_block_wrap').first().attr('data-type'),
+        urlDuplicates = (typeDeal === 'CH') ? URLS.church_deal.check_duplicates() : URLS.deal.check_duplicates(),
+        dateFormat = reverseDate(date, '-'),
+        id = $('#send_new_deal').data('partner'),
+        checkDeal = {
+            'date_created': dateFormat,
+            'value': value,
+            'partnership_id': id,
+        },
+        deal = {
+            'date_created': dateFormat,
+            'value': value,
+            'description': description,
+            'partnership': id,
+            'type': type,
+        };
+    getData(urlDuplicates, checkDeal).then(data => {
+        if (!data.results) {
+            createDeal(deal);
+            return;
+        }
+        $('.preloader').css('display', 'block');
+        $('#send_new_deal').prop('disabled', false);
+        $('#hard_create').attr('data-date_created', dateFormat)
+            .attr('data-value', value)
+            .attr('data-description', description)
+            .attr('data-partnership', id)
+            .attr('data-type', type);
+        makeDuplicateDeals(checkDeal);
+    }).catch(err => {
+        $('#send_new_deal').prop('disabled', false);
+        errorHandling(err);
     });
 }
 

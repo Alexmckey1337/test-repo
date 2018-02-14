@@ -19,6 +19,7 @@ import updateHistoryUrl from '../History/index';
 import reverseDate from '../Date';
 import dataHandling from '../Error';
 import {getOrderingData} from "../Ordering/index";
+import {convertNum} from "../ConvertNum/index";
 
 export function ChurchReportsTable(config = {}, pagination = true) {
     Object.assign(config, getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData());
@@ -81,7 +82,7 @@ function btnControls(pagination, config = {}) {
         let id = $(this).attr('data-id'),
             data = {"done": true};
         postData(URLS.event.church_report.detail(id), data, {method: 'PATCH'}).then( _ => {
-            (pagination) ? churchReportsTable() : churchReportsTable(config, pagination);
+            (pagination) ? churchReportsTable(config, pagination) : churchReportsTable();
         }).catch(err => dataHandling(err));
     });
 
@@ -121,10 +122,10 @@ function btnEditReport() {
 
 export function calcTransPayments() {
     $('#reportTithe, #reportDonations').on('input', function () {
-        let tithe = $('#reportTithe').val() || 0,
-            donat = $('#reportDonations').val() || 0,
-            calc = (+tithe + +donat) * 0.15;
-        $('#reportTransferPayments').val(calc.toFixed(2));
+        let tithe = convertNum($('#reportTithe').val(), '.') || 0,
+            donat = convertNum($('#reportDonations').val(), '.') || 0,
+            calc = (tithe + donat) * 0.15;
+        $('#reportTransferPayments').val(convertNum(calc.toFixed(2), ','));
     });
 }
 
@@ -142,7 +143,10 @@ export function deleteReport(callback, config = {}, pagination = true) {
 }
 
 function completeFields (data) {
-    console.log(data);
+    let total_tithe = convertNum(data.total_tithe, ','),
+        total_donations = convertNum(data.total_donations, ','),
+        transfer_payments = convertNum(data.transfer_payments, ','),
+        total_pastor_tithe = convertNum(data.total_pastor_tithe, ',');
     $('#delete_report').attr('data-id', data.id);
     $('#send_report').attr({
         'data-id': data.id,
@@ -154,10 +158,10 @@ function completeFields (data) {
     $('#reportCountPeople').val((data.status === 2) ? data.total_peoples : '');
     $('#reportCountNewPeople').val((data.status === 2) ? data.total_new_peoples : '');
     $('#reportCountRepentance').val((data.status === 2) ? data.total_repentance : '');
-    $('#reportTithe').val((data.status === 2) ? data.total_tithe : '');
-    $('#reportDonations').val((data.status === 2) ? data.total_donations : '');
-    $('#reportTransferPayments').val(data.transfer_payments);
-    $('#reportPastorTithe').val((data.status === 2) ? data.total_pastor_tithe : '');
+    $('#reportTithe').val((data.status === 2) ? total_tithe : '');
+    $('#reportDonations').val((data.status === 2) ? total_donations : '');
+    $('#reportTransferPayments').val(transfer_payments);
+    $('#reportPastorTithe').val((data.status === 2) ? total_pastor_tithe : '');
     $('#reportComment').val(data.comment);
     $('.cur_name').text(`(${data.currency.short_name})`);
     $('#report_title').text((data.status === 2) ? 'Редактирование' : 'Подача');
@@ -178,8 +182,10 @@ function reportData() {
         if (field) {
             if (field === 'date') {
                 data[field] = reverseDate($(this).val(), '-');
-            } else {
+            } else if (field === 'comment') {
                 data[field] = $(this).val();
+            } else {
+                data[field] = convertNum($(this).val(), '.');
             }
         }
     });

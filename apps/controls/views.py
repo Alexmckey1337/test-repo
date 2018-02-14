@@ -36,7 +36,7 @@ def summit_panel_list(request):
     ctx = {
         'currencies': Currency.objects.all(),
         'zmail_templates': ZMailTemplate.objects.all(),
-        'summit_types': SummitType.objects.all()
+        'summit_types': SummitType.objects.all(),
     }
 
     return render(request, 'controls/summit_panel_list.html', context=ctx)

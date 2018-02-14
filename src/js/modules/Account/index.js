@@ -133,13 +133,14 @@ export function dataIptelTable(url) {
 }
 export function dataIptelMonth(url) {
     getDataPhone(url).then(data => {
+        $('#tableMonthIptelWrap').html('');
         if (data.status === '503'){
             let err = document.createElement('p');
             $(err).text(data.message).addClass('errorText')
-            $('#popupMonth').find('.main-text').append(err);
+            $('#tableMonthIptelWrap').append(err);
             $('.preloader').css('display', 'none');
         }else{
-            makeIptelTable(data,'#tableMonthIptel');
+            makeIptelTable(data,'#tableMonthIptelWrap');
             $('.preloader').css('display', 'none');
         }
     });

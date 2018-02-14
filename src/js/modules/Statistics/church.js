@@ -4,6 +4,7 @@ import getData from "../Ajax/index";
 import beautifyNumber from '../beautifyNumber';
 import updateHistoryUrl from '../History/index';
 import {initCharts} from '../Chart/church_stats';
+import {convertNum} from "../ConvertNum/index";
 
 export function churchStatistics(update = false) {
     let config = Object.assign({}, getPreFilterParam()),
@@ -121,7 +122,8 @@ function getTransformData(data, isGroup = '1m', curType = 'all') {
                 return sum;
             }
         }, 0);
-        dataFinances[4][item] = `${sumPayments} / ${sumReports} (долг ${(sumReports - sumPayments).toFixed(2)})`;
+        let dolg = convertNum((sumReports - sumPayments).toFixed(2), ',');
+        dataFinances[4][item] = `${convertNum(sumPayments, ',')} / ${convertNum(sumReports, ',')} (долг ${dolg})`;
         dataPeoples[0][item] = _.reduce(elem, (sum, val, key) => sum + val.count_people, 0);
         dataPeoples[1][item] = _.reduce(elem, (sum, val, key) => sum + val.count_new_people, 0);
         dataPeoples[2][item] = _.reduce(elem, (sum, val, key) => sum + val.count_repentance, 0);
@@ -151,7 +153,7 @@ function createFinanceTable(headers, body) {
                             return `<tr>
                                     <td>${item.title}</td>
                                     ${headers.map(el => {
-                                        return `<td>${beautifyNumber(item[el])}</td>`
+                                        return `<td>${beautifyNumber(convertNum(item[el], ','))}</td>`
                                     }).join('')}
                                 </tr>`;
                         }).join('')}
