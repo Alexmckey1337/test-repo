@@ -208,76 +208,15 @@
 
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="select__db" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="select__db" data-filter="author_tree" id="master_tree">
-                            <option value="">ВСЕ</option>
-                            {% for author in authors %}
-                                <option value="{{ author.user_id }}">{{ author.full_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Иерархия</span>
-                        <select class="select__db" data-filter="hierarchy" id="hierarchy">
-                            <option value="">ВСЕ</option>
-                            {% for hierarchy in hierarchies %}
-                                <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ответственный</span>
-                        <select class="select__db" data-filter="author" id="master">
-                            <option value="">ВСЕ</option>
-                            {% for author in authors %}
-                                <option value="{{ author.user_id }}">{{ author.full_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Фильтр по email</span>
-                        <input type="email" data-filter="search_email" placeholder="email" id="search_email">
-                    </label>
-                    <label>
-                        <span class="label_block">Фильтр по номеру телефона</span>
-                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
-                                   id="search_phone_number">
-                    </label>
-                    <label>
-                        <span class="label_block">Фильтр по стране</span>
-                        <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
-                    </label>
-                    <label>
-                         <span class="label_block">Фильтр по городу</span>
-                        <input type="text" data-filter="search_city" placeholder="город" id="search_city">
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button id="applyFilter" class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка по автору" options=authors name="author_tree" %}
+    {% include "partials/filter/select.html" with label="Иерархия" options=hierarchies name="hierarchy" %}
+    {% include "partials/filter/select.html" with label="Автор регистрации" options=authors name="author" %}
+    {% include "partials/filter/input.html" with label="Фильтр по email" name="email" input_type="email" placeholder="email" %}
+    {% include "partials/filter/input.html" with label="Фильтр по номеру телефона" name="phone_number" input_type="tel" placeholder="номер телефона" %}
+    {% include "partials/filter/input.html" with label="Фильтр по стране" name="country" placeholder="страна" %}
+    {% include "partials/filter/input.html" with label="Фильтр по городу" name="city" placeholder="город" %}
 {% endblock %}
 
 {% block extra_scripts %}

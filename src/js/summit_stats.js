@@ -56,7 +56,7 @@ $('document').ready(function () {
     });
 
     //Filter
-    $('#applyFilter').on('click', function (e) {
+    $('.apply-filter').on('click', function (e) {
         e.preventDefault();
         summit.makeDataTable();
         $(this).closest('#filterPopup').hide();
@@ -73,22 +73,22 @@ $('document').ready(function () {
         summit.makeDataTable();
     }, 500));
 
-    $('.select__db').select2();
+    $('.selectdb').select2();
 
-    $('#departments_filter').on('change', function () {
-        $('#master_tree').prop('disabled', true);
+    $('#department_filter').on('change', function () {
+        $('#author_tree_filter').prop('disabled', true);
         let department_id = parseInt($(this).val()) || null;
-        makePastorListNew(department_id, ['#master_tree', '#master']);
+        makePastorListNew(department_id, ['#author_tree_filter', '#author_filter']);
     });
 
-    $('#master_tree').on('change', function () {
-        $('#master').prop('disabled', true);
+    $('#author_tree_filter').on('change', function () {
+        $('#author_filter').prop('disabled', true);
         let config = {};
         let master_tree = parseInt($(this).val());
         if (!isNaN(master_tree)) {
             config = {master_tree: master_tree}
         }
-        makePastorListWithMasterTree(config, ['#master'], null);
+        makePastorListWithMasterTree(config, ['#author_filter'], null);
     });
 
     $('#export_table').on('click', function () {
