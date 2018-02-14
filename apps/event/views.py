@@ -122,8 +122,13 @@ def report_payments(request):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),
+        'currency_options': [{'id': c.id, 'title': c.name} for c in Currency.objects.all()],
         'managers': CustomUser.objects.filter(partner_role__level__lte=2).distinct(),
+        'manager_options': [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            partner_role__level__lte=2).distinct()],
         'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+        'pastor_options': [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            hierarchy__level__gt=1)],
     }
 
     return render(request, 'event/report_payments.html', context=ctx)
