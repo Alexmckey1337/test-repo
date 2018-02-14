@@ -63,6 +63,7 @@ def calls(request):
 def structure(request, pk=None):
     if not request.user.is_staff:
         raise PermissionDenied
+    only_active = request.GET.get('only_active', None) is not None
     user = None
     # users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
     users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
@@ -71,8 +72,9 @@ def structure(request, pk=None):
         # users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
         users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
     ctx = {
+        'only_active': only_active,
         'user': user,
-        'users': users,
+        'users': users.filter(is_active=True) if only_active else users,
     }
     return render(request, 'structure.html', context=ctx)
 
@@ -81,6 +83,7 @@ def structure(request, pk=None):
 def structure_to_pdf(request, pk=None, name=''):
     if not request.user.is_staff:
         raise PermissionDenied
+    only_active = request.GET.get('only_active', None) is not None
     user = None
     # users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
     users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
@@ -88,6 +91,7 @@ def structure_to_pdf(request, pk=None, name=''):
         user = get_object_or_404(CustomUser, pk=pk)
         # users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
         users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
+    users = users.filter(is_active=True) if only_active else users
 
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
