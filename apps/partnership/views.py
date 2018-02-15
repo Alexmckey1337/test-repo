@@ -110,8 +110,14 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
     def get_context_data(self, **kwargs):
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
-        ctx['currencies'] = Currency.objects.all()
+        currencies = Currency.objects.all()
+        ctx['currencies'] = currencies
+        ctx['currency_options'] = [{'id': c.pk, 'title': c.name} for c in currencies]
         ctx['partner_groups'] = PartnerGroup.objects.all()
+        ctx['deal_type_options'] = [
+            {'id': '1', 'title': 'Партнерские'},
+            {'id': '2', 'title': 'Десятины'},
+        ]
         # ctx['supervisors'] = CustomUser.objects.filter(
         #     checks__isnull=False).order_by('last_name').distinct("id", "last_name")
         # ctx['managers'] = CustomUser.objects.filter(

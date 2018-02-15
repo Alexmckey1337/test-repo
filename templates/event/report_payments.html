@@ -82,7 +82,7 @@
     {% include "partials/filter/fromto.html" with label="Дата создания отчета" name="report_date" custom_classes="select_date_filter" pclass="birthday" %}
     {% include "partials/filter/select.html" with label="Менеджер" options=manager_options name="manager" %}
     {% include "partials/filter/select.html" with label="Пастор" options=pastor_options name="pastor_id" %}
-{#    {% include "partials/filter/input.html" with label="Поиск по описанию" name="search_description" placeholder="Описание или часть" %}#}
+{#    {% include "partials/filter/input.html" with label="Поиск по описанию" name="description" placeholder="Описание или часть" %}#}
 {% endblock %}
 
 {% block extra_scripts %}
