@@ -124,8 +124,8 @@
 
 {% block popup.filter.content %}
     {% include "partials/filter/select.html" with label="Тип" options=summit_types name="type" %}
-    {% include "partials/filter/input.html" with label="Дата начала" name="start_date" custom_classes="summit-date start_date" %}
-    {% include "partials/filter/input.html" with label="Дата окончания" name="end_date" custom_classes="summit-date end_date" %}
+    {% include "partials/filter/input.html" with label="Дата начала" name="start_date" custom_data_filter="start_date" custom_classes="summit-date start_date" %}
+    {% include "partials/filter/input.html" with label="Дата окончания" name="end_date" custom_data_filter="end_date" custom_classes="summit-date end_date" %}
     {% include "partials/filter/select.html" with label="Статус" options=status_options name="status" %}
 {% endblock %}
 

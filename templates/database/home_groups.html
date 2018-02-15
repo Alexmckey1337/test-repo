@@ -43,8 +43,8 @@
     {% include "partials/filter/select.html" with label="Церковь" options=churches name="church" %}
     {% include "partials/filter/select.html" with label="Ветка" options=masters name="master_tree" %}
     {% include "partials/filter/select.html" with label="Лидер" options='' name="leader" %}
-    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" %}
-    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
+    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" custom_data_filter="opening_date" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" custom_data_filter="city" placeholder="город или часть названия" %}
 {% endblock %}
 
 {% block popup.other %}
