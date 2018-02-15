@@ -173,7 +173,7 @@ $(document).ready(function () {
     }
 
     makeSelect($('#manager_filter'), URLS.payment.supervisors(), parse, formatRepo);
-    makeSelect($('#responsible_id_filter'), URLS.user.managers(), parse, formatRepo);
+    makeSelect($('#search_purpose_manager_fio'), URLS.user.managers(), parse, formatRepo);
 
     //Payments
     function submitPayment() {

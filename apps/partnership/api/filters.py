@@ -74,15 +74,15 @@ class PartnerUserFilter(django_filters.FilterSet):
     group = django_filters.ModelMultipleChoiceFilter(name="group", queryset=PartnerGroup.objects.all())
     department = django_filters.ModelChoiceFilter(name="user__departments", queryset=Department.objects.all())
     is_active = django_filters.BooleanFilter(name='is_active')
-    value_to = django_filters.NumberFilter(name="value", lookup_expr='lte')
-    value_from = django_filters.NumberFilter(name="value", lookup_expr='gte')
-    repentance_date_from = django_filters.DateFilter(name='user__repentance_date', lookup_expr='gte')
-    repentance_date_to = django_filters.DateFilter(name='user__repentance_date', lookup_expr='lte')
+    to_value = django_filters.NumberFilter(name="value", lookup_expr='lte')
+    from_value = django_filters.NumberFilter(name="value", lookup_expr='gte')
+    from_repentance_date = django_filters.DateFilter(name='user__repentance_date', lookup_expr='gte')
+    to_repentance_date = django_filters.DateFilter(name='user__repentance_date', lookup_expr='lte')
 
     class Meta:
         model = Partnership
         fields = ['master', 'hierarchy', 'department', 'user', 'responsible', 'is_active',
-                  'repentance_date_from', 'repentance_date_to', 'group']
+                  'from_repentance_date', 'to_repentance_date', 'group', 'from_value', 'to_value']
 
 
 class ChurchPartnerFilter(django_filters.FilterSet):
@@ -95,12 +95,12 @@ class ChurchPartnerFilter(django_filters.FilterSet):
 
     group = django_filters.ModelMultipleChoiceFilter(name="group", queryset=PartnerGroup.objects.all())
     is_active = django_filters.BooleanFilter(name='is_active')
-    value_to = django_filters.NumberFilter(name="value", lookup_expr='lte')
-    value_from = django_filters.NumberFilter(name="value", lookup_expr='gte')
+    to_value = django_filters.NumberFilter(name="value", lookup_expr='lte')
+    from_value = django_filters.NumberFilter(name="value", lookup_expr='gte')
 
     class Meta:
         model = ChurchPartner
-        fields = ('department', 'pastor', 'is_open', 'opening_date', 'group', 'is_active', 'value_from', 'value_to')
+        fields = ('department', 'pastor', 'is_open', 'opening_date', 'group', 'is_active', 'from_value', 'to_value')
 
 
 class PartnerFilterByDateAge(filters.BaseFilterBackend):

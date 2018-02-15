@@ -3,12 +3,14 @@
     <p{% if pclass %} class="{{ pclass }}"{% endif %}>
         <input type="{{ input_type|default:"text" }}"
                data-filter="from_{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
+               name="from_{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
                placeholder="от"
                id="from_{% if custom_id %}{{ custom_id }}{% else %}{{ name }}_filter{% endif %}"
                class="{% if custom_classes %}{{ custom_classes }}{% else %}select_from_filter{% endif %}"
         >
         <input type="{{ input_type|default:"text" }}"
                data-filter="to_{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
+               name="to_{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
                placeholder="до"
                id="to_{% if custom_id %}{{ custom_id }}{% else %}{{ name }}_filter{% endif %}"
                class="{% if custom_classes %}{{ custom_classes }}{% else %}select_to_filter{% endif %}"

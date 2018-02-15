@@ -26,21 +26,21 @@ class PaymentFilterByPurpose(BaseFilterBackend):
 
 
 class PaymentFilter(rest_framework.FilterSet):
-    sum_to = django_filters.NumberFilter(name="sum", lookup_expr='lte')
-    sum_from = django_filters.NumberFilter(name="sum", lookup_expr='gte')
-    eff_sum_to = django_filters.NumberFilter(name="effective_sum", lookup_expr='lte')
-    eff_sum_from = django_filters.NumberFilter(name="effective_sum", lookup_expr='gte')
-    create_to = django_filters.DateFilter(name="created_at", lookup_expr='lte')
-    create_from = django_filters.DateFilter(name="created_at", lookup_expr='gte')
-    sent_to = django_filters.DateFilter(name="sent_date", lookup_expr='lte')
-    sent_from = django_filters.DateFilter(name="sent_date", lookup_expr='gte')
+    to_sum = django_filters.NumberFilter(name="sum", lookup_expr='lte')
+    from_sum = django_filters.NumberFilter(name="sum", lookup_expr='gte')
+    to_eff_sum = django_filters.NumberFilter(name="effective_sum", lookup_expr='lte')
+    from_eff_sum = django_filters.NumberFilter(name="effective_sum", lookup_expr='gte')
+    to_create = django_filters.DateFilter(name="created_at", lookup_expr='lte')
+    from_create = django_filters.DateFilter(name="created_at", lookup_expr='gte')
+    to_sent = django_filters.DateFilter(name="sent_date", lookup_expr='lte')
+    from_sent = django_filters.DateFilter(name="sent_date", lookup_expr='gte')
     group = django_filters.ModelMultipleChoiceFilter(name="deals__partnership__group",
                                                      queryset=PartnerGroup.objects.all())
 
     class Meta:
         model = Payment
-        fields = ['sum_from', 'sum_to', 'eff_sum_from', 'eff_sum_to', 'currency_sum',
-                  'currency_rate', 'create_from', 'create_to', 'sent_from', 'sent_to', 'manager',
+        fields = ['from_sum', 'to_sum', 'from_eff_sum', 'to_eff_sum', 'currency_sum',
+                  'currency_rate', 'from_create', 'to_create', 'from_sent', 'to_sent', 'manager',
                   'group']
 
     # TODO its hell
@@ -140,8 +140,8 @@ class FilterByDealDate(BaseFilterBackend):
         return ChurchDeal.objects.for_user(request.user)
 
     def filter_queryset(self, request, queryset, view):
-        date_from = request.query_params.get('purpose_date_from', None)
-        date_to = request.query_params.get('purpose_date_to', None)
+        date_from = request.query_params.get('from_purpose_date', None)
+        date_to = request.query_params.get('to_purpose_date', None)
         if not (date_from or date_to):
             return queryset
         date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else None
@@ -281,8 +281,8 @@ class FilterByChurchReportDate(BaseFilterBackend):
         return ChurchReport.objects.for_user(request.user)
 
     def filter_queryset(self, request, queryset, view):
-        date_from = request.query_params.get('report_date_from', None)
-        date_to = request.query_params.get('report_date_to', None)
+        date_from = request.query_params.get('from_report_date', None)
+        date_to = request.query_params.get('to_report_date', None)
         if not (date_from or date_to):
             return queryset
 
