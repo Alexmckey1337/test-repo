@@ -20,6 +20,7 @@ import {
 import updateSettings from './modules/UpdateSettings/index';
 import reverseDate from './modules/Date/index';
 import errorHandling from './modules/Error';
+import {convertNum} from "./modules/ConvertNum/index";
 
 $(document).ready(function () {
         let date = new Date(),
@@ -93,7 +94,7 @@ $(document).ready(function () {
         autoClose: true
     });
 
-        // Events
+    // Events
     $('#date_range').datepicker({
         dateFormat: 'dd.mm.yyyy',
         range: true,
@@ -167,40 +168,6 @@ $(document).ready(function () {
         autoClose: true
     });
 
-    $('#send_new_deal').on('click', _.debounce(function () {
-        $(this).prop('disabled', true);
-        let id = $(this).attr('data-id'),
-            description = $('#popup-create_deal textarea').val(),
-            value = $('#new_deal_sum').val(),
-            date = $('#new_deal_date').val().trim().split('.').reverse().join('-'),
-            type = $('#new_deal_type').val(),
-            data = {
-                'date_created': date,
-                'value': value,
-                'description': description,
-                'type': type,
-            },
-            typeTable = $('#statusTabs').find('.current button').attr('data-type');
-
-        if (value && date) {
-            let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
-            postData(url, data, {method: 'PATCH'}).then(() => {
-                let page = $('#sdelki').find('.pagination__input').val();
-                $('.preloader').css('display', 'block');
-                dealsTable({page:page});
-                showAlert('Редактирование сделки прошло успешно');
-                clearDealForm();
-                $('#send_new_deal').prop('disabled', false);
-                $('#popup-create_deal').css('display', 'none');
-            }).catch(err => {
-                $('#send_new_deal').prop('disabled', false);
-                errorHandling(err);
-            });
-        } else {
-            showAlert('Заполните поле суммы и дату.');
-        }
-    }, 500));
-
     //Find duplicates
     $('#duplicates').on('click', function () {
        $('.preloader').css('display', 'block');
@@ -211,9 +178,10 @@ $(document).ready(function () {
         $('.pop-up_duplicate__table').css('display', 'none');
     });
 
-    $('#delete_deal').on('click', function () {
-       let id = $(this).attr('data-id'),
-           pageCount = $('#sdelki').find('.pagination__input').first().val();
+    $('#delete_deal').on('click', function (e) {
+        e.preventDefault();
+        let id = $(this).attr('data-id'),
+            pageCount = $('#sdelki').find('.pagination__input').first().val();
         deleteDeal(id, pageCount, dealsTable);
     });
 
@@ -223,10 +191,10 @@ $(document).ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-create_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
-                "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
+                "sent_date": reverseDate($('#sent_date').val(), '-'),
                 "operation": $('#operation').val()
             },
             type = $('#statusTabs').find('.current button').attr('data-type'),
@@ -234,6 +202,7 @@ $(document).ready(function () {
 
         postData(url, data).then(function () {
             updateDealsTable();
+            showAlert('Оплата прошла успешно.');
             $('#new_payment_sum').val('');
             $('#popup-create_payment textarea').val('');
             $('#complete-payment').prop('disabled', false);
@@ -253,6 +222,53 @@ $(document).ready(function () {
         onSuccess: function () {
             submitPayment();
             $('#complete-payment').prop('disabled', true);
+
+            return false;
+        }
+    });
+
+    function submitDeal() {
+        let id = $('#send_new_deal').attr('data-id'),
+            description = $('#popup-create_deal textarea').val(),
+            value = $('#new_deal_sum').val(),
+            date = reverseDate($('#new_deal_date').val(), '-'),
+            type = $('#new_deal_type').val(),
+            data = {
+                'date_created': date,
+                'value': value,
+                'description': description,
+                'type': type,
+            },
+            typeTable = $('#statusTabs').find('.current button').attr('data-type');
+
+        if (value && date) {
+            let url = (typeTable === 'people') ? URLS.deal.detail(id) : URLS.church_deal.detail(id);
+            postData(url, data, {method: 'PATCH'}).then(() => {
+                let page = $('#sdelki').find('.pagination__input').val();
+                $('.preloader').css('display', 'block');
+                dealsTable({page: page});
+                showAlert('Редактирование сделки прошло успешно');
+                clearDealForm();
+                $('#send_new_deal').prop('disabled', false);
+                $('#popup-create_deal').css('display', 'none');
+            }).catch(err => {
+                $('#send_new_deal').prop('disabled', false);
+                errorHandling(err);
+            });
+        } else {
+            showAlert('Заполните поле суммы и дату.');
+        }
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#deal-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitDeal();
+            $('#send_new_deal').prop('disabled', true);
 
             return false;
         }

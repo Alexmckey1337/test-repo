@@ -44,76 +44,7 @@
     {% endblock %}
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Тип</span>
-                        <select class="selectdb" data-filter="type">
-                            <option value="">ВСЕ</option>
-                            {% for type in types %}
-                                {% for key,value in  type.items %}
-                                    <option value="{{ key }}">{{ value }}</option>
-                                {% endfor %}
-
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Статус</span>
-                        <select class="selectdb" data-filter="disposition">
-                            <option value="">ВСЕ</option>
-                            {% for dispositon in dispositions %}
-                                {% for key,value in  dispositon.items %}
-                                    <option value="{{ key }}">{{ value }}</option>
-                                {% endfor %}
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Кто</span>
-                        <input type="number" data-filter="src">
-                    </label>
-                    <label>
-                        <span class="label_block">Куда</span>
-                        <input type="number" data-filter="dst">
-                    </label>
-                    <label>
-                        <span class="label_block">По номеру</span>
-                        <input type="number" data-filter="phone_number">
-                    </label>
-                    <label>
-                        <span class="label_block">Длительность</span>
-                        <p class="birthday">
-                            <input type="number" placeholder="от" data-filter="duration_from"
-                                   class="select_from_filter">
-                            <input type="number" placeholder="до" data-filter="duration_to"
-                                   class="select_to_filter">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="date_from" id="sum_from"
-                                   class="date_filter">
-                            <input type="text" placeholder="до" data-filter="date_to" id="sum_to"
-                                   class="date_filter">
-                        </p>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.other %}
     <div class="pop-up__table popup__month" id="popupAddUserToPhone">
         <div class="pop_cont">
             <div class="top-text">
@@ -126,6 +57,25 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Тип" options=type_options name="type" %}
+    {% include "partials/filter/select.html" with label="Статус" options=disposition_options name="disposition" %}
+    <label>
+        <span class="label_block">Кто</span>
+        <input type="number" data-filter="src">
+    </label>
+    <label>
+        <span class="label_block">Куда</span>
+        <input type="number" data-filter="dst">
+    </label>
+    <label>
+        <span class="label_block">По номеру</span>
+        <input type="number" data-filter="phone_number">
+    </label>
+    {% include "partials/filter/fromto.html" with label="Длительность" name="duration" pclass="birthday" input_type="number" %}
+    {% include "partials/filter/fromto.html" with label="Дата" name="date" custom_classes="select_date_filter" pclass="birthday" %}
 {% endblock %}
 
 {% block extra_scripts %}

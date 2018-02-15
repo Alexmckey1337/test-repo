@@ -71,6 +71,10 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
             'hierarchies': Hierarchy.objects.order_by('level'),
             'currencies': Currency.objects.all(),
             'churches': Church.objects.all(),
+            'church_options': [
+                                  {'id': 'any', 'title': 'ЛЮБАЯ'},
+                                  {'id': 'nothing', 'title': 'НЕТ'},
+                              ] + [{'id': c.id, 'title': c.get_title} for c in Church.objects.all()],
         }
         user = self.request.user
         if user.is_staff:
@@ -82,6 +86,7 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
                 user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        extra_ctx['master_options'] = [{'id': u.pk, 'title': u.fullname} for u in extra_ctx['masters']]
         ctx.update(extra_ctx)
 
         return ctx
@@ -98,6 +103,7 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
         ctx['departments'] = Department.objects.all()
         ctx['currencies'] = Currency.objects.all()
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx['master_options'] = [{'id': u.pk, 'title': u.fullname} for u in ctx['masters']]
 
         return ctx
 
@@ -110,8 +116,9 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
     def get_context_data(self, **kwargs):
         ctx = super(HomeGroupListView, self).get_context_data(**kwargs)
         ctx['departments'] = Department.objects.all()
-        ctx['churches'] = Church.objects.all()
-        ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        ctx['churches'] = [{'id': c.id, 'title': c.get_title} for c in Church.objects.all()]
+        ctx['masters'] = [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            is_active=True, hierarchy__level__gte=1)]
 
         return ctx
 

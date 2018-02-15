@@ -1,7 +1,5 @@
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.base import TemplateView
@@ -59,7 +57,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'partner_groups': PartnerGroup.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
             'currencies': Currency.objects.all(),
-            'levels': PartnerRole.LEVELS,
+            'levels': [{'id': r[0], 'title': r[1]} for r in PartnerRole.LEVELS],
+            'active_status_options': [{'id': 'True', 'title': 'Активный'}, {'id': 'False', 'title': 'Не активный'}]
         }
         user = self.request.user
         if user.is_staff:
@@ -71,6 +70,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
                 user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        extra_context['master_options'] = [{'id': m.pk, 'title': m.fullname} for m in extra_context['masters']]
 
         ctx.update(extra_context)
         return ctx
@@ -110,8 +110,14 @@ class PartnerPaymentsListView(LoginRequiredMixin, CanSeeDealPaymentsMixin, Templ
     def get_context_data(self, **kwargs):
         ctx = super(PartnerPaymentsListView, self).get_context_data(**kwargs)
 
-        ctx['currencies'] = Currency.objects.all()
+        currencies = Currency.objects.all()
+        ctx['currencies'] = currencies
+        ctx['currency_options'] = [{'id': c.pk, 'title': c.name} for c in currencies]
         ctx['partner_groups'] = PartnerGroup.objects.all()
+        ctx['deal_type_options'] = [
+            {'id': '1', 'title': 'Партнерские'},
+            {'id': '2', 'title': 'Десятины'},
+        ]
         # ctx['supervisors'] = CustomUser.objects.filter(
         #     checks__isnull=False).order_by('last_name').distinct("id", "last_name")
         # ctx['managers'] = CustomUser.objects.filter(
@@ -128,7 +134,18 @@ class DealListView(LoginRequiredMixin, CanSeeDealsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super(DealListView, self).get_context_data(**kwargs)
 
-        ctx['currencies'] = Currency.objects.all()
+        currencies = Currency.objects.all()
+        ctx['currencies'] = currencies
+        ctx['currency_options'] = [{'id': c.pk, 'title': c.short_name} for c in currencies]
         ctx['partner_groups'] = PartnerGroup.objects.all()
+        ctx['payment_status_options'] = [
+            {'id': '0', 'title': 'Hе оплачена'},
+            {'id': '1', 'title': 'Оплачена частично'},
+            {'id': '2', 'title': 'Оплачена полностью'},
+        ]
+        ctx['deal_type_options'] = [
+            {'id': '1', 'title': 'Партнерские'},
+            {'id': '2', 'title': 'Десятины'},
+        ]
 
         return ctx

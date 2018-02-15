@@ -1,12 +1,10 @@
-from io import BytesIO
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from io import BytesIO
 from reportlab.lib import colors
-from reportlab.lib.colors import blue
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -47,14 +45,8 @@ def app_download(request):
 @login_required(login_url='entry')
 def calls(request):
     ctx = {
-        'types': [
-            {'in': 'Входящие'},
-            {'out': 'Исходящие'}
-        ],
-        'dispositions': [
-            {'ANSWERED': 'Отвеченные'},
-            {'OTHER': 'Остальные'}
-        ]
+        'type_options': [{'id': 'in', 'title': 'Входящие'}, {'id': 'out', 'title': 'Исходящие'}],
+        'disposition_options': [{'id': 'ANSWERED', 'title': 'Отвеченные'}, {'id': 'OTHER', 'title': 'Остальные'}],
     }
     return render(request, 'phone/index.html', context=ctx)
 
@@ -63,6 +55,7 @@ def calls(request):
 def structure(request, pk=None):
     if not request.user.is_staff:
         raise PermissionDenied
+    only_active = request.GET.get('only_active', None) is not None
     user = None
     # users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
     users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
@@ -71,8 +64,9 @@ def structure(request, pk=None):
         # users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
         users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
     ctx = {
+        'only_active': only_active,
         'user': user,
-        'users': users,
+        'users': users.filter(is_active=True) if only_active else users,
     }
     return render(request, 'structure.html', context=ctx)
 
@@ -81,6 +75,7 @@ def structure(request, pk=None):
 def structure_to_pdf(request, pk=None, name=''):
     if not request.user.is_staff:
         raise PermissionDenied
+    only_active = request.GET.get('only_active', None) is not None
     user = None
     # users = CustomUser.get_root_nodes().order_by('last_name', 'first_name', 'middle_name')
     users = CustomUser.get_root_nodes().order_by('-numchild', 'last_name', 'first_name', 'middle_name')
@@ -88,6 +83,7 @@ def structure_to_pdf(request, pk=None, name=''):
         user = get_object_or_404(CustomUser, pk=pk)
         # users = user.disciples.order_by('last_name', 'first_name', 'middle_name')
         users = user.disciples.order_by('-numchild', 'last_name', 'first_name', 'middle_name')
+    users = users.filter(is_active=True) if only_active else users
 
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))

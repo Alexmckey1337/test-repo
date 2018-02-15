@@ -63,12 +63,12 @@ class ShortUserFilter(django_filters.FilterSet):
 
 class UserIsPartnershipFilter(rest_framework.DjangoFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        is_partner = request.query_params.get('is_partner')
-        if is_partner not in ['true', 'false']:
+        is_partner = request.query_params.get('is_partner', '')
+        if is_partner.lower() not in ['true', 'false']:
             return queryset
-        if is_partner == 'true':
+        if is_partner.lower() == 'true':
             return queryset.filter(partners__isnull=False)
-        if is_partner == 'false':
+        if is_partner.lower() == 'false':
             return queryset.filter(partners__isnull=True)
         return queryset
 

@@ -1,47 +1,49 @@
 <div id="popup-create_deal" class="popap">
     <div class="pop_cont">
-        <div class="popup_text">
-            <h2>
-                {% if title == "update" %}
-                    Редактирование сделки
-                {% else %}
-                    Создание сделки
-                {% endif %}
-            </h2>
-        </div>
-        <div class="popup_body">
-            <div id="append-info" class="container container_block"></div>
-            <div class="container container_block">
-                <label>
-                    <span class="label_block">Тип сделки:</span>
-                    <select id="new_deal_type" class="selectdb" required>
-                        <option value="1">Партнерские</option>
-                        <option value="2">Десятина</option>
-                    </select>
-                </label>
-                <label>
-                    <span class="label_block">Сумма:</span>
-                    <p class="birthday">
-                        <input type="text" id="new_deal_sum"
-                           onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 43 || event.charCode == 0">
-                        <input class="currency" type="text" value="{{ currency }}" readonly disabled>
-                    </p>
-                </label>
-                <label>
-                    <span class="label_block">Дата:</span>
-                    <input type="text" id="new_deal_date" class="sel__date" required>
-                </label>
-                <textarea class="note" maxlength="40" placeholder="Добавить коментарий"></textarea>
+        <form action="" id="deal-form" method="post">
+            <div class="popup_text">
+                <h2>
+                    {% if title == "update" %}
+                        Редактирование сделки
+                    {% else %}
+                        Создание сделки
+                    {% endif %}
+                </h2>
             </div>
-        </div>
-        <div class="container">
-            {% if btn == "delete" %}
-                {% if user.is_partner_supervisor_or_high %}
-                    <button id="delete_deal"></button>
+            <div class="popup_body">
+                <div id="append-info" class="container container_block"></div>
+                <div class="container container_block">
+                    <label>
+                        <span class="label_block">Тип сделки:</span>
+                        <select id="new_deal_type" class="selectdb" required>
+                            <option value="1">Партнерские</option>
+                            <option value="2">Десятина</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="label_block">Сумма:</span>
+                        <p class="birthday">
+                            <input type="text" id="new_deal_sum"
+                                   data-validation="number, required">
+                            <input class="currency" type="text" value="{{ currency }}" readonly disabled>
+                        </p>
+                    </label>
+                    <label>
+                        <span class="label_block">Дата:</span>
+                        <input type="text" id="new_deal_date" class="sel__date" data-validation="required">
+                    </label>
+                    <textarea class="note" maxlength="40" placeholder="Добавить коментарий"></textarea>
+                </div>
+            </div>
+            <div class="container">
+                {% if btn == "delete" %}
+                    {% if user.is_partner_supervisor_or_high %}
+                        <button id="delete_deal"></button>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-            <button id="close-deal">Отменить</button>
-            <button id="send_new_deal" data-partner="{{ partnership }}">Сохранить</button>
-        </div>
+                <button id="close-deal">Отменить</button>
+                <button type="submit" id="send_new_deal" data-partner="{{ partnership }}">Сохранить</button>
+            </div>
+        </form>
     </div>
 </div>

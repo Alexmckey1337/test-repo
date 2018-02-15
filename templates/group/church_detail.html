@@ -616,7 +616,7 @@
                             <option value="" selected disabled>Выберите менеджера</option>
                             {% get_simple_managers as managers %}
                             {% for manager in managers %}
-                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                <option value="{{ manager.id }}">{{ manager.title }}</option>
                             {% endfor %}
                         </select>
                     </label>

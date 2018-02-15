@@ -11,8 +11,8 @@ import {getResponsible, getShortUsers, getPastorsByDepartment} from "./modules/G
 import {getPartners} from "./modules/Partner/index";
 
 $(document).ready(function () {
-    let $departmentsFilter = $('#departments_filter');
-    let $treeFilter = $("#tree_filter");
+    let $departmentsFilter = $('#department_filter');
+    let $treeFilter = $("#master_tree_filter");
 
     $('#export_table').on('click', function () {
         let type = $('#statusTabs').find('.current button').attr('data-type'),
@@ -72,9 +72,9 @@ $(document).ready(function () {
                 $(option).val(item.id).text(item.fullname);
                 options.push(option);
             });
-            $('#tree_filter').html(options);
+            $('#master_tree_filter').html(options);
         }).then(function () {
-            if ($('#tree_filter').val() == "ВСЕ") {
+            if ($('#master_tree_filter').val() == "ВСЕ") {
                 getResponsible(departamentID, 2).then(function (data) {
                     let options = [];
                     let option = document.createElement('option');
@@ -85,7 +85,7 @@ $(document).ready(function () {
                         $(option).val(item.id).text(item.fullname);
                         options.push(option);
                     });
-                    $('#masters_filter').html(options);
+                    $('#responsible_filter').html(options);
                 });
             } else {
                 getPastorsByDepartment(departamentID).then(function (data) {
@@ -98,7 +98,7 @@ $(document).ready(function () {
                         $(option).val(item.id).text(item.fullname);
                         options.push(option);
                     });
-                    $('#masters_filter').html(options);
+                    $('#responsible_filter').html(options);
                 });
             }
         });
@@ -121,7 +121,7 @@ $(document).ready(function () {
                 $(option).val(item.id).text(item.fullname);
                 options.push(option);
             });
-            $('#masters_filter').html(options);
+            $('#responsible_filter').html(options);
         });
     });
 

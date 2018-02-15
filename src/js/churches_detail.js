@@ -30,6 +30,7 @@ import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
+import {convertNum} from "./modules/ConvertNum/index";
 
 import {
     btnNeed,
@@ -562,9 +563,9 @@ $('document').ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-create_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
                 "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
                 "operation": $('#operation').val()
             };
