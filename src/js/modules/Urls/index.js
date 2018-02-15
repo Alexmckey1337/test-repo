@@ -27,6 +27,7 @@ const CONTROLS = {
 
 const SUMMIT = {
     users: (summitId) => `/api/summits/${summitId}/users/`,
+    authors: (summitId) => `/api/summits/${summitId}/authors/`,
     stats: (summitId) => `/api/summits/${summitId}/stats/`,
     report_by_bishop: (summitId) => `/api/summit/${summitId}/report_by_bishops/`,
     master: (summitId) => `/api/summit/${summitId}/master/`,

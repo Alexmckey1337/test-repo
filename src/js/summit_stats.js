@@ -78,17 +78,17 @@ $('document').ready(function () {
     $('#department_filter').on('change', function () {
         $('#author_tree_filter').prop('disabled', true);
         let department_id = parseInt($(this).val()) || null;
-        makePastorListNew(department_id, ['#author_tree_filter', '#author_filter']);
+        makePastorListNew(department_id, summitId, ['#author_tree_filter', '#author_filter']);
     });
 
     $('#author_tree_filter').on('change', function () {
         $('#author_filter').prop('disabled', true);
         let config = {};
-        let master_tree = parseInt($(this).val());
-        if (!isNaN(master_tree)) {
-            config = {master_tree: master_tree}
+        let author_tree = parseInt($(this).val());
+        if (!isNaN(author_tree)) {
+            config = {author_tree: author_tree}
         }
-        makePastorListWithMasterTree(config, ['#author_filter'], null);
+        makePastorListWithMasterTree(config, summitId, ['#author_filter'], null);
     });
 
     $('#export_table').on('click', function () {

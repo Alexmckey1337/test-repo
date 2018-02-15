@@ -338,7 +338,7 @@ $(document).ready(function () {
     $('#department_filter').on('change', function () {
         $('#author_tree_filter').prop('disabled', true);
         let department_id = parseInt($(this).val()) || null;
-        makePastorListNew(department_id, ['#author_tree_filter', '#author_filter']);
+        makePastorListNew(department_id, SUMMIT_ID, ['#author_tree_filter', '#author_filter']);
     });
 
     $('#author_tree_filter').on('change', function () {
@@ -346,9 +346,9 @@ $(document).ready(function () {
         let config = {};
         let author_tree = parseInt($(this).val());
         if (!isNaN(author_tree)) {
-            config = {master_tree: author_tree}
+            config = {author_tree: author_tree}
         }
-        makePastorListWithMasterTree(config, ['#author_filter'], null);
+        makePastorListWithMasterTree(config, SUMMIT_ID, ['#author_filter'], null);
     });
 
     $('input[name="fullsearch"]').on('keyup', _.debounce(function(e) {
