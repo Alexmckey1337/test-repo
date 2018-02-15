@@ -113,7 +113,7 @@
 {% block popup.filter.content %}
     {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
     {% include "partials/filter/select.html" with label="Ветка" options=owner_options name="master_tree" empty_value="ВСЕ" %}
-    {% include "partials/filter/select.html" with label="Церковь" options=church_options name="master_tree" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Церковь" options=church_options name="church" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Лидер домашней группы" options=owner_options name="owner" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Домашняя группа" options=hg_options name="home_group" empty_value="ВСЕ" %}
 {% endblock %}
