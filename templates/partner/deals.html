@@ -145,20 +145,10 @@
 {% endblock %}
 
 {% block popup.filter.content %}
-    <label>
-        {% if request.user.is_partner_supervisor_or_high %}
-            <span class="label_block">Менеджер</span>
-        {% endif %}
-        {% if request.user.is_partner_supervisor_or_high %}
-            {% get_simple_managers as managers %}
-            <select class="selectdb" data-filter="responsible" id="masters_filter">
-                <option value="">ВСЕ</option>
-                {% for manager in managers %}
-                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                {% endfor %}
-            </select>
-        {% endif %}
-    </label>
+    {% if request.user.is_partner_supervisor_or_high %}
+        {% get_simple_managers as managers %}
+        {% include "partials/filter/select.html" with label="Менеджер" options=managers name="responsible" %}
+    {% endif %}
     {% include "partials/filter/select.html" with label="Фильтр по валюте" options=currency_options name="currency_id" %}
     {% include "partials/filter/fromto.html" with label="Фильтр по сумме сделки" name="value" pclass="birthday" %}
     {% include "partials/filter/select.html" with label="Статус сделки" options=payment_status_options name="payment_status" %}

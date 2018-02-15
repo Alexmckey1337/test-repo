@@ -57,7 +57,8 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'partner_groups': PartnerGroup.objects.all(),
             'hierarchies': Hierarchy.objects.order_by('level'),
             'currencies': Currency.objects.all(),
-            'levels': PartnerRole.LEVELS,
+            'levels': [{'id': r[0], 'title': r[1]} for r in PartnerRole.LEVELS],
+            'active_status_options': [{'id': 'True', 'title': 'Активный'}, {'id': 'False', 'title': 'Не активный'}]
         }
         user = self.request.user
         if user.is_staff:
@@ -69,6 +70,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
                 user).filter(is_active=True, hierarchy__level__gte=1)
         else:
             extra_context['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+        extra_context['master_options'] = [{'id': m.pk, 'title': m.fullname} for m in extra_context['masters']]
 
         ctx.update(extra_context)
         return ctx

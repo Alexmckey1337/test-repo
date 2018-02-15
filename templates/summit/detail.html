@@ -187,11 +187,11 @@
     {% include "partials/filter/select.html" with label="Ветка по автору" options=authors name="author_tree" %}
     {% include "partials/filter/select.html" with label="Иерархия" options=hierarchies name="hierarchy" %}
     {% include "partials/filter/select.html" with label="Автор регистрации" options=authors name="author" %}
-    {% include "partials/filter/input.html" with label="Email" name="email" input_type="email" placeholder="email" %}
+    {% include "partials/filter/input.html" with label="Email" name="email" input_type="email" placeholder="email или часть" %}
     {% include "partials/filter/select.html" with label="Еmail отправлен" options=true_false_options name="has_email" custom_classes="select__custom" %}
-    {% include "partials/filter/input.html" with label="Номер телефона" name="phone_number" input_type="tel" placeholder="номер телефона" %}
-    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна" %}
-    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город" %}
+    {% include "partials/filter/input.html" with label="Номер телефона" name="phone_number" input_type="tel" placeholder="номер телефона или часть" %}
+    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
     {% include "partials/filter/select.html" with label="Фотография" options=true_false_options name="has_photo" custom_classes="select__custom" %}
     {% trans "Печатный билет" as ticket_label %}
     {% include "partials/filter/select.html" with label=ticket_label options=ticket_status_options name="ticket_status" custom_classes="select__custom" %}

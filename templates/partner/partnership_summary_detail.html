@@ -40,7 +40,7 @@
                     {% for man in managers %}
                         <option value="{{ man.id }}"
                                 {% if man.id == manager.id %} selected{% endif %}>
-                            {{ man.fullname }}
+                            {{ man.title }}
                         </option>
                     {% endfor %}
                 </select>

@@ -66,139 +66,8 @@
             <div class="pagination partners__pagination"></div>
     </div><!-- End tab-content-->
 {% endblock %}
-{% block popup %}
-    {% get_simple_managers as managers %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        {% if request.user.is_partner_supervisor_or_high %}
-                            <span class="label_block">Менеджер</span>
-                            <select class="selectdb" data-filter="responsible" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for manager in managers %}
-                                    <option value="{{ manager.id }}">{{ manager.fullname }}</option>
-                                {% endfor %}
-                            </select>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Иерархия</span>
-                        <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
-                            <option value="">ВСЕ</option>
-                            {% for hierarchy in hierarchies %}
-                                <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">База</span>
-                        <select class="selectdb" data-filter="group" id="group_filter" multiple="multiple">
-{#                            <option value="">ВСЕ</option>#}
-                            {% for group in partner_groups %}
-                                <option value="{{ group.id }}">{{ group.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ответственный</span>
-                        <select class="selectdb" data-filter="master" id="masters_filter">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Уровень доступа</span>
-                        <select class="selectdb" data-filter="level" id="level_filter">
-                            <option value="">ВСЕ</option>
-                            {% for level in levels %}
-                                <option value="{{ level.0 }}">{{ level.1 }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Срок партнерства</span>
-                        <select class="selectdb" id="age_filter">
-                            <option value="">ВСЕ</option>
-                            <option value="1" data-lt="6month">До полугода</option> {# /api/partnerships/?age_lt=6month #}
-                            <option value="2" data-gt="6month" data-lt="1year">От полугода до года</option> {# /api/partnerships/?age_gt=6month&age_lt=1year #}
-                            <option value="3" data-gt="1year" data-lt="2year">От года до двух лет</option> {# /api/partnerships/?age_gt=1year&age_lt=2year #}
-                            <option value="4" data-gt="2year">Более двух лет</option> {# /api/partnerships/?age_gt=2year #}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Email</span>
-                        <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
-                    </label>
-                    <label>
-                        <span class="label_block">Номер телефона</span>
-                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
-                    </label>
-                    <label>
-                        <span class="label_block">Страна</span>
-                        <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
-                    </label>
-                    <label>
-                        <span class="label_block">Город</span>
-                        <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
-                    </label>
-                    <label>
-                        <span class="label_block">День рождения</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
-                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Статус партнера</span>
-                        <select class="selectdb" data-filter="is_active" id="active_filter">
-                            <option value="">ВСЕ</option>
-                            <option value="2">Активный</option>
-                            <option value="3">Не активный</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата покаяния</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="repentance_date_from"
-                                   id="repentance_date_from" class="select_rep_date_filter">
-                            <input type="text" placeholder="до" data-filter="repentance_date_to"
-                                   id="repentance_date_to" class="select_rep_date_filter">
-                        </p>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+
+{% block popup.other %}
     <div class="popap" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
@@ -248,6 +117,36 @@
         </div>
     </div>
     {{ block.super }}
+{% endblock %}
+
+{% block popup.filter.content %}
+    {% if request.user.is_partner_supervisor_or_high %}
+        {% get_simple_managers as managers %}
+        {% include "partials/filter/select.html" with label="Менеджер" options=managers name="responsible" %}
+    {% endif %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=master_options name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Иерархия" options=hierarchies name="hierarchy" %}
+    {% include "partials/filter/select.html" with label="База" options=partner_groups name="group" multiple="true" without_empty="true" %}
+    {% include "partials/filter/select.html" with label="Ответственный" options=master_options name="master" %}
+    {% include "partials/filter/select.html" with label="Уровень доступа" options=levels name="level" %}
+    <label>
+        <span class="label_block">Срок партнерства</span>
+        <select class="selectdb" id="age_filter">
+            <option value="">ВСЕ</option>
+            <option value="1" data-lt="6month">До полугода</option> {# /api/partnerships/?age_lt=6month #}
+            <option value="2" data-gt="6month" data-lt="1year">От полугода до года</option> {# /api/partnerships/?age_gt=6month&age_lt=1year #}
+            <option value="3" data-gt="1year" data-lt="2year">От года до двух лет</option> {# /api/partnerships/?age_gt=1year&age_lt=2year #}
+            <option value="4" data-gt="2year">Более двух лет</option> {# /api/partnerships/?age_gt=2year #}
+        </select>
+    </label>
+    {% include "partials/filter/input.html" with label="Email" name="email" input_type="email" placeholder="email или часть" %}
+    {% include "partials/filter/input.html" with label="Номер телефона" name="phone_number" input_type="tel" placeholder="номер телефона или часть" %}
+    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
+    {% include "partials/filter/fromto.html" with label="День рождения" name="date" custom_classes="select_date_filter" pclass="birthday" %}
+    {% include "partials/filter/select.html" with label="Статус партнера" options=active_status_options name="is_active" %}
+    {% include "partials/filter/fromto.html" with label="Дата покаяния" name="repentance_date" custom_classes="select_rep_date_filter" pclass="birthday" %}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}

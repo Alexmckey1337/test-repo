@@ -56,7 +56,7 @@
                                     <option value="0" selected disabled>Выберите менеджера</option>
                                     <option value="all">{% trans "All" %}</option>
                                     {% for manager in managers %}
-                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                        <option value="{{ manager.id }}">{{ manager.title }}</option>
                                     {% endfor %}
                                 </select></div>
                         {% endif %}
