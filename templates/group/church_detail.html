@@ -185,7 +185,7 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Нас. пункт:</span>
-                                            <span data-id="{{ church.locality.id }}" class="select select_small chooseCity">{{ church.locality|default:church.city }}</span>
+                                            <span data-id="{{ church.locality.id }}" class="select chooseCity">{{ church.locality|default:church.city }}</span>
                                             <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
                                         </label>
                                         <label>

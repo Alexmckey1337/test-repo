@@ -26,12 +26,13 @@
     &:not(:last-child){
       margin-right:10px;
     }
-    &::before{
+    &::before {
       content: '\f057';
-      font:1em "FontAwesome";
+      font: 1.5em FontAwesome;
       position: absolute;
-      top: 9px;
-      right: 11px;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
     }
   }
   .search_res-cont__block {
@@ -58,7 +59,7 @@
   display: flex;
   align-items: center;
   input{
-    margin-right:30px;
+    margin-right:10px;
   }
 }
 .title{

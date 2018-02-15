@@ -230,7 +230,7 @@
                                         </label>
                                         <label>
                                             <span class="label_block">Нас.пункт:</span>
-                                            <span id="chooseCity" data-id="{{ account.locality.id }}" class="select select_small">{{ account.locality|default:account.city }}</span>
+                                            <span id="chooseCity" data-id="{{ account.locality.id }}" class="select">{{ account.locality|default:account.city }}</span>
                                             <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
                                         </label>
                                         <label>
