@@ -4,5 +4,6 @@
            data-filter="{% if custom_data_filter %}{{ custom_data_filter }}{% else %}search_{{ name }}{% endif %}"
            {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
            id="{% if custom_id %}{{ custom_id }}{% else %}search_{{ name }}{% endif %}"
+           {% if custom_classes %}class="{{ custom_classes }}"{% endif %}
     >
 </label>

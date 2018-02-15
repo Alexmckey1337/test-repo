@@ -37,6 +37,7 @@ def summit_panel_list(request):
         'currencies': Currency.objects.all(),
         'zmail_templates': ZMailTemplate.objects.all(),
         'summit_types': SummitType.objects.all(),
+        'status_options': [{'id': 'open', 'title': 'Открытые'}, {'id': 'close', 'title': 'Закрытые'}]
     }
 
     return render(request, 'controls/summit_panel_list.html', context=ctx)

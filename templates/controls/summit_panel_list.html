@@ -45,48 +45,7 @@
     {% endblock %}
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Тип</span>
-                        <select class="selectbd" data-filter="type" id="type_filter">
-                                <option value="">ВСЕ</option>
-                                {% for type in summit_types %}
-                                    <option value="{{ type.id }}">{{ type.title }}</option>
-                                {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата начала</span>
-                        <input type="text" data-filter="start_date" class="summit-date start_date">
-                    </label>
-                    <label>
-                        <span class="label_block">Дата окончания</span>
-                        <input type="text" data-filter="end_date" class="summit-date end_date">
-                    </label>
-                    <label>
-                        <span class="label_block">Статус</span>
-                        <select name="status" class="selectbd" data-filter="status">
-                            <option value="">ВСЕ</option>
-                            <option value="open">Открытые</option>
-                            <option value="close">Закрытые</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.other %}
     <div class="popap popap_slide" id='addSammit' data-id="">
         <div class="pop_cont">
             <div class='popup_text'>
@@ -101,7 +60,7 @@
                         </label>
                         <label>
                             <span class="label_block">Тип*</span>
-                            <select class="selectbd must" name="type" data-validation="required">
+                            <select class="selectdb must" name="type" data-validation="required">
                                 {% for type in summit_types %}
                                     <option value="{{ type.id }}">{{ type.title }}</option>
                                 {% endfor %}
@@ -117,7 +76,7 @@
                         </label>
                         <label>
                             <span class="label_block">Статус*</span>
-                            <select name="status" class="selectbd must" data-validation="required">
+                            <select name="status" class="selectdb must" data-validation="required">
                                 <option value="open" selected>Открытые</option>
                                 <option value="close">Закрытые</option>
                             </select>
@@ -136,7 +95,7 @@
                         </label>
                         <label>
                             <span class="label_block">Валюта*</span>
-                            <select class="selectbd must" name="currency" data-validation="required">
+                            <select class="selectdb must" name="currency" data-validation="required">
                                 {% for currency in currencies %}
                                     <option value="{{ currency.id }}">{{ currency }}</option>
                                 {% endfor %}
@@ -144,7 +103,7 @@
                         </label>
                         <label>
                             <span class="label_block">Шаблон для рассылок</span>
-                            <select class="selectbd" name="zmail_template">
+                            <select class="selectdb" name="zmail_template">
                                 <option value="">Без шаблона</option>
                                 {% for mail in zmail_templates %}
                                     <option value="{{ mail.id }}">{{ mail }}</option>
@@ -161,6 +120,13 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Тип" options=summit_types name="type" %}
+    {% include "partials/filter/input.html" with label="Дата начала" name="start_date" custom_classes="summit-date start_date" %}
+    {% include "partials/filter/input.html" with label="Дата окончания" name="end_date" custom_classes="summit-date end_date" %}
+    {% include "partials/filter/select.html" with label="Статус" options=status_options name="status" %}
 {% endblock %}
 
 {% block extra_scripts %}
