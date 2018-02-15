@@ -1,20 +1,38 @@
 #search_city-container {
+  padding: 30px;
   .search_res-container {
-    margin: 10px;
+
     min-height: 400px;
-    border: 1px solid green;
+
     display: flex;
   }
   .selected_block {
-    margin: 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
   }
   .selected_block > span {
     border-radius: 5px;
-    background: darkred;
-    color: white;
-    padding: 10px;
-    margin: 2px;
+    background: #aab2bd;
+    color: #fff;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    padding-right:30px;
+    border-radius:40px;
     cursor: pointer;
+    display: block;
+    position: relative;
+    &:not(:last-child){
+      margin-right:10px;
+    }
+    &::before{
+      content: '\f057';
+      font:1em "FontAwesome";
+      position: absolute;
+      top: 9px;
+      right: 11px;
+    }
   }
   .search_res-cont__block {
     display: flex;
@@ -28,7 +46,36 @@
   ul > li {
     margin: 5px;
     padding: 5px;
-    border: 1px dashed green;
+    border: 1px dashed #aab2bd;
     cursor: pointer;
+    transition: background-color .2s;
+    &:hover{
+      background-color: #f5f5f5;
+    }
+  }
+}
+.filter-city{
+  display: flex;
+  align-items: center;
+  input{
+    margin-right:30px;
+  }
+}
+.title{
+  display: flex;
+  flex-direction: column;
+
+  h2{
+    font-size: 2.8em;
+    color: #333;
+    font-weight: 900;
+  }
+  input{
+    width: 250px;
+    height: 30px;
+    border-radius: 50px;
+    border: 1px solid #cdd0d4;
+    line-height: 30px;
+    padding: 0 10px;
   }
 }
