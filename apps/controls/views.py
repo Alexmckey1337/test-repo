@@ -40,3 +40,13 @@ def summit_panel_list(request):
     }
 
     return render(request, 'controls/summit_panel_list.html', context=ctx)
+
+
+@login_required(login_url='entry')
+def log_panel_list(request):
+    if not request.user.is_staff:
+        return redirect('/')
+
+    ctx = {}
+
+    return render(request, 'controls/log_panel_list.html', context=ctx)

@@ -10,6 +10,7 @@ from apps.payment.api.serializers import CurrencySerializer
 from apps.zmail.models import ZMailTemplate
 from apps.account.api.serializers import HierarchyTitleSerializer
 from django.contrib.auth import password_validation
+from apps.analytics.models import LogRecord
 
 
 class DatabaseAccessListSerializer(serializers.ModelSerializer):
@@ -69,3 +70,13 @@ class SummitTypePanelSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitType
         fields = ('id', 'title', 'club_name', 'image')
+
+
+class LogPanelSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source='content_type.model', read_only=True)
+    action_flag = serializers.CharField(source='get_action_flag_display', read_only=True)
+    author = serializers.CharField(source='user.fullname', read_only=True)
+
+    class Meta:
+        model = LogRecord
+        fields = ('id', 'object', 'action_flag', 'author', 'change_data')

@@ -18,6 +18,8 @@ from apps.controls.api.serializers import (
 )
 from .filters import SummitPanelDateFilter
 from rest_framework.viewsets import ModelViewSet
+from apps.analytics.models import LogRecord
+from .serializers import LogPanelSerializer
 
 
 class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -114,4 +116,10 @@ class SummitPanelViewSet(ModelViewSet):
 class SummitTypePanelViewSet(ModelWithoutDeleteViewSet):
     queryset = SummitType.objects.all()
     serializer_class = SummitTypePanelSerializer
+    permission_classes = (IsAdminUser,)
+
+
+class LogPanelViewSet(ModelWithoutDeleteViewSet):
+    queryset = LogRecord.objects.all()
+    serializer_class = LogPanelSerializer
     permission_classes = (IsAdminUser,)

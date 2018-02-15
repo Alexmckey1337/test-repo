@@ -58,9 +58,9 @@ class LogRecord(models.Model):
 
     ADDITION, CHANGE, DELETION = 1, 2, 3
     ACTIONS = (
-        (ADDITION, _('Addition')),
-        (CHANGE, _('Change')),
-        (DELETION, _('Deletion')),
+        (ADDITION, _('Добавление')),
+        (CHANGE, _('Изминение')),
+        (DELETION, _('Удаление')),
     )
     action_flag = models.PositiveSmallIntegerField(_('action flag'), choices=ACTIONS, default=CHANGE)
 
