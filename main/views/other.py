@@ -1,12 +1,10 @@
-from io import BytesIO
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from io import BytesIO
 from reportlab.lib import colors
-from reportlab.lib.colors import blue
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -47,14 +45,8 @@ def app_download(request):
 @login_required(login_url='entry')
 def calls(request):
     ctx = {
-        'types': [
-            {'in': 'Входящие'},
-            {'out': 'Исходящие'}
-        ],
-        'dispositions': [
-            {'ANSWERED': 'Отвеченные'},
-            {'OTHER': 'Остальные'}
-        ]
+        'type_options': [{'id': 'in', 'title': 'Входящие'}, {'id': 'out', 'title': 'Исходящие'}],
+        'disposition_options': [{'id': 'ANSWERED', 'title': 'Отвеченные'}, {'id': 'OTHER', 'title': 'Остальные'}],
     }
     return render(request, 'phone/index.html', context=ctx)
 
