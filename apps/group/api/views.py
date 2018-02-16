@@ -198,15 +198,15 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         stats['home_groups_count'] = church.home_group.count()
 
         stats['fathers_count'] = (church.uusers.filter(spiritual_level=CustomUser.FATHER).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                  HomeGroup.objects.filter(church_id=pk).filter(
                                       uusers__spiritual_level=3).count())
 
         stats['juniors_count'] = (church.uusers.filter(spiritual_level=CustomUser.JUNIOR).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                  HomeGroup.objects.filter(church_id=pk).filter(
                                       uusers__spiritual_level=2).count())
 
         stats['babies_count'] = (church.uusers.filter(spiritual_level=CustomUser.BABY).count() +
-                                 HomeGroup.objects.filter(church__id=pk).filter(
+                                 HomeGroup.objects.filter(church_id=pk).filter(
                                      uusers__spiritual_level=1).count())
 
         stats['partners_count'] = church.uusers.filter(partners__is_active=True).count() + HomeGroup.objects.filter(
@@ -299,7 +299,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(departments__id=department_id)
+            users = users.filter(departments_id=department_id)
 
         page = self.paginate_queryset(users)
         if page is not None:
@@ -420,7 +420,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if CustomUser.objects.filter(hhome_group__id=instance.id).exists():
+        if CustomUser.objects.filter(hhome_group_id=instance.id).exists():
             raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
                                                            'В составе данной Домашней Группы есть люди.'),
                                               'can_delete': 'false'})

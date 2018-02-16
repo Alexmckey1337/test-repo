@@ -13,7 +13,7 @@ def meeting_report_list(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
-    owners = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+    owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
     churches = Church.objects.all()
     hg = HomeGroup.objects.all()
     ctx = {
@@ -47,7 +47,7 @@ def meeting_report_statistics(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
-    owners = CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct()
+    owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
     churches = Church.objects.all()
     hg = HomeGroup.objects.all()
     ctx = {
