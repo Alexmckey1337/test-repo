@@ -16,5 +16,5 @@ urlpatterns = [
     path('db_access/', views.db_access_list, name='db_access_list'),
     path('db_access/<int:pk>/', views.db_access_detail, name='db_access_detail'),
     path('summit_panel/', views.summit_panel_list, name='summit_panel'),
-    path('logs/', views.log_panel_list, name='log_panel_list')
+    path('logs/', views.log_list, name='log_list')
 ]

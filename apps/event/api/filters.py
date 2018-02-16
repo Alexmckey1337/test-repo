@@ -126,3 +126,14 @@ class CommonGroupsLast5Filter(filters.BaseFilterBackend):
             queryset = queryset[:5]
 
         return queryset
+
+
+class MeetingsTypeMultipleFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        types = request.query_params.get('types', None)
+
+        if types:
+            types = [int(t) for t in types if t.isdigit()]
+            queryset = queryset.filter(type__id__in=types)
+
+        return queryset

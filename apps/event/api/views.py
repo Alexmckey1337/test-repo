@@ -28,7 +28,7 @@ from apps.event.api.filters import (
     ChurchReportFilter, MeetingFilter, MeetingCustomFilter, MeetingFilterByMaster,
     ChurchReportDepartmentFilter, ChurchReportFilterByMaster, EventSummaryFilter,
     EventSummaryMasterFilter, ChurchReportPaymentStatusFilter, MeetingStatusFilter,
-    ChurchReportStatusFilter, CommonGroupsLast5Filter)
+    ChurchReportStatusFilter, CommonGroupsLast5Filter, MeetingsTypeMultipleFilter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
     MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
@@ -45,6 +45,7 @@ from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
+
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +107,9 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                        filters.OrderingFilter,
                        MeetingFilterByMaster,
                        MeetingStatusFilter,
-                       CommonGroupsLast5Filter,)
+                       CommonGroupsLast5Filter,
+                       MeetingsTypeMultipleFilter
+                       )
 
     filter_fields = ('data', 'type', 'owner', 'home_group', 'status', 'department', 'church')
 

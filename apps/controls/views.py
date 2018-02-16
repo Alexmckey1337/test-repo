@@ -43,7 +43,7 @@ def summit_panel_list(request):
 
 
 @login_required(login_url='entry')
-def log_panel_list(request):
+def log_list(request):
     if not request.user.is_staff:
         return redirect('/')
 
