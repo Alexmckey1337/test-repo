@@ -65,7 +65,7 @@ class PaymentFilter(rest_framework.FilterSet):
                 value = self.form.cleaned_data.get(name)
 
                 if value is not None:  # valid & clean data
-                    if name == 'create_to':
+                    if name == 'to_create':
                         value = value + timedelta(days=1)
                     qs = filter_.filter(qs, value)
 
