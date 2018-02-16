@@ -42,14 +42,14 @@ urlpatterns = [
     path('home_groups/<int:pk>/', views.HomeGroupDetailView.as_view(), name='home_group_detail'),
 
     path('sc/', views.search_city, name='search_city'),
-    path('privacy_policy', views.privacy_policy, name='privacy_policy'),  # for mobile app
-    path('ticket_scanner', views.ticket_scanner, name='ticket_scanner'),
-    path('app', views.app_download, name='app_download'),
+    path('privacy_policy/', views.privacy_policy, name='privacy_policy'),  # for mobile app
+    path('ticket_scanner/', views.ticket_scanner, name='ticket_scanner'),
+    path('app/', views.app_download, name='app_download'),
     path('structure/', views.structure, name='structure-top'),
     path('structure/<int:pk>/', views.structure, name='structure-detail'),
     path('structure/<int:pk>/<str:name>.pdf', views.structure_to_pdf, name='structure_to_pdf-detail'),
     path('structure/top.pdf', views.structure_to_pdf, name='structure_to_pdf-top'),
-    path('calls', views.calls, name='calls'),
+    path('calls/', views.calls, name='calls'),
     path('controls/', include('apps.controls.urls', namespace='controls')),
     path('help/', include('apps.help.urls', namespace='help')),
 ]

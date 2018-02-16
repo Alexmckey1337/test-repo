@@ -1,14 +1,16 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import os
 from datetime import datetime
-from io import BytesIO
+from typing import List, NamedTuple
 
+import os
 from PIL import Image, ImageDraw
 from django.conf import settings
+from django.db import connection
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from io import BytesIO
 from reportlab.graphics import renderPDF
 from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
@@ -24,8 +26,26 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, PageBreak
 from rest_framework import exceptions
 
-from apps.account.models import CustomUser
 from apps.summit.models import SummitAnket
+
+
+class Bishop(NamedTuple):
+    pk: int
+    user_name: str
+    phone_number: str
+    attended: List[bool]
+
+
+class Profile(NamedTuple):
+    code: str
+    user_name: str
+    master_name: str
+    phone: str
+    ticket_status: str
+    attended: str
+    level: int
+    tree: List[int]
+    user_id: int
 
 
 def get_report_by_bishop_or_high(
@@ -35,46 +55,72 @@ def get_report_by_bishop_or_high(
         fio: str = '',
         hierarchy: int = None):
     fio_filter = ['']
+    name_params = list()
     for name in filter(lambda name: bool(name), fio.replace(',', ' ').split(' ')):
         fio_filter.append(
-            "(bbu.last_name ilike '%%{name}%%' or "
-            "bbu.first_name ilike '%%{name}%%' or "
-            "bu.middle_name ilike '%%{name}%%')".format(name=name))
+            "(bbu.last_name ilike %s or "
+            "bbu.first_name ilike %s or "
+            "bu.middle_name ilike %s)")
+        name_params += ['%'+name+'%'] * 3
     query = """
-            SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id,
-              concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
-              bu.phone_number phone_number,
-              array(
-              SELECT exists(
-                SELECT at.id
-                FROM summit_summitattend at
-                WHERE at.anket_id = a.id AND at.date = '{date}') attended
-              FROM summit_summitanket a
-                INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
-              WHERE (u.path like bu.path||'%%' AND u.depth >= bu.depth AND summit_id = {summit_id})
-              ORDER BY u.path) attended
-            FROM summit_summitanket ba
-              INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
-              JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
-              JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
-              JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
-            WHERE summit_id = {summit_id} and h.level > {hierarchy_level}{department}{search_fio}{hierarchy};
+        SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id pk,
+            concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
+            bu.phone_number phone_number,
+            array(
+                WITH RECURSIVE t AS (
+                  SELECT user_id,
+                    exists(
+                   SELECT at.id
+                   FROM summit_summitattend at
+                   WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}') attended
+                  FROM summit_summitanket
+                    JOIN account_customuser a ON user_id = a.user_ptr_id
+                    JOIN auth_user u ON a.user_ptr_id = u.id
+                  WHERE summit_summitanket.user_id = ba.user_id and summit_id = %s
+                  UNION
+                  SELECT summit_summitanket.user_id ,exists(
+                   SELECT at.id
+                   FROM summit_summitattend at
+                   WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}') attended
+                  FROM summit_summitanket
+                    JOIN t ON summit_summitanket.author_id = t.user_id
+                    JOIN account_customuser customuser ON summit_summitanket.user_id = customuser.user_ptr_id
+                    JOIN auth_user u2 ON customuser.user_ptr_id = u2.id
+                  WHERE summit_summitanket.summit_id = %s
+                )
+                SELECT attended
+                FROM t
+            ) attended
+        FROM summit_summitanket ba
+          INNER JOIN account_customuser bu ON ba.user_id = bu.user_ptr_id
+          JOIN auth_user bbu ON bbu.id = bu.user_ptr_id
+          JOIN hierarchy_hierarchy h ON bu.hierarchy_id = h.id
+          JOIN account_customuser_departments bud ON bud.customuser_id = bu.user_ptr_id
+        WHERE summit_id = %s and h.level > 3 {department}{search_fio}{hierarchy};
         """.format(
-        summit_id=summit_id,
         date=report_date.strftime('%Y-%m-%d'),
-        hierarchy_level=3,
-        department=' and bud.department_id = {}'.format(department) if department else '',
+        department=' and bud.department_id = %s' if department else '',
         search_fio=' and '.join(fio_filter),
-        hierarchy=' and h.id = {}'.format(hierarchy) if hierarchy else ''
+        hierarchy=' and h.id = %s' if hierarchy else ''
     )
-    bishops = CustomUser.objects.raw(query)
+    params = [summit_id, summit_id, summit_id]
+    if department:
+        params.append(department)
+    params += name_params
+    if hierarchy:
+        params.append(hierarchy)
+    bishops: List[Bishop] = list()
+    with connection.cursor() as connect:
+        connect.execute(query, params)
+        for bishop in connect.fetchall():
+            bishops.append(Bishop(*bishop))
 
     return sorted([{
-        'id': b.id,
+        'id': b.pk,
         'user_name': b.user_name,
         'total': len(b.attended),
-        'absent': len(list(filter(lambda a: not a, b.attended))),
-        'attend': len(list(filter(lambda a: a, b.attended))),
+        'absent': len([a for a in b.attended if not a]),
+        'attend': len([a for a in b.attended if a]),
         'phone_number': b.phone_number
     } for b in bishops], key=lambda b: b['user_name'])
 
@@ -188,22 +234,22 @@ class SummitParticipantReport(object):
         red_cells = [('TEXTCOLOR', (2, line), (2, line), colors.red) for line in red_lines]
         red_cells += [('FONT', (2, line), (2, line), 'FreeSansBold') for line in red_lines]
         user_table.setStyle(TableStyle([
-            ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
-            ('FONT', (0, 0), (-1, -1), 'FreeSans'),
-            ('FONTSIZE', (0, 0), (-1, -1), 8),
-            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-            ('BOX', (0, 0), (-1, -1), 0.15, colors.black),
+                                           ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+                                           ('FONT', (0, 0), (-1, -1), 'FreeSans'),
+                                           ('FONTSIZE', (0, 0), (-1, -1), 8),
+                                           ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+                                           ('BOX', (0, 0), (-1, -1), 0.15, colors.black),
 
-            # ('FONTSIZE', (0, 0), (0, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-            ('TOPPADDING', (0, 0), (-1, -1), 1),
+                                           # ('FONTSIZE', (0, 0), (0, -1), 10),
+                                           ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                                           ('TOPPADDING', (0, 0), (-1, -1), 1),
 
-            ('FONTSIZE', (0, 0), (-1, 0), 8),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ] + red_cells))
+                                           ('FONTSIZE', (0, 0), (-1, 0), 8),
+                                           ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                                           ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
+                                           ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
+                                           ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                                       ] + red_cells))
         self.elements.append(user_table)
         if self.short is None:
             self.elements.append(PageBreak())
@@ -291,10 +337,10 @@ class FullSummitParticipantReport(object):
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
 
-    def _append_table_header(self, user):
+    def _append_table_header(self, user: Profile):
         self.elements.append(Paragraph(user.user_name, self.styles['Header2']))
 
-    def _append_tables(self, users):
+    def _append_tables(self, users: List[Profile]):
         if self.attended and self.attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
             table_users = list(filter(lambda u: u.attended, users))
         elif self.attended and self.attended.upper() in ('FALSE', 'F', 'NO', 'N', '0'):
@@ -304,7 +350,7 @@ class FullSummitParticipantReport(object):
         user = users[0]
         self._append_user_table(user, table_users)
 
-    def _append_user_table(self, u, users):
+    def _append_user_table(self, u: Profile, users: List[Profile]):
         table_data = []
         for user in users:
             table_data.append(
@@ -323,48 +369,81 @@ class FullSummitParticipantReport(object):
             self.width * 0.1, self.width * 0.35, self.width * 0.35, self.width * 0.2], normalizedData=1)
 
         user_table.setStyle(TableStyle([
-                                           ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
-                                           ('FONT', (0, 0), (-1, -1), 'FreeSans'),
-                                           ('FONTSIZE', (0, 0), (-1, -1), 8),
-                                           ('ALIGN', (0, 0), (0, -1), 'CENTER'),
-                                           ('BOX', (0, 0), (-1, -1), 0.15, colors.black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.15, colors.black),
+            ('FONT', (0, 0), (-1, -1), 'FreeSans'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+            ('BOX', (0, 0), (-1, -1), 0.15, colors.black),
 
-                                           # ('FONTSIZE', (0, 0), (0, -1), 10),
-                                           ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-                                           ('TOPPADDING', (0, 0), (-1, -1), 1),
+            # ('FONTSIZE', (0, 0), (0, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 1),
 
-                                           ('FONTSIZE', (0, 0), (-1, 0), 8),
-                                           ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-                                           ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
-                                           ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
-                                           ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                                       ]))
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONT', (0, 0), (-1, 0), 'FreeSansBold'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.gray),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ]))
         self.elements.append(user_table)
         if self.short is None:
             self.elements.append(PageBreak())
 
-    def _get_participants(self):
+    def _get_participants(self) -> List[Profile]:
+        """
+
+        :return: list of Profile[code, user_name, master_name, phone, ticket_status, attended]
+        """
         raw = """
-            SELECT a.id, a.code, u.phone_number phone, a.user_id, u.master_id, u.depth user_level,
-              a.ticket_status ticket_status,
-              concat(uu.last_name, ' ', uu.first_name, ' ', u.middle_name) user_name,
-              concat(muu.last_name, ' ', muu.first_name, ' ', mu.middle_name) master_name,
+        WITH RECURSIVE t AS (
+          SELECT summit_summitanket.code,
+            concat(u.last_name, ' ', u.first_name, ' ', a.middle_name) user_name,
+            concat(mu.last_name, ' ', mu.first_name, ' ', mcu.middle_name) master_name,
+            a.phone_number phone,
+            ticket_status,
+            1 as level, array[user_id] as tree,
               (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
-              from summit_summitattend at WHERE at.anket_id = a.id AND at.date = '{date}' LIMIT 1) as attended
-            FROM summit_summitanket a
-              INNER JOIN account_customuser u ON a.user_id = u.user_ptr_id
-              INNER JOIN auth_user uu ON u.user_ptr_id = uu.id
-              LEFT OUTER JOIN account_customuser mu ON u.master_id = mu.user_ptr_id
-              LEFT OUTER JOIN auth_user muu ON mu.user_ptr_id = muu.id
-              WHERE (u.path like '{path}%%' AND u.depth >= {depth} AND summit_id = {summit_id})
-              ORDER BY u.path;
+               from summit_summitattend at
+               WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}' LIMIT 1) as attended,
+            user_id
+          FROM summit_summitanket
+            JOIN account_customuser a ON user_id = a.user_ptr_id
+            JOIN auth_user u ON a.user_ptr_id = u.id
+            LEFT OUTER JOIN account_customuser mcu ON a.master_id = mcu.user_ptr_id
+            LEFT OUTER JOIN auth_user mu ON mcu.user_ptr_id = mu.id
+          WHERE summit_summitanket.user_id = {master_id} and summit_id = %s
+          UNION
+          SELECT summit_summitanket.code,
+            concat(u2.last_name, ' ', u2.first_name, ' ', customuser.middle_name) user_name,
+            concat(mu2.last_name, ' ', mu2.first_name, ' ', mcu2.middle_name) master_name,
+            customuser.phone_number phone,
+            summit_summitanket.ticket_status,
+            t.level + 1 as level, array_cat(t.tree, array[summit_summitanket.user_id]) as tree,
+              (select COALESCE(to_char(at.time, 'HH24:MI:SS'), to_char(at.created_at, 'HH24:MI:SS el'), '+')
+               from summit_summitattend at
+               WHERE at.anket_id = summit_summitanket.id AND at.date = '{date}' LIMIT 1) as attended,
+            summit_summitanket.user_id
+          FROM summit_summitanket
+            JOIN t ON summit_summitanket.author_id = t.user_id
+            JOIN account_customuser customuser ON summit_summitanket.user_id = customuser.user_ptr_id
+            JOIN auth_user u2 ON customuser.user_ptr_id = u2.id
+            LEFT OUTER JOIN account_customuser mcu2 ON customuser.master_id = mcu2.user_ptr_id
+            LEFT JOIN auth_user mu2 ON mcu2.user_ptr_id = mu2.id
+          WHERE summit_summitanket.summit_id = %s
+        )
+        SELECT code, user_name, master_name, phone, ticket_status, attended, level, tree, user_id
+        FROM t ORDER BY tree;
         """.format(
             date=self.report_date.strftime('%Y-%m-%d'),
-            path=self.master.path,
-            depth=self.master.depth,
-            summit_id=self.summit_id
+            master_id=self.master.id,
         )
-        return list(SummitAnket.objects.raw(raw))
+        profiles: List[Profile] = list()
+        with connection.cursor() as connect:
+            connect.execute(raw, [self.summit_id, self.summit_id])
+            for profile in connect.fetchall():
+                profiles.append(Profile(*profile))
+
+        return profiles
 
     def build(self):
         self.doc.build(self.elements, canvasmaker=NumberedCanvas)

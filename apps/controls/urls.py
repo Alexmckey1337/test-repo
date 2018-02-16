@@ -9,6 +9,7 @@ def redirect_to_controls(request):
         return redirect(reverse('db:people'))
     return redirect(reverse('controls:db_access_list'))
 
+
 app_name = 'controls'
 
 urlpatterns = [

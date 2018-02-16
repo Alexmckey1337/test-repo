@@ -7,8 +7,8 @@ from django.db.models.functions import Coalesce, Concat
 class ProfileQuerySet(models.query.QuerySet):
     def base_queryset(self):
         return self.select_related(
-            'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type'). \
-            prefetch_related('user__divisions', 'user__departments')
+            'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type', 'status', 'author'). \
+            prefetch_related('user__divisions', 'user__departments', 'emails')
 
     def annotate_total_sum(self):
         return self.annotate(

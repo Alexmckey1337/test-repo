@@ -66,8 +66,8 @@ $('document').ready(function () {
     });
     $('.close_pop').on('click',function () {
         $('#popupAddUserToPhone').css('display', 'none');
-    })
-    $('.date_filter').datepicker({
+    });
+    $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",

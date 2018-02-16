@@ -4,6 +4,8 @@ import coreapi
 import coreschema
 import django_filters
 import rest_framework_filters as filters_new
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import connection
 from django.db.models import OuterRef, Subquery
 from django.db.models import Q
 from rest_framework.filters import BaseFilterBackend
@@ -21,9 +23,9 @@ class FilterByClub(BaseFilterBackend):
         """
         params = request.query_params
         summit_id = params.get('summit')
-        is_member = params.get('is_member', None)
-        if summit_id and is_member in ('true', 'false'):
-            is_member = True if is_member == 'true' else False
+        is_member = params.get('is_member', '')
+        if summit_id and is_member.lower() in ('true', 'false'):
+            is_member = True if is_member.lower() == 'true' else False
             summit_type = Summit.objects.get(id=summit_id).type
             users = summit_type.summits.filter(ankets__visited=True).values_list('ankets__user', flat=True)
             if is_member:
@@ -38,9 +40,9 @@ class HasPhoto(BaseFilterBackend):
         Return a filtered queryset.
         """
         params = request.query_params
-        has_photo = params.get('has_photo', None)
-        if has_photo in ('true', 'false'):
-            if has_photo == 'false':
+        has_photo = params.get('has_photo', '')
+        if has_photo.lower() in ('true', 'false'):
+            if has_photo.lower() == 'false':
                 return queryset.filter(user__image='')
             return queryset.exclude(user__image='')
         return queryset
@@ -108,8 +110,8 @@ class FilterByTime(BaseFilterBackend):
         Return a filtered queryset.
         """
         params = request.query_params
-        attend_from = params.get('attend_from', None)
-        attend_to = params.get('attend_to', None)
+        attend_from = params.get('from_attend', None)
+        attend_to = params.get('to_attend', None)
         d = view.filter_date
         if attend_from and attend_to:
             attends = SummitAttend.objects.filter(
@@ -155,10 +157,11 @@ class ProfileFilter(django_filters.FilterSet):
     hierarchy = django_filters.ModelChoiceFilter(name='hierarchy', queryset=Hierarchy.objects.all())
     master = django_filters.ModelMultipleChoiceFilter(name="master", queryset=CustomUser.objects.all())
     department = django_filters.ModelChoiceFilter(name="departments", queryset=Department.objects.all())
+    author = django_filters.ModelMultipleChoiceFilter(name="author", queryset=CustomUser.objects.all())
 
     class Meta:
         model = SummitAnket
-        fields = ['master', 'hierarchy', 'department', 'ticket_status']
+        fields = ['master', 'hierarchy', 'department', 'author', 'ticket_status']
 
 
 class FilterByHasEmail(BaseFilterBackend):
@@ -175,6 +178,53 @@ class FilterByHasEmail(BaseFilterBackend):
 
 class FilterProfileMasterTreeWithSelf(FilterMasterTreeWithSelf):
     user_field_prefix = 'user__'
+
+
+class FilterProfileAuthorTree(BaseFilterBackend):
+    include_self_master = True
+    user_field_prefix = ''
+
+    def filter_queryset(self, request, queryset, view):
+        author_id = request.query_params.get('author_tree', None)
+        summit_id = view.summit.id
+        filter_self = '' if self.include_self_master else ' OFFSET 1'
+
+        try:
+            CustomUser.objects.get(pk=author_id)
+        except (ObjectDoesNotExist, ValueError):
+            return queryset
+
+        query = f"""
+            WITH RECURSIVE t AS (
+              SELECT a.user_id, a.id FROM summit_summitanket a
+              WHERE a.user_id = %s AND a.summit_id = {summit_id}
+              UNION
+              SELECT a.user_id, a.id FROM summit_summitanket a
+              JOIN t ON a.author_id = t.user_id
+              WHERE a.summit_id = {summit_id}
+            )
+            SELECT id from t {filter_self};
+        """
+        ids = list()
+        with connection.cursor() as c:
+            c.execute(query, [author_id])
+            for i, in c.fetchall():
+                ids.append(i)
+
+        return queryset.filter(pk__in=ids)
+
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name="author_tree",
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Author tree',
+                    description="Id of user (author) for filter by author tree"
+                )
+            )
+        ]
 
 
 class FilterBySummitAttend(BaseFilterBackend):
@@ -209,9 +259,9 @@ class FilterBySummitAttendByDate(BaseFilterBackend):
 
 class FilterByElecTicketStatus(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        e_ticket = request.query_params.get('e_ticket', None)
-        if e_ticket in ('true', 'false'):
-            if e_ticket == 'false':
+        e_ticket = request.query_params.get('e_ticket', '')
+        if e_ticket.lower() in ('true', 'false'):
+            if e_ticket.lower() == 'false':
                 return queryset.filter(Q(status__reg_code_requested=None) | Q(status__reg_code_requested=False))
             return queryset.filter(status__reg_code_requested=True)
         return queryset
@@ -239,3 +289,15 @@ class FilterHasAchievement(BaseFilterBackend):
             return queryset.filter(has_achievement=False)
 
         return queryset
+
+
+class AuthorFilter(django_filters.FilterSet):
+    level_gt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gt')
+    level_gte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='gte')
+    level_lt = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lt')
+    level_lte = django_filters.NumberFilter(name='hierarchy__level', lookup_expr='lte')
+    department = django_filters.ModelMultipleChoiceFilter(name="departments", queryset=Department.objects.all())
+
+    class Meta:
+        model = SummitAnket
+        fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']

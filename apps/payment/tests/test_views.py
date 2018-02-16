@@ -233,7 +233,7 @@ class TestPaymentDealListView:
         deal_payment_factory(sum=Decimal(200))
         deal_payment_factory(sum=Decimal(300))
         deal_payment_factory(sum=Decimal(400))
-        response = api_client.get('/payments/deal/?sum_from=200&sum_to=300', format='json')
+        response = api_client.get('/payments/deal/?from_sum=200&to_sum=300', format='json')
 
         assert len(response.data['results']) == 2
 
@@ -246,7 +246,7 @@ class TestPaymentDealListView:
         deal_payment_factory(effective_sum=Decimal(200), sum=Decimal(200))
         deal_payment_factory(effective_sum=Decimal(300), sum=Decimal(300))
         deal_payment_factory(effective_sum=Decimal(400), sum=Decimal(400))
-        response = api_client.get('/payments/deal/?eff_sum_from=200&eff_sum_to=300', format='json')
+        response = api_client.get('/payments/deal/?from_eff_sum=200&to_eff_sum=300', format='json')
 
         assert len(response.data['results']) == 2
 
@@ -307,7 +307,7 @@ class TestPaymentDealListView:
         deal_payment_factory(created_at=datetime(2000, 2, 21, 11))
         deal_payment_factory(created_at=datetime(2000, 2, 22, 11))
         deal_payment_factory(created_at=datetime(2000, 2, 23, 11))
-        response = api_client.get('/payments/deal/?create_from=2000-02-21&create_to=2000-02-22', format='json')
+        response = api_client.get('/payments/deal/?from_create=2000-02-21&to_create=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
 
@@ -320,7 +320,7 @@ class TestPaymentDealListView:
         deal_payment_factory(sent_date=datetime(2000, 2, 21))
         deal_payment_factory(sent_date=datetime(2000, 2, 22))
         deal_payment_factory(sent_date=datetime(2000, 2, 23))
-        response = api_client.get('/payments/deal/?sent_from=2000-02-21&sent_to=2000-02-22', format='json')
+        response = api_client.get('/payments/deal/?from_sent=2000-02-21&to_sent=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
 
@@ -378,7 +378,7 @@ class TestPaymentDealListView:
         payment_factory(purpose=deal4)
 
         response = api_client.get(
-            '/payments/deal/?purpose_date_from=2000-02-21&purpose_date_to=2000-03-22', format='json')
+            '/payments/deal/?from_purpose_date=2000-02-21&to_purpose_date=2000-03-22', format='json')
 
         assert len(response.data['results']) == 2
     #

@@ -15,8 +15,8 @@ import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
-    let $departmentsFilter = $('#departments_filter'),
-        $treeFilter = $('#tree_filter'),
+    let $departmentsFilter = $('#department_filter'),
+        $treeFilter = $('#master_tree_filter'),
         $pastorFilter = $('#pastor_filter'),
         init = false,
         pastorUrl = URLS.church.available_pastors();
@@ -47,7 +47,7 @@ $('document').ready(function () {
                 });
             }
             (set.pastor) && $pastorFilter.val(set.pastor).trigger('change');
-            (set.is_open) && $('#search_is_open').val(set.is_open).trigger('change');
+            (set.is_open) && $('#is_open_filter').val(set.is_open).trigger('change');
             for (let [key, value] of Object.entries(set)) {
                 $('#filterPopup').find(`input[data-filter="${key}"]`).val(value);
             }
@@ -82,7 +82,7 @@ $('document').ready(function () {
         $('.select2-search__field').focus();
     });
 
-    $('#added_churches_date, #search_date_open, #opening_date').datepicker({
+    $('#added_churches_date, #search_opening_date, #opening_date').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true
     });
@@ -145,7 +145,7 @@ $('document').ready(function () {
             getData(pastorUrl, config).then(function (data) {
                 const pastors = data.map(pastor => `<option value="${pastor.id}">${pastor.fullname}</option>`);
                 $('#pastor_filter').html('<option>ВСЕ</option>').append(pastors);
-                $('#tree_filter').html('<option>ВСЕ</option>').append(pastors);
+                $('#master_tree_filter').html('<option>ВСЕ</option>').append(pastors);
             });
         });
 

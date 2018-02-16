@@ -37,7 +37,7 @@ $('document').ready(function () {
         $('.bg').addClass('active');
     });
 
-    $('.date_filter').datepicker({
+    $('.select_date_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",

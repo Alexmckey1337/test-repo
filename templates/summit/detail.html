@@ -182,147 +182,29 @@
 
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="select__db" data-filter="master_tree" id="master_tree">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Иерархия</span>
-                        <select class="select__db" data-filter="hierarchy" id="hierarchy">
-                            <option value="">ВСЕ</option>
-                            {% for hierarchy in hierarchies %}
-                                <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ответственный</span>
-                        <select class="select__db" data-filter="master" id="master">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Email</span>
-                        <input type="email" data-filter="search_email" placeholder="email" id="search_email">
-                    </label>
-                    <label>
-                        <span class="label_block">Еmail отправлен</span>
-                        <select class="select__db select__custom" data-filter="has_email" name="has_email" id="has_email">
-                            <option>ВСЕ</option>
-                            <option value="true">Да</option>
-                            <option value="false">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Номер телефона</span>
-                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона"
-                                   id="search_phone_number">
-                    </label>
-                    <label>
-                        <span class="label_block">Страна</span>
-                        <input type="text" data-filter="search_country" placeholder="страна" id="search_country">
-                    </label>
-                    <label>
-                        <span class="label_block">Город</span>
-                        <input type="text" data-filter="search_city" placeholder="город" id="search_city">
-                    </label>
-                    <label>
-                        <span class="label_block">Фотография</span>
-                        <select class="select__db select__custom" data-filter="has_photo" name="has_photo" id="has_photo">
-                            <option>ВСЕ</option>
-                            <option value="true">Есть</option>
-                            <option value="false">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">{% trans "Печатный билет" %}</span>
-                        <select class="select__db select__custom" data-filter="ticket_status" name="ticket_status" id="ticket_status">
-                            <option>ВСЕ</option>
-                            <option value="none">{% trans "Не создан" %}</option>
-                            <option value="download">{% trans "Создан" %}</option>
-                            <option value="print">{% trans "Напечатано" %}</option>
-                            <option value="given">{% trans "Выдано" %}</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">{% trans "Электронный билет" %}</span>
-                        <select class="select__db select__custom" data-filter="e_ticket" name="e_ticket" id="Eticket">
-                            <option>ВСЕ</option>
-                            <option value="true">Есть</option>
-                            <option value="false">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">{% trans "Присутствие" %}</span>
-                        <select class="select__db select__custom" data-filter="is_visited" name="visited" id="visited">
-                            <option>ВСЕ</option>
-                            <option value="1">{% trans "Присутствовали" %}</option>
-                            <option value="2">{% trans "Отсутствовали" %}</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">{% trans "Диапазон дат присутствия" %}</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
-                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Облако свидетелей</span>
-                        <select class="select__db select__custom"
-                                data-filter="has_achievement"
-                                name="has_achievement"
-                                id="has_achievement">
-                            <option>ВСЕ</option>
-                            <option value="true">Да</option>
-                            <option value="false">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Партнеры</span>
-                        <select class="select__db select__custom"
-                                data-filter="is_partner"
-                                name="is_partner"
-                                id="is_partner">
-                            <option>ВСЕ</option>
-                            <option value="true">Да</option>
-                            <option value="false">Нет</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка по автору" options=authors name="author_tree" %}
+    {% include "partials/filter/select.html" with label="Иерархия" options=hierarchies name="hierarchy" %}
+    {% include "partials/filter/select.html" with label="Автор регистрации" options=authors name="author" %}
+    {% include "partials/filter/input.html" with label="Email" name="email" input_type="email" placeholder="email или часть" %}
+    {% include "partials/filter/select.html" with label="Еmail отправлен" options=true_false_options name="has_email" custom_classes="select__custom" %}
+    {% include "partials/filter/input.html" with label="Номер телефона" name="phone_number" input_type="tel" placeholder="номер телефона или часть" %}
+    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
+    {% include "partials/filter/select.html" with label="Фотография" options=true_false_options name="has_photo" custom_classes="select__custom" %}
+    {% trans "Печатный билет" as ticket_label %}
+    {% include "partials/filter/select.html" with label=ticket_label options=ticket_status_options name="ticket_status" custom_classes="select__custom" %}
+    {% trans "Электронный билет" as eticket_label %}
+    {% include "partials/filter/select.html" with label=eticket_label options=true_false_options name="e_ticket" custom_classes="select__custom" %}
+    {% trans "Присутствие" as visited_label %}
+    {% include "partials/filter/select.html" with label=visited_label options=visited_options name="is_visited" custom_classes="select__custom" %}
+    {% trans "Диапазон дат присутствия" as date_range_label %}
+    {% include "partials/filter/fromto.html" with label=date_range_label name="date" custom_classes="select_date_filter" pclass="birthday" %}
+    {% trans "Облако свидетелей" as has_achievement_label %}
+    {% include "partials/filter/select.html" with label=has_achievement_label options=true_false_options name="has_achievement" custom_classes="select__custom" %}
+    {% trans "Партнеры" as is_partner_label %}
+    {% include "partials/filter/select.html" with label=is_partner_label options=true_false_options name="is_partner" custom_classes="select__custom" %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -427,7 +309,7 @@
                             {% endif %}
                             <% } %>
                         </td>
-                    <% } else if (key == 'hierarchy' || key == 'church' ) { %>
+                    <% } else if (key == 'hierarchy' || key == 'church' || key == 'author' ) { %>
                         <% if (results[index][key] != null ) { %>
                             <td><%= results[index][key].title %></td>
                         <% } else { %>

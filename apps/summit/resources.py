@@ -19,6 +19,7 @@ class SummitAnketResource(CustomFieldsModelResource):
     region = fields.Field(attribute='user__region')
     repentance_date = fields.Field(attribute='user__repentance_date')
     born_date = fields.Field(attribute='user__born_date')
+    author = fields.Field(attribute='author')
 
     user_field_name = 'user'
 
@@ -31,7 +32,7 @@ class SummitAnketResource(CustomFieldsModelResource):
             'repentance_date', 'born_date',
             'reg_code',
 
-            'hierarchy_title', 'responsible',
+            'hierarchy_title', 'responsible', 'author',
             'divisions_title', 'spiritual_level', 'city', 'country', 'department',
             'value', 'description',
             'code', 'ticket_status',
@@ -42,6 +43,9 @@ class SummitAnketResource(CustomFieldsModelResource):
 
     def dehydrate_full_name(self, user):
         return user.full_name
+
+    def dehydrate_author(self, user):
+        return user.author.fullname
 
     def export(self, queryset=None, *args, **kwargs):
         self.custom_export_fields = kwargs.get('custom_export_fields') + ['reg_code']

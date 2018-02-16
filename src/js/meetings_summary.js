@@ -9,11 +9,11 @@ import parseUrlQuery from './modules/ParseUrl/index';
 import {makeHomeLiderReportsTable, homeLiderReportsTable} from "./modules/Reports/meetings_summary";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 
-$('document').ready(function () {
-    let $departmentsFilter = $('#departments_filter'),
-        $treeFilter = $('#master_tree_filter'),
-        $churchFilter = $('#church_filter'),
-        $responsibleFilter = $('#responsible_filter'),
+('document').ready(function () {
+    let $departmentsFilter = $('#department_id_filter'),
+        $treeFilter = $('#master_id_filter'),
+        $churchFilter = $('#church_id_filter'),
+        $responsibleFilter = $('#responsible_id_filter'),
         initResponsible = false,
         urlChurch = URLS.church.for_select(),
         init = false;
@@ -24,8 +24,8 @@ $('document').ready(function () {
         if (!init) {
             console.log(set);
             if (set != null) {
-                $('#departments_filter').find(`option[value='${set.department_id}']`).prop('selected', true);
-                let departamentID = $('#departments_filter').val(),
+                $('#department_id_filter').find(`option[value='${set.department_id}']`).prop('selected', true);
+                let departamentID = $('#department_id_filter').val(),
                     config = {},
                     config2 = {};
                 if (departamentID) {

@@ -32,6 +32,36 @@ export function getResponsible(ids, level, search = "", include_id = '') {
     })
 }
 
+export function getSummitAuthors(departmentIds, summitId, level, search = "", include_id = '') {
+    let responsibleLevel;
+    if (level === 0 || level === 1) {
+        responsibleLevel = level + 1;
+    } else {
+        responsibleLevel = level;
+    }
+    const baseUrl = URLS.summit.authors(summitId);
+    return new Promise(function (resolve, reject) {
+        let url = (include_id) ?
+            `${baseUrl}?level_gte=${responsibleLevel}&search=${search}&include_user=${include_id}`
+            :
+            `${baseUrl}?level_gte=${responsibleLevel}&search=${search}`;
+        if (departmentIds instanceof Array) {
+            departmentIds.forEach(function (id) {
+                url += '&department=' + id;
+            });
+        } else {
+            (departmentIds !== null) && (url += '&department=' + departmentIds);
+        }
+        ajaxRequest(url, null, function (data) {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Ошибка");
+            }
+        });
+    })
+}
+
 export function getChurchesListINDepartament(department_ids) {
     return new Promise(function (resolve, reject) {
         let url;
@@ -278,6 +308,29 @@ export function getShortUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
             url: URLS.user.short(),
+            data: config,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        let status = {
+            200: function (req) {
+                resolve(req)
+            },
+            403: function () {
+                reject('Вы должны авторизоватся')
+            }
+
+        };
+        newAjaxRequest(data, status, reject)
+    });
+}
+
+export function getSummitAuthorsByMasterTree(summitId, config = {}) {
+    return new Promise(function (resolve, reject) {
+        let data = {
+            url: URLS.summit.authors(summitId),
             data: config,
             method: 'GET',
             headers: {

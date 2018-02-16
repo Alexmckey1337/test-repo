@@ -336,8 +336,8 @@ export function getPreFilterParam() {
     let data = {},
         rangeDate = $('#date_deal').val();
     if (rangeDate) {
-        data.purpose_date_from = reverseDate(rangeDate, '-');
-        data.purpose_date_to = reverseDate(rangeDate, '-');
+        data.from_purpose_date = reverseDate(rangeDate, '-');
+        data.to_purpose_date = reverseDate(rangeDate, '-');
     }
 
     return data

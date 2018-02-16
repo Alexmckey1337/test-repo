@@ -145,6 +145,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'apps.notification.context_processor.notifications',
+                'common.context_processor.true_false_options',
                 'apps.account.context_processor.spiritual_levels',
                 'apps.partnership.context_processor.partner_levels'
             ],
@@ -390,6 +391,11 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': False,
         },
+        'performance': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console', 'file'],
@@ -437,6 +443,7 @@ HIERARCHIES = (
     dict(title='Сотник (Отв-й за 5 ячеек)', level=2),
     dict(title='Ответственный Киев', level=4),
     dict(title='Епископ', level=4),
+    dict(title='Главный епископ', level=50),
     dict(title='Старший епископ', level=60),
     dict(title='Апостол', level=70),
     dict(title='Архонт', level=80),
@@ -447,7 +454,8 @@ CHANGE_HIERARCHY_LEVELS = {
     1: {0},
     2: {0, 1, 2},
     4: {0, 1, 2, 4},
-    60: {0, 1, 2, 4},
+    50: {0, 1, 2, 4},
+    60: {0, 1, 2, 4, 50},
     70: {0, 1, 2, 4, 60},
     80: {0, 1, 2, 4, 60, 70, 80},
 }

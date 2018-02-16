@@ -68,7 +68,7 @@
                     {% get_simple_managers as managers %}
                     {% for manager in managers %}
                         <option value="{{ manager.id }}"
-                                {% if partner.responsible.id == manager.id %}selected{% endif %}>{{ manager.fullname }}</option>
+                                {% if partner.responsible.id == manager.id %}selected{% endif %}>{{ manager.title }}</option>
                     {% endfor %}
                 </select>
             </label>

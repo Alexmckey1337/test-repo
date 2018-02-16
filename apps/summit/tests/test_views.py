@@ -400,35 +400,34 @@ class TestSummitProfileListView:
         monkeypatch.setattr(SummitProfileListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitProfileListView, 'get_queryset', get_queryset)
         summit = summit_factory()
-        user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
+        user = summit_anket_factory(summit=summit).user  # count: + 1, = 1, all_users_count: +1, = 1
 
-        # count: + 3, = 3, all_users_count: +3, = 4
-        # summit_anket_factory.create_batch(3, user__master=user, summit=summit)
+        # count: + 3, = 4, all_users_count: +3, = 4
         for i in range(3):
             u = user.add_child(username='user{}'.format(i), master=user)
-            summit_anket_factory(user=u, summit=summit)
-        # second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+            summit_anket_factory(user=u, summit=summit, author=user)
+        # count: + 1, = 5, all_users_count: +1, = 5
         second_level_user = user.add_child(username='user', master=user)
-        # count: + 8, = 11, all_users_count: +8, = 13
-        # summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+        summit_anket_factory(user=second_level_user, summit=summit, author=user)
+        # count: + 8, = 13, all_users_count: +8, = 13
         for i in range(8):
             u = second_level_user.add_child(username='second_user{}'.format(i), master=second_level_user)
-            summit_anket_factory(user=u, summit=summit)
+            summit_anket_factory(user=u, summit=summit, author=second_level_user)
 
-        summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 11, all_users_count: +15, = 28
-        other_user = user_factory()  # count: + 0, = 11, all_users_count: +1, = 29
-        # count: + 0, = 11, all_users_count: + 32, = 61
-        # summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 13, all_users_count: +15, = 28
+        other_user = user_factory()  # count: + 0, = 13, all_users_count: +1, = 29
+        summit_anket_factory(user=other_user, summit=summit, author=user_factory())
+        # count: + 0, = 13, all_users_count: + 32, = 61
         for i in range(32):
             u = other_user.add_child(username='other_user{}'.format(i), master=other_user)
-            summit_anket_factory(user=u, summit=summit)
+            summit_anket_factory(user=u, summit=summit, author=other_user)
 
         url = reverse('summit-profile-list', kwargs={'pk': summit.id})
 
-        response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
+        response = api_login_client.get(url, data={'author_tree': user.id}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['count'] == 11
+        assert response.data['count'] == 13
 
 
 @pytest.mark.django_db
@@ -983,35 +982,35 @@ class TestSummitStatisticsView:
         monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
         summit = summit_factory()
-        user = user_factory()  # count: + 0, = 0, all_users_count: +1, = 1
+        user = summit_anket_factory(summit=summit).user  # count: + 1, = 1, all_users_count: +1, = 1
 
-        # count: + 3, = 3, all_users_count: +3, = 4
-        # summit_anket_factory.create_batch(3, user__master=user, summit=summit)
+        # count: + 3, = 4, all_users_count: +3, = 4
         for i in range(3):
             u = user.add_child(username='user{}'.format(i), master=user)
-            summit_anket_factory(user=u, summit=summit)
-        # second_level_user = user_factory(master=user)  # count: + 3, = 0, all_users_count: +1, = 5
+            summit_anket_factory(user=u, summit=summit, author=user)
+        # second_level_user = user_factory(master=user)  # count: + 1, = 5, all_users_count: +1, = 5
         second_level_user = user.add_child(username='secord_user', master=user)
-        # count: + 8, = 11, all_users_count: +8, = 13
-        summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit)
+        summit_anket_factory(user=second_level_user, summit=summit, author=user)
+        # count: + 8, = 13, all_users_count: +8, = 13
+        # summit_anket_factory.create_batch(8, user__master=second_level_user, summit=summit, author=second_level_user)
         for i in range(8):
             u = second_level_user.add_child(username='second_user{}'.format(i), master=second_level_user)
-            summit_anket_factory(user=u, summit=summit)
+            summit_anket_factory(user=u, summit=summit, author=second_level_user)
 
-        summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 11, all_users_count: +15, = 28
-        other_user = user_factory()  # count: + 0, = 11, all_users_count: +1, = 29
-        # count: + 0, = 11, all_users_count: + 32, = 61
-        # summit_anket_factory.create_batch(32, user__master=other_user, summit=summit)
+        summit_anket_factory.create_batch(15, summit=summit)  # count: + 0, = 13, all_users_count: +15, = 28
+        other_user = user_factory()  # count: + 0, = 13, all_users_count: +1, = 29
+        summit_anket_factory(user=other_user, summit=summit, author=user_factory())
+        # count: + 0, = 13, all_users_count: + 32, = 61
         for i in range(32):
             u = other_user.add_child(username='other_user{}'.format(i), master=other_user)
-            summit_anket_factory(user=u, summit=summit)
+            summit_anket_factory(user=u, summit=summit, author=other_user)
 
         url = reverse('summit-stats', kwargs={'pk': summit.id})
 
-        response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
+        response = api_login_client.get(url, data={'author_tree': user.id}, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['count'] == 11
+        assert response.data['count'] == 13
 
     def test_filter_by_date_with_date(
             self, monkeypatch, api_client, summit_attend_factory, summit_factory):

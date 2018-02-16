@@ -39,137 +39,7 @@
     </div>
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                                <option value="">ВСЕ</option>
-                                {% for department in departments %}
-                                    <option value="{{ department.id }}">{{ department.title }}</option>
-                                {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <select class="selectdb" data-filter="church_id" id="church_filter">
-                            <option value="">ВСЕ</option>
-                            <option value="any">ЛЮБАЯ</option>
-                            <option value="nothing">НЕТ</option>
-                            {% for church in churches %}
-                                <option value="{{ church.id }}">{{ church.get_title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                        </select>
-                     </label>
-                    <label>
-                        <span class="label_block">Иерархия</span>
-                        <select class="selectdb" data-filter="hierarchy" id="hierarchies_filter">
-                                <option value="">ВСЕ</option>
-                                {% for hierarchy in hierarchies %}
-                                    <option value="{{ hierarchy.id }}">{{ hierarchy.title }}</option>
-                                {% endfor %}
-                        </select>
-                     </label>
-                    <label>
-                        <span class="label_block">Ответсвенный</span>
-                        <select class="selectdb" data-filter="master" id="masters_filter">
-                                <option value="">ВСЕ</option>
-                                {% for master in masters %}
-                                    <option value="{{ master.id }}">{{ master.fullname }}</option>
-                                {% endfor %}
-                        </select>
-                     </label>
-                    <label>
-                        <span class="label_block">Email</span>
-                        <input type="email" data-filter="search_email" placeholder="email или часть" id="search_email">
-                     </label>
-                    <label>
-                        <span class="label_block">Номер телефона</span>
-                        <input type="tel" data-filter="search_phone_number" placeholder="номер телефона или часть" id="search_phone_number">
-                     </label>
-                    <label>
-                        <span class="label_block">Страна</span>
-                        <input type="text" data-filter="search_country" placeholder="страна или часть названия" id="search_country">
-                     </label>
-                    <label>
-                        <span class="label_block">Город</span>
-                        <input type="text" data-filter="search_city" placeholder="город или часть названия" id="search_city">
-                     </label>
-                    <label>
-                        <span class="label_block">День рождения</span>
-                        <div class="birthday">
-                            <input type="text" placeholder="от" data-filter="from_date" id="date_from" class="select_date_filter">
-                            <input type="text" placeholder="до" data-filter="to_date" id="date_to" class="select_date_filter">
-                        </div>
-                    </label>
-                    <label>
-                        <span class="label_block">Партнер</span>
-                        <select class="selectdb select__custom" data-filter="is_partner" id="partner_filter">
-                                <option value="ВСЕ">ВСЕ</option>
-                                <option value="true">Да</option>
-                                <option value="false">Нет</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Духовный уровень</span>
-                        <select class="selectdb" id="spir_level_filter" data-filter="spiritual_level">
-                            <option value="">ВСЕ</option>
-                            {% for spiritual_level in spiritual_levels %}
-                                <option value="{{ spiritual_level.id }}">
-                                    {{ spiritual_level.title }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Стабильный</span>
-                        <select class="selectdb" data-filter="is_stable" id="is-Stable">
-                                <option value="">ВСЕ</option>
-                                <option value="2">Да</option>
-                                <option value="3">Нет</option>
-
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Архив (умер)</span>
-                        <select class="selectdb" data-filter="is_dead" id="is-Dead">
-                                <option value="">ВСЕ</option>
-                                <option value="2">Да</option>
-                                <option value="3">Нет</option>
-
-                        </select>
-                    </label>
-                    <select data-filter="home_group_id" id="home_group_filter" hidden>
-                        <option value="ВСЕ">ВСЕ</option>
-                        <option value="any">ЛЮБАЯ</option>
-                        <option value="nothing">НЕТ</option>
-                    </select>
-                    <input type="text" data-filter="user_type" placeholder="лидер?" id="user_type_filter" hidden>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
-                    Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.other %}
     <div class="popap popap_slide" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
@@ -184,6 +54,28 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Церковь" options=church_options name="church_id" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=master_options name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Иерархия" options=hierarchies name="hierarchy" %}
+    {% include "partials/filter/select.html" with label="Ответственный" options=master_options name="master" %}
+    {% include "partials/filter/input.html" with label="Email" name="email" input_type="email" placeholder="email или часть" %}
+    {% include "partials/filter/input.html" with label="Номер телефона" name="phone_number" input_type="tel" placeholder="номер телефона или часть" %}
+    {% include "partials/filter/input.html" with label="Страна" name="country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" placeholder="город или часть названия" %}
+    {% include "partials/filter/fromto.html" with label="День рождения" name="date" custom_classes="select_date_filter" pclass="birthday" %}
+    {% include "partials/filter/select.html" with label="Партнер" options=true_false_options name="is_partner" custom_classes="select__custom" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Духовный уровень" options=spiritual_levels name="spiritual_level" %}
+    {% include "partials/filter/select.html" with label="Стабильный" options=true_false_options name="is_stable" %}
+    {% include "partials/filter/select.html" with label="Архив (умер)" options=true_false_options name="is_dead" %}
+    <select data-filter="home_group_id" id="home_group_filter" hidden>
+        <option value="ВСЕ">ВСЕ</option>
+        <option value="any">ЛЮБАЯ</option>
+        <option value="nothing">НЕТ</option>
+    </select>
+    <input type="text" data-filter="user_type" placeholder="лидер?" id="user_type_filter" hidden>
 {% endblock %}
 {% block extra_scripts %}
     <script src="{% static "js/add_user.bundle.js" %}"></script>
