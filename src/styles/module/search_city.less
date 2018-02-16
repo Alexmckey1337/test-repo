@@ -10,9 +10,11 @@
     display: flex;
     align-items: center;
     padding: 10px 0;
+    & > span:empty {
+      display: none;
+    }
   }
   .selected_block > span {
-    border-radius: 5px;
     background: #aab2bd;
     color: #fff;
     height: 30px;
