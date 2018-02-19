@@ -299,7 +299,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(departments_id=department_id)
+            users = users.filter(departments__id=department_id)
 
         page = self.paginate_queryset(users)
         if page is not None:
