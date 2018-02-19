@@ -68,7 +68,6 @@ export function createChurchesTable(config = {}) {
             callback: createChurchesTable
         };
         makePagination(paginationConfig);
-        // fixedTableHead();
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createChurchesTable, ".table-wrap th");
@@ -79,11 +78,13 @@ export function clearAddChurchData() {
     $('#added_churches_date').val('');
     $('#added_churches_is_open').prop('checked', false);
     $('#added_churches_title').val('');
-    $('#added_churches_country').val('');
-    $('#added_churches_city').val('');
     $('#added_churches_address').val('');
     $('#added_churches_phone').val('');
     $('#added_churches_site').val('');
+    $('#addChurch').find('.select').each(function () {
+        $(this).text('');
+    });
+    $('#added_churches_city').attr('data-id', '');
 }
 
 export function saveChurches(el) {
@@ -102,9 +103,7 @@ export function saveChurches(el) {
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
         opening_date: $($(el).closest('.pop_cont').find('#openingDate')).val() || null,
         is_open: $('#is_open_church').is(':checked'),
-        country: $($(el).closest('.pop_cont').find('#country')).val(),
-        region: $($(el).closest('.pop_cont').find('#region')).val(),
-        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        locality: $('#update_churches_city').attr('data-id'),
         address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
@@ -131,12 +130,7 @@ export function saveChurches(el) {
         $(el).parent().closest('.popap_slide').removeClass('active');
         $(".bg").removeClass('active');
         showAlert('Изменения сохранены');
-    }).catch(function (res) {
-        let error = JSON.parse(res.responseText);
-        let errKey = Object.keys(error);
-        let html = errKey.map(errkey => `${error[errkey].map(err => `<span>${JSON.stringify(err)}</span>`)}`);
-        showAlert(html);
-    });
+    }).catch(err => error(err));
 }
 export function updateChurch(id, data, success = null) {
     let url = URLS.church.detail(id);
@@ -206,10 +200,7 @@ export function addChurch(e, el, callback) {
         clearAddChurchData();
         callback();
         showAlert(`Церковь ${data.get_title} добавлена в базу`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showAlert('Ошибка при создании церкви');
-    });
+    }).catch(_ => showAlert('Ошибка при создании церкви. Проверьте правильность заполненных полей'))
 }
 
 function getAddChurchData() {
@@ -219,9 +210,7 @@ function getAddChurchData() {
         "title": $('#added_churches_title').val(),
         "department": $('#department_select').val(),
         "pastor": $('#pastor_select').val(),
-        "country": $('#added_churches_country').val(),
-        "city": $('#added_churches_city').val(),
-        "region": $('#added_churches_region').val(),
+        "locality": $('#added_churches_city').attr('data-id'),
         "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val(),

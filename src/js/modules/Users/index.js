@@ -10,7 +10,7 @@ import makePagination from '../Pagination/index';
 import {makeDataTable} from '../Table/index';
 import updateHistoryUrl from '../History/index';
 
-export function createUsersTable(config) {
+export function createUsersTable(config = {}) {
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
