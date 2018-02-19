@@ -56,10 +56,11 @@ class CitySearch:
         self.areas = []
         self.districts = []
 
-    def add_city(self, city, country, area, district, pk, score=1):
+    def add_city(self, city, location, country, area, district, pk, score=1):
         self.cities.append({
             'pk': pk,
             'city': city,
+            'location': location,
             'country': country,
             'area': area,
             'district': district,
@@ -123,6 +124,7 @@ class CitySearchListView(generics.GenericAPIView):
         for h in r:
             ret.add_city(
                 h.name,
+                h.location.to_dict() if hasattr(h, 'location') else {},
                 h.country.name if hasattr(h, 'country') else '',
                 h.area.name if hasattr(h, 'area') else '',
                 h.district.name if hasattr(h, 'district') else '',
@@ -154,6 +156,7 @@ class CitySearchListView(generics.GenericAPIView):
         for c in cities:
             ret.add_city(
                 c.name,
+                {'lat': c.latitude, 'lon': c.longitude},
                 c.country.name if c.country else '',
                 c.area.name if c.area else '',
                 districts.get(c.rajon, ''),
