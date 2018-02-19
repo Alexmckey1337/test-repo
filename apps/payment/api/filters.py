@@ -306,3 +306,13 @@ class FilterByChurchReportChurchTitle(BaseFilterBackend):
         reports_ids = reports.values_list('id', flat=True)
 
         return queryset.filter(content_type__model='churchreport', object_id__in=reports_ids)
+
+
+class FilterByPaymentCurrency(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        currencies = request.query_params.get('currencies')
+        if currencies:
+            ids = [x for x in currencies if x.isdigit()]
+            queryset = queryset.filter(currency_rate__in=ids)
+
+        return queryset

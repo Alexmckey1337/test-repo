@@ -17,7 +17,7 @@ from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.payment.api.filters import (
     PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
     FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
-    FilterByChurchReportChurchTitle, FilterByDealType)
+    FilterByChurchReportChurchTitle, FilterByDealType, FilterByPaymentCurrency)
 from apps.payment.api.pagination import PaymentPagination, ChurchReportPaymentPagination
 from apps.payment.api.permissions import PaymentManagerOrSupervisor
 from apps.payment.api.serializers import (
@@ -131,7 +131,8 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        # FilterByDealManagerFIO,
                        FilterByDealManager,
                        FilterByDealType,
-                       filters.OrderingFilter,)
+                       filters.OrderingFilter,
+                       FilterByPaymentCurrency,)
     ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + (
         # 'deals__partnership__user__last_name',
         # 'deals__date_created',
@@ -170,7 +171,8 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
                        filters.OrderingFilter,
                        FilterByChurchReportDate,
                        FilterByChurchReportPastor,
-                       FilterByChurchReportChurchTitle,)
+                       FilterByChurchReportChurchTitle,
+                       FilterByPaymentCurrency,)
 
     ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + ('church_reports__church__pastor__last_name',
                                                          'church_reports__date', 'church_reports__church__title')
