@@ -18,11 +18,11 @@ $('document').ready(function () {
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
         lastMonday = (moment(dateReports).day() === 1) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).subtract(7, 'days').format('DD.MM.YYYY'),
         lastSunday = (moment(dateReports).day() === 0) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(7).subtract(7, 'days').format('DD.MM.YYYY'),
-        $departmentsFilter = $('#departments_filter'),
+        $departmentsFilter = $('#department_filter'),
         $treeFilter = $('#master_tree_filter'),
         $churchFilter = $('#church_filter'),
         $homeGroupFilter = $('#home_group_filter'),
-        $liderFilter = $('#masters_filter');
+        $liderFilter = $('#owner_filter');
     const USER_ID = $('body').data('user'),
         urlPastors = URLS.church.available_pastors(),
         urlChurches = URLS.church.for_select(),

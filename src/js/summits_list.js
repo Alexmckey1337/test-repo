@@ -16,7 +16,7 @@ $('document').ready(function () {
         init = false;
     const path = window.location.href.split('?')[1];
 
-    $('.selectbd').select2();
+    $('.selectdb').select2();
 
     function filterInit(set = null) {
         if (!init) {

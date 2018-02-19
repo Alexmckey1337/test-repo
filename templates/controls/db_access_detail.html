@@ -1,0 +1,36 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}<h1>Права доступа з базе данных</h1>{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-buttons-wrap">
+        <ul class="top-buttons">
+            {% block header.buttons.add %}
+                <li>
+                    <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+                </li>
+                <li>
+                    <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
+                </li>
+            {% endblock %}
+        </ul>
+    </div>
+{% endblock %}
+{% block table %}
+    <div class="table-wrap  clearfix" id="db_access"><!--Table -->
+        <div class="table scrollbar-inner" id="tableDbAccess"></div>
+    </div><!--End Table -->
+{% endblock %}
+
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Ветка" options='' name="master_cree" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Пастор" options='' name="pastor" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Церковь" options='' name="church" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Статус сделки" options=payment_status_options name="payment_status" %}
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{% static "js/db_access.bundle.js" %}"></script>
+{% endblock %}

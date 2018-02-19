@@ -16,7 +16,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from treebeard.mp_tree import MP_Node
 
-from apps.account.abstract_models import CustomUserAbstract
 from apps.account.api.permissions import (
     can_edit_status_block, can_edit_description_block, can_see_account_page,
     SeeUserListPermission, CreateUserPermission, ExportUserListPermission)
@@ -31,12 +30,29 @@ from apps.summit.models import SummitAnket, Summit
 
 
 @python_2_unicode_compatible
-class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
+class CustomUser(MP_Node, LogModel, User,
                  GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
     User model
     """
     steplen = 6
+
+    #: Field for name in the native language of the user
+    search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True, db_index=True)
+    middle_name = models.CharField(_('Middle name'), max_length=40, blank=True, db_index=True)
+
+    city = models.CharField(_('City'), max_length=255, blank=True, db_index=True)
+    country = models.CharField(_('Country'), max_length=255, blank=True, db_index=True)
+
+    RENEGADE, BABY, JUNIOR, FATHER = 0, 1, 2, 3
+    SPIRITUAL_LEVEL_CHOICES = (
+        (RENEGADE, _('Renegade')),
+        (BABY, _('Baby')),
+        (JUNIOR, _('Junior')),
+        (FATHER, _('Father')),
+    )
+    spiritual_level = models.PositiveSmallIntegerField(
+        _('Spiritual Level'), choices=SPIRITUAL_LEVEL_CHOICES, default=1, db_index=True)
 
     locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='users',
                                  null=True, blank=True, verbose_name=_('Locality'),
@@ -147,6 +163,10 @@ class CustomUser(MP_Node, LogModel, User, CustomUserAbstract,
     @property
     def get_church(self):
         return self.cchurch or self.hhome_group.church if self.hhome_group else None
+
+    @property
+    def get_home_group(self):
+        return self.hhome_group
 
     @property
     def column_table(self):

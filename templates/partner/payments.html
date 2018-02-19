@@ -84,103 +84,17 @@
     </div><!-- End tab-content-->
 {% endblock %}
 
-{% block popup %}
+{% block popup.filter.content %}
     {% update_payment_form %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>
-                Фильтр
-            </h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Валюта</span>
-                        <select class="selectdb" data-filter="currency_sum" id="currency_sum">
-                            <option value="">ВСЕ</option>
-                            {% for currency in currencies %}
-                                <option value="{{ currency.id }}">{{ currency.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Сумма платежа</span>
-                        <p class="birthday">
-                            <input type="number" placeholder="от" data-filter="sum_from" id="sum_from" class="select_from_filter">
-                            <input type="number" placeholder="до" data-filter="sum_to" id="sum_to" class="select_to_filter">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата поступления платежа</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="sent_from" id="sent_date_from" class="select_from_filter">
-                            <input type="text" placeholder="до" data-filter="sent_to" id="sent_date_to" class="select_to_filter">
-                        </p>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата создания платежа</span>
-                        <p class="birthday">
-                            <input type="text" placeholder="от" data-filter="create_from" id="date_from" class="select_from_filter">
-                            <input type="text" placeholder="до" data-filter="create_to" id="date_to" class="select_to_filter">
-                        </p>
-                    </label>
-{#                    <label>#}
-{#                        <span class="label_block">Дата сделки</span>#}
-{#                        <p class="birthday">#}
-{#                            <input type="text" placeholder="от" data-filter="purpose_date_from" id="purpose_date_from" class="select_from_filter">#}
-{#                            <input type="text" placeholder="до" data-filter="purpose_date_to" id="purpose_date_to" class="select_to_filter">#}
-{#                        </p>#}
-{#                    </label>#}
-                    <label>
-                        <span class="label_block">Супервайзер</span>
-                        <select data-filter="manager" id="manager">
-                            <option value="">ВСЕ</option>
-{#                            {% for supervisor in supervisors %}#}
-{#                                <option value="{{ supervisor.id }}">{{ supervisor.fullname }}</option>#}
-{#                            {% endfor %}#}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Менеджер</span>
-                        <select data-filter="responsible_id" id="search_purpose_manager_fio">
-                            <option value="">ВСЕ</option>
-{#                            {% for manager in managers %}#}
-{#                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>#}
-{#                            {% endfor %}#}
-                        </select>
-{#                        <input type="text" data-filter="search_purpose_manager_fio" placeholder="Ответсвенный"#}
-{#                                   id="search_purpose_manager_fio">#}
-                    </label>
-                    <label>
-                        <span class="label_block">Поиск по описанию</span>
-                        <input type="text" data-filter="search_description" placeholder="Описание или часть"
-                                   id="search_description">
-                    </label>
-                    <label>
-                        <span class="label_block">Тип сделки</span>
-                        <select id="﻿payment_status" class="selectdb" data-filter="deal_type">
-                            <option value="">ВСЕ</option>
-                            <option value="1">Партнерские</option>
-                            <option value="2">﻿Десятины</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">База</span>
-                        <select class="selectdb" data-filter="group" id="group_filter" multiple="multiple">
-{#                            <option value="">ВСЕ</option>#}
-                            {% for group in partner_groups %}
-                                <option value="{{ group.id }}">{{ group.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+    {% include "partials/filter/select.html" with label="Валюта" options=currency_options name="currency_sum" %}
+    {% include "partials/filter/fromto.html" with label="Сумма платежа" name="sum" input_type="number" pclass="birthday" %}
+    {% include "partials/filter/fromto.html" with label="Дата поступления платежа" name="sent" custom_classes="select_date_filter" pclass="birthday" %}
+    {% include "partials/filter/fromto.html" with label="Дата создания платежа" name="create" custom_classes="select_date_filter" pclass="birthday" %}
+    {% include "partials/filter/select.html" with label="Супервайзер" options='' name="manager" %}
+    {% include "partials/filter/select.html" with label="Менеджер" options='' name="responsible_id" %}
+    {% include "partials/filter/input.html" with label="Поиск по описанию" name="description" placeholder="Описание или часть" %}
+    {% include "partials/filter/select.html" with label="Тип сделки" options=deal_type_options name="deal_type" %}
+    {% include "partials/filter/select.html" with label="База" options=partner_groups name="group" multiple="true" without_empty="true" %}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}
@@ -232,6 +146,12 @@
                 <% } else { %>
                 <td></td>
                 <% } %>
+                <% } else if(key == 'sum_str') { %>
+                <td>
+                <% if (results[index][key] != null) { %>
+                    <%= String(results[index][key].replace('.', ',')).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                <% } %>
+                </td>
                 <% } else if (key == 'purpose_type' ) { %>
                 <% if (results[index][key] != null ) { %>
                 <td>

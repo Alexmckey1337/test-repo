@@ -16,12 +16,12 @@ import {saveUser, initAddNewUser} from "./modules/User/addUser";
 import {createNewUser} from "./modules/User/addUser";
 
 $('document').ready(function () {
-    let $departmentsFilter = $('#departments_filter'),
-        $churchFilter = $('#church_filter'),
-        $treeFilter = $("#tree_filter"),
-        $partnerFilter = $('#partner_filter'),
-        $masterFilter = $('#masters_filter'),
-        $hierarchyFilter = $('#hierarchies_filter'),
+    let $departmentsFilter = $('#department_filter'),
+        $churchFilter = $('#church_id_filter'),
+        $treeFilter = $("#master_tree_filter"),
+        $partnerFilter = $('#is_partner_filter'),
+        $masterFilter = $('#master_filter'),
+        $hierarchyFilter = $('#hierarchy_filter'),
         urlChurch = URLS.church.for_select(),
         urlUserShort = URLS.user.short();
     const USER_ID = $('body').data('user'),
@@ -175,7 +175,7 @@ $('document').ready(function () {
             $('#home_group_filter').val(set.home_group_id).trigger('change');
         }
         if (set.spiritual_level) {
-            $('#spir_level_filter').val(set.spiritual_level).trigger('change');
+            $('#spiritual_level_filter').val(set.spiritual_level).trigger('change');
         }
         (async () => {
             if (set.department) {
@@ -237,7 +237,7 @@ $('document').ready(function () {
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(null);
+                createNewUser(() => createUsersTable());
             }
             return false; // Will stop the submission of the form
         },

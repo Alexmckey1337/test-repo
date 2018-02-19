@@ -167,21 +167,21 @@ class Payment(LogModel):
         verbose_name_plural = _('Payments')
 
     @property
-    def sum_str(self):
+    def sum_str(self) -> str:
         format_data = self.currency_sum.output_dict()
         format_data['value'] = self.sum
         return self.currency_sum.output_format.format(**format_data)
 
     @property
-    def effective_sum_str(self):
+    def effective_sum_str(self) -> str:
         format_data = self.currency_rate.output_dict()
         format_data['value'] = self.effective_sum
         return self.currency_rate.output_format.format(**format_data)
 
-    def calculate_effective_sum(self):
+    def calculate_effective_sum(self) -> Decimal:
         if self.operation == '/':
-            return self.sum / self.rate
-        return self.sum * self.rate
+            return (self.sum / self.rate).quantize(Decimal('0.001'))
+        return (self.sum * self.rate).quantize(Decimal('0.001'))
 
     def update_effective_sum(self, save=True):
         self.effective_sum = self.calculate_effective_sum()

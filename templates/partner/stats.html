@@ -56,7 +56,7 @@
                                     <option value="0" selected disabled>Выберите менеджера</option>
                                     <option value="all">{% trans "All" %}</option>
                                     {% for manager in managers %}
-                                        <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                        <option value="{{ manager.id }}">{{ manager.title }}</option>
                                     {% endfor %}
                                 </select></div>
                         {% endif %}
@@ -244,7 +244,17 @@
         </div>
         </div>
     </div>
-    {{ block.super }}
+{% endblock %}
+
+{% block add_user_modal.buttons.create %}
+{% endblock %}
+
+{% block choose_user_modal.search_field %}
+    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src='{% static "js/stats.bundle.js" %}'></script>
     <script type="text/template" id="stats_money">
         <div class="panel panel-success">
             <div class="panel-heading">
@@ -333,15 +343,4 @@
             </div>
         </div>
     </script>
-{% endblock %}
-
-{% block add_user_modal.buttons.create %}
-{% endblock %}
-
-{% block choose_user_modal.search_field %}
-    <input id="searchUsers" type="text" placeholder="Поиск (введите не менее трех символов)">
-{% endblock %}
-
-{% block extra_scripts %}
-    <script src='{% static "js/stats.bundle.js" %}'></script>
 {% endblock %}

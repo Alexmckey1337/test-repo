@@ -7,9 +7,9 @@
     <h1>
         Structure | {{ user|default:"TOP" }} |
         {% if user %}
-            <a href="{% url "structure_to_pdf-detail" pk=user.pk name=user.fullname %}">to pdf</a>
+            <a href="{% url "structure_to_pdf-detail" pk=user.pk name=user.fullname %}{% if only_active %}?only_active{% endif %}">to pdf</a>
         {% else %}
-            <a href="{% url "structure_to_pdf-top" %}">to pdf</a>
+            <a href="{% url "structure_to_pdf-top" %}{% if only_active %}?only_active{% endif %}">to pdf</a>
         {% endif %}
     </h1>
 {% endblock %}
@@ -19,9 +19,9 @@
 
 {% block main.content %}
     <h2 style="margin: 20px">
-        {% if user %}<a href="{% url "structure-top" %}">TOP</a> |{% else %}TOP{% endif %}
+        {% if user %}<a href="{% url "structure-top" %}{% if only_active %}?only_active{% endif %}">TOP</a> |{% else %}TOP{% endif %}
         {% for ancestor in user.get_ancestors %}
-            <a href="{% url "structure-detail" pk=ancestor.pk %}">{{ ancestor.fullname }}</a> |
+            <a href="{% url "structure-detail" pk=ancestor.pk %}{% if only_active %}?only_active{% endif %}">{{ ancestor.fullname }}</a> |
         {% endfor %}
         {% if user %}
             {{ user.fullname }}
@@ -41,7 +41,7 @@
                     {% if u.is_leaf %}
                         {{ u.fullname }}
                     {% else %}
-                        <a href="{% url "structure-detail" pk=u.pk %}"><strong style="color:red">* {{ u.fullname }} {{ u.numchild }} *</strong></a>
+                        <a href="{% url "structure-detail" pk=u.pk %}{% if only_active %}?only_active{% endif %}"><strong style="color:red">* {{ u.fullname }} {{ u.numchild }} *</strong></a>
                     {% endif %}
                 </td>
                 <td>

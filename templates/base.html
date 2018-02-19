@@ -136,12 +136,38 @@
                             <% } else { %>
                                 <td></td>
                             <% } %>
-            <% }  else if (key == 'locality' || key == 'user.locality') { %>
-            <% if (results[index][key] != null ) { %>
-            <td><%= results[index][key].name %></td>
-            <% } else { %>
-            <td></td>
-            <% } %>
+                        <% }  else if (key == 'locality' || key == 'user.locality' || key == 'church.locality') { %>
+                        <% if (results[index][key] != null ) { %>
+                        <td><%= results[index][key].name %></td>
+                        <% } else { %>
+                        <td></td>
+                        <% } %>
+            <% }  else if (key == 'value') { %>
+            <td>
+                <% if (results[index][key] != null ) { %>
+                <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                <% } %>
+            </td>
+            <% }  else if (key == 'country' || key == 'user.country' || key == 'church.country') { %>
+            <td>
+                <% if (results[index].locality != null && results[index].locality.country_name != null) { %>
+                    <%= results[index].locality.country_name %>
+                <% } else if (results[index].user && results[index].user.locality != null && results[index].user.locality.country_name != null) { %>
+                    <%= results[index].user.locality.country_name %>
+                <% } else if (results[index].church && results[index].church.locality != null && results[index].church.locality.country_name != null) { %>
+                    <%= results[index].church.locality.country_name %>
+                <% } %>
+            </td>
+            <% }  else if (key == 'region' || key == 'user.region' || key == 'church.region') { %>
+            <td>
+                <% if (results[index].locality != null && results[index].locality.area_name != null) { %>
+                    <%= results[index].locality.area_name %>
+                <% } else if (results[index].user && results[index].user.locality != null && results[index].user.locality.area_name != null) { %>
+                    <%= results[index].user.locality.area_name %>
+                <% } else if (results[index].church && results[index].church.locality != null && results[index].church.locality.area_name != null) { %>
+                    <%= results[index].church.locality.area_name %>
+                <% } %>
+            </td>
                         <% }  else if (key == 'hierarchy' || key == 'church' ) { %>
                             <% if (results[index][key] != null ) { %>
                                 <td><%= results[index][key].title %></td>

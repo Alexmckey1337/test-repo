@@ -12,7 +12,7 @@ def get_simple_managers():
     managers = CustomUser.objects.filter(
         partner_role__level__lte=settings.PARTNER_LEVELS['manager']).order_by(
         'last_name', 'first_name')
-    return managers
+    return [{'id': m.pk, 'title': m.fullname} for m in managers]
 
 
 @register.simple_tag()

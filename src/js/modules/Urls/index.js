@@ -23,10 +23,11 @@ const CONTROLS = {
     password_submit: (id) => `/api/controls/db_access/${id}/`,
     summit_access: () => `/api/controls/summit_panel/`,
     summit_detail: (id) => `/api/controls/summit_panel/${id}/`,
-}
+};
 
 const SUMMIT = {
     users: (summitId) => `/api/summits/${summitId}/users/`,
+    authors: (summitId) => `/api/summits/${summitId}/authors/`,
     stats: (summitId) => `/api/summits/${summitId}/stats/`,
     report_by_bishop: (summitId) => `/api/summit/${summitId}/report_by_bishops/`,
     master: (summitId) => `/api/summit/${summitId}/master/`,
@@ -130,6 +131,7 @@ const CHURCH_DEAL = {
     find_duplicates: () => `/api/church_deals/get_duplicates/`,
     check_duplicates: () => `/api/church_deals/check_duplicates/`,
 };
+
 const CHURCH = {
     detail: (churchId) => `/api/churches/${churchId}/`,
     list: () => `/api/churches/`,
@@ -189,6 +191,7 @@ const URLS = {
     country: () => `/api/countries/`,
     region: () => `/api/regions/`,
     city: () => `/api/cities/`,
+    town: () => `/api/city/`,
     department: () => `/api/departments/`,
     division: () => `/api/divisions/`,
     hierarchy: () => `/api/hierarchy/`,

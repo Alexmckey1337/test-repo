@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from apps.account.api.serializers import UserTableSerializer, UserShortSerializer
+from apps.account.api.serializers import UserTableSerializer, UserShortSerializer, UserForSelectSerializer
 from apps.account.models import CustomUser as User, CustomUser
 from apps.summit.models import (
     Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
@@ -54,6 +55,7 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
     reg_code = serializers.CharField()
     has_email = serializers.BooleanField()
     has_achievement = serializers.BooleanField()
+    author = UserForSelectSerializer()
 
     class Meta:
         model = SummitAnket
@@ -69,19 +71,39 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   'total_sum', 'e_ticket',
                   'reg_code',
                   'has_email', 'has_achievement',
+                  'author',
                   )
 
 
 class SummitProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
-        fields = ('description',)
+        fields = ('description', 'author')
 
 
 class SummitProfileCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket
-        fields = ('summit', 'user', 'description',)
+        fields = ('summit', 'user', 'author', 'description',)
+
+    def validate_summit(self, summit):
+        if summit.status == Summit.CLOSE:
+            raise serializers.ValidationError(
+                {'message': _('Нельзя добавлять пользователей в закрытый саммит.')})
+        return summit
+
+    def validate(self, attrs):
+        author = attrs.get('author')
+        user = attrs.get('user')
+        if author is None and user.hierarchy.level < 50:  # Главный епископ
+            raise serializers.ValidationError(
+                {'message': _('Автор регистрации обязательное поле')}
+            )
+        if author is not None and not SummitAnket.objects.filter(summit=attrs['summit'], user=author).exists():
+            raise serializers.ValidationError(
+                {'message': _('Автор регистрации должен быть зарегестрирован на саммит')}
+            )
+        return attrs
 
 
 class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
@@ -89,10 +111,11 @@ class SummitAnketStatisticsSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='user.phone_number')
     attended = serializers.CharField()
     active = serializers.BooleanField(source='status.active')
+    author = UserForSelectSerializer()
 
     class Meta:
         model = SummitAnket
-        fields = ('id', 'user_id', 'full_name', 'responsible', 'link',
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'author', 'link',
                   'department', 'phone_number', 'code', 'attended', 'active')
 
 

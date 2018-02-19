@@ -1,0 +1,16 @@
+<label>
+    <span class="label_block">{{ label }}</span>
+    <select class="selectdb {{ custom_classes }}"
+            data-filter="{% if custom_data_filter %}{{ custom_data_filter }}{% else %}{{ name }}{% endif %}"
+            id="{% if custom_id %}{{ custom_id }}{% else %}{{ name }}_filter{% endif %}"
+            name="{{ name }}"
+            {% if multiple %}multiple="multiple"{% endif %}
+    >
+        {% if not without_empty %}
+            <option value="{{ empty_value }}">{{ empty_title|default:"ВСЕ" }}</option>
+        {% endif %}
+        {% for option in options %}
+            <option value="{{ option.id }}">{{ option.title }}</option>
+        {% endfor %}
+    </select>
+</label>

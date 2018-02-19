@@ -60,22 +60,22 @@ $(document).ready(function () {
         $('.bg').addClass('active');
 
     });
-    $('#date_from').datepicker({
+    $('#from_create_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
-    $('#date_to').datepicker({
+    $('#to_create_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
-    $('#sent_date_from').datepicker({
+    $('#from_sent_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
     });
-    $('#sent_date_to').datepicker({
+    $('#to_sent_filter').datepicker({
         dateFormat: 'yyyy-mm-dd',
         autoClose: true,
         position: "left top",
@@ -172,8 +172,8 @@ $(document).ready(function () {
         return `<option value="${data.id}">${data.text}</option>`;
     }
 
-    makeSelect($('#manager'), URLS.payment.supervisors(), parse, formatRepo);
-    makeSelect($('#search_purpose_manager_fio'), URLS.user.managers(), parse, formatRepo);
+    makeSelect($('#manager_filter'), URLS.payment.supervisors(), parse, formatRepo);
+    makeSelect($('#responsible_id_filter'), URLS.user.managers(), parse, formatRepo);
 
     //Payments
     function submitPayment() {

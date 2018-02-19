@@ -134,6 +134,12 @@ class ChurchNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title',)
 
 
+class HomeGroupNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HomeGroup
+        fields = ('id', 'title')
+
+
 def exist_users_with_level_not_in_levels(users, levels):
     return users.exclude(hierarchy__level__in=levels).exists()
 
@@ -145,7 +151,7 @@ class PartnerUserSerializer(serializers.ModelSerializer):
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
     get_church = ChurchNameSerializer(read_only=True)
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
     class Meta:
         model = User
@@ -374,10 +380,11 @@ class UserSingleSerializer(BaseUserSerializer):
 class UserTableSerializer(UserSingleSerializer):
     master = MasterNameSerializer(required=False, allow_null=True)
     get_church = ChurchNameSerializer(read_only=True)
-    locality = CityTitleSerializer()
+    get_home_group = HomeGroupNameSerializer(read_only=True)
+    locality = CityReadSerializer()
 
     class Meta(UserSingleSerializer.Meta):
-        fields = BASE_USER_FIELDS + ('get_church',)
+        fields = BASE_USER_FIELDS + ('get_church', 'get_home_group')
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
@@ -405,7 +412,7 @@ class UserShortSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserForSelectSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(source='full_name')
+    title = serializers.CharField(source='fullname')
 
     class Meta:
         model = User

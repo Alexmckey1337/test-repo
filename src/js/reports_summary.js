@@ -14,10 +14,10 @@ import {
 } from "./modules/Reports/reports_summary";
 
 $('document').ready(function () {
-    let $departmentsFilter = $('#departments_filter'),
-        $treeFilter = $('#tree_filter'),
-        $churchFilter = $('#church_filter'),
-        $responsibleFilter = $('#responsible_filter'),
+    let $departmentsFilter = $('#department_filter'),
+        $treeFilter = $('#master_id_filter'),
+        $churchFilter = $('#church_id_filter'),
+        $responsibleFilter = $('#responsible_id_filter'),
         initResponsible = false,
         urlChurch = URLS.church.for_select(),
         init = false;
@@ -27,7 +27,7 @@ $('document').ready(function () {
     function filterInit(set = null) {
         if (!init) {
             if (set != null) {
-                $('#departments_filter').find(`option[value='${set.department_id}']`).prop('selected', true);
+                $('#department_filter').find(`option[value='${set.department_id}']`).prop('selected', true);
                 $('.apply-filter').trigger('click');
             } else {
                 getPastorsByDepartment({

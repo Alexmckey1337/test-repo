@@ -37,7 +37,7 @@ from apps.group.api.serializers import (
     ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-    ChurchDashboardSerializer)
+    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
@@ -55,6 +55,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     queryset = Church.objects.select_related('pastor', 'department', 'locality')
 
     serializer_class = ChurchSerializer
+    serializer_read_class = ChurchReadSerializer
     serializer_list_class = ChurchListSerializer
 
     permission_classes = (IsAuthenticated,)
@@ -91,6 +92,8 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     def get_serializer_class(self):
         if self.action == 'list':
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
@@ -195,15 +198,15 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         stats['home_groups_count'] = church.home_group.count()
 
         stats['fathers_count'] = (church.uusers.filter(spiritual_level=CustomUser.FATHER).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                  HomeGroup.objects.filter(church_id=pk).filter(
                                       uusers__spiritual_level=3).count())
 
         stats['juniors_count'] = (church.uusers.filter(spiritual_level=CustomUser.JUNIOR).count() +
-                                  HomeGroup.objects.filter(church__id=pk).filter(
+                                  HomeGroup.objects.filter(church_id=pk).filter(
                                       uusers__spiritual_level=2).count())
 
         stats['babies_count'] = (church.uusers.filter(spiritual_level=CustomUser.BABY).count() +
-                                 HomeGroup.objects.filter(church__id=pk).filter(
+                                 HomeGroup.objects.filter(church_id=pk).filter(
                                      uusers__spiritual_level=1).count())
 
         stats['partners_count'] = church.uusers.filter(partners__is_active=True).count() + HomeGroup.objects.filter(
@@ -296,7 +299,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(departments__id=department_id)
+            users = users.filter(departments_id=department_id)
 
         page = self.paginate_queryset(users)
         if page is not None:
@@ -365,6 +368,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
     queryset = HomeGroup.objects.all().select_related('leader', 'church', 'locality')
 
     serializer_class = HomeGroupSerializer
+    serializer_read_class = HomeGroupReadSerializer
     serializer_list_class = HomeGroupListSerializer
 
     permission_classes = (IsAuthenticated,)
@@ -399,8 +403,10 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list']:
             return self.serializer_list_class
+        if self.action == 'retrieve':
+            return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
@@ -414,7 +420,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if CustomUser.objects.filter(hhome_group__id=instance.id).exists():
+        if CustomUser.objects.filter(hhome_group_id=instance.id).exists():
             raise exceptions.ValidationError({'message': _('Невозможно удалить Домашнюю Группу. '
                                                            'В составе данной Домашней Группы есть люди.'),
                                               'can_delete': 'false'})

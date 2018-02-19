@@ -29,6 +29,27 @@ class ServiceUnavailable(exceptions.APIException):
 
 
 def request_to_asterisk(data, url):
+    # TODO bad code
+    # i am sorry -- start
+    data = dict(data) if data else {}
+    from_duration = data.get('from_duration')
+    to_duration = data.get('to_duration')
+    from_date = data.get('from_date')
+    to_date = data.get('to_date')
+    if from_duration is not None:
+        data['duration_from'] = from_duration
+        del data['from_duration']
+    if to_duration is not None:
+        data['duration_to'] = to_duration
+        del data['to_duration']
+    if from_date is not None:
+        data['date_from'] = from_date
+        del data['from_date']
+    if to_date is not None:
+        data['date_to'] = to_date
+        del data['to_date']
+    # i am sorry -- end
+
     s = time.time()
     try:
         response = requests.get(settings.ASTERISK_SERVICE_ADDRESS + url,

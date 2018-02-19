@@ -61,32 +61,8 @@
     <input id="searchUsers" type="text" placeholder="Поиск" name="unregsearch">
 {% endblock %}
 
-{% block popup %}
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <div class='popup_text'>
-                <h2>Фильтр</h2>
-            </div>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>Очистить</button>
-                <button class="close-popup">Отменить</button>
-                <button id="applyFilter" class="apply-filter">Применить</button>
-            </div>
-        </div>
-    </div>
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -111,11 +87,17 @@
                     ) { %>
                                 <td><a href="/account/<%= results[index].id %>"><%= results[index][key] %></a></td>
                             <% } else if (key == 'absent') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=false&short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else if (key == 'attend') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?attended=true&short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else if (key == 'total') { %>
-                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short"><%= results[index][key] %></a></td>
+                                <td><a href="/api/summit/{{ summit.id }}/master/<%= results[index].id %>.pdf?short">
+                                    <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
+                                </a></td>
                             <% } else { %>
                                 <td><%= results[index][key] %></td>
                             <% } %>

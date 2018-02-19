@@ -53,7 +53,7 @@ def partnerships_deactivate_raw():
 
 
 def telegram_users_to_deactivate(deactivate_partners):
-    users = CustomUser.objects.filter(partners__id__in=deactivate_partners,
+    users = CustomUser.objects.filter(partners__in=deactivate_partners,
                                       telegram_users__is_active__isnull=False)
 
     if users:

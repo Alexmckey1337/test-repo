@@ -38,7 +38,16 @@
     </div><!--End Table -->
 {% endblock %}
 
-{% block popup %}
+{% block popup.filter.content %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department_id" %}
+    {% include "partials/filter/select.html" with label="Церковь" options=churches name="church" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=masters name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Лидер" options='' name="leader" %}
+    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" custom_data_filter="opening_date" %}
+    {% include "partials/filter/input.html" with label="Город" name="city" custom_data_filter="city" placeholder="город или часть названия" %}
+{% endblock %}
+
+{% block popup.other %}
     <div class="popap popap_slide" id="quickEditCartPopup">
         <div class="pop_cont">
             <div class="popup_text">
@@ -52,63 +61,6 @@
                 {% endif %}
                 <button class="close-popup change__text">Отменить</button>
                 <button class="save-group">Сохранить</button>
-            </div>
-        </div>
-    </div>
-    <div class="popap popap_slide" id='filterPopup'>
-        <div class="pop_cont">
-            <h2 class='popup_text'>Фильтр</h2>
-            <div class="popup_body">
-                <div class="container">
-                    <label>
-                        <span class="label_block">Отдел</span>
-                        <select class="selectdb" data-filter="department_id" id="departments_filter">
-                            <option value="">ВСЕ</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Церковь</span>
-                        <select class="selectdb" data-filter="church" id="church_filter">
-                            <option value="">ВСЕ</option>
-                            {% for church in churches %}
-                                <option value="{{ church.id }}">{{ church.get_title }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Ветка</span>
-                        <select class="selectdb" data-filter="master_tree" id="tree_filter">
-                            <option value="">ВСЕ</option>
-                            {% for master in masters %}
-                                <option value="{{ master.id }}">{{ master.fullname }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Лидер</span>
-                        <select class="selectdb" data-filter="leader" id="leader_filter">
-                            <option value="">ВСЕ</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span class="label_block">Дата открытия</span>
-                        <input type="text" data-filter="opening_date" id="search_date_open">
-                    </label>
-                    <label>
-                        <span class="label_block">Город</span>
-                        <input type="text" data-filter="city" placeholder="город или часть названия" id="search_city">
-                    </label>
-                </div>
-            </div>
-            <div class="container">
-                <button class="clear-filter"><i class="fa fa-refresh" aria-hidden="true"></i>
-                    Очистить
-                </button>
-                <button class="close-popup change__text">Отменить</button>
-                <button class="apply-filter">Применить</button>
             </div>
         </div>
     </div>
@@ -131,15 +83,10 @@
                             </label>
                             <label>
                                 <span class="label_block">Церковь</span>
-{#                                <p id="added_home_group_church" data-id="{{ user.get_church.id }}"#}
-{#                                   data-department="{{ user.get_church.department.id }}"#}
-{#                                   data-user="{{ user.id }}">#}
-{#                                    {{ user.get_church.get_title }}#}
-{#                                </p>#}
                                 <select class="selectdb" id="added_home_group_church_select">
                                     <option value="">Выберите церковь</option>
                                     {% for church in churches %}
-                                        <option value="{{ church.id }}">{{ church.get_title }}</option>
+                                        <option value="{{ church.id }}">{{ church.title }}</option>
                                     {% endfor %}
                                 </select>
                             </label>
@@ -150,8 +97,21 @@
                                 </select>
                             </label>
                             <label>
-                                <span class="label_block">Город</span>
-                                <input type="text" id="added_home_group_city" required>
+                                <span class="label_block">Нас.пункт:</span>
+                                <span id="added_home_group_city" data-id="" class="chooseCity select select_small"></span>
+                                <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
+                            </label>
+                            <label>
+                                <span class="label_block">Страна</span>
+                                <span class="select chooseCountry"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Область</span>
+                                <span class="select chooseRegion"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Район</span>
+                                <span class="select chooseDistrict"></span>
                             </label>
                             <label>
                                 <span class="label_block">Адрес служения</span>
@@ -209,9 +169,50 @@
                 </select>
             </label>
             <label>
-                <span class="label_block">Город:</span>
-                <input type="text" id="city" value="<%=city %>">
+                <span class="label_block">Нас.пункт:</span>
+                <span id="update_home_group_city" data-id="<% if (locality) { %>
+                                                            <%= locality.id %>
+                                                        <% } %>"
+                      class="chooseCity select select_small">
+                    <% if (locality) { %>
+                        <%= locality.name %>
+                    <% } %>
+                </span>
+                <a href="{% url 'search_city' %}<% if (!locality) { %><%= '?old_city=' + city.replace(' ', '_') %><% } %>"
+                   class="search_city_link">Выбрать</a>
             </label>
+            <label>
+                <span class="label_block">Страна</span>
+                <span class="select chooseCountry">
+                    <% if (locality) { %>
+                        <%= locality.country_name %>
+                    <% } %>
+                </span>
+            </label>
+            <label>
+                <span class="label_block">Область:</span>
+                <span class="select chooseRegion">
+                    <% if (locality) { %>
+                        <%= locality.area_name %>
+                    <% } %>
+                </span>
+            </label>
+            <label>
+                <span class="label_block">Район</span>
+                <span class="select chooseDistrict">
+                    <% if (locality) { %>
+                        <%= locality.district_name %>
+                    <% } %>
+                </span>
+            </label>
+            <% if (!locality) { %>
+            <label>
+                <span class="label_block">Предположительно</span>
+                <span class="select">
+                    <%= city ? city : '' %>
+                </span>
+            </label>
+            <% } %>
             <label>
                 <span class="label_block">Адрес:</span>
                 <input type="text" id="address" value="<%=address %>">

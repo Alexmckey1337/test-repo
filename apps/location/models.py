@@ -57,7 +57,7 @@ class Country(models.Model):
         db_table = 'geo_country'
 
     def __str__(self):
-        return self.fullname
+        return self.name
 
 
 class Area(models.Model):

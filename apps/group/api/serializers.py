@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.account.api.serializers import DepartmentTitleSerializer
 from apps.account.models import CustomUser
-from apps.location.api.serializers import CityTitleSerializer
+from apps.location.api.serializers import CityTitleSerializer, CityReadSerializer
 from common.fields import ReadOnlyChoiceField
 from apps.event.models import ChurchReport
 from apps.group.models import Church, HomeGroup
@@ -65,7 +65,11 @@ class HomeGroupSerializer(serializers.ModelSerializer):
 class HomeGroupListSerializer(HomeGroupSerializer):
     church = ChurchNameSerializer()
     leader = UserNameSerializer()
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
+
+
+class HomeGroupReadSerializer(HomeGroupListSerializer):
+    locality = CityReadSerializer()
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
@@ -120,10 +124,14 @@ class ChurchSerializer(serializers.ModelSerializer):
         return super(ChurchSerializer, self).update(instance, validated_data)
 
 
+class ChurchReadSerializer(ChurchSerializer):
+    locality = CityReadSerializer()
+
+
 class BaseChurchListSerializer(ChurchSerializer):
     department = DepartmentTitleSerializer()
     pastor = UserNameSerializer()
-    locality = CityTitleSerializer()
+    locality = CityReadSerializer()
 
     class Meta:
         model = Church

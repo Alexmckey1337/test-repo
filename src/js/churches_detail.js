@@ -20,7 +20,6 @@ import {
     sendReport,
     deleteReport,
     calcTransPayments,
-    createChurchPayment
 } from './modules/Reports/church';
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
@@ -31,6 +30,7 @@ import {makePastorList, makeDepartmentList} from "./modules/MakeList/index";
 import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
+import {convertNum} from "./modules/ConvertNum/index";
 
 import {
     btnNeed,
@@ -162,9 +162,7 @@ $('document').ready(function () {
             showAlert('Отчет успешно создан');
             $('.preloader').css('display', 'block');
             ChurchReportsTable(configReport, false);
-        }).catch(err => {
-            showAlert(err.message);
-        });
+        }).catch(err => showAlert(err.message))
     });
 
     $('#delete_report').on('click', function (e) {
@@ -227,6 +225,7 @@ $('document').ready(function () {
             $(this).closest('form').get(0).reset();
         }
         if ($(this).hasClass('active')) {
+            $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
                     $(this).attr('disabled', true);
@@ -245,6 +244,7 @@ $('document').ready(function () {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке")
             } else {
+                $('.left-contentwrap').find('.search_city_link').css('visibility', '');
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
                         if ($(this).attr('disabled')) {
@@ -260,12 +260,7 @@ $('document').ready(function () {
             }
             if ($(this).attr('data-edit-block') === 'editDepartment') {
                 makePastorList(department, '#editPastorSelect', pastor);
-                makeDepartmentList('#editDepartmentSelect', department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        let id = parseInt($(this).val());
-                        makePastorList(id, '#editPastorSelect');
-                    })
-                });
+                makeDepartmentList('#editDepartmentSelect', department);
             } else if ($(this).attr('data-edit-block') === 'editCurrency') {
                 $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
                     $('.select2-search__field').focus();
@@ -343,6 +338,10 @@ $('document').ready(function () {
                     }
                 }
             });
+            if (formName === 'editAddress') {
+                let id = $('#editAddress').find('.chooseCity').attr('data-id');
+                id && formData.append('locality', id);
+            }
             updateChurch(idChurch, formData, success)
                 .then(function (data) {
                     if (hidden) {
@@ -374,6 +373,7 @@ $('document').ready(function () {
             pasteLink($('#web_site'), webLink);
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
+        $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
     });
 
     $('#editNameBtn').on('click', function () {
@@ -558,9 +558,9 @@ $('document').ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-create_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
                 "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
                 "operation": $('#operation').val()
             };
@@ -589,6 +589,11 @@ $('document').ready(function () {
 
             return false;
         }
+    });
+
+    $('#editDepartmentSelect').on('change', function () {
+        let id = parseInt($(this).val());
+        makePastorList(id, '#editPastorSelect');
     });
 
 });

@@ -21,6 +21,7 @@ import {
 } from "./modules/Reports/church";
 import reverseDate from './modules/Date/index';
 import errorHandling from './modules/Error';
+import {convertNum} from "./modules/ConvertNum/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -31,8 +32,8 @@ $('document').ready(function () {
         thisSunday = (moment(dateReports).day() === 0) ? moment(dateReports).format('DD.MM.YYYY') : moment(dateReports).day(7).format('DD.MM.YYYY'),
         lastMonday = (moment(dateReports).day() === 1) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(1).subtract(7, 'days').format('DD.MM.YYYY'),
         lastSunday = (moment(dateReports).day() === 0) ? moment(dateReports).subtract(7, 'days').format('DD.MM.YYYY') : moment(dateReports).day(7).subtract(7, 'days').format('DD.MM.YYYY'),
-        $departmentsFilter = $('#departments_filter'),
-        $treeFilter = $('#tree_filter'),
+        $departmentsFilter = $('#department_filter'),
+        $treeFilter = $('#master_tree_filter'),
         $pastorFilter = $('#pastor_filter'),
         $churchFilter = $('#church_filter'),
         init = false,
@@ -112,7 +113,7 @@ $('document').ready(function () {
                 });
             }
             (set.church) && $churchFilter.val(set.church).trigger('change');
-            (set.payment_status) && $('#payment_status').val(set.payment_status).trigger('change');
+            (set.payment_status) && $('#payment_status_filter').val(set.payment_status).trigger('change');
             $('.apply-filter').trigger('click');
             filterChange();
         })();
@@ -214,8 +215,8 @@ $('document').ready(function () {
         applyFilter(this, churchReportsTable)
     });
 
-    // $('#departments_filter').on('change', function () {
-    //     let department_id = parseInt($('#departments_filter').val());
+    // $('#department_filter').on('change', function () {
+    //     let department_id = parseInt($('#department_filter').val());
     //     makePastorList(department_id, '#pastor_filter');
     // });
 
@@ -312,9 +313,9 @@ $('document').ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-create_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
                 "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
                 "operation": $('#operation').val()
             };

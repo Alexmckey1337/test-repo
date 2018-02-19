@@ -311,8 +311,8 @@ List of deal payments
     :query string create_to: filter by created date of payment, ``created_at <= create_to``
     :query string sent_from: filter by sent date of payment, ``sent_date >= sent_from``
     :query string sent_to: filter by sent date of payment, ``sent_date <= sent_to``
-    :query string purpose_date_from: filter by ``date_created`` of deal
-    :query string purpose_date_to: filter by ``date_created`` of deal
+    :query string from_purpose_date: filter by ``date_created`` of deal
+    :query string to_purpose_date: filter by ``date_created`` of deal
     :query string search_description: search by ``description``
     :query string search_purpose_fio: search by ``fio`` of deal.user
     :query string search_purpose_manager_fio: search by ``fio`` of deal.responsible

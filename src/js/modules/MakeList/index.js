@@ -1,6 +1,16 @@
 'use strict';
-import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches,
-        getDepartmentsOfUser, getShortUsers} from '../GetList/index';
+import {
+    getResponsible,
+    getChurchesListINDepartament,
+    getHomeGroupsINChurches,
+    getDepartmentsOfUser
+} from '../GetList/index';
+import {
+    getSummitAuthors,
+    getSummitAuthorsByMasterTree
+} from "../GetList";
+import URLS from '../Urls';
+import getData from '../Ajax';
 
 export function makeResponsibleList(department, status, flag = false, include = false) {
     let $selectResponsible = $('#selectResponsible'),
@@ -144,30 +154,21 @@ export function makePastorList(departmentId, selector, active = null) {
 }
 
 export function makeDepartmentList(selector, active = null) {
-    return getDepartmentsOfUser($("body").attr("data-user")).then(function (data) {
-        let options = [];
-        let department = data;
-        department.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            if (active == item.id) {
-                $(option).attr('selected', true);
-            }
-            options.push(option);
-        });
-        $(selector).html(options).prop('disabled', false).select2();
+    getData(URLS.department()).then(res => {
+        let options = res.results.map(option => `<option value="${option.id}" ${(active == option.id) ? 'selected' : ''}>${option.title}</option>`);
+        $(selector).html(options).attr('disabled', false).select2();
     });
 }
 
-export function makePastorListNew(id, selector = [], active = null) {
-    getResponsible(id, 2).then(function (data) {
+export function makePastorListNew(departmentId, summitId, selector = [], active = null) {
+    getSummitAuthors(departmentId, summitId, 2).then(function (data) {
         let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
             options += `<option value="${item.id}"`;
             if (active == item.id) {
                 options += 'selected';
             }
-            options += `>${item.fullname}</option>`;
+            options += `>${item.title}</option>`;
         });
         selector.forEach(item => {
             $(item).html(options).prop('disabled', false).select2();
@@ -175,15 +176,15 @@ export function makePastorListNew(id, selector = [], active = null) {
     });
 }
 
-export function makePastorListWithMasterTree(config, selector, active = null) {
-    getShortUsers(config).then(data => {
+export function makePastorListWithMasterTree(config, summitId, selector, active = null) {
+    getSummitAuthorsByMasterTree(summitId, config).then(data => {
         let options = '<option selected>ВСЕ</option>';
         data.forEach(function (item) {
             options += `<option value="${item.id}"`;
             if (active == item.id) {
                 options += 'selected';
             }
-            options += `>${item.fullname}</option>`;
+            options += `>${item.title}</option>`;
         });
         selector.forEach(item => {
             $(item).html(options).prop('disabled', false).select2();

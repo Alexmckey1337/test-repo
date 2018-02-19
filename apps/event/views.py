@@ -13,11 +13,17 @@ def meeting_report_list(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
+    owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
+    churches = Church.objects.all()
+    hg = HomeGroup.objects.all()
     ctx = {
         'departments': Department.objects.all(),
-        'churches': Church.objects.all(),
-        'home_groups': HomeGroup.objects.all(),
-        'owners': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'churches': churches,
+        'church_options': [{'id': c.pk, 'title': c.get_title} for c in churches],
+        'home_groups': hg,
+        'hg_options': [{'id': h.pk, 'title': h.get_title} for h in hg],
+        'owners': owners,
+        'owner_options': [{'id': u.pk, 'title': u.fullname} for u in owners],
         'types': MeetingType.objects.all()
     }
 
@@ -41,11 +47,17 @@ def meeting_report_statistics(request):
     if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
+    owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
+    churches = Church.objects.all()
+    hg = HomeGroup.objects.all()
     ctx = {
         'departments': Department.objects.all(),
-        'churches': Church.objects.all(),
-        'home_groups': HomeGroup.objects.all(),
-        'owners': CustomUser.objects.filter(home_group__leader__id__isnull=False).distinct(),
+        'churches': churches,
+        'church_options': [{'id': c.pk, 'title': c.get_title} for c in churches],
+        'home_groups': hg,
+        'hg_options': [{'id': h.pk, 'title': h.get_title} for h in hg],
+        'owners': owners,
+        'owner_options': [{'id': u.pk, 'title': u.fullname} for u in owners],
         'types': MeetingType.objects.all()
     }
 
@@ -70,6 +82,11 @@ def church_report_list(request):
 
     ctx = {
         'departments': Department.objects.all(),
+        'deal_status_options': [
+            {'id': '0', 'title': 'Hе оплачена'},
+            {'id': '1', 'title': 'Оплачена частично'},
+            {'id': '2', 'title': 'Оплачена полностью'},
+        ],
     }
 
     return render(request, 'event/church_reports.html', context=ctx)
@@ -117,8 +134,13 @@ def report_payments(request):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),
+        'currency_options': [{'id': c.id, 'title': c.name} for c in Currency.objects.all()],
         'managers': CustomUser.objects.filter(partner_role__level__lte=2).distinct(),
+        'manager_options': [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            partner_role__level__lte=2).distinct()],
         'pastors': CustomUser.objects.filter(hierarchy__level__gt=1),
+        'pastor_options': [{'id': u.pk, 'title': u.fullname} for u in CustomUser.objects.filter(
+            hierarchy__level__gt=1)],
     }
 
     return render(request, 'event/report_payments.html', context=ctx)

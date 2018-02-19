@@ -24,7 +24,7 @@ $('document').ready(function () {
         });
     });
 
-    $('.select__db').select2();
+    $('.selectdb').select2();
 
     let data = {
         without_pagination: '',

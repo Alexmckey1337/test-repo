@@ -229,23 +229,21 @@
                                                    value="{{ account.born_date|date:"d.m.Y" }}" readonly disabled>
                                         </label>
                                         <label>
+                                            <span class="label_block">Нас.пункт:</span>
+                                            <span id="chooseCity" data-id="{{ account.locality.id }}" class="select">{{ account.locality|default:account.city }}</span>
+                                            <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
+                                        </label>
+                                        <label>
                                             <span class="label_block">Страна:</span>
-                                            <select type="text" name="country" id="selectCountry" readonly disabled>
-                                                <option value="{{ account.country }}"
-                                                        selected>{{ account.country }}</option>
-                                            </select>
+                                            <span id="chooseCountry" class="select">{{ account.locality.country_name|default:account.country }}</span>
                                         </label>
                                         <label>
                                             <span class="label_block">Область:</span>
-                                            <select type="text" name="region" id="selectRegion" readonly disabled>
-                                                <option value="{{ account.region }}">{{ account.region }}</option>
-                                            </select>
+                                            <span id="chooseRegion" class="select">{{ account.locality.area_name|default:account.region }}</span>
                                         </label>
                                         <label>
-                                            <span class="label_block">Город:</span>
-                                            <select type="text" name="city" id="selectCity" readonly disabled>
-                                                <option value="{{ account.city }}">{{ account.city }}</option>
-                                            </select>
+                                            <span class="label_block">Район:</span>
+                                            <span id="chooseDistrict" class="select">{{ account.locality.district_name|default:account.district }}</span>
                                         </label>
                                         <label>
                                             <span class="label_block">Адрес:</span>
@@ -832,7 +830,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        {% include "partner/partials/create_deal.html" %}
                 {% endif %}
                 {% if account.summit_profiles.exists %}
                     {% regroup account.summit_profiles.all by summit.type as ankets %}
@@ -1145,7 +1142,7 @@
                             <option value="" selected disabled>Выберите менеджера</option>
                             {% get_simple_managers as managers %}
                             {% for manager in managers %}
-                                <option value="{{ manager.id }}">{{ manager.fullname }}</option>
+                                <option value="{{ manager.id }}">{{ manager.title }}</option>
                             {% endfor %}
                         </select>
                     </label>
@@ -1178,8 +1175,6 @@
             </div>
         </div>
     </div>
-    {{ block.super }}
-
 {% endblock %}
 
 {% block extra_scripts %}

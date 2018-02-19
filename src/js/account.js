@@ -38,6 +38,7 @@ import {
     renderDealTable,
     renderPaymentTable,
 } from "./modules/Partnerships/index";
+import {chooseLocation} from "./modules/Location/index";
 
 $('document').ready(function () {
     const USER_ID = $('body').data('user'),
@@ -526,6 +527,7 @@ $('document').ready(function () {
             $(this).closest('form').get(0).reset();
         }
         if ($(this).hasClass('active')) {
+            $('.search_city_link').css('visibility', 'hidden');
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
                     $(this).attr('disabled', true);
@@ -548,6 +550,7 @@ $('document').ready(function () {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке")
             } else {
+                $('.search_city_link').css('visibility', '');
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
                         if ($(this).attr('disabled')) {
@@ -632,9 +635,12 @@ $('document').ready(function () {
                         }
                     });
             } else {
+                if (formName === 'editLocation') {
+                    let id = $('#chooseCity').attr('data-id');
+                    id && formData.append('locality', id);
+                }
                 $input.each(function () {
                     let id = $(this).data('id');
-                    console.log('ID-->', id);
                     if (!$(this).attr('name')) {
                         if ($(this).is('[type=file]')) {
                             let send_image = $(this).prop("files").length || false;
@@ -748,6 +754,7 @@ $('document').ready(function () {
                 }
             }
         });
+        $('.search_city_link').css('visibility', 'hidden');
     });
     $.validate({
         lang: 'ru',
@@ -942,5 +949,6 @@ $('document').ready(function () {
     btnPartners();
     btnDeal();
     tabs();
+    chooseLocation();
 
 });
