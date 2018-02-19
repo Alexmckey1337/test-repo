@@ -1,7 +1,16 @@
 'use strict';
-import {getResponsible, getChurchesListINDepartament, getHomeGroupsINChurches,
-        getDepartmentsOfUser, getShortUsers} from '../GetList/index';
-import {getSummitAuthors, getSummitAuthorsByMasterTree} from "../GetList";
+import {
+    getResponsible,
+    getChurchesListINDepartament,
+    getHomeGroupsINChurches,
+    getDepartmentsOfUser
+} from '../GetList/index';
+import {
+    getSummitAuthors,
+    getSummitAuthorsByMasterTree
+} from "../GetList";
+import URLS from '../Urls';
+import getData from '../Ajax';
 
 export function makeResponsibleList(department, status, flag = false, include = false) {
     let $selectResponsible = $('#selectResponsible'),
@@ -145,18 +154,9 @@ export function makePastorList(departmentId, selector, active = null) {
 }
 
 export function makeDepartmentList(selector, active = null) {
-    return getDepartmentsOfUser($("body").attr("data-user")).then(function (data) {
-        let options = [];
-        let department = data;
-        department.forEach(function (item) {
-            let option = document.createElement('option');
-            $(option).val(item.id).text(item.title);
-            if (active == item.id) {
-                $(option).attr('selected', true);
-            }
-            options.push(option);
-        });
-        $(selector).html(options).prop('disabled', false).select2();
+    getData(URLS.department()).then(res => {
+        let options = res.results.map(option => `<option value="${option.id}" ${(active == option.id) ? 'selected' : ''}>${option.title}</option>`);
+        $(selector).html(options).attr('disabled', false).select2();
     });
 }
 
