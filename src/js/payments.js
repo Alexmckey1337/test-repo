@@ -20,6 +20,7 @@ import {
 import makeSelect from './modules/MakeAjaxSelect';
 import {postData} from "./modules/Ajax/index";
 import errorHandling from './modules/Error';
+import {convertNum} from "./modules/ConvertNum/index";
 
 $(document).ready(function () {
     let date = new Date(),
@@ -179,9 +180,9 @@ $(document).ready(function () {
     function submitPayment() {
         let id = $('#complete-payment').attr('data-id'),
             data = {
-                "sum": $('#new_payment_sum').val(),
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
                 "description": $('#popup-update_payment textarea').val(),
-                "rate": $('#new_payment_rate').val(),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
                 "sent_date": $('#payment_sent_date').val().split('.').reverse().join('-'),
             };
         postData(URLS.payment.edit_payment(id), data, {method: 'PATCH'}).then(function () {
