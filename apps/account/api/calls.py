@@ -31,7 +31,7 @@ class ServiceUnavailable(exceptions.APIException):
 def request_to_asterisk(data, url):
     # TODO bad code
     # i am sorry -- start
-    data = dict(data)
+    data = dict(data) if data else {}
     from_duration = data.get('from_duration')
     to_duration = data.get('to_duration')
     from_date = data.get('from_date')
