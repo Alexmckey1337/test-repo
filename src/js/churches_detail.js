@@ -260,12 +260,7 @@ $('document').ready(function () {
             }
             if ($(this).attr('data-edit-block') === 'editDepartment') {
                 makePastorList(department, '#editPastorSelect', pastor);
-                makeDepartmentList('#editDepartmentSelect', department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        let id = parseInt($(this).val());
-                        makePastorList(id, '#editPastorSelect');
-                    })
-                });
+                makeDepartmentList('#editDepartmentSelect', department);
             } else if ($(this).attr('data-edit-block') === 'editCurrency') {
                 $('#report_currency').prop('disabled', false).select2().on('select2:open', function () {
                     $('.select2-search__field').focus();
@@ -589,6 +584,11 @@ $('document').ready(function () {
 
             return false;
         }
+    });
+
+    $('#editDepartmentSelect').on('change', function () {
+        let id = parseInt($(this).val());
+        makePastorList(id, '#editPastorSelect');
     });
 
 });

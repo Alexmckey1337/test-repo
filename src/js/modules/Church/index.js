@@ -2,7 +2,7 @@
 import {CONFIG} from '../config';
 import URLS from '../Urls/index';
 import error from '../Error/index';
-import getData, {postData, postFormData} from '../Ajax/index';
+import getData, {postData} from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
@@ -11,7 +11,7 @@ import OrderTable, {getOrderingData} from '../Ordering/index';
 import {makePastorList, makeDepartmentList} from '../MakeList/index';
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
-import fixedTableHead from '../FixedHeadTable/index';
+// import fixedTableHead from '../FixedHeadTable/index';
 import {showAlert} from "../ShowNotifications/index";
 import {hidePopup} from "../Popup/popup";
 import DeleteChurchUser from '../User/deleteChurchUser';
@@ -48,14 +48,12 @@ export function createChurchesTable(config = {}) {
                     autoClose: true
                 });
                 makePastorList(data.department, '#editPastorSelect', data.pastor);
-                makeDepartmentList('#editDepartmentSelect', data.department).then(function () {
-                    $('#editDepartmentSelect').on('change', function () {
-                        let id = parseInt($(this).val());
-                        makePastorList(id, '#editPastorSelect');
-                    });
+                makeDepartmentList('#editDepartmentSelect', data.department);
+                $('#editDepartmentSelect').on('change', function () {
+                    let id = parseInt($(this).val());
+                    makePastorList(id, '#editPastorSelect');
                 });
                 setTimeout(function () {
-                    //$('#quickEditCartPopup').css('display', 'block');
                     $('#quickEditCartPopup').addClass('active');
                     $('.bg').addClass('active');
                 }, 100);
