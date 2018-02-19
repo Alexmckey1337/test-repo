@@ -14,6 +14,7 @@ import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {handleFileSelect} from "./modules/Avatar/index";
 import {makeDuplicateCount, makeDuplicateUsers} from "./modules/User/findDuplicate";
+import {chooseLocation} from "./modules/Location/index";
 
 $('document').ready(function () {
     let flagCroppImg = false,
@@ -197,5 +198,7 @@ $('document').ready(function () {
             makeDuplicateCount();
         }
     });
+
+    chooseLocation();
 
 });

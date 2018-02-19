@@ -162,9 +162,7 @@ $('document').ready(function () {
             showAlert('Отчет успешно создан');
             $('.preloader').css('display', 'block');
             ChurchReportsTable(configReport, false);
-        }).catch(err => {
-            showAlert(err.message);
-        });
+        }).catch(err => showAlert(err.message))
     });
 
     $('#delete_report').on('click', function (e) {
@@ -227,6 +225,7 @@ $('document').ready(function () {
             $(this).closest('form').get(0).reset();
         }
         if ($(this).hasClass('active')) {
+            $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
             $input.each(function (i, el) {
                 if (!$(this).attr('disabled')) {
                     $(this).attr('disabled', true);
@@ -245,6 +244,7 @@ $('document').ready(function () {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке")
             } else {
+                $('.left-contentwrap').find('.search_city_link').css('visibility', '');
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
                         if ($(this).attr('disabled')) {
@@ -338,6 +338,10 @@ $('document').ready(function () {
                     }
                 }
             });
+            if (formName === 'editAddress') {
+                let id = $('#editAddress').find('.chooseCity').attr('data-id');
+                id && formData.append('locality', id);
+            }
             updateChurch(idChurch, formData, success)
                 .then(function (data) {
                     if (hidden) {
@@ -369,6 +373,7 @@ $('document').ready(function () {
             pasteLink($('#web_site'), webLink);
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
+        $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
     });
 
     $('#editNameBtn').on('click', function () {

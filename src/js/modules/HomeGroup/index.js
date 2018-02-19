@@ -29,16 +29,16 @@ export function addHomeGroup(e, el, callback) {
         hidePopup(el);
         callback();
         showAlert(`Домашняя группа ${data.get_title} добавлена в базу данных`);
-    }).catch(function (data) {
-        hidePopup(el);
-        showAlert('Ошибка при создании домашней группы');
-    });
+    }).catch(err => showAlert('Ошибка при создании домашней группы. Проверьте правильность заполненных полей'));
 }
 
 export function clearAddHomeGroupData() {
     $('#added_home_group_date').val('');
     $('#added_home_group_title').val('');
-    $('#added_home_group_city').val('');
+    $('#addHomeGroup').find('.select').each(function () {
+        $(this).text('');
+    });
+    $('#added_home_group_city').attr('data-id', '');
     $('#added_home_group_address').val('');
     $('#added_home_group_phone').val('');
     $('#added_home_group_site').val('');
@@ -72,7 +72,7 @@ function getAddHomeGroupData() {
         "title": $('#added_home_group_title').val(),
         "church": ($('#added_home_group_church_select').length) ? parseInt($('#added_home_group_church_select').val()) : $('#added_home_group_church').attr('data-id'),
         "leader": $('#added_home_group_pastor').val(),
-        "city": $('#added_home_group_city').val(),
+        "locality": $('#added_home_group_city').attr('data-id'),
         "address": $('#added_home_group_address').val(),
         "phone_number": $('#added_home_group_phone').val(),
         "website": $('#added_home_group_site').val()
@@ -90,8 +90,7 @@ export function saveHomeGroups(el, callback) {
         phone_number: $($(el).closest('.pop_cont').find('#phone_number')).val(),
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
         opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
-        country: $($(el).closest('.pop_cont').find('#country')).val(),
-        city: $($(el).closest('.pop_cont').find('#city')).val(),
+        locality: $('#update_home_group_city').attr('data-id'),
         address: $($(el).closest('.pop_cont').find('#address')).val()
     };
 

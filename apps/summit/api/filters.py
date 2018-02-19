@@ -29,8 +29,8 @@ class FilterByClub(BaseFilterBackend):
             summit_type = Summit.objects.get(id=summit_id).type
             users = summit_type.summits.filter(ankets__visited=True).values_list('ankets__user', flat=True)
             if is_member:
-                return queryset.filter(user__id__in=set(users))
-            return queryset.exclude(user__id__in=set(users))
+                return queryset.filter(user_id__in=set(users))
+            return queryset.exclude(user_id__in=set(users))
         return queryset
 
 
@@ -55,7 +55,7 @@ class FilterByDepartment(BaseFilterBackend):
         """
         department = request.query_params.get('department', None)
         if department:
-            queryset = queryset.filter(departments__id=department)
+            queryset = queryset.filter(departments_id=department)
         return queryset
 
     def get_schema_fields(self, view):
@@ -146,7 +146,7 @@ class ProductFilter(django_filters.FilterSet):
 
 
 class SummitUnregisterFilter(filters_new.FilterSet):
-    summit_id = filters_new.CharFilter(name="summit_profiles__summit__id", exclude=True)
+    summit_id = filters_new.CharFilter(name="summit_profiles__summit_id", exclude=True)
 
     class Meta:
         model = CustomUser

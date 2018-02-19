@@ -138,38 +138,39 @@
                             <input name="born_date" type="text" id="bornDate" tabindex="20">
                         </label>
                         <label>
+                            <span class="label_block">Нас.пункт:</span>
+                            <span class="select select_small" id="chooseCity" data-id=""></span>
+                            <a href="{% url 'search_city' %}" class="search_city_link" tabindex="21">Выбрать</a>
+                        </label>
+                        <label>
                             <span class="label_block">Страна</span>
-                            <select name="country" id="chooseCountry" tabindex="21"></select>
+                            <span class="select" id="chooseCountry"></span>
                         </label>
                         <label>
                             <span class="label_block">Область</span>
-                            <select disabled name="region" id="chooseRegion" tabindex="22"></select>
-                        </label>
-                        <label>
-                            <span class="label_block">Город</span>
-                            <select disabled name="city" id="chooseCity" tabindex="23"></select>
+                            <span class="select" id="chooseRegion"></span>
                         </label>
                         <label>
                             <span class="label_block">Район</span>
-                            <input name="district" id="district" type="text" tabindex="24">
+                            <span class="select" id="chooseDistrict"></span>
                         </label>
                         <label>
                             <span class="label_block">Адрес</span>
-                            <input name="address" id="address" type="text" tabindex="25">
+                            <input name="address" id="address" type="text" tabindex="22">
                         </label>
                         <h2>Информация о служениях</h2>
                         <label>
                             <span class="label_block">Департамент</span>
-                            <select id="chooseDivision" multiple="multiple" tabindex="26"></select>
+                            <select id="chooseDivision" multiple="multiple" tabindex="23"></select>
                         </label>
                         <h2>Духовный уровень</h2>
                         <label>
                             <span class="label_block">Дата покаяния</span>
-                            <input name="repentance_date" type="text" tabindex="27" id="repentanceDate">
+                            <input name="repentance_date" type="text" tabindex="24" id="repentanceDate">
                         </label>
                         <label>
                             <span class="label_block">Духовный уровень</span>
-                            <select type="text" id="spir_level" name="" >
+                            <select type="text" id="spir_level" name="" tabindex="25">
                                 <option value="">Выберите духовный уровень</option>
                                 {% for spiritual_level in spiritual_levels %}
                                     <option value="{{ spiritual_level.id }}">
@@ -178,22 +179,6 @@
                                 {% endfor %}
                             </select>
                         </label>
-{#                        <h2>Информация о церкви</h2>#}
-{#                        <label>#}
-{#                            <span class="label_block">Церковь</span>#}
-{#                            <select type="text" id="church_list" value="">#}
-{#                                <option value="">Выберите церковь</option>#}
-{#                                {% for church in churches %}#}
-{#                                    <option value="{{ church.id }}">{{ church.get_title }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label_block">Домашняя группа</span>#}
-{#                            <select type="text" id="home_groups_list" disabled>#}
-{#                                <option value="">Выберите домашнюю группу</option>#}
-{#                            </select>#}
-{#                        </label>#}
                     </div>
                 </div>
                 <div class="container">

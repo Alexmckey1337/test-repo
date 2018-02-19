@@ -205,7 +205,7 @@ class Command(BaseCommand):
                         "autocomplete": {
                             "type": "edge_ngram",
                             "min_gram": 2,
-                            "max_gram": 10,
+                            "max_gram": 30,
                             "token_chars": [
                                 "letter"
                             ]
