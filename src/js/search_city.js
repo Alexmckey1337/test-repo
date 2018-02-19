@@ -1,7 +1,6 @@
 'use strict';
 import URLS from './modules/Urls/index';
 import getData from "./modules/Ajax/index";
-import errorHandling from './modules/Error';
 import parseUrlQuery from './modules/ParseUrl/index';
 
 $('document').ready(function () {
@@ -9,7 +8,7 @@ $('document').ready(function () {
 
     $('#search_city').on('keyup', _.debounce(function () {
         rebuild();
-    }, 500));
+    }, 800));
 
     $('#cities').on('click', 'li', function () {
        let id = $(this).attr('data-id') || null,
@@ -28,6 +27,29 @@ $('document').ready(function () {
         window.close();
     });
 
+    function deleteMarkers() {
+        for (let i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }
+        markers = [];
+    }
+
+    $('#cities').on('click', 'button', function (e) {
+        e.stopPropagation();
+        let lat = +$(this).attr('data-lat'),
+            lng = +$(this).attr('data-lng'),
+            title = $(this).attr('data-title'),
+            LatLng = new google.maps.LatLng(lat, lng);
+        deleteMarkers();
+        marker = new google.maps.Marker({
+            position: LatLng,
+            map: map,
+            title: title
+        });
+        map.setCenter(LatLng);
+        markers.push(marker);
+    });
+
     $('#countries, #areas, #districts').on('click', 'li', function () {
        let item = $(this).find('span').text(),
            container = $(this).closest('ul').attr('id');
@@ -42,7 +64,7 @@ $('document').ready(function () {
 
     function rebuild() {
         const city = $('#search_city').val();
-        if (city.length < 2) return;
+        if (city.length < 1) return;
 
         let country = $('#selected_country').text(),
             area = $('#selected_area').text(),
@@ -58,21 +80,30 @@ $('document').ready(function () {
             renderHelperChoose(data.filters.areas, '#areas');
             renderHelperChoose(data.filters.districts, '#districts');
             $('.preloader').css('display', '');
-        }).catch(err => {
-            errorHandling(err);
-            $('.preloader').css('display', '');
-        });
+        }).catch(_ => $('.preloader').css('display', ''));
     }
 
     function renderCities (cities) {
         let li = (cities.length > 0) ?
-            cities.map(city => `<li data-id="${city.pk}" 
-                                        data-city="${city.city}" 
-                                        data-country="${city.country}" 
-                                        data-area="${city.area}" 
-                                        data-district="${city.district}">
-                                        ${city.city} -- ${city.country} -- ${city.area} -- ${city.district}
-                                      </li>`).join('')
+            cities.map(city => `<li>
+                                    <span data-id="${city.pk}"
+                                    data-city="${city.city}"
+                                    data-country="${city.country}"
+                                    data-area="${city.area}"
+                                    data-district="${city.district}">
+                                    ${city.city} -- ${city.country} -- ${city.area} -- ${city.district}
+                                    </span>
+                                    ${(city.location.lat !=null && city.location.lon != null) ?
+                                        `<button data-title="${city.city} - ${city.country} - ${city.area} - ${city.district}"
+                                            data-lat="${city.location.lat}"
+                                            data-lng="${city.location.lon}">
+                                        Показать на карте
+                                    </button>`
+                                    :
+                                        ''
+                                    }
+                                   
+                                </li>`).join('')
             :
             `<li>Результат отсутствует</li>`;
         $('#cities').html(li);
