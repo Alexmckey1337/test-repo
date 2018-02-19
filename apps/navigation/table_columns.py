@@ -303,8 +303,8 @@ deal_columns = {
         'id': 0, 'title': 'Тип сделки', 'ordering_title': 'type', 'number': 5, 'active': True, 'editable': True},
     'action': {
         'id': 0, 'title': 'Действие', 'ordering_title': 'done', 'number': 6, 'active': True, 'editable': True},
-    'done': {
-        'id': 0, 'title': 'Закрыта', 'ordering_title': 'done', 'number': 7, 'active': True, 'editable': True},
+    # 'done': {
+    #     'id': 0, 'title': 'Закрыта', 'ordering_title': 'done', 'number': 7, 'active': True, 'editable': True},
 }
 
 deal_payment_columns = {
