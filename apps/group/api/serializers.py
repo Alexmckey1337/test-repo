@@ -59,7 +59,7 @@ class HomeGroupSerializer(serializers.ModelSerializer):
         model = HomeGroup
         fields = ('id', 'link', 'opening_date', 'title', 'city', 'department',
                   'church', 'leader', 'address', 'phone_number', 'get_title',
-                  'website', 'count_users', 'image', 'locality')
+                  'website', 'count_users', 'image', 'locality', 'latitude', 'longitude',)
 
 
 class HomeGroupListSerializer(HomeGroupSerializer):
@@ -69,7 +69,7 @@ class HomeGroupListSerializer(HomeGroupSerializer):
 
 
 class HomeGroupReadSerializer(HomeGroupListSerializer):
-    locality = CityReadSerializer()
+    pass
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
@@ -108,7 +108,7 @@ class ChurchSerializer(serializers.ModelSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'image', 'region', 'stable_count',
-                  'count_people', 'count_home_groups', 'locality')
+                  'count_people', 'count_home_groups', 'locality', 'latitude', 'longitude',)
 
     def update(self, instance, validated_data):
         report_currency = validated_data.get('report_currency')
@@ -137,7 +137,7 @@ class BaseChurchListSerializer(ChurchSerializer):
         model = Church
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'report_currency', 'region', 'locality')
+                  'phone_number', 'report_currency', 'region', 'locality', 'latitude', 'longitude',)
 
 
 class ChurchListSerializer(BaseChurchListSerializer):
@@ -147,7 +147,7 @@ class ChurchListSerializer(BaseChurchListSerializer):
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'region', 'stable_count',
-                  'count_people', 'count_home_groups', 'locality')
+                  'count_people', 'count_home_groups', 'locality', 'latitude', 'longitude',)
 
     def get_field_names(self, declared_fields, info):
         fields = getattr(self.Meta, 'fields', None)

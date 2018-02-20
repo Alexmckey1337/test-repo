@@ -22,7 +22,11 @@ class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50, blank=True)
+
     address = models.CharField(_('Address'), max_length=300, blank=True)
+    latitude = models.FloatField(_('Latitude'), blank=True, null=True)
+    longitude = models.FloatField(_('Longitude'), blank=True, null=True)
+
     phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
     website = models.URLField(_('Web Site'), blank=True)
 
@@ -64,7 +68,7 @@ class Church(LogModel, CommonGroup):
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
         'department', 'pastor', 'country',
-        'is_open', 'report_currency', 'image', 'region', 'locality',
+        'is_open', 'report_currency', 'image', 'region', 'locality', 'latitude', 'longitude',
     )
 
     tracking_reverse_fields = ()
@@ -105,7 +109,7 @@ class Church(LogModel, CommonGroup):
         if count is None:
             count = CustomUser.objects.filter(Q(cchurch=self, is_stable=True) | Q(
                 hhome_group__church=self, is_stable=True)).count()
-            cache.set(cache_key, count, timeout=60*60)
+            cache.set(cache_key, count, timeout=60 * 60)
         return count
 
     def del_count_stable_people_cache(self):
@@ -122,7 +126,7 @@ class Church(LogModel, CommonGroup):
         if count is None:
             count = CustomUser.objects.filter(Q(cchurch=self) | Q(
                 hhome_group__church=self)).count()
-            cache.set(cache_key, count, timeout=60*60)
+            cache.set(cache_key, count, timeout=60 * 60)
         return count
 
     def del_count_people_cache(self):
@@ -151,7 +155,7 @@ class HomeGroup(LogModel, CommonGroup):
 
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
-        'leader', 'church', 'active', 'image', 'locality',
+        'leader', 'church', 'active', 'image', 'locality', 'latitude', 'longitude',
     )
 
     def save(self, *args, **kwargs):

@@ -11,11 +11,11 @@ $('document').ready(function () {
     }, 800));
 
     $('#cities').on('click', 'li', function () {
-       let id = $(this).attr('data-id') || null,
-           city = $(this).attr('data-city') || null,
-           country = $(this).attr('data-country') || null,
-           area = $(this).attr('data-area') || null,
-           district = $(this).attr('data-district') || null,
+       let id = $(this).find('span').attr('data-id') || null,
+           city = $(this).find('span').attr('data-city') || null,
+           country = $(this).find('span').attr('data-country') || null,
+           area = $(this).find('span').attr('data-area') || null,
+           district = $(this).find('span').attr('data-district') || null,
            location = {
                id,
                city,
