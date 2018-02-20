@@ -97,7 +97,7 @@ $('document').ready(function () {
                                         `<button data-title="${city.city} - ${city.country} - ${city.area} - ${city.district}"
                                             data-lat="${city.location.lat}"
                                             data-lng="${city.location.lon}">
-                                        Показать на карте
+                                        <i class="material-icons">&#xE55B;</i>
                                     </button>`
                                     :
                                         ''
