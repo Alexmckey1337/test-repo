@@ -85,9 +85,9 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
     _columns = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         request.columns = self.columns
-        return super().dispatch(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     @property
     def columns(self):
