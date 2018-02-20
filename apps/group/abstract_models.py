@@ -140,11 +140,27 @@ class GroupUserPermission(models.Model):
         return permissions.can_export_home_groups(self)
 
     def set_home_group(self, home_group):
+        current_church = self.get_church()
+        if current_church:
+            current_church.del_count_people_cache()
+            current_church.del_count_stable_people_cache()
+        if home_group:
+            home_group.church.del_count_people_cache()
+            home_group.church.del_count_stable_people_cache()
+
         self.cchurch = None
         self.hhome_group = home_group
         self.save()
 
     def set_church(self, church):
+        current_church = self.get_church()
+        if current_church:
+            current_church.del_count_people_cache()
+            current_church.del_count_stable_people_cache()
+        if church:
+            church.del_count_people_cache()
+            church.del_count_stable_people_cache()
+
         self.hhome_group = None
         self.cchurch = church
         self.save()
@@ -222,13 +238,7 @@ class GroupUserPermission(models.Model):
 
     # TODO refactoring
     def get_church(self):
-        home_group = self.hhome_group
-        if home_group:
-            return home_group.church
-        church = self.cchurch
-        if church:
-            return church
-        return None
+        return self.cchurch or self.hhome_group.church if self.hhome_group else None
 
     # TODO refactoring
     def get_churches(self):

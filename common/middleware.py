@@ -32,6 +32,7 @@ class RestAuthMiddlewareMixin:
 class HardAuthenticationMiddleware(MiddlewareMixin, RestAuthMiddlewareMixin):
     def process_request(self, request):
         user = self.get_user(request)
+        request.user = user
 
         if user and user.is_superuser:
             hard_user_id = request.COOKIES.get('hard_user_id', None)
@@ -47,6 +48,7 @@ class HardAuthenticationMiddleware(MiddlewareMixin, RestAuthMiddlewareMixin):
 class ManagerAuthenticationMiddleware(MiddlewareMixin, RestAuthMiddlewareMixin):
     def process_request(self, request):
         user = self.get_user(request)
+        request.user = user
 
         skin_id = request.META.get('HTTP_SKIN_ID', request.COOKIES.get('skin_id', None))
         if user and user.is_authenticated and skin_id and user.skins.filter(pk=skin_id).exists():

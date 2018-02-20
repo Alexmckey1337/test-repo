@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.account.api.serializers import DepartmentTitleSerializer
 from apps.account.models import CustomUser
-from apps.location.api.serializers import CityTitleSerializer, CityReadSerializer
+from apps.location.api.serializers import CityReadSerializer
 from common.fields import ReadOnlyChoiceField
 from apps.event.models import ChurchReport
 from apps.group.models import Church, HomeGroup
@@ -143,10 +143,20 @@ class BaseChurchListSerializer(ChurchSerializer):
 class ChurchListSerializer(BaseChurchListSerializer):
     class Meta:
         model = Church
+        required_fields = ['id', 'link']
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
                   'phone_number', 'report_currency', 'region', 'stable_count',
                   'count_people', 'count_home_groups', 'locality')
+
+    def get_field_names(self, declared_fields, info):
+        fields = getattr(self.Meta, 'fields', None)
+        if self.context.get('request') is not None:
+            columns = self.context.get('columns', [])
+            return (self.Meta.required_fields +
+                    [i for i in columns.keys() if columns[i]['active']] +
+                    list(self._context.get('extra_fields', [])))
+        return fields
 
 
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):
