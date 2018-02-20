@@ -35,6 +35,9 @@ $('document').ready(function () {
     }
 
     $('#cities').on('click', 'button', function (e) {
+        if(!$('#map-popup').hasClass('active')){
+            $('#map-popup').addClass('active');
+        }
         e.stopPropagation();
         let lat = +$(this).attr('data-lat'),
             lng = +$(this).attr('data-lng'),
@@ -60,6 +63,10 @@ $('document').ready(function () {
     $('.selected_block').on('click', 'span', function () {
         $(this).text('');
         rebuild();
+    });
+
+    $(".btnMap").on('click', function () {
+       $('#map-popup').toggleClass('active');
     });
 
     function rebuild() {
