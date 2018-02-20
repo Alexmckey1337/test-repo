@@ -394,7 +394,7 @@ $('document').ready(function () {
         window.location = `${url}?church_id=${CHURCH_ID}&is_partner=false`;
     });
 
-    $('#addHomeGroupForm').on('submit', function () {
+    $('#addHomeGroupForm').on('submit', function (event) {
         addHomeGroup(event, this, createChurchesDetailsTable);
     });
 
