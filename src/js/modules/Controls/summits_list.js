@@ -17,35 +17,10 @@ import updateHistoryUrl from '../History/index';
 import {showConfirm} from "../ShowNotifications/index";
 import dataHandling from '../Error';
 
-function parseFunc(data, params) {
-    params.page = params.page || 1;
-    const results = [];
-    data.results.forEach(function makeResults(element) {
-        results.push({
-            id: element.id,
-            name: element.title,
-        });
-    });
-    return {
-        results: results,
-        pagination: {
-            more: (params.page * 100) < data.count
-        }
-    };
-}
-function formatRepo(data) {
-    if (data.id === '') {
-        return 'ВСЕ';
-    } else {
-        return `<option value="${data.id}">${data.name}</option>`;
-    }
-}
-
 export function SummitListTable(config) {
     getData(URLS.controls.summit_access(), config).then(data => {
         makeSummitListTable(data);
     });
-
 }
 
 function makeSummitListTable(data, config = {}) {
@@ -126,7 +101,6 @@ function btnControll() {
             $('#addSammit').find('.popup_text').find('h2').text('Изменить саммит');
             removeValidText($('#addSammit'));
             getData(URLS.controls.summit_detail(id)).then(function (data) {
-                console.log(data);
                 completeForm(form, data);
             });
         } else {
@@ -143,33 +117,23 @@ function btnControll() {
     });
 }
 export function submitSummit(el,type) {
-    console.log(type);
-    let label = $(el).closest('form').find('label'),
-        data = {};
-    $(label).each(function (i, el) {
-        let input = $(el).find('input, select, textarea');
-        data[$(input).attr('name')] = $(input).val();
+    let field = $(el).find('input, select, textarea'),
+        data = {},
+        id = $('#addSammit').data('id'),
+        url = type === 'add' ? URLS.controls.summit_access() : URLS.controls.summit_detail(id),
+        config = type === 'add' ? {} : {method:'PUT'};
+    $(field).each(function (i, el) {
+        data[$(el).attr('name')] = $(el).val();
     });
-    if (type === 'add') {
-        postData(URLS.controls.summit_access(), data).then(function () {
-            showAlert('Саммит успешно создан');
-            $('#addSammit').removeClass('active');
-            $('.bg').removeClass('active');
-            summitListTable();
-        }).catch(function (err) {
-            dataHandling(err);
-        });
-    }else if (type === 'save'){
-        let id = $('#addSammit').data('id');
-        postData(URLS.controls.summit_detail(id), data,{method:'PUT'}).then(function () {
-            showAlert('Саммит успешно сохранен');
-            $('#addSammit').removeClass('active');
-            $('.bg').removeClass('active');
-            summitListTable();
-        }).catch(function (err) {
-            dataHandling(err);
-        });
-    }
+    postData(url, data, config).then(function () {
+        console.log(url, config, id);
+        showAlert(type === 'add' ? 'Саммит успешно создан' : 'Саммит успешно сохранен');
+        $('#addSammit').removeClass('active');
+        $('.bg').removeClass('active');
+        summitListTable();
+    }).catch(function (err) {
+        dataHandling(err);
+    });
 }
 
 function completeForm(form,data) {
@@ -197,4 +161,4 @@ export function removeValidText(form) {
        let inp = $(el).removeClass('has-error').find('input, select, textarea');
        $(inp).css('border-color', '#cdd0d4');
     });
-};
+}
