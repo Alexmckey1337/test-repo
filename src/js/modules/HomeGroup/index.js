@@ -73,7 +73,6 @@ function getAddHomeGroupData() {
         "church": ($('#added_home_group_church_select').length) ? parseInt($('#added_home_group_church_select').val()) : $('#added_home_group_church').attr('data-id'),
         "leader": $('#added_home_group_pastor').val(),
         "locality": $('#added_home_group_city').attr('data-id'),
-        "address": $('#added_home_group_address').val(),
         "phone_number": $('#added_home_group_phone').val(),
         "website": $('#added_home_group_site').val()
     }
@@ -91,7 +90,6 @@ export function saveHomeGroups(el, callback) {
         website: ($(el).closest('.pop_cont').find('#web_site')).val(),
         opening_date: $($(el).closest('.pop_cont').find('#opening_date')).val() || null,
         locality: $('#update_home_group_city').attr('data-id'),
-        address: $($(el).closest('.pop_cont').find('#address')).val()
     };
 
     saveHomeGroupsData(data, id).then(function () {

@@ -122,31 +122,30 @@
     width: 50%;
     position: fixed;
     right: 0;
-    transform: scale(0);
+    opacity: 0;
+    z-index: -100;
     transform-origin: bottom right;
-    transition: transform .3s;
+    transition: opacity .3s;
     &.active{
-      transform: scale(1);
+      z-index: 100;
+      opacity: 1;
     }
   }
 }
 .btnMap{
-  width: 50px;
-  height:50px;
-  border-radius: 50%;
-  position: fixed;
-  bottom: 25px;
-  right:50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #aab2bd;
-  transition: background-color .3s;
+  background: #fff;
+  border: 0;
+  border-radius: 3px;
+  margin: 10px 14px;
+  padding: 0;
+  position: absolute;
   cursor: pointer;
-  &:hover{
-    background-color: #3caeda;
-    i{
-      color: #fff;
-    }
-  }
+  user-select: none;
+  width: 25px;
+  height: 25px;
+  overflow: hidden;
+  top: 0;
+  right: 35px;
+  outline: 0;
+  z-index: 101;
 }

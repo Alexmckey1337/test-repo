@@ -31,6 +31,7 @@ import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
 import {convertNum} from "./modules/ConvertNum/index";
+import {btnLocationControls} from "./modules/Map/index";
 
 import {
     btnNeed,
@@ -240,6 +241,8 @@ $('document').ready(function () {
                 }
             });
             $(this).removeClass('active');
+            $('#address_show').removeClass('address_isHide');
+            $('#address_choose').addClass('address_isHide');
         } else {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке")
@@ -266,8 +269,9 @@ $('document').ready(function () {
                     $('.select2-search__field').focus();
                 });
             }
+            $('#address_choose').removeClass('address_isHide');
+            $('#address_show').addClass('address_isHide');
         }
-
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
@@ -338,8 +342,18 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddressForm').find('.chooseCity').attr('data-id');
+                let id = $('#editAddressForm').find('.chooseCity').attr('data-id'),
+                    title = $('#adress').attr('data-title'),
+                    lat = $('#adress').attr('data-lat'),
+                    lng = $('#adress').attr('data-lng');
+
                 id && formData.append('locality', id);
+                if (lat && lng && lat != 'None' && lng != 'None') {
+                    formData.append('address', title);
+                    formData.append('latitude', lat);
+                    formData.append('longitude', lng);
+                }
+
             }
             updateChurch(idChurch, formData, success)
                 .then(function (data) {
@@ -373,6 +387,8 @@ $('document').ready(function () {
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
         $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
+        $('#address_show').removeClass('address_isHide');
+        $('#address_choose').addClass('address_isHide');
     });
 
     $('#editNameBtn').on('click', function () {
@@ -594,5 +610,13 @@ $('document').ready(function () {
         let id = parseInt($(this).val());
         makePastorList(id, '#editPastorSelect');
     });
+
+    $('.close-map').on('click', function () {
+        if(!$(this).hasClass('active')){
+            $(".a-map").removeClass('active');
+        }
+    });
+
+    btnLocationControls();
 
 });

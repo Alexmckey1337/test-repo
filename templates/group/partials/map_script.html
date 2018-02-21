@@ -1,0 +1,107 @@
+<div id="adress_map-popup">
+    <div class="btnMap"><i class="material-icons">&#xE5CD;</i></div>
+    <input id="pac-input" class="controls" type="text" placeholder="Поиск адресса">
+    <div id="adress_map"></div>
+{#    <button id="choose_adress">Подтвердить</button>#}
+</div>
+<script>
+    var map,
+        markers = [],
+        marker;
+
+    function geocodePosition(geocoder, marker, pos) {
+        geocoder.geocode({
+            latLng: pos
+        }, function (responses) {
+            if (responses && responses.length > 0) {
+                var title = responses[0].formatted_address;
+                updateMarkerAddress(title, pos);
+                marker.setTitle(title);
+            }
+        });
+    }
+
+    function clearAttr() {
+        var btn = document.getElementById('adress');
+        btn.removeAttribute("data-title");
+        btn.removeAttribute("data-lat");
+        btn.removeAttribute("data-lng");
+        btn.innerText = '';
+    }
+
+    function updateMarkerAddress(str, latLng) {
+        var btn = document.getElementById('adress');
+        clearAttr();
+        btn.innerText = str;
+        btn.setAttribute("data-title", str);
+        btn.setAttribute("data-lat", latLng.lat());
+        btn.setAttribute("data-lng", latLng.lng());
+    }
+
+    function position(markers) {
+        clearAttr();
+        markers.forEach(function (marker) {
+            var btn = document.getElementById('adress');
+            btn.innerText = marker.getTitle();
+            btn.setAttribute("data-title", marker.getTitle());
+            btn.setAttribute("data-lat", marker.getPosition().lat());
+            btn.setAttribute("data-lng", marker.getPosition().lng());
+        });
+    }
+
+
+    function initAutocomplete() {
+        map = new google.maps.Map(document.getElementById('adress_map'), {
+            center: {lat: 50.4, lng: 30.4},
+            zoom: 13,
+            mapTypeId: 'roadmap'
+        }),
+            input = document.getElementById('pac-input'),
+            geocoder = new google.maps.Geocoder(),
+            searchBox = new google.maps.places.SearchBox(input);
+
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        map.addListener('bounds_changed', function () {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        searchBox.addListener('places_changed', function () {
+            var places = searchBox.getPlaces();
+
+            if (places.length == 0) {
+                return;
+            }
+
+            markers.forEach(function (marker) {
+                marker.setMap(null);
+            });
+            markers = [];
+
+            var bounds = new google.maps.LatLngBounds();
+            places.forEach(function (place) {
+                if (!place.geometry) return;
+
+                marker = new google.maps.Marker({
+                    map: map,
+                    title: place.name,
+                    position: place.geometry.location,
+                    draggable: true,
+                });
+                markers.push(marker);
+
+                google.maps.event.addListener(marker, 'dragend', function () {
+                    geocodePosition(geocoder, marker, marker.getPosition());
+                });
+
+                (place.geometry.viewport) ?
+                    bounds.union(place.geometry.viewport)
+                    :
+                    bounds.extend(place.geometry.location);
+            });
+            map.fitBounds(bounds);
+            position(markers);
+        });
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0_BZliFSuRPmNEkYdAixxHBtP_86tAjE&libraries=places&callback=initAutocomplete"></script>

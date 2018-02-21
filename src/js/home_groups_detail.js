@@ -28,6 +28,7 @@ import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import accordionInfo from './modules/accordionInfo';
 import {getPotentialLeadersForHG} from "./modules/GetList/index";
 import pasteLink from './modules/pasteLink';
+import {btnLocationControls} from "./modules/Map/index";
 
 $('document').ready(function () {
     let $homeGroup = $('#home_group');
@@ -177,6 +178,8 @@ $('document').ready(function () {
                 }
             });
             $(this).removeClass('active');
+            $('#address_show').removeClass('address_isHide');
+            $('#address_choose').addClass('address_isHide');
         } else {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке");
@@ -211,6 +214,8 @@ $('document').ready(function () {
                 });
                 $(this).addClass('active');
             }
+            $('#address_choose').removeClass('address_isHide');
+            $('#address_show').addClass('address_isHide');
         }
     });
 
@@ -279,8 +284,16 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddressForm').find('.chooseCity').attr('data-id');
+                let id = $('#editAddressForm').find('.select_small').attr('data-id'),
+                    title = $('#adress').attr('data-title'),
+                    lat = $('#adress').attr('data-lat'),
+                    lng = $('#adress').attr('data-lng');
                 id && formData.append('locality', id);
+                if (lat && lng && lat != 'None' && lng != 'None') {
+                    formData.append('address', title);
+                    formData.append('latitude', lat);
+                    formData.append('longitude', lng);
+                }
             }
             updateHomeGroup(idChurch, formData, success)
                 .then(function (data) {
@@ -315,6 +328,8 @@ $('document').ready(function () {
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
         $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
+        $('#address_show').removeClass('address_isHide');
+        $('#address_choose').addClass('address_isHide');
     });
 
     $('#editNameBtn').on('click', function () {
@@ -342,6 +357,12 @@ $('document').ready(function () {
         }
     });
 
+    $('.close-map').on('click', function () {
+        if(!$(this).hasClass('active')){
+            $(".a-map").removeClass('active');
+        }
+    });
+
     btnControlsImg();
     HomeReportsTable(configReport, false);
 
@@ -356,5 +377,7 @@ $('document').ready(function () {
         e.preventDefault();
         deleteReport(HomeReportsTable, configReport, false);
     });
+
+    btnLocationControls();
 
 });
