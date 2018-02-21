@@ -2,6 +2,7 @@
 import URLS from './modules/Urls/index';
 import getData from "./modules/Ajax/index";
 import parseUrlQuery from './modules/ParseUrl/index';
+import {deleteMarkers} from "./modules/Map/index";
 
 $('document').ready(function () {
     const path = window.location.href.split('?')[1];
@@ -26,13 +27,6 @@ $('document').ready(function () {
         localStorage.location = JSON.stringify(location);
         window.close();
     });
-
-    function deleteMarkers() {
-        for (let i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-        markers = [];
-    }
 
     $('#cities').on('click', 'button', function (e) {
         if(!$('#map-popup').hasClass('active')){

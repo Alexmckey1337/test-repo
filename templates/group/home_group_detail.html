@@ -190,8 +190,22 @@
                                             <span class="select chooseDistrict">{{ home_group.locality.district_name }}</span>
                                         </label>
                                         <label>
-                                            <span class="label_block">Адрес:</span>
-                                            <input type="text" id="address" name="address" value="{{ home_group.address }}" readonly>
+                                            <span class="label_block">Точный адрес:</span>
+                                            <span id="adress"
+                                                  class="select"
+                                                  data-title="{{ home_group.address }}"
+                                                  data-lat="{{ home_group.latitude }}"
+                                                  data-lng="{{ home_group.longitude }}">
+                                                {{ home_group.address }}
+                                            </span>
+                                            {% if home_group.latitude and home_group.longitude %}
+                                                <button id="address_show" class="address_btn"
+                                                        data-title="{{ home_group.address }}"
+                                                        data-lat="{{ home_group.latitude }}"
+                                                        data-lng="{{ home_group.longitude }}"
+                                                >Показать</button>
+                                            {% endif %}
+                                            <button id="address_choose" class="address_btn address_isHide">Указать</button>
                                         </label>
                                     </div>
                                 </div>
@@ -401,6 +415,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    {% include "group/partials/map_script.html" %}
     <script src="{% static "js/add_user.bundle.js" %}"></script>
     <script src="{% static "js/home_groups_detail.bundle.js" %}"></script>
 {% endblock %}

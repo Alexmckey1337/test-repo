@@ -185,7 +185,12 @@
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Нас. пункт:</span>
-                                            <span data-id="{{ church.locality.id }}" class="select chooseCity">{{ church.locality|default:church.city }}</span>
+                                            <span data-id="{{ church.locality.id }}"
+                                                  data-lng="{{ church.locality.latitude }}"
+                                                  data-log="{{ church.locality.longitude }}"
+                                                  class="select chooseCity">
+                                                {{ church.locality|default:church.city }}
+                                            </span>
                                             <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
                                         </label>
                                         <label>
@@ -201,8 +206,22 @@
                                             <span class="select chooseDistrict">{{ church.locality.district_name }}</span>
                                         </label>
                                         <label>
-                                            <span class="label_block">Адрес:</span>
-                                            <input name="address" type="text" value="{{ church.address }}" readonly>
+                                            <span class="label_block">Точный адрес:</span>
+                                            <span id="adress"
+                                                  class="select"
+                                                  data-title="{{ church.address }}"
+                                                  data-lat="{{ church.latitude }}"
+                                                  data-lng="{{ church.longitude }}">
+                                                {{ church.address }}
+                                            </span>
+                                            {% if church.latitude and church.longitude %}
+                                                <button id="address_show" class="address_btn"
+                                                        data-title="{{ church.address }}"
+                                                        data-lat="{{ church.latitude }}"
+                                                        data-lng="{{ church.longitude }}"
+                                                >Показать</button>
+                                            {% endif %}
+                                            <button id="address_choose" class="address_btn address_isHide">Указать</button>
                                         </label>
                                     </div>
                                 </div>
@@ -651,6 +670,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+    {% include "group/partials/map_script.html" %}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
     <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
