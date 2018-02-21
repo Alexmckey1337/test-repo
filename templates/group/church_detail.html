@@ -179,13 +179,18 @@
                             <h4>Контактные данные</h4>
                             <div class="success__block"></div>
                             <form action="/" id="editAddressForm" name="editAddress" data-action="update-user">
-                                <button class="edit" data-edit-block="editAddress"></button>
+                                <button class="edit close-map" data-edit-block="editAddress"></button>
                                 <button class="save__info" type="submit"></button>
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Нас. пункт:</span>
-                                            <span data-id="{{ church.locality.id }}" class="select chooseCity">{{ church.locality|default:church.city }}</span>
+                                            <span data-id="{{ church.locality.id }}"
+                                                  data-lng="{{ church.locality.latitude }}"
+                                                  data-log="{{ church.locality.longitude }}"
+                                                  class="select chooseCity">
+                                                {{ church.locality|default:church.city }}
+                                            </span>
                                             <a href="{% url 'search_city' %}" class="search_city_link" style="visibility: hidden">Выбрать</a>
                                         </label>
                                         <label>
@@ -201,8 +206,22 @@
                                             <span class="select chooseDistrict">{{ church.locality.district_name }}</span>
                                         </label>
                                         <label>
-                                            <span class="label_block">Адрес:</span>
-                                            <input name="address" type="text" value="{{ church.address }}" readonly>
+                                            <span class="label_block">Точный адрес:</span>
+                                            <span id="adress"
+                                                  class="select"
+                                                  data-title="{{ church.address }}"
+                                                  data-lat="{{ church.latitude }}"
+                                                  data-lng="{{ church.longitude }}">
+                                                {{ church.address }}
+                                            </span>
+                                            {% if church.latitude and church.longitude %}
+                                                <a href="#" id="address_show" class="address_btn"
+                                                        data-title="{{ church.address }}"
+                                                        data-lat="{{ church.latitude }}"
+                                                        data-lng="{{ church.longitude }}"
+                                                ><i class="material-icons">&#xE55B;</i></a>
+                                            {% endif %}
+                                            <a href="#" id="address_choose" class="address_btn address_isHide">Указать</a>
                                         </label>
                                     </div>
                                 </div>
@@ -280,6 +299,9 @@
         </div>
         <div class="right-contentwrap">
             <div class="right-content">
+                <div class="a-block a-map">
+                    {% include "group/partials/map_script.html" %}
+                </div>
                 <div class="a-block">
                     <div class="top-s">
                         <h3>Партнерство</h3>
@@ -651,6 +673,7 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
+{#    {% include "group/partials/map_script.html" %}#}
     <script src="{% static "js/churches_detail.bundle.js" %}"></script>
     <script src="{% static "js/add_user.bundle.js" %}"></script>
 {% endblock %}
