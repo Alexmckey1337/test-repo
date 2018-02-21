@@ -205,7 +205,7 @@
                                                         data-lng="{{ home_group.longitude }}"
                                                 >Показать</button>
                                             {% endif %}
-                                            <button id="address_choose" class="address_btn address_isHide">Указать</button>
+                                            <a href="#" id="address_choose" class="address_btn address_isHide">Указать</a>
                                         </label>
                                     </div>
                                 </div>
@@ -245,6 +245,9 @@
         </div>
         <div class="right-contentwrap">
             <div class="right-content">
+                <div class="a-block a-map">
+                    {% include "group/partials/map_script.html" %}
+                </div>
                 <div class="a-block a-church">
                     <div class="top-s">
                         <h3>Таблица</h3>
@@ -415,7 +418,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    {% include "group/partials/map_script.html" %}
     <script src="{% static "js/add_user.bundle.js" %}"></script>
     <script src="{% static "js/home_groups_detail.bundle.js" %}"></script>
 {% endblock %}

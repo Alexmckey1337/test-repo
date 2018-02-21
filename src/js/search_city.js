@@ -29,7 +29,7 @@ $('document').ready(function () {
     });
 
     $('#cities').on('click', 'button', function (e) {
-        if(!$('#map-popup').hasClass('active')){
+        if (!$('#map-popup').hasClass('active')) {
             $('#map-popup').addClass('active');
         }
         e.stopPropagation();

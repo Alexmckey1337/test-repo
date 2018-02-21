@@ -85,8 +85,7 @@ $('document').ready(function () {
             showAlert(`Введены некорректные данные либо заполнены не все поля`)
         },
         onSuccess: function () {
-            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
-
+            submitSummit('#addSammit',$('#addSammit').hasClass('change')?'save':'add');
             return false;
         }
     });

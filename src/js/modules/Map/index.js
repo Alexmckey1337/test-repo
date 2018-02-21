@@ -1,6 +1,6 @@
 'use strict';
 
-const deleteMarkers = function () {
+export const deleteMarkers = function () {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
     }
@@ -8,7 +8,9 @@ const deleteMarkers = function () {
 };
 
 export const btnLocationControls = function () {
-    $('#choose_adress').on('click', function () {
+    $('#choose_adress').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         let title = $(this).attr('data-title'),
             lat = $(this).attr('data-lat'),
             lng = $(this).attr('data-lng');
@@ -17,6 +19,11 @@ export const btnLocationControls = function () {
             .attr('data-lng', lng)
             .text(title);
     });
+
+    $('#address_choose').on('click', function (e) {
+        e.preventDefault();
+        $(".a-map").toggleClass('active');
+    })
 
     $('#address_show').on('click', function (e) {
         e.preventDefault();
@@ -34,4 +41,8 @@ export const btnLocationControls = function () {
         map.setCenter(LatLng);
         markers.push(marker);
     });
+
+    $('.btnMap').on('click', function () {
+        $(".a-map").toggleClass('active');
+    })
 };
