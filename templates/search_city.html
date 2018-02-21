@@ -19,15 +19,16 @@
     <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
     <link rel="stylesheet" href='{% static "libs/normalize-css/normalize.css" %}'>
     <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
+    <link href="{% static "libs/material-iconfont/iconfont/material-icons.css" %}" rel="stylesheet">
     <link rel="stylesheet" href='{% static "css/main.css" %}'>
 </head>
 
 <body style="display: block" data-user="{{ request.user.id }}">
 <div id="search_city-container">
     <div class="title">
-        <h2>Поиск города</h2>
+        <h2>Поиск населенного пункта</h2>
         <div class="filter-city">
-            <input type="text" id="search_city" placeholder="Не менее 3-х букв">
+            <input type="text" id="search_city" placeholder="Не менее 2-х букв">
             <div class="selected_block">
                 <span id="selected_country" data-id="countries"></span>
                 <span id="selected_area" data-id="areas"></span>
@@ -71,6 +72,23 @@
         </div>
     </div>
 </div>
+<div id="map-popup">
+    <div id="map"></div>
+</div>
+<div class="btnMap"><i class="material-icons">&#xE55F;</i></div>
+<script>
+    var map,
+        marker,
+        markers = [];
+    function initMap() {
+        var ukraine = {lat: 50.27, lng: 30.31};
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 5,
+            center: ukraine
+        });
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0_BZliFSuRPmNEkYdAixxHBtP_86tAjE&callback=initMap"></script>
 <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
 <script>Raven.config('{% sentry_public_dsn %}').install()</script>
 <script src="{% static "js/vendor.bundle.js" %}"></script>

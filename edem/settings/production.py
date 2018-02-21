@@ -35,8 +35,8 @@ if os.environ.get('USE_DOCKER') == 'yes':
     }
     CACHES = {
         "default": {
-            'BACKEND': 'redis_cache.cache.RedisCache',
-            'LOCATION': 'redis:6379',
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://redis:6379',
         },
     }
 

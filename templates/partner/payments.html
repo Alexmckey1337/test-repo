@@ -85,7 +85,6 @@
 {% endblock %}
 
 {% block popup.filter.content %}
-    {% update_payment_form %}
     {% include "partials/filter/select.html" with label="Валюта" options=currency_options name="currency_sum" %}
     {% include "partials/filter/fromto.html" with label="Сумма платежа" name="sum" input_type="number" pclass="birthday" %}
     {% include "partials/filter/fromto.html" with label="Дата поступления платежа" name="sent" custom_classes="select_date_filter" pclass="birthday" %}
@@ -95,6 +94,10 @@
     {% include "partials/filter/input.html" with label="Поиск по описанию" name="description" placeholder="Описание или часть" %}
     {% include "partials/filter/select.html" with label="Тип сделки" options=deal_type_options name="deal_type" %}
     {% include "partials/filter/select.html" with label="База" options=partner_groups name="group" multiple="true" without_empty="true" %}
+{% endblock %}
+
+{% block popup.other %}
+    {% update_payment_form %}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}

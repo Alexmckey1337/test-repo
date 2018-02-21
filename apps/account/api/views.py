@@ -462,6 +462,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        if 'is_stable' in request.data.keys():
+            church = user.get_church()
+            if church:
+                church.del_count_people_cache()
+                church.del_count_stable_people_cache()
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -479,6 +484,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         serializer = self.serializer_single_class(user)
         headers = self.get_success_headers(serializer.data)
+        if 'is_stable' in request.data.keys():
+            church = user.get_church()
+            if church:
+                church.del_count_people_cache()
+                church.del_count_stable_people_cache()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=DashboardSerializer)

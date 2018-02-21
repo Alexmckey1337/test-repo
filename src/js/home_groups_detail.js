@@ -279,7 +279,7 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddress').find('.select_small').attr('data-id');
+                let id = $('#editAddressForm').find('.chooseCity').attr('data-id');
                 id && formData.append('locality', id);
             }
             updateHomeGroup(idChurch, formData, success)

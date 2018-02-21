@@ -18,8 +18,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.account.api.serializers import AddExistUserSerializer
 from apps.account.models import CustomUser
-from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
+from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin
@@ -44,8 +44,6 @@ from apps.group.resources import ChurchResource, HomeGroupResource
 from apps.event.models import ChurchReport, Meeting, MeetingType
 from datetime import datetime
 from common.week_range import week_range
-from common.parsers import MultiPartAndJsonParser
-from rest_framework.parsers import JSONParser, FormParser
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +82,28 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     }
 
     resource_class = ChurchResource
+
+    _columns = None
+
+    def list(self, request, *args, **kwargs):
+        request.columns = self.columns
+        return super().list(request, *args, **kwargs)
+
+    @property
+    def columns(self):
+        if self._columns is None:
+            self._columns = get_table('church', self.request.user.id)
+        return self._columns
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        extra = {
+            'extra_fields': self.request.query_params.getlist('extra_fields'),
+            'columns': self.columns,
+        }
+        ctx.update(extra)
+
+        return ctx
 
     def get_permissions(self):
         permission_classes = getattr(self, 'permission_{}_classes'.format(self.action), self.permission_classes)
@@ -299,7 +319,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
 
         department_id = params.get('department', None)
         if department_id is not None:
-            users = users.filter(departments_id=department_id)
+            users = users.filter(departments__id=department_id)
 
         page = self.paginate_queryset(users)
         if page is not None:
