@@ -7,20 +7,17 @@ import 'whatwg-fetch';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import {getFilterParam} from "../Filter/index";
-import getData, {postData, deleteData} from '../Ajax/index';
+import getData, {postData} from '../Ajax/index';
 import getSearch from '../Search/index';
 import OrderTable from '../Ordering/index';
 import {showAlert} from "../ShowNotifications/index";
 import makePagination from '../Pagination/index';
-import {refreshFilter} from "../Filter/index";
 import updateHistoryUrl from '../History/index';
-import {showConfirm} from "../ShowNotifications/index";
 import dataHandling from '../Error';
+import reverseDate from '../Date';
 
 export function SummitListTable(config) {
-    getData(URLS.controls.summit_access(), config).then(data => {
-        makeSummitListTable(data);
-    });
+    getData(URLS.controls.summit_access(), config).then(data => makeSummitListTable(data));
 }
 
 function makeSummitListTable(data, config = {}) {
@@ -38,20 +35,19 @@ function makeSummitListTable(data, config = {}) {
     makePagination(paginationConfig);
     $('.table__count').text(text);
     $('#tableSummitListWrap').html('');
-    createSummitListTable(data, '#tableSummitListWrap');
+    createSummitListTable(data);
     new OrderTable().sort(summitListTable, ".table-wrap th");
     $('.preloader').hide();
 }
+
 export function summitListTable(config = {}) {
     Object.assign(config, getSearch('search_title'));
     Object.assign(config, getFilterParam());
     updateHistoryUrl(config);
-    getData(URLS.controls.summit_access(), config).then(data => {
-        makeSummitListTable(data, config);
-    });
+    getData(URLS.controls.summit_access(), config).then(data => makeSummitListTable(data, config));
 }
 
-function createSummitListTable(data,block) {
+function createSummitListTable(data) {
     let table = `<table class="tableSummitList">
                         <thead>
                             <tr>
@@ -65,8 +61,7 @@ function createSummitListTable(data,block) {
                         <tbody>${data.results.map(item => {
         return `<tr>
                             <td class="edit" data-id="${item.id}">
-                                ${item.type.title} ${item.start_date.split('.').reverse().join('-')}
-                                <!--<button class="delete_btn"></button>-->
+                                ${item.type.title} ${reverseDate(item.start_date, '-')}
                             </td>
                             <td>
                                 ${item.type.title}
@@ -78,82 +73,80 @@ function createSummitListTable(data,block) {
                                 ${item.end_date}
                             </td>
                             <td>
-                                ${item.status === 'open'?'Открытый':'Закрытый'}
+                                ${item.status === 'open' ? 'Открытый' : 'Закрытый'}
                             </td>
-                        </tr>
-                            `;
-    }).join('')}</tbody>
+                        </tr>`;}).join('')}</tbody>
                         </table>`;
-    $(block).append(table);
-
-    btnControll();
+    $('#tableSummitListWrap').append(table);
 }
-function btnControll() {
-    $(".tableSummitList").find('.edit').on('click', function (e) {
-        let target = e.target;
-        if (!$(target).hasClass('delete_btn')) {
-            let clear_btn = $('#addSammit').find('.add-summit'),
-                id = $(this).data('id'),
-                form = $('#addSammit');
-            $('#addSammit').attr('data-id',id).addClass('active').addClass('change').removeClass('add');
-            $('.bg').addClass('active');
-            refreshFilter($(clear_btn));
-            $('#addSammit').find('.popup_text').find('h2').text('Изменить саммит');
-            removeValidText($('#addSammit'));
-            getData(URLS.controls.summit_detail(id)).then(function (data) {
-                completeForm(form, data);
-            });
+
+export function btnSummitControlls() {
+    $("#tableSummitListWrap").on('click', '.edit', function () {
+        let form = $('#addSammit'),
+            id = $(this).data('id');
+        form.attr('data-id', id).addClass('active').addClass('change').removeClass('add');
+        $('.bg').addClass('active');
+        refreshAddSummitFields();
+        form.find('.popup_text').find('h2').text('Изменить саммит');
+        removeValidText(form);
+        getData(URLS.controls.summit_detail(id)).then(data => completeForm(data));
+    });
+}
+
+export function refreshAddSummitFields() {
+    let form = $('#addSammitForm'),
+        $input = form.find('input'),
+        $select = form.find('select');
+    $input.each(function () {
+        $(this).val('')
+    });
+    $select.each(function () {
+        $(this).val(null).trigger("change");
+    });
+}
+
+export function submitSummit() {
+    let form = $('#addSammitForm'),
+        $input = form.find('label').find('input, select'),
+        type = form.hasClass('save-summit') ? 'save' : 'add',
+        data = {},
+        config = {},
+        id = $('#addSammit').data('id'),
+        url = (type === 'add') ? URLS.controls.summit_access() : URLS.controls.summit_detail(id);
+    $input.each(function () {
+        let name = $(this).attr('name');
+        if ($(this).hasClass('summit-date')) {
+            data[name] = reverseDate($(this).val(), '-');
         } else {
-            let id = $(this).data('id'),
-                message = 'Вы действительно хотите удалить саммит?';
-            showConfirm('Удаление', message, function () {
-                deleteData(URLS.controls.summit_detail(id)).then(function () {
-                    $('.preloader').css('display', 'block');
-                    summitListTable();
-                    showAlert('Саммит удален');
-                }).catch(err => dataHandling(err));
-            });
+            data[name] = $(this).val();
         }
     });
-}
-export function submitSummit(el,type) {
-    let field = $(el).find('input, select, textarea'),
-        data = {},
-        id = $('#addSammit').data('id'),
-        url = type === 'add' ? URLS.controls.summit_access() : URLS.controls.summit_detail(id),
-        config = type === 'add' ? {} : {method:'PUT'};
-    $(field).each(function (i, el) {
-        data[$(el).attr('name')] = $(el).val();
-    });
-    postData(url, data, config).then(function () {
-        console.log(url, config, id);
-        showAlert(type === 'add' ? 'Саммит успешно создан' : 'Саммит успешно сохранен');
+    (type === 'save') && Object.assign(config, {method: 'PUT'});
+    postData(url, data, config).then(_ => {
+        showAlert('Саммит успешно создан');
         $('#addSammit').removeClass('active');
         $('.bg').removeClass('active');
         summitListTable();
-    }).catch(function (err) {
-        dataHandling(err);
-    });
+    }).catch(err => dataHandling(err));
 }
 
-function completeForm(form,data) {
+function completeForm(data) {
+    let form = $('#addSammit');
     for (let key in data) {
         if (key != 'id') {
             let input = form.find('[name = ' + key + ']');
-            if ($(input).is('select') && data[key] != null) {
-                if(typeof data[key] === 'object'){
-                    $(input).val(data[key].id).trigger('change');
-                }else {
-                    $(input).val(data[key]).trigger('change');
-                }
-            } else if (key.search(/date/g) != -1) {
-                $(input).val(data[key].split('.').reverse().join('-'));
-            } else{
-                $(input).val(data[key]);
+            if (input.is('select') && data[key] != null) {
+                (typeof data[key] === 'object') ?
+                    input.val(data[key].id).trigger('change')
+                    :
+                    input.val(data[key]).trigger('change');
+            } else {
+                input.val(data[key]);
             }
         }
     }
 }
+
 export function removeValidText(form) {
     let errInput = form.find('.has-error');
     errInput.each(function (i, el) {
