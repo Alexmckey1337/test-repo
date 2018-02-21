@@ -108,11 +108,12 @@ export function refreshAddSummitFields() {
 export function submitSummit() {
     let form = $('#addSammitForm'),
         $input = form.find('label').find('input, select'),
-        type = form.hasClass('save-summit') ? 'save' : 'add',
+        type = $('#addSammit').hasClass('add') ? 'add' : 'save',
         data = {},
         config = {},
         id = $('#addSammit').data('id'),
-        url = (type === 'add') ? URLS.controls.summit_access() : URLS.controls.summit_detail(id);
+        url = (type === 'add') ? URLS.controls.summit_access() : URLS.controls.summit_detail(id),
+        message = (type === 'add') ? 'Саммит успешно создан' : 'Саммит успешно сохранен';
     $input.each(function () {
         let name = $(this).attr('name');
         if ($(this).hasClass('summit-date')) {
@@ -123,7 +124,7 @@ export function submitSummit() {
     });
     (type === 'save') && Object.assign(config, {method: 'PUT'});
     postData(url, data, config).then(_ => {
-        showAlert('Саммит успешно создан');
+        showAlert(message);
         $('#addSammit').removeClass('active');
         $('.bg').removeClass('active');
         summitListTable();
