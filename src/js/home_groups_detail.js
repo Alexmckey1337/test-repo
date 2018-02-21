@@ -357,6 +357,12 @@ $('document').ready(function () {
         }
     });
 
+    $('.close-map').on('click', function () {
+        if(!$(this).hasClass('active')){
+            $(".a-map").removeClass('active');
+        }
+    });
+
     btnControlsImg();
     HomeReportsTable(configReport, false);
 

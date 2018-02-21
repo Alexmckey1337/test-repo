@@ -168,7 +168,7 @@
                             <h4>Контактные данные</h4>
                             <div class="success__block"></div>
                             <form action="/" id="editAddressForm" name="editAddress" data-action="update-user">
-                                <button class="edit" data-edit-block="editAddress"></button>
+                                <button class="edit close-map" data-edit-block="editAddress"></button>
                                 <button class="save__info" type="submit"></button>
                                 <div class="popup_body">
                                     <div class="container">
@@ -199,11 +199,11 @@
                                                 {{ home_group.address }}
                                             </span>
                                             {% if home_group.latitude and home_group.longitude %}
-                                                <button id="address_show" class="address_btn"
+                                                <a href="#" id="address_show" class="address_btn"
                                                         data-title="{{ home_group.address }}"
                                                         data-lat="{{ home_group.latitude }}"
                                                         data-lng="{{ home_group.longitude }}"
-                                                >Показать</button>
+                                                ><i class="material-icons">&#xE55B;</i></a>
                                             {% endif %}
                                             <a href="#" id="address_choose" class="address_btn address_isHide">Указать</a>
                                         </label>

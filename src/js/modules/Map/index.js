@@ -22,12 +22,15 @@ export const btnLocationControls = function () {
 
     $('#address_choose').on('click', function (e) {
         e.preventDefault();
-        $(".a-map").toggleClass('active');
+        $(".a-map").addClass('active');
+        $('#pac-input').css('display', 'block');
     })
 
     $('#address_show').on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
+        $(".a-map").addClass('active');
+        $('#pac-input').css('display', 'none');
         let lat = +$(this).attr('data-lat'),
             lng = +$(this).attr('data-lng'),
             title = $(this).attr('data-title'),

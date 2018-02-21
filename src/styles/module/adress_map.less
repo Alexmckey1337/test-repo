@@ -52,7 +52,7 @@
   position: relative;
 }
 
-#address_choose {
+#address_choose, #address_show {
   top: 0;
   position: absolute;
   right: -25px;
@@ -60,4 +60,13 @@
   line-height: 25px;
   color: #3caeda;
   outline: 0;
+}
+#address_show{
+  i {
+    color: rgba(101, 109, 120, .3);
+    transition: color .3s;
+    &:hover {
+      color: rgba(101, 109, 120, 1);
+    }
+  }
 }
