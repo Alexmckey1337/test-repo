@@ -293,7 +293,6 @@ $('document').ready(function () {
         if (action === 'update-user') {
             $input.each(function () {
                 let id = $(this).data('id');
-                console.log('ID-->', id);
                 if (!$(this).attr('name')) {
                     if ($(this).is('[type=file]')) {
                         let send_image = $(this).prop("files").length || false;
@@ -339,7 +338,7 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddress').find('.chooseCity').attr('data-id');
+                let id = $('#editAddressForm').find('.chooseCity').attr('data-id');
                 id && formData.append('locality', id);
             }
             updateChurch(idChurch, formData, success)
