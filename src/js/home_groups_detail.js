@@ -284,7 +284,7 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddress').find('.select_small').attr('data-id'),
+                let id = $('#editAddressForm').find('.select_small').attr('data-id'),
                     title = $('#adress').attr('data-title'),
                     lat = $('#adress').attr('data-lat'),
                     lng = $('#adress').attr('data-lng');
