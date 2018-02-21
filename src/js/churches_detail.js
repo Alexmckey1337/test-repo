@@ -611,6 +611,12 @@ $('document').ready(function () {
         makePastorList(id, '#editPastorSelect');
     });
 
+    $('.close-map').on('click', function () {
+        if(!$(this).hasClass('active')){
+            $(".a-map").removeClass('active');
+        }
+    });
+
     btnLocationControls();
 
 });
