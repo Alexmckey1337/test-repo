@@ -356,3 +356,48 @@
     margin-top: 30px;
   }
 }
+.add-user-summit{
+  .container{
+    padding: 10px 30px;
+  }
+  .popup_body{
+    margin: 0;
+    .container{
+      padding-left: 70px;
+    }
+  }
+  label{
+    position: relative;
+    .edit,.save__info{
+      position: absolute;
+      right: 0;
+      top:0;
+      padding: 0;
+      width: 15px;
+      height: 15px;
+      background-color: transparent;
+      &::before {
+        content: '\f040';
+        color: #656d78;
+        font: normal 1em "Material Icons";
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+    }
+    .edit{
+      &::before{
+        content: '\E254';
+      }
+    }
+    .save__info{
+      display: none;
+      &::before{
+        content: '\E5CA';
+      }
+      &.active{
+        display: block;
+      }
+    }
+  }
+}
