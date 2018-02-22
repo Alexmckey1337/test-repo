@@ -287,8 +287,10 @@ export function setDataForAddParticipantPopup(id) {
     $('#popup').attr('data-id', id);
     getData(URLS.user.summit_info(id)).then(data => {
         let bishop = data.bishop,
-            email = data.email;
+            email = data.email,
+            name = data.fullname;
         $('#client_img').attr('src', data.image);
+        $('#client_name').text(name ? name : '');
         $('#client_department').text(data.departments.map(item => item.title).join(','));
         $('#client_bisop').text(bishop ? bishop.title : '');
         $('#client_email').val(email ? email : '');
