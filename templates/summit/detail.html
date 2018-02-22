@@ -92,21 +92,37 @@
                 </div>
                 <div class="padding-wrap">
                     <div class="user-info">
+                        <img id="client_img" src="" alt="Фото пользователя">
+                        <h3 id="client_name"></h3>
                         <label>
-                            <span class="label-wrapp">Участник:</span>
-                            <p id="client-name"></p>
+                            <span class="label-wrapp">Отдел:</span>
+                            <span id="client_department"></span>
                         </label>
                         <label>
-                            <span class="label-wrapp">Ответственный:</span>
-                            <p id="responsible-name"></p>
+                            <span class="label-wrapp">Текущий бишоп:</span>
+                            <span id="client_bisop"></span>
                         </label>
-                        <label class="textarea">
-                            <textarea placeholder="Добавить коментарий"></textarea>
+                        <label>
+                            <span class="label-wrapp">E-mail:</span>
+                            <input id="client_email" name="email" readonly/>
+                            <button class="edit"></button>
+                            <button class="save__info"></button>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Телефон:</span>
+                            <input id="client_phone" name="phone_number" readonly/>
+                            <span class="comment"></span>
+                            <button class="edit"></button>
+                            <button class="save__info"></button>
+                        </label>
+                        <label>
+                            <span class="label-wrapp">Автор регистрации:</span>
+                            <select id="client_author_reg"></select>
                         </label>
                     </div>
                     <div class="splash-bauttons">
                         <button id="close">Отменить</button>
-                        <button id="complete">Завершить</button>
+                        <button id="complete">Добавить</button>
                     </div>
                 </div>
             </div>

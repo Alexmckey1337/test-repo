@@ -14,6 +14,7 @@ import OrderTable from '../Ordering/index';
 import {getFilterParam} from "../Filter/index";
 import {showAlert} from "../ShowNotifications/index";
 import shortenText from '../shortenText';
+import errHandling from '../Error';
 
 export function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val();
@@ -201,63 +202,34 @@ export function updateSummitProfile(profileID, config) {
     });
 }
 
-export function registerUser(id, summit_id, description) {
-    let data = {
-        "user": id,
-        "summit": summit_id,
-        "description": description,
-    };
-    // let json = JSON.stringify(data);
+export function registerUser(id, summit_id) {
+    let author = $('#client_author_reg').val(),
+        data = {
+            "user": id,
+            "summit": summit_id,
+        };
+    author && Object.assign(data, {author});
     postData(URLS.summit_profile.list(), data).then(() => {
         showAlert("Пользователь добавлен в саммит.");
         createSummitUsersTable();
         $('#searchedUsers').find(`button[data-id=${id}]`).prop('disabled', true);
-    }).catch((err) => {
-        showAlert('Ошибка добавления пользователя');
-        console.log(err);
-    })
-    // registerUserToSummit(json);
+        $('#popup').css('display', 'none');
+    }).catch(err => errHandling(err))
 }
 
-// function registerUserToSummit(config) {
-//     ajaxRequest(URLS.summit_profile.list(), config, function (data) {
-//         showAlert("Пользователь добавлен в саммит.");
-//         createSummitUsersTable();
-//     }, 'POST', true, {
-//         'Content-Type': 'application/json'
-//     }, {
-//         400: function (data) {
-//             data = data.responseJSON;
-//             showAlert(data.detail);
-//         },
-//         404: function (data) {
-//             data = data.responseJSON;
-//             showAlert(data.detail);
-//         },
-//         403: function (data) {
-//             data = data.responseJSON;
-//             showAlert(data.detail);
-//         }
-//     });
-// }
-
-export function makePotencialSammitUsersList(config = {}) {
-    let param = {'summit_id': 7},
-        search = $('#searchUsers').val();
-    if (search) {
-        param['search'] = search;
+function makePotencialSammitUsersTable(data, text) {
+    if (!data.results.length) {
+        $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу пользователей не найдено</p></div></div>');
+        return;
     }
-    Object.assign(param, config);
-    param.summit_id = $('#summitUsersList').data('summit');
-    getData(URLS.summit_search(), param).then(data => {
-        let pagination = `<div class="top-pag">
-                              <div class="table__count"></div>
-                              <div class="pagination search_users_pagination"></div>
-                          </div>
-                          <div class="table-wrap clearfix">
-                              <div id="potentialUsersList" class="table scrollbar-inner"></div>
-                          </div>`;
-        let table = `<table>
+    let pagination = `<div class="top-pag">
+                <div class="table__count"></div>
+                <div class="pagination search_users_pagination"></div>
+            </div>
+            <div class="table-wrap clearfix">
+                <div id="potentialUsersList" class="table scrollbar-inner"></div>
+            </div>`,
+        table = `<table>
                         <thead>
                             <tr>
                                 <th>ФИО</th>
@@ -269,73 +241,64 @@ export function makePotencialSammitUsersList(config = {}) {
                             </tr>
                         </thead>
                         <tbody>${data.results.map(item => {
-            return `<tr>
+        return `<tr>
                         <td><a target="_blank" href="/account/${item.id}" 
                                 class="hint--top-right hint--info shorten" aria-label="${item.fullname}">
-                                ${item.fullname}</a>
+                                ${shortenText(item.fullname.trim())}</a>
                         </td>
                         <td>${item.country}/${item.city}</td>
                         <td>${item.master_short_fullname}</td>
                         <td>${item.email}</td>
                         <td>${item.phone_number}</td>
                         <td>
-                            <button data-master="${item.master_short_fullname}" 
-                                    data-name="${item.fullname}" 
-                                    data-id="${item.id}">
-                                    Выбрать
-                            </button>
+                            <button class="add_participant" data-id="${item.id}">Выбрать</button>
                         </td>
                     </tr>`;
-        }).join('')}</tbody></table>`;
-        if (data.results.length > 0) {
-            let count = data.count,
-                page = config.page || 1,
-                pages = Math.ceil(count / CONFIG.pagination_count_small),
-                showCount = (count < CONFIG.pagination_count_small) ? count : data.results.length,
-                text = `Показано ${showCount} из ${count}`,
-                paginationConfig = {
-                    container: ".search_users_pagination",
-                    currentPage: page,
-                    pages: pages,
-                    callback: makePotencialSammitUsersList
-                };
-            $('#searchedUsers').html(pagination).find('.table__count').text(text);
-            makePagination(paginationConfig);
-            $('#potentialUsersList').html(table);
-            $('.preloader').css('display', 'none');
-            $('.shorten').each(function (i, el) {
-                let cutTxt = shortenText(el.text.trim());
-                $(this).text(cutTxt);
-            });
-        } else {
-            $('#searchedUsers').html('<div class="rows-wrap"><div class="rows"><p>По запросу учасников не найдено</p></div></div>');
-        }
+    }).join('')}</tbody></table>`;
+    $('#searchedUsers').html(pagination).find('.table__count').text(text);
+    $('#potentialUsersList').html(table);
+}
+
+export function makePotencialSammitUsersList(config = {}) {
+    const SUMMIT_ID = $('#summitUsersList').attr('data-summit');
+    Object.assign(config, {summit_id: SUMMIT_ID});
+    let search = $('#searchUsers').val();
+    search && Object.assign(config, {search});
+    getData(URLS.summit_search(), config).then(data => {
+        let count = data.count,
+            page = config.page || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count_small),
+            showCount = (count < CONFIG.pagination_count_small) ? count : data.results.length,
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+                container: ".search_users_pagination",
+                currentPage: page,
+                pages: pages,
+                callback: makePotencialSammitUsersList
+            };
+        makePotencialSammitUsersTable(data, text);
+        makePagination(paginationConfig);
+        $('.preloader').css('display', 'none');
         $('.choose-user-wrap .splash-screen').addClass('active');
-        let btn = $('#searchedUsers').find('table').find('button');
-        btn.on('click', function () {
-            let id = $(this).attr('data-id'),
-                name = $(this).attr('data-name'),
-                master = $(this).attr('data-master');
-            $('#summit-value').val("0");
-            $('#summit-value').attr('readonly', true);
-            $('#popup textarea').val("");
-            setDataForPopup(id, name, master);
-            $('#popup').css('display', 'block');
-        });
     });
 }
 
-// function getPotencialSammitUsers(config) {
-//     console.log(config);
-//     return new Promise(function (resolve, reject) {
-//         ajaxRequest(URLS.summit_search(), config, function (data) {
-//             resolve(data);
-//         });
-//     });
-// }
+export function setDataForAddParticipantPopup(id) {
+    $('#popup').attr('data-id', id);
+    getData(URLS.user.summit_info(id)).then(data => {
+        let bishop = data.bishop,
+            email = data.email;
+        $('#client_img').attr('src', data.image);
+        $('#client_department').text(data.departments.map(item => item.title).join(','));
+        $('#client_bisop').text(bishop ? bishop.title : '');
+        $('#client_email').val(email ? email : '');
+        $('#client_phone').val(data.phone_number);
+    })
+}
 
-export function setDataForPopup(id, name, master) {
-    $('#complete').attr('data-id', id);
-    $('#client-name').html(name);
-    $('#responsible-name').html(master);
+export function makeAuthorRegList(id) {
+    getData(URLS.summit.author_registration(id)).then(data => {
+        const options = data.map(option => `<option value="${option.id}">${option.title}</option>`);
+        $('#client_author_reg').html(`<option value="">Без ответственного</option>`).append(options).select2();
+    });
 }
