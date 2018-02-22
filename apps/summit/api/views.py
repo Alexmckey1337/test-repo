@@ -127,17 +127,23 @@ class SummitAuthorListView(GenericAPIView):
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
     }
     filter_class = AuthorFilter
+    pagination_class = None
 
     summit = None
 
     def get(self, request, *args, **kwargs):
+        """
+        First 100 bishops+ of summit
+        """
         self.summit = get_object_or_404(Summit, pk=kwargs.get('pk'))
         authors = self.filter_queryset(self.get_queryset().order_by('last_name', 'first_name', 'middle_name'))
         authors = [{'id': p[0], 'title': p[1]} for p in authors.values_list('user_id', 'full_name')[:100]]
         return Response(data=authors)
 
     def get_queryset(self):
-        return self.summit.ankets.order_by('last_name', 'first_name', 'middle_name').annotate_full_name()
+        return self.summit.ankets.filter(
+            hierarchy__level__gte=4  # bishop+
+        ).order_by('last_name', 'first_name', 'middle_name').annotate_full_name()
 
 
 class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):

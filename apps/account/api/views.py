@@ -34,7 +34,7 @@ from apps.account.api.permissions import (
     EditUserPermission, ExportUserListPermission, IsSuperUser)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer)
+    HomeGroupIdSerializer, UserForSummitInfoSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -371,6 +371,16 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         skins = get_object_or_404(User, pk=pk).skins.annotate(
             full_name=Concat('last_name', V(' '), 'first_name', V(' '), 'middle_name'))
         serializer = UserForSelectSerializer(skins, many=True)
+
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def summit_info(self, request, pk):
+        """
+        Info for summit add popup
+        """
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserForSummitInfoSerializer(instance=user)
 
         return Response(serializer.data)
 

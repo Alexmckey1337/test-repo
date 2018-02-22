@@ -185,6 +185,11 @@ class CustomUser(MP_Node, LogModel, User,
         return self.master.short
 
     @property
+    def bishop(self):
+        ancestors = self.get_ancestors().filter(hierarchy__level__gte=4)  # bishop+
+        return ancestors.first() or None
+
+    @property
     def short(self):
         s = ''
         if len(self.last_name) > 0:
