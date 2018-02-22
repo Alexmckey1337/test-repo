@@ -248,6 +248,9 @@
         </div>
         <a class="rewrite" target="_blank" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
         <div class="btn-block">
+            {% if addToSummit %}
+                <button id="addToSummit" data-id="<%=id%>">Добавить в саммит</button>
+            {% endif %}
             <button class="addMore">Создать ещё одного</button>
             <button class="close">Закрыть</button>
         </div>

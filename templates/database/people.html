@@ -39,6 +39,10 @@
     </div>
 {% endblock %}
 
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}
+
 {% block popup.other %}
     <div class="popap popap_slide" id="quickEditCartPopup">
         <div class="pop_cont">
@@ -77,6 +81,7 @@
     </select>
     <input type="text" data-filter="user_type" placeholder="лидер?" id="user_type_filter" hidden>
 {% endblock %}
+
 {% block extra_scripts %}
     <script src="{% static "js/add_user.bundle.js" %}"></script>
     <script src="{% static "js/database_users.bundle.js" %}"></script>

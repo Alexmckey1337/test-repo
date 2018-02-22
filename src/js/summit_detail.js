@@ -24,8 +24,7 @@ import {
     updateSummitParticipant,
     registerUser,
     makePotencialSammitUsersList,
-    setDataForAddParticipantPopup,
-    makeAuthorRegList
+    addUserToSummit,
 } from "./modules/Summit/index";
 import {closePopup} from "./modules/Popup/popup";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
@@ -453,9 +452,7 @@ $(document).ready(function () {
     //Add user to summit
     $('#searchedUsers').on('click', '.add_participant', function () {
         const ID = $(this).attr('data-id');
-        makeAuthorRegList(SUMMIT_ID);
-        setDataForAddParticipantPopup(ID);
-        $('#popup').css('display', 'block');
+        addUserToSummit(ID);
     });
 
     //Update user info

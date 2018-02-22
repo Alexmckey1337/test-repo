@@ -302,3 +302,10 @@ export function makeAuthorRegList(id) {
         $('#client_author_reg').html(`<option value="">Без ответственного</option>`).append(options).select2();
     });
 }
+
+export function addUserToSummit(id) {
+    const SUMMIT_ID = $('#summitUsersList').attr('data-summit');
+    makeAuthorRegList(SUMMIT_ID);
+    setDataForAddParticipantPopup(id);
+    $('#popup').css('display', 'block');
+}

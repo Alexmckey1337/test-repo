@@ -1,12 +1,12 @@
 'use strict';
 import URLS from '../Urls/index';
-import getData from '../Ajax/index';
 import ajaxRequest from '../Ajax/ajaxRequest';
 import newAjaxRequest from '../Ajax/newAjaxRequest';
 import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import {dataURLtoBlob} from "../Avatar/index";
-import {getCountries, getRegions, getCities, getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
+import {getDepartments, getResponsible, getStatuses, getDivisions} from "../GetList/index";
 import {showAlert} from "../ShowNotifications/index";
+import {addUserToSummit} from "../Summit/index";
 
 export function addUserToHomeGroup(user_id, hg_id, exist = false) {
     let url = URLS.user.set_home_group(user_id);
@@ -147,6 +147,12 @@ function showPopupAddUser(data) {
         }
         $('#addNewUserPopup').addClass('active');
         $('#addNewUserPopup').find('.body').scrollTop(0);
+    });
+    $('#addToSummit').on('click', function (e) {
+        e.preventDefault();
+        const ID = $(this).attr('data-id');
+        $('#addPopup').css('display', 'none').remove();
+        addUserToSummit(ID);
     });
 }
 
