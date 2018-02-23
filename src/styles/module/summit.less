@@ -357,25 +357,47 @@
   }
 }
 .add-user-summit{
+  &__photo{
+    display: flex;
+    align-items: center;
+    padding:10px 30px;
+    i{
+      font-size: 40px;
+      margin-right: 10px;
+    }
+    img{
+      margin-right: 10px;
+    }
+  }
   .container{
     padding: 10px 30px;
   }
   .popup_body{
     margin: 0;
     .container{
-      padding-left: 70px;
+      padding-left: 80px;
+      label {
+        justify-content: flex-start;
+        .label_block {
+          width: 140px;
+        }
+        input, select, .input {
+          width: 200px !important;
+        }
+      }
     }
   }
   label{
     position: relative;
     .edit,.save__info{
       position: absolute;
-      right: 0;
+      right: -20px;
       top:0;
       padding: 0;
       width: 15px;
       height: 15px;
       background-color: transparent;
+      transition: right .3s;
       &::before {
         content: '\f040';
         color: #656d78;
@@ -389,6 +411,11 @@
       &::before{
         content: '\E254';
       }
+      &.active{
+        &::before{
+          content: '\E5CD';
+        }
+      }
     }
     .save__info{
       display: none;
@@ -397,7 +424,13 @@
       }
       &.active{
         display: block;
+        right: 0px;
       }
+    }
+    .comment {
+      position: absolute;
+      right: -20px;
+      top: 10px;
     }
   }
 }

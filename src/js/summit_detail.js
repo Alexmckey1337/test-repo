@@ -456,14 +456,17 @@ $(document).ready(function () {
     });
 
     //Update user info
-    $('#popup .user-info').on('click', '.edit', function (e) {
+    $('#popup .popup_body').on('click', '.edit', function (e) {
         e.preventDefault();
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $(this).siblings('input').prop('readonly', true);
+            $(this).parent().find('.save__info').removeClass('active');
+            $(this).parent().find('.comment').text('');
         } else {
             $(this).siblings('input').prop('readonly', false);
             $(this).addClass('active');
+            $(this).parent().find('.save__info').addClass('active');
         }
     });
 
@@ -473,7 +476,7 @@ $(document).ready(function () {
         },
     });
 
-    $('#popup .user-info').on('click', '.save__info', function (e) {
+    $('#popup .popup_body').on('click', '.save__info', function (e) {
         e.preventDefault();
         const USER_ID = $('#popup').attr('data-id');
         let config = {},
@@ -499,6 +502,8 @@ $(document).ready(function () {
             showAlert('Изменения внесены');
             $(this).removeClass('active');
             $(this).siblings('input').prop('readonly', true);
+            $(this).parent().find('.edit').removeClass('active');
+            $(this).parent().find('.comment').text('');
         }).catch(err => errHandling(err));
     });
 
