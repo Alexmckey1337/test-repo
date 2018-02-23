@@ -197,7 +197,7 @@ export function deleteReport(callback, config = {}, pagination = true) {
             showAlert('Отчет удален');
             $('#editReport, .bg').removeClass('active');
         }).catch(err => dataHandling(err));
-    });
+    }, _ => {});
 }
 
 function completeFields(data) {

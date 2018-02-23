@@ -217,7 +217,7 @@ $(document).ready(function () {
                     $('.preloader').css('display', 'block');
                     createSummitUsersTable({summit: SUMMIT_ID});
                 }).catch(err => errHandling(err));
-            });
+            }, _ => {});
         }).catch(err => errHandling(err));
         closePopup(this);
     });

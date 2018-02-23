@@ -13,6 +13,7 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
             return;
         }
         showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
+        $('.preloader').css('display', 'none');
         url = ($(el).attr('data-export-url')) ? $(el).attr('data-export-url') : urlExp;
         filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
         console.log('Filter -->', filter);
@@ -41,6 +42,7 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
             fields: getDataTOExport().join(',')
         };
         postExport(url, data).catch(function () {
+            $('.preloader').css('display', 'none');
             showAlert('Ошибка при загрузке файла');
         });
     }, () => {

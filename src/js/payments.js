@@ -13,12 +13,11 @@ import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index"
 import {createPaymentsTable} from "./modules/Payment/index";
 import {
-    deleteDealsPayment,
     cleanUpdateDealsPayment,
     getPreFilterParam
 } from "./modules/Payment/index";
 import makeSelect from './modules/MakeAjaxSelect';
-import {postData} from "./modules/Ajax/index";
+import {postData, deleteData} from "./modules/Ajax/index";
 import errorHandling from './modules/Error';
 import {convertNum} from "./modules/ConvertNum/index";
 
@@ -129,15 +128,13 @@ $(document).ready(function () {
         e.preventDefault();
         let id = $(this).attr('data-id');
         showConfirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
-            deleteDealsPayment(id).then(() => {
+            deleteData(URLS.payment.edit_payment(id)).then(() => {
                 showAlert('Платеж успешно удален!');
                 $('#popup-update_payment').css('display', 'none');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
                 createPaymentsTable({page: page});
-            }).catch((res) => {
-                showAlert(res, 'Ошибка');
-            });
+            }).catch(err => errorHandling(err));
         }, () => {});
     });
 
