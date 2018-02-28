@@ -101,7 +101,6 @@ $('document').ready(function () {
 
     $('#add').on('click', function () {
         $('body').addClass('no_scroll');
-        //$('#addNewUserPopup').css('display', 'block');
         $('#addNewUserPopup').addClass('active');
         $('.bg').addClass('active');
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');

@@ -104,7 +104,6 @@ export function saveChurches(el) {
         opening_date: $($(el).closest('.pop_cont').find('#openingDate')).val() || null,
         is_open: $('#is_open_church').is(':checked'),
         locality: $('#update_churches_city').attr('data-id'),
-        address: $($(el).closest('.pop_cont').find('#address')).val(),
         report_currency: $($(el).closest('.pop_cont').find('#EditReport_currency')).val(),
     };
 
@@ -211,7 +210,6 @@ function getAddChurchData() {
         "department": $('#department_select').val(),
         "pastor": $('#pastor_select').val(),
         "locality": $('#added_churches_city').attr('data-id'),
-        "address": $('#added_churches_address').val(),
         "phone_number": $('#added_churches_phone').val(),
         "website": $('#added_churches_site').val(),
         "report_currency": $('#report_currency').val(),

@@ -419,6 +419,16 @@ class UserForSelectSerializer(serializers.ModelSerializer):
         fields = ('id', 'title')
 
 
+class UserForSummitInfoSerializer(serializers.ModelSerializer):
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
+    bishop = UserForSelectSerializer()
+    master = UserForSelectSerializer()
+
+    class Meta:
+        model = User
+        fields = ('id', 'fullname', 'email', 'phone_number', 'bishop', 'master', 'departments', 'image')
+
+
 class ExistUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User

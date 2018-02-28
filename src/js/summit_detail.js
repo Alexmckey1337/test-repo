@@ -5,8 +5,13 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
+import 'inputmask/dist/inputmask/dependencyLibs/inputmask.dependencyLib.jquery.js';
+import 'inputmask/dist/inputmask/inputmask.js';
+import 'inputmask/dist/inputmask/jquery.inputmask.js';
+import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
+import 'inputmask/dist/inputmask/phone-codes/phone.js';
 import URLS from './modules/Urls/index';
-import getData, {deleteData} from "./modules/Ajax/index";
+import getData, {deleteData, postData} from "./modules/Ajax/index";
 import ajaxRequest from './modules/Ajax/ajaxRequest';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
@@ -18,12 +23,14 @@ import {
     unsubscribeOfSummit,
     updateSummitParticipant,
     registerUser,
-    makePotencialSammitUsersList
+    makePotencialSammitUsersList,
+    addUserToSummit,
 } from "./modules/Summit/index";
 import {closePopup} from "./modules/Popup/popup";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import {makePastorListNew, makePastorListWithMasterTree} from "./modules/MakeList/index";
-import {addUserToSummit} from "./modules/User/addUserToSummit";
+import errHandling from './modules/Error';
+import validateEmail from './modules/validateEmail';
 
 $(document).ready(function () {
     const $summitUsersList = $('#summitUsersList');
@@ -181,7 +188,6 @@ $(document).ready(function () {
 
     $('#addNewUser').on('click', function () {
         $(this).closest('.popup').css('display', 'none');
-        //$('#addNewUserPopup').css('display', 'block');
         $('#addNewUserPopup').addClass('active');
         $('.bg').addClass('active');
     });
@@ -210,14 +216,9 @@ $(document).ready(function () {
                     showAlert('Пользователь удален из саммита');
                     $('.preloader').css('display', 'block');
                     createSummitUsersTable({summit: SUMMIT_ID});
-                }).catch(err => {
-                    showAlert('При удалении пользователя произошла ошибка');
-                    console.log(err);
-                });
-            }, () => {});
-        }).catch(function (err) {
-            showAlert(err);
-        });
+                }).catch(err => errHandling(err));
+            }, _ => {});
+        }).catch(err => errHandling(err));
         closePopup(this);
     });
 
@@ -256,11 +257,8 @@ $(document).ready(function () {
     });
 
     $('#complete').on('click', function () {
-        let userID = $(this).attr('data-id'),
-            description = $('#popup textarea').val(),
-            summitID = $('#summitUsersList').data('summit');
-        registerUser(userID, summitID, description);
-        document.querySelector('#popup').style.display = 'none';
+        let userID = $('#popup').attr('data-id');
+        registerUser(userID, SUMMIT_ID);
     });
 
     // function create_payment(id, sum, description, rate, currency) {
@@ -315,7 +313,6 @@ $(document).ready(function () {
 
     //    Events
     $("#add").on('click', function () {
-        // $('#addUser').css('display', 'block');
         initAddNewUser();
         $(".editprofile-screen").animate({right: '0'}, 300, 'linear');
         $('#searchedUsers').html('');
@@ -385,7 +382,7 @@ $(document).ready(function () {
         onSuccess: function (form) {
             if ($(form).attr('name') == 'createUser') {
                 $(form).find('#saveNew').attr('disabled', true);
-                createNewUser(addUserToSummit);
+                createNewUser();
             }
             return false; // Will stop the submission of the form
         }
@@ -436,7 +433,7 @@ $(document).ready(function () {
             showAlert('При запросе на сервер произошла ошибка. Попробуйте позже');
             console.log(err);
         });
-    })
+    });
 
     $('#send_schedules').on('click', function () {
         $(this).attr('disabled', true);
@@ -450,6 +447,64 @@ $(document).ready(function () {
             showAlert('При запросе на сервер произошла ошибка. Попробуйте позже');
             console.log(err);
         });
-    })
+    });
+
+    //Add user to summit
+    $('#searchedUsers').on('click', '.add_participant', function () {
+        const ID = $(this).attr('data-id');
+        addUserToSummit(ID);
+    });
+
+    //Update user info
+    $('#popup .popup_body').on('click', '.edit', function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
+            $(this).siblings('input').prop('readonly', true);
+            $(this).parent().find('.save__info').removeClass('active');
+            $(this).parent().find('.comment').text('');
+        } else {
+            $(this).siblings('input').prop('readonly', false);
+            $(this).addClass('active');
+            $(this).parent().find('.save__info').addClass('active');
+        }
+    });
+
+    $('#client_phone').inputmask('phone', {
+        onKeyValidation: function () {
+            $(this).next().text($(this).inputmask("getmetadata")["name_ru"]);
+        },
+    });
+
+    $('#popup .popup_body').on('click', '.save__info', function (e) {
+        e.preventDefault();
+        const USER_ID = $('#popup').attr('data-id');
+        let config = {},
+            input = $(this).siblings('input'),
+            name = input.attr('name');
+
+        if (name === 'phone_number') {
+            if (input.inputmask("isComplete")) {
+                config[name] = input.inputmask('unmaskedvalue');
+            } else {
+                showAlert('Номер телефона некорректный');
+                return;
+            }
+        } else {
+            if (validateEmail(input.val())) {
+                config[name] = input.val();
+            } else {
+                showAlert('Email некорректный');
+                return;
+            }
+        }
+        postData(URLS.user.detail(USER_ID), config, {method: 'PATCH'}).then(_ => {
+            showAlert('Изменения внесены');
+            $(this).removeClass('active');
+            $(this).siblings('input').prop('readonly', true);
+            $(this).parent().find('.edit').removeClass('active');
+            $(this).parent().find('.comment').text('');
+        }).catch(err => errHandling(err));
+    });
 
 });

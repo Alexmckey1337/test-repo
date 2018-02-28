@@ -5,16 +5,12 @@ import 'air-datepicker';
 import 'air-datepicker/dist/css/datepicker.css';
 import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
 import 'jquery-form-validator/form-validator/lang/ru.js';
-import alertify from 'alertifyjs/build/alertify.min.js';
-import 'alertifyjs/build/css/alertify.min.css';
-import 'alertifyjs/build/css/themes/default.min.css';
 import URLS from './modules/Urls';
-import {showAlert} from "./modules/ShowNotifications/index";
-import {postData} from "./modules/Ajax/index";
+import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
+import {postData, deleteData} from "./modules/Ajax/index";
 import {
     createChurchPaymentsTable,
     cleanUpdateDealsPayment,
-    deleteDealsPayment
 } from "./modules/Payment/index";
 import updateSettings from './modules/UpdateSettings/index';
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
@@ -76,18 +72,15 @@ $('document').ready(function () {
     $('#delete-payment').on('click', function (e) {
         e.preventDefault();
         let id = $(this).attr('data-id');
-        alertify.confirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
-            deleteDealsPayment(id).then(() => {
+        showConfirm('Удаление', 'Вы действительно хотите удалить данный платеж?', function () {
+            deleteData(URLS.payment.edit_payment(id)).then(() => {
                 showAlert('Платеж успешно удален!');
                 $('#popup-update_payment').css('display', 'none');
                 $('.preloader').css('display', 'block');
                 let page = $('.pagination__input').val();
                 createChurchPaymentsTable({page: page});
-            }).catch((res) => {
-                showAlert(res, 'Ошибка');
-            });
-        }, () => {
-        });
+            }).catch(err => errorHandling(err))
+        }, _ => {});
     });
 
     $('#payment-form').on('submit', function (e) {

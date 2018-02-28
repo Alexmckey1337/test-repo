@@ -31,6 +31,7 @@ import pasteLink from './modules/pasteLink';
 import {addHomeGroup, clearAddHomeGroupData} from "./modules/HomeGroup/index";
 import reverseDate from './modules/Date/index';
 import {convertNum} from "./modules/ConvertNum/index";
+import {btnLocationControls} from "./modules/Map/index";
 
 import {
     btnNeed,
@@ -135,14 +136,7 @@ $('document').ready(function () {
 
     $('#export_table').on('click', function () {
         $('.preloader').css('display', 'block');
-        exportTableData(this)
-            .then(function () {
-                $('.preloader').css('display', 'none');
-            })
-            .catch(function () {
-                showAlert('Ошибка при загрузке файла');
-                $('.preloader').css('display', 'none');
-            });
+        exportTableData(this);
     });
 
     $('.create_report').on('click',function () {
@@ -240,6 +234,8 @@ $('document').ready(function () {
                 }
             });
             $(this).removeClass('active');
+            $('#address_show').removeClass('address_isHide');
+            $('#address_choose').addClass('address_isHide');
         } else {
             if (noEdit) {
                 showAlert("Сначала сохраните или отмените изменения в другом блоке")
@@ -266,8 +262,9 @@ $('document').ready(function () {
                     $('.select2-search__field').focus();
                 });
             }
+            $('#address_choose').removeClass('address_isHide');
+            $('#address_show').addClass('address_isHide');
         }
-
     });
 
     $('.accordion').find('.save__info').on('click', function (e) {
@@ -293,7 +290,6 @@ $('document').ready(function () {
         if (action === 'update-user') {
             $input.each(function () {
                 let id = $(this).data('id');
-                console.log('ID-->', id);
                 if (!$(this).attr('name')) {
                     if ($(this).is('[type=file]')) {
                         let send_image = $(this).prop("files").length || false;
@@ -339,8 +335,18 @@ $('document').ready(function () {
                 }
             });
             if (formName === 'editAddress') {
-                let id = $('#editAddress').find('.chooseCity').attr('data-id');
+                let id = $('#editAddressForm').find('.chooseCity').attr('data-id'),
+                    title = $('#adress').attr('data-title'),
+                    lat = $('#adress').attr('data-lat'),
+                    lng = $('#adress').attr('data-lng');
+
                 id && formData.append('locality', id);
+                if (lat && lng && lat != 'None' && lng != 'None') {
+                    formData.append('address', title);
+                    formData.append('latitude', lat);
+                    formData.append('longitude', lng);
+                }
+
             }
             updateChurch(idChurch, formData, success)
                 .then(function (data) {
@@ -374,6 +380,8 @@ $('document').ready(function () {
             linkIcon.hasClass('link-hide') && linkIcon.removeClass('link-hide');
         }
         $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
+        $('#address_show').removeClass('address_isHide');
+        $('#address_choose').addClass('address_isHide');
     });
 
     $('#editNameBtn').on('click', function () {
@@ -394,7 +402,7 @@ $('document').ready(function () {
         window.location = `${url}?church_id=${CHURCH_ID}&is_partner=false`;
     });
 
-    $('#addHomeGroupForm').on('submit', function () {
+    $('#addHomeGroupForm').on('submit', function (event) {
         addHomeGroup(event, this, createChurchesDetailsTable);
     });
 
@@ -595,5 +603,13 @@ $('document').ready(function () {
         let id = parseInt($(this).val());
         makePastorList(id, '#editPastorSelect');
     });
+
+    $('.close-map').on('click', function () {
+        if(!$(this).hasClass('active')){
+            $(".a-map").removeClass('active');
+        }
+    });
+
+    btnLocationControls();
 
 });

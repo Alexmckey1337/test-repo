@@ -3,18 +3,18 @@ from __future__ import unicode_literals
 
 from datetime import date, datetime
 
+from django.core.cache import cache
 from django.db import models
+from django.db import transaction
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from apps.analytics.models import LogModel
-from apps.group.managers import ChurchManager, HomeGroupManager
 from apps.event.models import Meeting, MeetingType, ChurchReport
-from django.db import transaction
+from apps.group.managers import ChurchManager, HomeGroupManager
 from apps.payment.models import get_default_currency
-from apps.account.models import User
-from django.db.models import Q
 
 
 @python_2_unicode_compatible
@@ -22,7 +22,11 @@ class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date.today)
     city = models.CharField(_('City'), max_length=50, blank=True)
+
     address = models.CharField(_('Address'), max_length=300, blank=True)
+    latitude = models.FloatField(_('Latitude'), blank=True, null=True)
+    longitude = models.FloatField(_('Longitude'), blank=True, null=True)
+
     phone_number = models.CharField(_('Phone Number'), max_length=20, blank=True)
     website = models.URLField(_('Web Site'), blank=True)
 
@@ -64,20 +68,21 @@ class Church(LogModel, CommonGroup):
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
         'department', 'pastor', 'country',
-        'is_open', 'report_currency', 'image', 'region', 'locality',
+        'is_open', 'report_currency', 'image', 'region', 'locality', 'latitude', 'longitude',
     )
 
     tracking_reverse_fields = ()
 
     def save(self, *args, **kwargs):
-        is_create = True if not self.pk else False
+        is_create = self.pk is None
         super(Church, self).save(*args, **kwargs)
 
         if is_create:
-            ChurchReport.objects.create(church=self,
-                                        pastor=self.pastor,
-                                        date=datetime.now().date(),
-                                        currency_id=self.report_currency)
+            ChurchReport.objects.create(
+                church=self,
+                pastor=self.pastor,
+                date=datetime.now().date(),
+                currency_id=self.report_currency)
 
     class Meta:
         verbose_name = _('Church')
@@ -97,13 +102,37 @@ class Church(LogModel, CommonGroup):
 
     @property
     def stable_count(self):
-        return User.objects.filter(Q(customuser__cchurch=self, customuser__is_stable=True) | Q(
-            customuser__hhome_group__church=self, customuser__is_stable=True)).count()
+        from apps.account.models import CustomUser
+
+        cache_key = f'church.{self.id}.stable_people.count'
+        count = cache.get(cache_key)
+        if count is None:
+            count = CustomUser.objects.filter(Q(cchurch=self, is_stable=True) | Q(
+                hhome_group__church=self, is_stable=True)).count()
+            cache.set(cache_key, count, timeout=60 * 60)
+        return count
+
+    def del_count_stable_people_cache(self):
+        cache.delete(f'church.{self.id}.stable_people.count')
+
+    del_count_stable_people_cache.alters_data = True
 
     @property
     def count_people(self):
-        return User.objects.filter(Q(customuser__cchurch=self) | Q(
-            customuser__hhome_group__church=self)).count()
+        from apps.account.models import CustomUser
+
+        cache_key = f'church.{self.id}.people.count'
+        count = cache.get(cache_key)
+        if count is None:
+            count = CustomUser.objects.filter(Q(cchurch=self) | Q(
+                hhome_group__church=self)).count()
+            cache.set(cache_key, count, timeout=60 * 60)
+        return count
+
+    def del_count_people_cache(self):
+        cache.delete(f'church.{self.id}.people.count')
+
+    del_count_people_cache.alters_data = True
 
     @property
     def count_home_groups(self):
@@ -126,7 +155,7 @@ class HomeGroup(LogModel, CommonGroup):
 
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
-        'leader', 'church', 'active', 'image', 'locality',
+        'leader', 'church', 'active', 'image', 'locality', 'latitude', 'longitude',
     )
 
     def save(self, *args, **kwargs):

@@ -10,6 +10,8 @@ import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import {SummitListTable, summitListTable, submitSummit, removeValidText} from "./modules/Controls/summits_list";
 import parseUrlQuery from './modules/ParseUrl/index';
 import {showAlert} from "./modules/ShowNotifications/index";
+import {btnSummitControlls} from "./modules/Controls/summits_list";
+import {refreshAddSummitFields} from "./modules/Controls/summits_list";
 
 $('document').ready(function () {
     let configData = {},
@@ -26,6 +28,7 @@ $('document').ready(function () {
             init = true;
         }
     }
+
     function initFilterAfterParse(set) {
         for (let [key, value] of Object.entries(set)) {
             $('#filterPopup').find(`input[data-filter="${key}"]`).val(value);
@@ -43,41 +46,48 @@ $('document').ready(function () {
         $('.preloader').css('display', 'block');
         summitListTable();
     }, 500));
+
     $('#filter_button').on('click', function () {
         filterInit();
         $('#filterPopup').addClass('active');
         $('.bg').addClass('active');
     });
+
     $('.apply-filter').on('click', function () {
         applyFilter(this, summitListTable);
     });
+
     $('.clear-filter').on('click', function () {
         refreshFilter(this);
     });
+
     $('#sort_save').on('click', function () {
         $('.preloader').css('display', 'block');
         updateSettings(summitListTable);
     });
+
     $('#add').on('click',function () {
         $('#addSammit').addClass('active').addClass('add').removeClass('change');
         $('.bg').addClass('active');
-        let clear_btn = $('#addSammit').find('.add-summit');
-        refreshFilter($(clear_btn));
+        refreshAddSummitFields();
         $('#addSammit').find('.popup_text').find('h2').text('Добавить саммит');
         removeValidText($('#addSammit'));
     });
+
     $('.summit-date').datepicker({
-        dateFormat: 'yyyy-mm-dd',
+        dateFormat: 'dd.mm.yyyy',
         autoClose: true,
         position: "bottom center",
     });
+
     $('.start_date').datepicker({
-        onSelect: function (formattedDate, date, inst) {
+        onSelect: function (formattedDate, date) {
             $('.end_date').datepicker({
                 minDate: new Date(date),
             });
         }
     });
+
     $.validate({
         lang: 'ru',
         form: '#addSammitForm',
@@ -85,13 +95,15 @@ $('document').ready(function () {
             showAlert(`Введены некорректные данные либо заполнены не все поля`)
         },
         onSuccess: function () {
-            submitSummit(this,$(target).hasClass('save-summit')?'save':'add');
-
+            submitSummit();
             return false;
         }
     });
+
     if (path != undefined) {
         let filterParam = parseUrlQuery();
         filterInit(filterParam);
     }
+
+    btnSummitControlls();
 });

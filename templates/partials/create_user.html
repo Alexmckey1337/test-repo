@@ -44,11 +44,22 @@
                         </label>
                         <label>
                             <span class="label_block">Отдел церкви*</span>
-                            <select multiple disabled id="chooseDepartment" tabindex="6" class="must"></select>
+                            <select multiple disabled
+                                    id="chooseDepartment"
+                                    tabindex="6"
+                                    class="must"
+                                    data-validation="required">
+
+                            </select>
                         </label>
                         <label>
                             <span class="label_block">Иерархия*</span>
-                            <select name="hierarchy" id="chooseStatus" class="cleared must" tabindex="7"></select>
+                            <select name="hierarchy"
+                                    id="chooseStatus"
+                                    class="cleared must"
+                                    tabindex="7"
+                                    data-validation="required">
+                            </select>
                         </label>
                         <label>
                             <span class="label_block">Ответственный*</span>
@@ -248,6 +259,9 @@
         </div>
         <a class="rewrite" target="_blank" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
         <div class="btn-block">
+            {% if addToSummit %}
+                <button id="addToSummit" data-id="<%=id%>">Добавить в саммит</button>
+            {% endif %}
             <button class="addMore">Создать ещё одного</button>
             <button class="close">Закрыть</button>
         </div>

@@ -17,7 +17,7 @@ class PaginationMixin(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'table_columns': get_table(self.category, self.request.user.id),
+            'table_columns': getattr(self.request, 'columns', get_table(self.category, self.request.user.id)),
             'results': data,
         })
 

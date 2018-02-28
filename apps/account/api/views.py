@@ -34,7 +34,7 @@ from apps.account.api.permissions import (
     EditUserPermission, ExportUserListPermission, IsSuperUser)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer)
+    HomeGroupIdSerializer, UserForSummitInfoSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -374,6 +374,16 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         return Response(serializer.data)
 
+    @detail_route(methods=['get'])
+    def summit_info(self, request, pk):
+        """
+        Info for summit add popup
+        """
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserForSummitInfoSerializer(instance=user)
+
+        return Response(serializer.data)
+
     def _get_object_or_error(self, model, field_name):
         obj_id = self.request.data.get(field_name, None)
         if not obj_id:
@@ -462,6 +472,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        if 'is_stable' in request.data.keys():
+            church = user.get_church()
+            if church:
+                church.del_count_people_cache()
+                church.del_count_stable_people_cache()
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -479,6 +494,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         serializer = self.serializer_single_class(user)
         headers = self.get_success_headers(serializer.data)
+        if 'is_stable' in request.data.keys():
+            church = user.get_church()
+            if church:
+                church.del_count_people_cache()
+                church.del_count_stable_people_cache()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @list_route(methods=['GET'], serializer_class=DashboardSerializer)

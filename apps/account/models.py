@@ -161,10 +161,6 @@ class CustomUser(MP_Node, LogModel, User,
         return self.get_absolute_url()
 
     @property
-    def get_church(self):
-        return self.cchurch or self.hhome_group.church if self.hhome_group else None
-
-    @property
     def get_home_group(self):
         return self.hhome_group
 
@@ -187,6 +183,11 @@ class CustomUser(MP_Node, LogModel, User,
     @property
     def master_short_fullname(self):
         return self.master.short
+
+    @property
+    def bishop(self):
+        ancestors = self.get_ancestors().filter(hierarchy__level__gte=4)  # bishop+
+        return ancestors.first() or None
 
     @property
     def short(self):
@@ -217,12 +218,6 @@ class CustomUser(MP_Node, LogModel, User,
 
     def get_sotnik(self):
         return self.get_pastor()
-
-    @property
-    def has_usable_password(self):
-        if self.password:
-            return True
-        return False
 
     @property
     def fullname(self):

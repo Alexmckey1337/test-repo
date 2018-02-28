@@ -15,6 +15,7 @@ const USER = {
     update_partner_role: (id) => `/api/users/${id}/update_partner_role/`,
     delete_partner_role: (id) => `/api/users/${id}/delete_partner_role/`,
     managers: () => `/api/users/partner_managers/`,
+    summit_info: (id) => `/api/users/${id}/summit_info/`,
 };
 
 const CONTROLS = {
@@ -38,6 +39,7 @@ const SUMMIT = {
     send_codes: (summitId) => `/api/summit/${summitId}/send_unsent_codes/`,
     send_schedules: (summitId) => `/api/summit/${summitId}/send_unsent_schedules/`,
     send_code: (anketId) => `/api/summit/profile/${anketId}/send_code/?method=email`,
+    author_registration: (id) => `/api/summits/${id}/authors/`,
 };
 
 const SUMMIT_PROFILE = {
