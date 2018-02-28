@@ -644,3 +644,33 @@ class AnketPasses(models.Model):
 
     def __str__(self):
         return 'Проход анкеты: %s. Дата и время: %s.' % (self.anket, self.datetime)
+
+
+@python_2_unicode_compatible
+class TelegramPayment(models.Model):
+    summit = models.ForeignKey('summit.Summit', verbose_name='Событие', related_name='telegram_payments',
+                               on_delete=models.PROTECT)
+    ticket_given = models.BooleanField(verbose_name='Билет выдан', default=False)
+    fullname = models.CharField(verbose_name='ФИО', max_length=255)
+    phone_number = models.CharField(verbose_name='Номер Телефона', max_length=20)
+    secret = models.CharField(verbose_name='Код регистрации', max_length=10, blank=True, null=True)
+    reg_date = models.DateField(verbose_name='Дата регистрации', auto_now_add=True)
+    amount = models.DecimalField(verbose_name='Сумма оплаты', max_digits=10,  decimal_places=2, default=100)
+    currency = models.CharField(verbose_name='Валюта оплаты', max_length=5, default='USD')
+    chat_id = models.IntegerField(verbose_name='ID Telegram чата')
+    paid = models.BooleanField(verbose_name='Статус оплаты', default=False)
+    liqpay_payment_id = models.IntegerField(verbose_name='ID выставленного счета в системе LiqPay',
+                                            blank=True, null=True)
+    liqpay_order_id = models.CharField(verbose_name='ID оплаченного счета в системе LiqPay', max_length=255,
+                                       blank=True, null=True)
+    liqpay_payment_url = models.URLField(blank=True, null=True)
+    paid_date = models.DateField(verbose_name='Дата оплаты', blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('Регистрация через Telegram Bot')
+        verbose_name_plural = _('Регистрации через Telegram Bot')
+        ordering = ('-id',)
+        unique_together = ('id', 'phone_number')
+
+    def __str__(self):
+        return 'Регистрация через Telegram Bot. ФИО: %s. Статус оплаты: %s' % (self.fullname, self.paid)

@@ -54,12 +54,12 @@ def partnerships_deactivate_raw():
 
 def telegram_users_to_deactivate(deactivate_partners):
     users = CustomUser.objects.filter(partners__in=deactivate_partners,
-                                      telegram_users__is_active__isnull=False)
+                                      telegram_users__isnull=False)
 
-    if users:
-        for user in users:
-            if not user.partners.filter(is_active=True).exists():
-                telegram_user = get_object_or_404(TelegramUser, user=user, is_active=True)
+    for user in users:
+        if not user.partners.filter(is_active=True).exists():
+            telegram_user = get_object_or_404(TelegramUser, user=user)
+            if telegram_user.is_active:
                 telegram_user.is_active = False
                 telegram_user.synced = False
                 telegram_user.save()

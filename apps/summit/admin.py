@@ -8,7 +8,7 @@ from import_export.formats import base_formats
 from apps.summit.admin_filters import HasTicketListFilter, HasEmailListFilter
 from apps.summit.models import (
     SummitAnket, Summit, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-    SummitUserConsultant, SummitVisitorLocation, SummitEventTable, AnketStatus)
+    SummitUserConsultant, SummitVisitorLocation, SummitEventTable, AnketStatus, TelegramPayment)
 from apps.summit.resources import SummitAnketResource
 from apps.summit.tasks import send_tickets, create_tickets
 
@@ -114,6 +114,30 @@ class AnketStatusAdmin(admin.ModelAdmin):
     readonly_fields = ('anket',)
 
 
+class TelegramPaymentAdmin(admin.ModelAdmin):
+    list_display = ('fullname', 'phone_number', 'summit', 'reg_date', 'amount',
+                    'currency', 'secret', 'paid', 'ticket_given')
+
+    readonly_fields = ['reg_date', 'secret', 'paid', 'paid_date', 'amount', 'currency',
+                       'phone_number', 'liqpay_payment_id', 'liqpay_order_id',
+                       'liqpay_payment_url', 'chat_id']
+
+    list_display_links = ('fullname', 'phone_number',)
+
+    fieldsets = [
+        ('CОБЫТИЕ:', {'fields': ['summit', 'ticket_given']}),
+
+        ('ПОЛЬЗОВАТЕЛЬ:', {'fields': [('fullname', 'phone_number'), 'reg_date', 'secret', 'chat_id']}),
+
+        ('ПЛАТЕЖ:', {'fields': [('paid', 'paid_date'), 'amount', 'currency']}),
+
+        ('ОПЛАТА:', {'fields': ['liqpay_payment_id', 'liqpay_payment_url', 'liqpay_order_id']})
+    ]
+
+    search_fields = ('phone_number', 'fullname', 'secret')
+    list_filter = ('paid', 'ticket_given')
+
+
 admin.site.register(SummitAnket, SummitAnketAdmin)
 admin.site.register(Summit, SummitAdmin)
 admin.site.register(SummitType, SummitTypeAdmin)
@@ -121,3 +145,4 @@ admin.site.register(AnketEmail, AnketEmailAdmin)
 admin.site.register(SummitVisitorLocation, SummitVisitorLocationAdmin)
 admin.site.register(SummitEventTable, SummitEventTableAdmin)
 admin.site.register(AnketStatus, AnketStatusAdmin)
+admin.site.register(TelegramPayment, TelegramPaymentAdmin)

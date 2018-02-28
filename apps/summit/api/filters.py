@@ -301,3 +301,12 @@ class AuthorFilter(django_filters.FilterSet):
     class Meta:
         model = SummitAnket
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department']
+
+
+class FilterByTicketMultipleStatus(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        ticket_statuses = request.query_params.get('ticket_statuses')
+        if ticket_statuses:
+            queryset = queryset.filter(ticket_status__in=ticket_statuses.split(','))
+
+        return queryset

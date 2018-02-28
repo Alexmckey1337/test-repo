@@ -22,13 +22,14 @@ from apps.notification.backend import RedisBackend
 from apps.summit.regcode import decode_reg_code
 from apps.summit.models import (
     SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
-    AnketPasses)
+    AnketPasses, TelegramPayment)
 from apps.summit.api.permissions import HasAPIAccess
 from apps.summit.api.serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
     SummitVisitorLocationSerializer, SummitAnketCodeSerializer, SummitAttendSerializer,
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
-    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer)
+    SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer,
+    TelegramPaymentSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -435,3 +436,9 @@ class OpenSummitsForAppViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(status=Summit.OPEN)
+
+
+class TelegramPaymentsViewSet(viewsets.ModelViewSet):
+    queryset = TelegramPayment.objects.all()
+    serializer_class = TelegramPaymentSerializer
+    permission_classes = (IsAuthenticated,)

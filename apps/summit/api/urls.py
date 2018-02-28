@@ -22,6 +22,7 @@ router_app.register('summits', views_app.SummitTypeForAppViewSet, base_name='sum
 router_app.register('open_summits', views_app.OpenSummitsForAppViewSet, base_name='open_summits')
 router_app.register('users', views_app.SummitProfileForAppViewSet, base_name='users')
 router_app.register('draw_users', views_app.SummitProfileWithLess10AbsentForAppViewSet, base_name='draw_users')
+router_app.register('telegram_payment', views_app.TelegramPaymentsViewSet, base_name='telegram_payment'),
 
 custom_urls = [
     path('generate_code/<str:filename>.pdf', views.generate_code, name='generate_code'),

@@ -10,7 +10,7 @@ from apps.account.api.serializers import UserTableSerializer, UserShortSerialize
 from apps.account.models import CustomUser as User, CustomUser
 from apps.summit.models import (
     Summit, SummitAnket, SummitType, SummitAnketNote, SummitLesson, AnketEmail,
-    SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus)
+    SummitTicket, SummitVisitorLocation, SummitEventTable, SummitAttend, AnketStatus, TelegramPayment)
 from common.fields import ListCharField, ReadOnlyChoiceWithKeyField
 
 
@@ -419,3 +419,13 @@ class MasterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'full_name')
+
+
+class TelegramPaymentSerializer(serializers.ModelSerializer):
+    summit = SummitSerializer()
+
+    class Meta:
+        model = TelegramPayment
+        fields = ('id', 'fullname', 'phone_number', 'summit', 'reg_date', 'amount',
+                  'currency', 'paid', 'paid_date', 'ticket_given', 'secret',
+                  'liqpay_payment_id', 'liqpay_order_id', 'liqpay_payment_url', 'chat_id')
