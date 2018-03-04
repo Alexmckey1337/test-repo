@@ -1,10 +1,9 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-import datetime
-
 from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from apps.event.models import Participation
@@ -63,8 +62,8 @@ class AbstractReport(models.Model):
 @python_2_unicode_compatible
 class WeekReport(AbstractReport):
     week = models.ForeignKey('event.Week', on_delete=models.PROTECT, null=True, blank=True, related_name='week_reports')
-    from_date = models.DateField(default=datetime.date.today)
-    to_date = models.DateField(default=datetime.date.today)
+    from_date = models.DateField(default=timezone.now)
+    to_date = models.DateField(default=timezone.now)
     user = models.ForeignKey(UserReport, on_delete=models.PROTECT, related_name='week_reports')
 
     def __str__(self):

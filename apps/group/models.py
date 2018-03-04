@@ -1,13 +1,12 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import date, datetime
-
 from django.core.cache import cache
 from django.db import models
 from django.db import transaction
 from django.db.models import Q
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
@@ -20,7 +19,7 @@ from apps.payment.models import get_default_currency
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
-    opening_date = models.DateField(_('Opening Date'), default=date.today)
+    opening_date = models.DateField(_('Opening Date'), default=timezone.now)
     city = models.CharField(_('City'), max_length=50, blank=True)
 
     address = models.CharField(_('Address'), max_length=300, blank=True)
@@ -81,7 +80,7 @@ class Church(LogModel, CommonGroup):
             ChurchReport.objects.create(
                 church=self,
                 pastor=self.pastor,
-                date=datetime.now().date(),
+                date=timezone.now().date(),
                 currency_id=self.report_currency)
 
     class Meta:
@@ -168,7 +167,7 @@ class HomeGroup(LogModel, CommonGroup):
                 for meeting_type in meeting_types:
                     Meeting.objects.create(home_group=self,
                                            owner=self.leader,
-                                           date=datetime.now().date(),
+                                           date=timezone.now().date(),
                                            type=meeting_type)
 
         if self.leader and self.pk:
