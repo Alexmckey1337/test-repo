@@ -233,9 +233,9 @@
             <table id="table-1">
                 <thead>
                 <tr>
-                    <% for( var key in user_table) { %>
-                    <% if(user_table[key].active) { %>
-                    <th data-order="<%=user_table[key].ordering_title%>"><%=user_table[key].title %></th>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
+                    <th data-order="<%=table_columns[key].ordering_title%>"><%=table_columns[key].title %></th>
                     <% } %>
                     <% } %>
                 </tr>
@@ -243,8 +243,8 @@
                 <tbody>
                 <% for( var index in results) { %>
                 <tr>
-                    <% for( var key in user_table) { %>
-                    <% if(user_table[key].active) { %>
+                    <% for( var key in table_columns) { %>
+                    <% if(table_columns[key].active) { %>
                     <% if (key == 'full_name') { %>
                     <% if (results[index][key] != null) { %>
                     <td{% if is_supervisor %} class="edit"{% endif %} class="edit">

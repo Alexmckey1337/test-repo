@@ -100,7 +100,7 @@ List of users
             }
           ],
           "count": 2,
-          "user_table": {
+          "table_columns": {
             "fullname": {
               "id": 196729,
               "title": "ФИО",

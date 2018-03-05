@@ -1,21 +1,22 @@
 'use strict';
 
 const USER = {
-	detail: (userId) => `/api/users/${userId}/`,
-	list: () => `/api/users/`,
-	short: () => `/api/short_users/`,
-	set_church: (userId) => `/api/users/${userId}/set_church/`,
-	set_home_group: (userId) => `/api/users/${userId}/set_home_group/`,
-	departments: (userId) => `/api/users/${userId}/departments/`,
-	dashboard_count: () => `/api/users/dashboard_counts/`,
-	list_user: () => `/api/users/for_select/`,
-	find_duplicates: () => `/api/users/duplicates_avoided/`,
-	short_for_dashboard: () => `/api/dashboard_users/`,
-	set_partner_role: (id) => `/api/users/${id}/set_partner_role/`,
-	update_partner_role: (id) => `/api/users/${id}/update_partner_role/`,
-	delete_partner_role: (id) => `/api/users/${id}/delete_partner_role/`,
-	managers: () => `/api/users/partner_managers/`,
-	summit_info: (id) => `/api/users/${id}/summit_info/`,
+    detail: (userId) => `/api/users/${userId}/`,
+    create: () => `/api/users/`,
+    table: () => `/api/tables/user/`,
+    short: () => `/api/short_users/`,
+    set_church: (userId) => `/api/users/${userId}/set_church/`,
+    set_home_group: (userId) => `/api/users/${userId}/set_home_group/`,
+    departments: (userId) => `/api/users/${userId}/departments/`,
+    dashboard_count: () => `/api/users/dashboard_counts/`,
+    list_user: () => `/api/users/for_select/`,
+    find_duplicates: () => `/api/users/duplicates_avoided/`,
+    short_for_dashboard: () => `/api/dashboard_users/`,
+    set_partner_role: (id) => `/api/users/${id}/set_partner_role/`,
+    update_partner_role: (id) => `/api/users/${id}/update_partner_role/`,
+    delete_partner_role: (id) => `/api/users/${id}/delete_partner_role/`,
+    managers: () => `/api/users/partner_managers/`,
+    summit_info: (id) => `/api/users/${id}/summit_info/`,
 };
 
 const CONTROLS = {

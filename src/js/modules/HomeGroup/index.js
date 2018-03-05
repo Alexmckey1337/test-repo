@@ -160,7 +160,7 @@ export function createHomeGroupUsersTable(config = {}, id) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
@@ -177,7 +177,7 @@ export function createHomeGroupUsersTable(config = {}, id) {
         //     //     createHomeGroupUsersTable(config, id);
         //     // })
         // });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -423,7 +423,7 @@ export function createHomeGroupsTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableHomeGroup').html(rendered);
@@ -458,7 +458,7 @@ export function createHomeGroupsTable(config = {}) {
                 }, 100)
             })
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,

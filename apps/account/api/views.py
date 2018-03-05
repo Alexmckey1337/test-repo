@@ -11,7 +11,7 @@ from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
-from rest_framework import filters
+from rest_framework import filters, viewsets
 from rest_framework import status, mixins, exceptions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
@@ -43,11 +43,14 @@ from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
+from apps.group.models import HomeGroup, Church
+from apps.hierarchy.api.serializers import DepartmentSerializer
 from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter, OrderingFilter
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
+from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet, TableViewMixin
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
 
 logger = logging.getLogger(__name__)
@@ -66,22 +69,6 @@ def get_reverse_fields(cls, obj):
             'verbose_name': field
         }
     return rev_fields
-
-
-class UserPagination(PageNumberPagination):
-    page_size = 30
-    page_size_query_param = 'page_size'
-
-    def get_paginated_response(self, data):
-        return Response({
-            'links': {
-                'next': self.get_next_link(),
-                'previous': self.get_previous_link()
-            },
-            'count': self.page.paginator.count,
-            'user_table': get_table('user', self.request.user.id),
-            'results': data
-        })
 
 
 class DuplicatesAvoidedPagination(PageNumberPagination):
@@ -151,25 +138,16 @@ class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):
         return super().paginate_queryset(queryset)
 
 
-class UserExportViewSetMixin(ExportViewSetMixin):
-    @action(detail=False, methods=['post'], permission_classes=(IsAuthenticated, CanExportUserList))
-    def export(self, request, *args, **kwargs):
-        return self._export(request, *args, **kwargs)
+class UserTableView(TableViewMixin):
+    table_name = 'user'
 
-
-class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, UserExportViewSetMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
     ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+    serializer_class = UserTableSerializer
+    permission_classes = (IsAuthenticated, CanSeeUserList)
 
-    serializer_class = UserUpdateSerializer
-    serializer_list_class = UserTableSerializer
-    serializer_create_class = UserCreateSerializer
-    serializer_update_class = UserUpdateSerializer
-    serializer_single_class = UserSingleSerializer
-
-    pagination_class = UserPagination
     filter_backends = (
         rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
@@ -181,10 +159,6 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         UserHomeGroupFilter,
         UserHGLeadersFilter,
     )
-    permission_classes = (IsAuthenticated,)
-    permission_list_classes = (IsAuthenticated, CanSeeUserList)
-    permission_create_classes = (IsAuthenticated, CanCreateUser)
-
     ordering_fields = ('first_name', 'last_name', 'middle_name',
                        'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
                        'phone_number', 'email', 'hierarchy__level',
@@ -198,14 +172,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
     }
     filter_class = UserFilter
 
-    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
-
-    parser_list_fields = ['departments', 'divisions', 'extra_phone_numbers']
-    parser_dict_fields = ['partner']
-
-    resource_class = UserResource
-
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         Getting list of users for table
 
@@ -213,7 +180,40 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         By default ordering by ``last_name``, ``first_name``, ``middle_name``.
         Pagination by 30 users per page. Filtered only active users.
         """
-        return super().list(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return SeeUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
+            'last_name', 'first_name', 'middle_name')
+
+
+class UserExportView(UserTableView, ExportViewSetMixin):
+    permission_classes = (IsAuthenticated, CanExportUserList)
+    resource_class = UserResource
+
+    def post(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return ExportUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
+            'last_name', 'first_name', 'middle_name')
+
+
+class UserViewSet(LogAndCreateUpdateDestroyMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.filter(is_active=True)
+
+    serializer_class = UserUpdateSerializer
+    serializer_create_class = UserCreateSerializer
+    serializer_update_class = UserUpdateSerializer
+    serializer_single_class = UserSingleSerializer
+    permission_classes = (IsAuthenticated,)
+    permission_create_classes = (IsAuthenticated, CanCreateUser)
+
+    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
+
+    parser_list_fields = ['departments', 'divisions', 'extra_phone_numbers']
+    parser_dict_fields = ['partner']
 
     @action(detail=True, methods=['post'], serializer_class=HomeGroupIdSerializer)
     def set_home_group(self, request, pk):
@@ -397,8 +397,6 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
     def get_permissions(self):
-        if self.action == 'list':
-            return [permission() for permission in self.permission_list_classes]
         if self.action == 'create':
             return [permission() for permission in self.permission_create_classes]
         return super(UserViewSet, self).get_permissions()
@@ -407,16 +405,11 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         if self.action in ('update', 'partial_update'):
             return EditUserPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
                 'last_name', 'first_name', 'middle_name')
-        elif self.action == 'export':
-            return ExportUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
-                'last_name', 'first_name', 'middle_name')
         else:
             return SeeUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
                 'last_name', 'first_name', 'middle_name')
 
     def get_serializer_class(self):
-        if self.action == 'list':
-            return self.serializer_list_class
         if self.action == 'retrieve':
             return self.serializer_single_class
         if self.action == 'create':

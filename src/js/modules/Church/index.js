@@ -32,7 +32,7 @@ export function createChurchesTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableChurches').html(rendered);
@@ -60,7 +60,7 @@ export function createChurchesTable(config = {}) {
             });
         });
 
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -258,7 +258,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
@@ -268,7 +268,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
             DelUser.popup();
 
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -465,11 +465,11 @@ function createChurchesUsersTable(id, config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
