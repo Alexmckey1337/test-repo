@@ -89,7 +89,7 @@ class PartnershipAbstractModel(models.Model):
     #: Currency of value
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
-    date = models.DateField(default=date.today)
+    date = models.DateField(default=timezone.now)
     need_text = models.CharField(_('Need text'), max_length=600, blank=True)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
@@ -235,7 +235,7 @@ class AbstractDeal(models.Model):
     done = models.BooleanField(default=False, help_text=_('Deal is done?'))
     expired = models.BooleanField(default=False)
 
-    date_created = models.DateField(null=True, blank=True, default=date.today)
+    date_created = models.DateField(null=True, blank=True, default=timezone.now)
     date = models.DateField(null=True, blank=True)
 
     DONATION, TITHE = 1, 2

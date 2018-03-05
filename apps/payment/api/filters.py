@@ -91,42 +91,46 @@ class FilterByDealFIO(BaseFilterBackend):
     def get_church_deals(self, request):
         return ChurchDeal.objects.for_user(request.user)
 
-    def get_user_deal_ids(self, request):
+    def filter_user_deals(self, request, deals):
         purpose_fio = request.query_params.get('search_purpose_fio', None)
         orm_lookups = self.user_orm_lookups
 
-        deals = self.get_user_deals(request)
         for search_term in purpose_fio.replace(',', ' ').split():
             queries = [
                 models.Q(**{orm_lookup: search_term})
                 for orm_lookup in orm_lookups]
             deals = deals.filter(reduce(operator.or_, queries))
 
-        return deals.values_list('id', flat=True)
+        return deals
 
-    def get_church_deal_ids(self, request):
+    def filter_church_deals(self, request, deals):
         purpose_fio = request.query_params.get('search_purpose_fio', None)
         orm_lookups = self.church_orm_lookups
 
-        deals = self.get_church_deals(request)
         for search_term in purpose_fio.replace(',', ' ').split():
             queries = [
                 models.Q(**{orm_lookup: search_term})
                 for orm_lookup in orm_lookups]
             deals = deals.filter(reduce(operator.or_, queries))
 
-        return deals.values_list('id', flat=True)
+        return deals
 
-    def filter_queryset(self, request, queryset, view):
+    def filter_deals(self, request, user_deals, church_deals, view):
         purpose_fio = request.query_params.get('search_purpose_fio', None)
         if not purpose_fio:
-            return queryset
-        user_deal_ids = self.get_user_deal_ids(request)
-        church_deal_ids = self.get_church_deal_ids(request)
+            return user_deals, church_deals
+        user_deals = self.filter_user_deals(request, user_deals)
+        church_deals = self.filter_church_deals(request, church_deals)
+
+        return user_deals, church_deals
+
+    def filter_queryset(self, request, queryset, view):
+        user_deals, church_deals = self.filter_deals(
+            request, self.get_user_deals(request), self.get_church_deals(request), view)
 
         return queryset.filter(
-            Q(content_type__model='deal') & Q(object_id__in=user_deal_ids) |
-            Q(content_type__model='churchdeal') & Q(object_id__in=church_deal_ids)
+            Q(content_type__model='deal') & Q(object_id__in=user_deals) |
+            Q(content_type__model='churchdeal') & Q(object_id__in=church_deals)
         )
 
 
@@ -139,11 +143,11 @@ class FilterByDealDate(BaseFilterBackend):
     def get_church_deals(self, request):
         return ChurchDeal.objects.for_user(request.user)
 
-    def filter_queryset(self, request, queryset, view):
+    def filter_deals(self, request, user_deals, church_deals, view):
         date_from = request.query_params.get('from_purpose_date', None)
         date_to = request.query_params.get('to_purpose_date', None)
         if not (date_from or date_to):
-            return queryset
+            return user_deals, church_deals
         date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else None
         date_from = date(date_from.year, date_from.month, 1) if date_from else None
         date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else None
@@ -156,7 +160,6 @@ class FilterByDealDate(BaseFilterBackend):
             else:
                 break
 
-        user_deals = self.get_user_deals(request)
         if date_from and date_to:
             user_deals = user_deals.filter(date_created__range=(date_from, date_to))
         elif date_from:
@@ -164,9 +167,6 @@ class FilterByDealDate(BaseFilterBackend):
         elif date_to:
             user_deals = user_deals.filter(date_created__lte=date_to)
 
-        user_deal_ids = user_deals.values_list('id', flat=True)
-
-        church_deals = self.get_church_deals(request)
         if date_from and date_to:
             church_deals = church_deals.filter(date_created__range=(date_from, date_to))
         elif date_from:
@@ -174,11 +174,15 @@ class FilterByDealDate(BaseFilterBackend):
         elif date_to:
             church_deals = church_deals.filter(date_created__lte=date_to)
 
-        church_deal_ids = church_deals.values_list('id', flat=True)
+        return user_deals, church_deals
+
+    def filter_queryset(self, request, queryset, view):
+        user_deals, church_deals = self.filter_deals(
+            request, self.get_user_deals(request), self.get_church_deals(request), view)
 
         return queryset.filter(
-            Q(content_type__model='deal') & Q(object_id__in=user_deal_ids) |
-            Q(content_type__model='churchdeal') & Q(object_id__in=church_deal_ids)
+            Q(content_type__model='deal') & Q(object_id__in=user_deals) |
+            Q(content_type__model='churchdeal') & Q(object_id__in=church_deals)
         )
 
 
@@ -219,20 +223,23 @@ class FilterByDealManager(BaseFilterBackend):
         return ChurchDeal.objects.for_user(request.user)
 
     def filter_queryset(self, request, queryset, view):
-        responsible_id = request.query_params.get('responsible_id')
-        if not responsible_id:
-            return queryset
-
-        user_deals = self.get_user_deals(request).filter(responsible_id=responsible_id)
-        user_deal_ids = user_deals.values_list('id', flat=True)
-
-        church_deals = self.get_church_deals(request).filter(responsible_id=responsible_id)
-        church_deal_ids = church_deals.values_list('id', flat=True)
+        user_deals, church_deals = self.filter_deals(
+            request, self.get_user_deals(request), self.get_church_deals(request), view)
 
         return queryset.filter(
-            Q(content_type__model='deal') & Q(object_id__in=user_deal_ids) |
-            Q(content_type__model='churchdeal') & Q(object_id__in=church_deal_ids)
+            Q(content_type__model='deal') & Q(object_id__in=user_deals) |
+            Q(content_type__model='churchdeal') & Q(object_id__in=church_deals)
         )
+
+    def filter_deals(self, request, user_deals, church_deals, view):
+        responsible_id = request.query_params.get('responsible_id')
+        if not responsible_id:
+            return user_deals, church_deals
+
+        user_deals = user_deals.filter(responsible_id=responsible_id)
+        church_deals = church_deals.filter(responsible_id=responsible_id)
+
+        return user_deals, church_deals
 
 
 class FilterByDealType(BaseFilterBackend):
@@ -243,19 +250,46 @@ class FilterByDealType(BaseFilterBackend):
         return ChurchDeal.objects.for_user(request.user)
 
     def filter_queryset(self, request, queryset, view):
-        deal_type = request.query_params.get('deal_type')
-        if deal_type not in ['1', '2']:
-            return queryset
-
-        user_deals = self.get_user_deals(request).filter(type=deal_type)
-        user_deal_ids = user_deals.values_list('id', flat=True)
-
-        church_deals = self.get_church_deals(request).filter(type=deal_type)
-        church_deal_ids = church_deals.values_list('id', flat=True)
+        user_deals, church_deals = self.filter_deals(
+            request, self.get_user_deals(request), self.get_church_deals(request), view)
 
         return queryset.filter(
-            Q(content_type__model='deal') & Q(object_id__in=user_deal_ids) |
-            Q(content_type__model='churchdeal') & Q(object_id__in=church_deal_ids)
+            Q(content_type__model='deal') & Q(object_id__in=user_deals) |
+            Q(content_type__model='churchdeal') & Q(object_id__in=church_deals)
+        )
+
+    def filter_deals(self, request, user_deals, church_deals, view):
+        deal_type = request.query_params.get('deal_type')
+        if deal_type not in ['1', '2']:
+            return user_deals, church_deals
+
+        user_deals = user_deals.filter(type=deal_type)
+        church_deals = church_deals.filter(type=deal_type)
+
+        return user_deals, church_deals
+
+
+class FilterByDeal(BaseFilterBackend):
+    filters = [FilterByDealDate, FilterByDealFIO, FilterByDealManager, FilterByDealType]
+
+    def get_user_deals(self, request):
+        return Deal.objects.for_user(request.user)
+
+    def get_church_deals(self, request):
+        return ChurchDeal.objects.for_user(request.user)
+
+    def filter_deals(self, request, deals, church_deals, view):
+        for f in self.filters:
+            deals, church_deals = f().filter_deals(request, deals, church_deals, view)
+        return deals, church_deals
+
+    def filter_queryset(self, request, queryset, view):
+        user_deals, church_deals = self.filter_deals(
+            request, self.get_user_deals(request), self.get_church_deals(request), view)
+
+        return queryset.filter(
+            Q(content_type__model='deal') & Q(object_id__in=user_deals) |
+            Q(content_type__model='churchdeal') & Q(object_id__in=church_deals)
         )
 
 

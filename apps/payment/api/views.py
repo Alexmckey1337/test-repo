@@ -17,7 +17,7 @@ from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.payment.api.filters import (
     PaymentFilterByPurpose, PaymentFilter, FilterByDealFIO, FilterByDealDate,
     FilterByDealManager, FilterByChurchReportDate, FilterByChurchReportPastor,
-    FilterByChurchReportChurchTitle, FilterByDealType, FilterByPaymentCurrency)
+    FilterByChurchReportChurchTitle, FilterByDealType, FilterByPaymentCurrency, FilterByDeal)
 from apps.payment.api.pagination import PaymentPagination, ChurchReportPaymentPagination
 from apps.payment.api.permissions import PaymentManagerOrSupervisor
 from apps.payment.api.serializers import (
@@ -126,11 +126,14 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       FilterByDealFIO,
-                       FilterByDealDate,
-                       # FilterByDealManagerFIO,
-                       FilterByDealManager,
-                       FilterByDealType,
+
+                       # FilterByDealFIO,
+                       # FilterByDealDate,
+                       # # FilterByDealManagerFIO,
+                       # FilterByDealManager,
+                       # FilterByDealType,
+                       FilterByDeal,
+
                        filters.OrderingFilter,
                        FilterByPaymentCurrency,)
     ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + (
@@ -153,7 +156,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
 
     def get_queryset(self):
         user = self.request.user
-        return self.queryset.for_user_by_deal(user).add_deal_fio()
+        return self.queryset.add_deal_fio()
 
     def post(self, request, *args, **kwargs):
         """For export/import to excel"""

@@ -192,9 +192,9 @@ LANGUAGE_CODE = 'ru-RU'
 DEFAULT_LANGUAGE = 'ru-RU'
 USE_I18N = True
 SITE_ID = 1
-TIME_ZONE = 'Europe/Kiev'
-USE_L10N = False
-USE_TZ = False
+TIME_ZONE = 'UTC'
+USE_L10N = True
+USE_TZ = True
 
 LOCALE_PATHS = (str(BASE_DIR.path('locale')),)
 
