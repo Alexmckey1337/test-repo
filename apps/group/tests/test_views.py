@@ -536,12 +536,11 @@ class TestHomeGroupViewSet:
         assert not home_group.uusers.filter(id=user.id).exists()
 
     @pytest.mark.parametrize('method,action,serializer_class', (
-            ('get', 'list', HomeGroupListSerializer),
             ('post', 'create', HomeGroupSerializer),
             ('get', 'retrieve', HomeGroupReadSerializer),
             ('put', 'update', HomeGroupSerializer),
             ('patch', 'partial_update', HomeGroupSerializer),
-    ), ids=('get-list', 'post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
+    ), ids=('post-create', 'get-retrieve', 'put-update', 'patch-partial_update'))
     def test_get_serializer_class(self, rf, fake_home_group_view_set, method, action, serializer_class, user_factory):
         method_action = getattr(rf, method)
         request = method_action('/')

@@ -154,16 +154,17 @@ const CHURCH = {
 };
 
 const HOME_GROUP = {
-	detail: (groupId) => `/api/home_groups/${groupId}/`,
-	list: () => `/api/home_groups/`,
-	users: (groupId) => `/api/home_groups/${groupId}/users/`,
-	stats: (groupId) => `/api/home_groups/${groupId}/statistics/`,
-	del_user: (groupId) => `/api/home_groups/${groupId}/del_user/`,
-	add_user: (groupId) => `/api/home_groups/${groupId}/add_user/`,
-	for_select: () => `/api/home_groups/for_select/`,
-	leaders: () => `/api/home_groups/leaders/`,
-	potential_leaders: () => `/api/home_groups/potential_leaders/`,
-	create_report: (id) => `/api/home_groups/${id}/create_report/`
+    detail: (groupId) => `/api/home_groups/${groupId}/`,
+    table: () => `/api/tables/home_group/`,
+    create: () => `/api/home_groups/`,
+    users: (groupId) => `/api/home_groups/${groupId}/users/`,
+    stats: (groupId) => `/api/home_groups/${groupId}/statistics/`,
+    del_user: (groupId) => `/api/home_groups/${groupId}/del_user/`,
+    add_user: (groupId) => `/api/home_groups/${groupId}/add_user/`,
+    for_select: () => `/api/home_groups/for_select/`,
+    leaders: () => `/api/home_groups/leaders/`,
+    potential_leaders: () => `/api/home_groups/potential_leaders/`,
+    create_report: (id) => `/api/home_groups/${id}/create_report/`
 };
 
 const PAYMENT = {

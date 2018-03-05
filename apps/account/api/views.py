@@ -43,9 +43,6 @@ from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
-from apps.group.models import HomeGroup, Church
-from apps.hierarchy.api.serializers import DepartmentSerializer
-from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter, OrderingFilter
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser

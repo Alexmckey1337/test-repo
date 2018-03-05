@@ -48,7 +48,7 @@ export function clearAddHomeGroupData() {
 function addHomeGroupToDataBase(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.create(),
             data: config,
             method: 'POST',
             headers: {
@@ -476,7 +476,7 @@ export function createHomeGroupsTable(config = {}) {
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.table(),
             data: config,
             method: 'GET',
             headers: {

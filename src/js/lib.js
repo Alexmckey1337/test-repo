@@ -677,7 +677,7 @@ function getHomeGroupsINChurches(id) {
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.table(),
             data: config,
             method: 'GET',
             headers: {
@@ -1208,7 +1208,7 @@ function createHomeGroupUsersTable(config = {}, id) {
 function addHomeGroupToDataBase(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.create(),
             data: config,
             method: 'POST',
             headers: {

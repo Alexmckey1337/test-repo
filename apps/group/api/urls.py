@@ -11,7 +11,10 @@ router_v1_0.register('home_groups', views.HomeGroupViewSet)
 
 urlpatterns = [
     path('tables/church/', views.ChurchTableView.as_view(), name="tables-church"),
+    path('tables/home_group/', views.HomeGroupTableView.as_view(), name="tables-home_group"),
+
     path('exports/church/', views.ChurchExportView.as_view(), name="exports-church"),
+    path('exports/home_group/', views.HomeGroupExportView.as_view(), name="exports-home_group"),
     path('locations/church/', views.ChurchLocationListView.as_view()),
     path('', include(router_v1_0.urls)),
 ]
