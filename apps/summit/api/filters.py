@@ -14,6 +14,7 @@ from apps.account.api.filters import FilterMasterTreeWithSelf
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Hierarchy, Department
 from apps.summit.models import Summit, SummitAnket, SummitAttend
+from functools import reduce
 
 
 class FilterByClub(BaseFilterBackend):
@@ -307,6 +308,9 @@ class FilterByTicketMultipleStatus(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         ticket_statuses = request.query_params.get('ticket_statuses')
         if ticket_statuses:
-            queryset = queryset.filter(ticket_status__in=ticket_statuses.split(','))
+            statuses = ticket_statuses.split(',')
+            queryset = SummitAnket.objects.filter(reduce(lambda x, y: x | y, [
+                Q(status=ticket_status) for ticket_status in statuses
+                ]))
 
         return queryset
