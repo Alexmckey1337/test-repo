@@ -309,8 +309,8 @@ class FilterByTicketMultipleStatus(BaseFilterBackend):
         ticket_statuses = request.query_params.get('ticket_statuses')
         if ticket_statuses:
             statuses = ticket_statuses.split(',')
-            queryset = SummitAnket.objects.filter(reduce(lambda x, y: x | y, [
-                Q(status=ticket_status) for ticket_status in statuses
+            queryset = queryset.filter(reduce(lambda x, y: x | y, [
+                Q(ticket_status=ticket_status) for ticket_status in statuses
                 ]))
 
         return queryset
