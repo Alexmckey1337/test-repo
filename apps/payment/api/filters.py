@@ -119,8 +119,8 @@ class FilterByDealFIO(BaseFilterBackend):
         purpose_fio = request.query_params.get('search_purpose_fio', None)
         if not purpose_fio:
             return user_deals, church_deals
-        user_deals = self.filter_user_deals(request, self.get_user_deals(request))
-        church_deals = self.filter_church_deals(request, self.get_church_deals(request))
+        user_deals = self.filter_user_deals(request, user_deals)
+        church_deals = self.filter_church_deals(request, church_deals)
 
         return user_deals, church_deals
 
