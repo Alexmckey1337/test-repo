@@ -343,7 +343,7 @@ function getOrderingData() {
 function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.table(),
             data: config,
             method: 'GET',
             headers: {
@@ -1358,7 +1358,7 @@ function createChurchesTable(config = {}) {
 function addChurchTODataBase(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.create(),
             data: config,
             method: 'POST',
             headers: {

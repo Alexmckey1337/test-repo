@@ -11,7 +11,7 @@ from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
-from rest_framework import filters, viewsets
+from rest_framework import filters
 from rest_framework import status, mixins, exceptions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
@@ -50,8 +50,7 @@ from common.filters import FieldSearchFilter, OrderingFilter
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet, TableViewMixin
-from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
+from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet, TableViewMixin, URCViewSet
 
 logger = logging.getLogger(__name__)
 
@@ -159,10 +158,10 @@ class UserTableView(TableViewMixin):
         UserHomeGroupFilter,
         UserHGLeadersFilter,
     )
-    ordering_fields = ('first_name', 'last_name', 'middle_name',
-                       'born_date', 'country', 'region', 'city', 'disrict', 'address', 'skype',
-                       'phone_number', 'email', 'hierarchy__level',
-                       'facebook', 'vkontakte', 'master__last_name',)
+    ordering_fields = (
+        'first_name', 'last_name', 'middle_name', 'born_date', 'country', 'region', 'city', 'disrict',
+        'address', 'skype', 'phone_number', 'email', 'hierarchy__level', 'facebook', 'vkontakte', 'master__last_name'
+    )
     field_search_fields = {
         'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
         'search_email': ('email',),
@@ -199,8 +198,7 @@ class UserExportView(UserTableView, ExportViewSetMixin):
             'last_name', 'first_name', 'middle_name')
 
 
-class UserViewSet(LogAndCreateUpdateDestroyMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
-                  mixins.CreateModelMixin, viewsets.GenericViewSet):
+class UserViewSet(LogAndCreateUpdateDestroyMixin, URCViewSet):
     queryset = User.objects.filter(is_active=True)
 
     serializer_class = UserUpdateSerializer

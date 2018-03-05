@@ -138,18 +138,19 @@ const CHURCH_DEAL = {
 };
 
 const CHURCH = {
-	detail: (churchId) => `/api/churches/${churchId}/`,
-	list: () => `/api/churches/`,
-	users: (churchId) => `/api/churches/${churchId}/users/`,
-	stats: (churchId) => `/api/churches/${churchId}/statistics/`,
-	del_user: (churchId) => `/api/churches/${churchId}/del_user/`,
-	add_user: (churchId) => `/api/churches/${churchId}/add_user/`,
-	for_select: () => `/api/churches/for_select/`,
-	available_pastors: () => `/api/churches/available_pastors/`,
-	potential_users_church: () => `/api/churches/potential_users_church/`,
-	potential_users_group: (churchId) => `/api/churches/${churchId}/potential_users_group/`,
-	dashboard_count: () => `/api/churches/dashboard_counts/`,
-	create_report: (id) => `/api/churches/${id}/create_report/`
+    detail: (churchId) => `/api/churches/${churchId}/`,
+    table: () => `/api/tables/church/`,
+    create: () => `/api/churches/`,
+    users: (churchId) => `/api/churches/${churchId}/users/`,
+    stats: (churchId) => `/api/churches/${churchId}/statistics/`,
+    del_user: (churchId) => `/api/churches/${churchId}/del_user/`,
+    add_user: (churchId) => `/api/churches/${churchId}/add_user/`,
+    for_select: () => `/api/churches/for_select/`,
+    available_pastors: () => `/api/churches/available_pastors/`,
+    potential_users_church: () => `/api/churches/potential_users_church/`,
+    potential_users_group: (churchId) => `/api/churches/${churchId}/potential_users_group/`,
+    dashboard_count: () => `/api/churches/dashboard_counts/`,
+    create_report: (id) => `/api/churches/${id}/create_report/`
 };
 
 const HOME_GROUP = {

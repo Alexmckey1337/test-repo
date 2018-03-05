@@ -16,6 +16,15 @@ class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMix
     pass
 
 
+class ModelWithoutListViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                              mixins.CreateModelMixin, viewsets.GenericViewSet):
+    pass
+
+
+class URCViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    pass
+
+
 class BaseExportViewSetMixin(object):
     resource_class = None
     queryset = None

@@ -24,7 +24,7 @@ export function createChurchesTable(config = {}) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     updateHistoryUrl(config);
-    getData(URLS.church.list(), config).then(function (data) {
+    getData(URLS.church.table(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -194,7 +194,7 @@ function saveChurchData(data, id) {
 export function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
-    postData(URLS.church.list(), data).then(function (data) {
+    postData(URLS.church.create(), data).then(function (data) {
         hidePopup(el);
         clearAddChurchData();
         callback();
@@ -219,7 +219,7 @@ function getAddChurchData() {
 function addChurchTODataBase(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.create(),
             data: config,
             method: 'POST',
             headers: {

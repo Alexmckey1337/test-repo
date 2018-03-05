@@ -155,7 +155,7 @@ export function getCities(config = {}) {
 export function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.table(),
             data: config,
             method: 'GET',
             headers: {
