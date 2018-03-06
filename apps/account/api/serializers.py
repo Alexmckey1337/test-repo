@@ -388,18 +388,6 @@ class UserTableSerializer(UserSingleSerializer):
         required_fields = ('id', 'link', 'extra_phone_numbers', 'description')
 
     def get_field_names(self, declared_fields, info):
-        # fields = getattr(self.Meta, 'fields', None)
-        # if self.context.get('request', None):
-        #     user = self.context['request'].user
-        #     if hasattr(user, 'table') and isinstance(user.table, Table):
-        #         columns = user.table.columns.filter(
-        #             columnType__category__title="Общая информация",
-        #             active=True).order_by('number').values_list('columnType__title', flat=True)
-        #     else:
-        #         columns = list()
-        #     if 'social' in columns:
-        #         columns = list(columns) + ['facebook', 'vkontakte', 'odnoklassniki', 'skype', 'image', 'image_source']
-        #     return list(self.Meta.required_fields) + [i for i in columns if i != 'social']
         return getattr(self.Meta, 'fields', None)
 
 

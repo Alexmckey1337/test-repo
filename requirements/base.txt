@@ -5,6 +5,7 @@ django>=1.10
 django-allauth
 django-cors-middleware
 django-environ==0.4.4
+django-extensions
 django-import-export==0.6.1
 django-redis==4.8.0
 django-redis-cache==1.7.1
