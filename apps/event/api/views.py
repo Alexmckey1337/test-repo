@@ -150,7 +150,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     output_field=IntegerField(), default=0))
             ).annotate(can_s=Exists(subqs)).annotate(
                 can_submit=Case(
-                    When(Q(status=True) & Q(can_s=True), then=False),
+                    When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
 
         return self.queryset.for_user(self.request.user)
