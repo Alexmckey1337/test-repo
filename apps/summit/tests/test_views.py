@@ -2,10 +2,12 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 import pytest
+import pytz
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import OuterRef, Exists
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
 from apps.account.models import CustomUser
@@ -1017,7 +1019,7 @@ class TestSummitStatisticsView:
         monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
         monkeypatch.setattr(SummitStatisticsView, 'pagination_class', None)
-        now = datetime.now()
+        now = timezone.now()
         summit = summit_factory()
 
         summit_attend_factory.create_batch(10, anket__summit=summit, date=now)
@@ -1036,7 +1038,7 @@ class TestSummitStatisticsView:
         monkeypatch.setattr(SummitStatisticsView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(SummitStatisticsView, 'get_queryset', get_stats_queryset)
         monkeypatch.setattr(SummitStatisticsView, 'pagination_class', None)
-        now = datetime.now()
+        now = timezone.now()
         summit = summit_factory()
 
         summit_attend_factory.create_batch(10, anket__summit=summit, date=now)
@@ -1125,7 +1127,7 @@ class TestSummitProfileForAppViewSet:
 
         profile = summit_anket_factory()
         profile_status = profile_status_factory(
-            anket=profile, reg_code_requested=False, reg_code_requested_date=datetime(2000, 2, 4))
+            anket=profile, reg_code_requested=False, reg_code_requested_date=datetime(2000, 2, 4, tzinfo=pytz.utc))
         r = RedisBackend()
         r.delete(profile.reg_code)
 
@@ -1135,7 +1137,7 @@ class TestSummitProfileForAppViewSet:
         profile_status.refresh_from_db()
         assert response.data == SummitAnketForAppSerializer(profile).data
         assert not profile_status.reg_code_requested
-        assert profile_status.reg_code_requested_date == datetime(2000, 2, 4)
+        assert profile_status.reg_code_requested_date == datetime(2000, 2, 4, tzinfo=pytz.utc)
 
     def test_by_reg_code_profile_status_not_exist(self, monkeypatch, api_client, summit_anket_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
@@ -1205,7 +1207,7 @@ class TestSummitProfileForAppViewSet:
     def test_by_reg_date_without_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
-        day = datetime.now() - timedelta(days=1)
+        day = timezone.now() - timedelta(days=1)
         early = day - timedelta(days=1)
         later = day + timedelta(days=1)
 
@@ -1225,7 +1227,7 @@ class TestSummitProfileForAppViewSet:
     def test_by_reg_date_without_to_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
-        day = datetime.now()
+        day = timezone.now()
         early = day - timedelta(days=1)
         later = day + timedelta(days=1)
 
@@ -1246,7 +1248,7 @@ class TestSummitProfileForAppViewSet:
     def test_by_reg_date_without_from_date(self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
-        day = datetime(2000, 2, 4)
+        day = datetime(2000, 2, 4, tzinfo=pytz.utc)
         early = day - timedelta(days=1)
         later = day + timedelta(days=1)
 
@@ -1267,7 +1269,7 @@ class TestSummitProfileForAppViewSet:
             self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
-        day = datetime(2000, 2, 4)
+        day = datetime(2000, 2, 4, tzinfo=pytz.utc)
         early = day - timedelta(days=1)
         later = day + timedelta(days=1)
 
@@ -1295,7 +1297,7 @@ class TestSummitProfileForAppViewSet:
             self, monkeypatch, api_client, summit_anket_factory, profile_status_factory):
         monkeypatch.setattr(SummitProfileForAppViewSet, 'check_permissions', lambda s, r: 0)
 
-        day = datetime(2000, 2, 4)
+        day = datetime(2000, 2, 4, tzinfo=pytz.utc)
         early = day - timedelta(days=1)
         later = day + timedelta(days=1)
         more_early = day - timedelta(days=2)
@@ -1324,7 +1326,7 @@ class TestSummitProfileTreeForAppListView:
         monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(
             SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
-        now = datetime.now()
+        now = timezone.now()
 
         summit = summit_factory()
         early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=11))
@@ -1341,7 +1343,7 @@ class TestSummitProfileTreeForAppListView:
         monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(
             SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
-        date_time = datetime(2000, 2, 24, 11, 33, 55)
+        date_time = datetime(2000, 2, 24, 11, 33, 55, tzinfo=pytz.utc)
 
         summit = summit_factory()
         early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=6))
@@ -1364,7 +1366,7 @@ class TestSummitProfileTreeForAppListView:
         monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(
             SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
-        now = datetime.now()
+        now = timezone.now()
 
         summit = summit_factory()
         early_location = visitor_location_factory(visitor__summit=summit, date_time=now - timedelta(minutes=17))
@@ -1381,7 +1383,7 @@ class TestSummitProfileTreeForAppListView:
         monkeypatch.setattr(SummitProfileTreeForAppListView, 'check_permissions', lambda s, r: 0)
         monkeypatch.setattr(
             SummitProfileTreeForAppListView, 'get_queryset', lambda s: s.annotate_queryset(s.summit.ankets.all()))
-        date_time = datetime(2000, 2, 24, 11, 33, 55)
+        date_time = datetime(2000, 2, 24, 11, 33, 55, tzinfo=pytz.utc)
 
         summit = summit_factory()
         early_location = visitor_location_factory(visitor__summit=summit, date_time=date_time - timedelta(minutes=9))

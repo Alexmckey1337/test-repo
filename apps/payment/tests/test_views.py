@@ -6,6 +6,7 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytest
+import pytz
 from rest_framework import status, permissions
 
 from apps.partnership.models import Deal, ChurchDeal
@@ -303,10 +304,10 @@ class TestPaymentDealListView:
         monkeypatch.setattr(
             PaymentDealListView, 'get_queryset',
             lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        deal_payment_factory(created_at=datetime(2000, 2, 20, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 21, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 22, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 23, 11))
+        deal_payment_factory(created_at=datetime(2000, 2, 20, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 21, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 22, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 23, 11, tzinfo=pytz.utc))
         response = api_client.get('/payments/deal/?from_create=2000-02-21&to_create=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
@@ -316,10 +317,10 @@ class TestPaymentDealListView:
         monkeypatch.setattr(
             PaymentDealListView, 'get_queryset',
             lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        deal_payment_factory(sent_date=datetime(2000, 2, 20))
-        deal_payment_factory(sent_date=datetime(2000, 2, 21))
-        deal_payment_factory(sent_date=datetime(2000, 2, 22))
-        deal_payment_factory(sent_date=datetime(2000, 2, 23))
+        deal_payment_factory(sent_date=datetime(2000, 2, 20, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 21, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 22, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 23, tzinfo=pytz.utc))
         response = api_client.get('/payments/deal/?from_sent=2000-02-21&to_sent=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
@@ -368,10 +369,10 @@ class TestPaymentDealListView:
         monkeypatch.setattr(FilterByDealDate, 'get_user_deals', lambda self, req: Deal.objects.all())
         monkeypatch.setattr(FilterByDealDate, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
 
-        deal1 = deal_factory(date_created=datetime(2000, 1, 1))
-        deal2 = deal_factory(date_created=datetime(2000, 2, 21))
-        deal3 = deal_factory(date_created=datetime(2000, 3, 22))
-        deal4 = deal_factory(date_created=datetime(2000, 4, 23))
+        deal1 = deal_factory(date_created=datetime(2000, 1, 1, tzinfo=pytz.utc))
+        deal2 = deal_factory(date_created=datetime(2000, 2, 21, tzinfo=pytz.utc))
+        deal3 = deal_factory(date_created=datetime(2000, 3, 22, tzinfo=pytz.utc))
+        deal4 = deal_factory(date_created=datetime(2000, 4, 23, tzinfo=pytz.utc))
         payment_factory(purpose=deal1)
         payment_factory(purpose=deal2)
         payment_factory(purpose=deal3)

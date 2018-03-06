@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from apps.analytics.models import LogModel
 from apps.payment.managers import PaymentManager
+from common import date_utils
 
 
 def get_default_currency():
@@ -145,7 +146,7 @@ class Payment(LogModel):
     #: Date and time when the payment has been created
     created_at = models.DateTimeField(_('Date created'), default=timezone.now, editable=False)
     #: Date  when the payment has been sent
-    sent_date = models.DateField(_('Sent date'), default=timezone.now)
+    sent_date = models.DateField(_('Sent date'), default=date_utils.today)
     #: The manager who received payment
     manager = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL, related_name='checks',
                                 null=True, blank=True, verbose_name=_('Manager'))

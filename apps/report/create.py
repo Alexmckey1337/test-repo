@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
+from django.utils import timezone
 from datetime import date
 
 from apps.account.models import CustomUser as User
@@ -13,24 +14,24 @@ def months(user_id):
     except User.DoesNotExist:
         return "No fucking user"
     else:
-        if MonthReport.objects.filter(user=master.user_report, date__month=date.today().month).exists():
+        if MonthReport.objects.filter(user=master.user_report, date__month=timezone.now().month).exists():
             return "This user has already a report fot this month"
-        MonthReport.objects.create(user=master.user_report, date=date.today())
+        MonthReport.objects.create(user=master.user_report, date=timezone.now())
         disciples = User.objects.filter(master=master)
         for disciple in disciples.all():
             if MonthReport.objects.filter(user=disciple.user_report,
-                                          date__month=date.today().month).exists():
+                                          date__month=timezone.now().month).exists():
                 print("This user has already a report fot this month")
                 continue
-            MonthReport.objects.create(user=disciple.user_report, date=date.today())
+            MonthReport.objects.create(user=disciple.user_report, date=timezone.now())
             disciples_of_disciple = User.objects.filter(master=disciple)
             for disciple_of_disciple in disciples_of_disciple.all():
                 if MonthReport.objects.filter(user=disciple_of_disciple.user_report,
-                                              date__month=date.today().month).exists():
+                                              date__month=timezone.now().month).exists():
                     print("This user has already a report fot this month")
                     continue
                 MonthReport.objects.create(user=disciple_of_disciple.user_report,
-                                           date=date.today())
+                                           date=timezone.now())
     return "I'm done"
 
 
@@ -40,24 +41,24 @@ def years(user_id):
     except User.DoesNotExist:
         return "No fucking user"
     else:
-        if YearReport.objects.filter(user=master.user_report, date__year=date.today().year).exists():
+        if YearReport.objects.filter(user=master.user_report, date__year=timezone.now().year).exists():
             return "This user has already a report fot this month"
-        YearReport.objects.create(user=master.user_report, date=date.today())
+        YearReport.objects.create(user=master.user_report, date=timezone.now())
         disciples = User.objects.filter(master=master)
         for disciple in disciples.all():
             if YearReport.objects.filter(user=disciple.user_report,
-                                         date__year=date.today().year).exists():
+                                         date__year=timezone.now().year).exists():
                 print("This user has already a report fot this month")
                 continue
-            YearReport.objects.create(user=disciple.user_report, date=date.today())
+            YearReport.objects.create(user=disciple.user_report, date=timezone.now())
             disciples_of_disciple = User.objects.filter(master=disciple)
             for disciple_of_disciple in disciples_of_disciple.all():
                 if YearReport.objects.filter(user=disciple_of_disciple.user_report,
-                                             date__year=date.today().year).exists():
+                                             date__year=timezone.now().year).exists():
                     print("This user has already a report fot this year")
                     continue
                 YearReport.objects.create(user=disciple_of_disciple.user_report,
-                                          date=date.today())
+                                          date=timezone.now())
     return "I'm done"
 
 
@@ -90,17 +91,17 @@ def check(id):
 
 def create_months():
     for user_report in UserReport.objects.all():
-        if MonthReport.objects.filter(user=user_report, date__month=date.today().month).exists():
+        if MonthReport.objects.filter(user=user_report, date__month=timezone.now().month).exists():
             return "This user has already a report fot this month"
         else:
-            MonthReport.objects.create(user=user_report, date=date.today())
+            MonthReport.objects.create(user=user_report, date=timezone.now())
     return "Month reports: OK"
 
 
 def create_years():
     for user_report in UserReport.objects.all():
-        if YearReport.objects.filter(user=user_report, date__year=date.today().year).exists():
+        if YearReport.objects.filter(user=user_report, date__year=timezone.now().year).exists():
             return "This user has already a report fot this year"
         else:
-            YearReport.objects.create(user=user_report, date=date.today())
+            YearReport.objects.create(user=user_report, date=timezone.now())
     return "Year reports: OK"

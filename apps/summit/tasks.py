@@ -14,6 +14,7 @@ from apps.zmail.models import ZMailTemplate
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
+from django.utils import timezone
 
 from edem.settings.celery import app
 from apps.notification.backend import RedisBackend
@@ -186,8 +187,8 @@ def generate_tickets(summit_id, ankets, ticket_id):
 @app.task(name='get_palace_logs', ignore_result=True, max_retries=5, default_retry_delay=10)
 def get_palace_logs():
     url = 'https://armspalace.esport.in.ua/m-ticket/gatelog/getLogs/'
-    date_to = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    date_from = (datetime.now() - timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
+    date_to = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+    date_from = (timezone.now() - timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
     data = requests.get(url + '?dateFrom=' + date_from + '&dateTo=' + date_to)
 
     for _pass in data.json():

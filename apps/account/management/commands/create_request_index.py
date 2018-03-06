@@ -85,7 +85,7 @@ class Command(BaseCommand):
             'mappings': my_mapping,
         })
         mapping_index = es.indices.put_mapping(index=index_name, doc_type=doc_type_name, body=my_mapping)
-        if create_index["acknowledged"] != True or mapping_index["acknowledged"] != True:
+        if create_index["acknowledged"] or mapping_index["acknowledged"]:
             self.stdout.write("Index creation failed...")
 
     def handle(self, *args, **options):

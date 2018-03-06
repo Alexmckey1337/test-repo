@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django.http import Http404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, exceptions, filters
@@ -361,7 +362,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     @detail_route(methods=['POST'])
     def create_report(self, request, pk):
         church = self.get_object()
-        str_date = request.data.get('date', datetime.now().date().strftime('%Y-%m-%d'))
+        str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
         date = datetime.strptime(str_date, '%Y-%m-%d')
 
         start_week_day, end_week_date = week_range(date)
@@ -542,7 +543,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
     @detail_route(methods=['POST'])
     def create_report(self, request, pk):
         home_group = self.get_object()
-        str_date = request.data.get('date', datetime.now().date().strftime('%Y-%m-%d'))
+        str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
         meeting_type = get_object_or_404(MeetingType, pk=request.data.get('type_id'))
 
         date = datetime.strptime(str_date, '%Y-%m-%d')

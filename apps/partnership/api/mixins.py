@@ -198,8 +198,8 @@ class PartnerStatMixin:
 class StatsByManagersMixin:
     @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
     def managers_summary(self, request):
-        year = int(request.query_params.get('year', datetime.now().year))
-        month = int(request.query_params.get('month', datetime.now().month))
+        year = int(request.query_params.get('year', timezone.now().year))
+        month = int(request.query_params.get('month', timezone.now().month))
 
         managers_query, plan = self._get_managers()
         partners, church_partners = self._get_partners()
@@ -250,8 +250,8 @@ class StatsByManagersMixin:
 
     @func_time
     def _get_managers(self):
-        year = int(self.request.query_params.get('year', datetime.now().year))
-        month = int(self.request.query_params.get('month', datetime.now().month))
+        year = int(self.request.query_params.get('year', timezone.now().year))
+        month = int(self.request.query_params.get('month', timezone.now().month))
 
         manager_ids = CustomUser.objects.filter(Q(partner_role__isnull=False) | Q(
             disciples_deals__isnull=False) | Q(
@@ -261,19 +261,19 @@ class StatsByManagersMixin:
 
         plan = self._get_managers_plan(managers)
 
-        if year != datetime.now().year or month != datetime.now().month:
+        if year != timezone.now().year or month != datetime.now().month:
             next_month = self.get_next_month(year, month)
             managers, plan = self.get_logged_managers(next_month)
         return managers, plan
 
     @func_time
     def _get_partners(self):
-        year = int(self.request.query_params.get('year', datetime.now().year))
-        month = int(self.request.query_params.get('month', datetime.now().month))
+        year = int(self.request.query_params.get('year', timezone.now().year))
+        month = int(self.request.query_params.get('month', timezone.now().month))
         partners = Partnership.objects.all()
         church_partners = ChurchPartner.objects.all()
 
-        if year != datetime.now().year or month != datetime.now().month:
+        if year != timezone.now().year or month != datetime.now().month:
             next_month = self.get_next_month(year, month)
             partners = self.get_logged_partners(next_month)
             church_partners = self.get_logged_church_partners(next_month)
@@ -538,7 +538,7 @@ class StatsByMonthsMixin:
 
     @staticmethod
     def _get_month_period(period):
-        now = datetime.now()
+        now = timezone.now()
         month_end = now.year * 12 + now.month - 1
         if period == '3month':
             month_start = month_end - 3
@@ -761,8 +761,8 @@ class StatsByMonthsMixin:
         return {date: sum for date, sum in result}
 
     def _get_start_data(self):
-        year = int(self.request.query_params.get('year', datetime.now().year))
-        month = int(self.request.query_params.get('month', datetime.now().month))
+        year = int(self.request.query_params.get('year', timezone.now().year))
+        month = int(self.request.query_params.get('month', timezone.now().month))
 
         manager_ids = CustomUser.objects.filter(Q(partner_role__isnull=False) | Q(
             disciples_deals__isnull=False)).distinct().values_list('id', flat=True)
@@ -772,7 +772,7 @@ class StatsByMonthsMixin:
         plan = self._get_managers_plan(managers)
         partners = Partnership.objects.all()
 
-        if year != datetime.now().year or month != datetime.now().month:
+        if year != timezone.now().year or month != datetime.now().month:
             next_month = self.get_next_month(year, month)
             partners = self.get_logged_partners(next_month)
             managers, plan = self.get_logged_managers(next_month)

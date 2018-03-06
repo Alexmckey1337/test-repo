@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 import pytz
 from flask import request, jsonify, render_template
-from datetime import datetime
 from forms import PostCodeForm
-from config import *
-from models import *
+from config import *  # pragma: no cover
+from models import *  # pragma: no cover
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -46,11 +46,11 @@ def get_or_create_anket_status(anket_id):
 
 def get_or_create_summit_attend(anket_id):
     attend = db.session.query(SummitAttend).join(SummitAnket).filter(
-        SummitAttend.anket_id == anket_id, SummitAttend.date == datetime.now().date()).first()
+        SummitAttend.anket_id == anket_id, SummitAttend.date == timezone.now().date()).first()
     eet = pytz.timezone('EET')
     time_format = '%H:%M:%S'
     date_format = '%Y-%m-%d'
-    now = datetime.now(eet)
+    now = timezone.now(eet)
     date = now.strftime(date_format)
     time = now.strftime(time_format)
     if not attend:
@@ -79,7 +79,7 @@ def get_anket_data(anket_id):
               AND to_char(passes.datetime, 'YYYY-MM-DD') = '{0}')
               WHERE anket.id = {1}
               GROUP BY anket.id, u.user_ptr_id, u.image, anket.code, status.active;""".format(
-        datetime.now().date().strftime('%Y-%m-%d'), anket_id)
+        timezone.now().date().strftime('%Y-%m-%d'), anket_id)
     result = db.engine.execute(query)
     data = []
     for row in result:

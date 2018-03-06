@@ -1,20 +1,19 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
-
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from apps.account.models import CustomUser
-from common.fields import DecimalWithCurrencyField
-from common.fields import ReadOnlyChoiceField
 from apps.event.models import Meeting, MeetingAttend, MeetingType, ChurchReport, AbstractStatusModel
 from apps.group.api.serializers import (
     UserNameSerializer, ChurchNameSerializer, HomeGroupNameSerializer, UserNameWithLinkSerializer)
 from apps.group.models import Church
 from apps.payment.api.serializers import CurrencySerializer
+from common.fields import DecimalWithCurrencyField
+from common.fields import ReadOnlyChoiceField
 from common.week_range import week_range
 
 
@@ -71,7 +70,7 @@ class MeetingVisitorsSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
-    date = serializers.DateField(default=datetime.now().date())
+    date = serializers.DateField(default=timezone.now().date())
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
 
@@ -192,7 +191,7 @@ class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
                                  ValidateDataBeforeUpdateMixin):
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
-    date = serializers.DateField(default=datetime.now().date())
+    date = serializers.DateField(default=timezone.now().date())
     total_peoples = serializers.IntegerField(source='count_people', required=False)
     total_donations = serializers.DecimalField(source='donations', max_digits=13,
                                                decimal_places=2, required=False)

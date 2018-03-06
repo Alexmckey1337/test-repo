@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
+from django.db import transaction, IntegrityError
 from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
@@ -53,10 +54,9 @@ from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerR
     ChurchPartner, ChurchPartnerLog, ChurchDeal, TelegramUser, TelegramGroup
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
 from apps.payment.models import Payment
+from apps.summit.api.permissions import HasAPIAccess
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from apps.summit.api.permissions import HasAPIAccess
-from django.db import transaction, IntegrityError
 
 
 class PartnershipViewSet(
@@ -655,69 +655,6 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
         return Response(deals_data, status=status.HTTP_200_OK)
 
 
-# class AllDealListView(GenericAPIView):
-#     user_queryset = Deal.objects.base_queryset(). \
-#         annotate_full_name(). \
-#         annotate_responsible_name(). \
-#         annotate_total_sum()
-#     church_queryset = ChurchDeal.objects.base_queryset(). \
-#         annotate_full_name(). \
-#         annotate_responsible_name(). \
-#         annotate_total_sum()
-#
-#     pagination_class = DealPagination
-#     filter_backends = (rest_framework.DjangoFilterBackend,
-#                        DealFilterByPaymentStatus,)
-#     user_filter_backends = (filters.SearchFilter,)
-#     church_filter_backends = (filters.SearchFilter,)
-#     filter_class = DateAndValueFilter
-#     serializer_class = AllDealSerializer
-#
-#     ordering_fields = ('value',
-#                        'responsible__last_name',
-#                        'partnership__user__last_name',
-#                        'date_created',
-#                        'done', 'type')
-#
-#     search_fields = ('partnership__user__first_name',
-#                      'partnership__user__last_name',
-#                      'partnership__user__search_name',
-#                      'partnership__user__middle_name',)
-#     order_backend = filters.OrderingFilter
-#     permission_classes = (IsAuthenticated, CanSeeDeals)
-#
-#     def get_user_queryset(self):
-#         return self.user_queryset
-#
-#     def get_church_queryset(self):
-#         return self.church_queryset
-#
-#     def get(self, request, *args, **kwargs):
-#         print(self.user_queryset.query)
-#         user_qs, church_qs = self.filter_querysets(self.get_user_queryset(), self.get_church_queryset())
-#
-#         # fields = ('id', 'value', 'date', 'date_created', 'done', 'expired',
-#         #           'description', 'full_name', 'total_sum', 'responsible_name')
-#         qs = user_qs.union(church_qs)
-#         if request.query_params.get('ordering'):
-#             qs = self.order_backend().filter_queryset(self.request, qs, self)
-#         else:
-#             qs = qs.order_by('-date_created')
-#         page = self.paginate_queryset(qs)
-#         serializer = self.get_serializer(page, many=True)
-#         return self.get_paginated_response(serializer.data)
-#
-#     def filter_querysets(self, user_qs, church_qs):
-#         # for backend in list(self.filter_backends):
-#         #     user_qs = backend().filter_queryset(self.request, user_qs, self)
-#         #     church_qs = backend().filter_queryset(self.request, church_qs, self)
-#         # for backend in list(self.user_filter_backends):
-#         #     user_qs = backend().filter_queryset(self.request, user_qs, self)
-#         # for backend in list(self.church_filter_backends):
-#         #     church_qs = backend().filter_queryset(self.request, church_qs, self)
-#         return user_qs, church_qs
-
-
 class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet,
                         DealCreatePaymentMixin, ChurchDealListPaymentMixin, PartnerStatusReviewMixin):
     queryset = ChurchDeal.objects.base_queryset(). \
@@ -858,7 +795,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
             data = cursor.fetchall()
 
         deal_ids = []
-        for ids, *_ in data:
+        for ids, *z in data:
             deal_ids.extend(ids)
 
         deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
@@ -875,7 +812,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
 class CheckPartnerLevelMixin:
     def check_partner_level(self, serializer):
         if (not self.request.user.has_partner_role or
-                    serializer.initial_data.get('level') < self.request.user.partner_role.level):
+                serializer.initial_data.get('level') < self.request.user.partner_role.level):
             raise ValidationError(
                 {'detail': _('Вы не можете назначать пользователям уровень выше вашего.')}
             )

@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
@@ -22,7 +21,7 @@ class Command(BaseCommand):
                 'english': c.english,
                 'level': c.level,
                 'vid': c.vid,
-                'added': datetime.now(),
+                'added': timezone.now(),
                 'timezone': c.timezone,
                 'area': {
                     'id': c.area.id,
@@ -216,7 +215,7 @@ class Command(BaseCommand):
             'mappings': my_mapping,
         })
         mapping_index = es.indices.put_mapping(index=index_name, doc_type=doc_type_name, body=my_mapping)
-        if create_index["acknowledged"] != True or mapping_index["acknowledged"] != True:
+        if create_index["acknowledged"] or mapping_index["acknowledged"]:
             self.stdout.write("Index creation failed...")
 
     def handle(self, *args, **options):

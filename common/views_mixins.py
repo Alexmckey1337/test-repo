@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from django.utils import timezone
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import list_route
@@ -24,7 +23,7 @@ class BaseExportViewSetMixin(object):
         raise NotImplementedError(".filter_queryset() must be overridden.")
 
     def get_export_filename(self, file_format):
-        date_str = datetime.now().strftime('%Y-%m-%d')
+        date_str = timezone.now().strftime('%Y-%m-%d')
         filename = "%s-%s.%s" % (self.queryset.model.__name__,
                                  date_str,
                                  file_format.get_extension())

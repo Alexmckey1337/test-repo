@@ -2,15 +2,15 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.urls import include, path, re_path
 from django.contrib import admin
+from django.urls import include, path
 from rest_framework import exceptions
-from rest_framework.response import Response
-from rest_framework.schemas import SchemaGenerator as BaseSchemaGenerator
-from rest_framework_swagger import renderers
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import CoreJSONRenderer
+from rest_framework.response import Response
+from rest_framework.schemas import SchemaGenerator as BaseSchemaGenerator
 from rest_framework.views import APIView
+from rest_framework_swagger import renderers
 
 
 class SchemaGenerator(BaseSchemaGenerator):

@@ -44,21 +44,21 @@ from apps.account.models import CustomUser as User
 from apps.account.resources import UserResource
 from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
+from apps.group.models import HomeGroup, Church
+from apps.hierarchy.api.serializers import DepartmentSerializer
+from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter, OrderingFilter
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, ModelWithoutDeleteViewSet
-from apps.group.models import HomeGroup, Church
-from apps.hierarchy.api.serializers import DepartmentSerializer
-from apps.navigation.table_columns import get_table
 
 logger = logging.getLogger(__name__)
 
 
 def is_list_of_ints(lst):
-    return isinstance(lst, (list, tuple)) and all([isinstance(i, int)
-                                                   or (isinstance(i, str) and i.isdigit()) for i in lst])
+    return isinstance(lst, (list, tuple)) and all([isinstance(i, int) or
+                                                   (isinstance(i, str) and i.isdigit()) for i in lst])
 
 
 def get_reverse_fields(cls, obj):
