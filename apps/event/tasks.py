@@ -1,8 +1,7 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
-
+from django.utils import timezone
 
 from edem.settings.celery import app
 from apps.event.models import Meeting, MeetingType, ChurchReport
@@ -15,7 +14,7 @@ from django.db import transaction, IntegrityError
 @app.task(name='processing_home_meetings', ignore_result=True,
           max_retries=10, default_retry_delay=1000)
 def processing_home_meetings():
-    current_date = datetime.now().date()
+    current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_types = MeetingType.objects.all()
 
@@ -39,7 +38,7 @@ def processing_home_meetings():
 @app.task(name='processing_church_reports', ignore_result=True,
           max_retries=10, default_retry_delay=1000)
 def processing_church_reports():
-    current_date = datetime.now().date()
+    current_date = timezone.now().date()
     open_churches = Church.objects.filter(is_open=True)
 
     try:
