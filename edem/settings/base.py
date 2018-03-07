@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = (
     'tinymce',
     # 'rest_auth.registration',
     'channels',
+    'drf_yasg',
 )
 LOCAL_APPS = (
     'main',
