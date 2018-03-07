@@ -1,7 +1,8 @@
 import logging
-from time import time, timezone
+from time import time
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from elasticsearch import Elasticsearch
 from rest_framework import exceptions
