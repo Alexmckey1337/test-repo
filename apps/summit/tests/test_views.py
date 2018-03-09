@@ -1351,7 +1351,8 @@ class TestSummitProfileTreeForAppListView:
         more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=4))
         later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=6))
 
-        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55'.format(summit.id)
+        url = '/api/app/summits/{summit_id}/users/?date_time={dt}'.format(
+            summit_id=summit.id, dt=date_time.strftime('%Y-%m-%dT%H:%M:%S%z').replace('+', '%2B'))
         response = api_client.get(url, format='json')
         assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
                 for p in response.data['profiles']} == {
@@ -1391,7 +1392,8 @@ class TestSummitProfileTreeForAppListView:
         more_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=7))
         later_location = visitor_location_factory(visitor__summit=summit, date_time=date_time + timedelta(minutes=9))
 
-        url = '/api/app/summits/{}/users/?date_time=2000-02-24T11:33:55&interval=8'.format(summit.id)
+        url = '/api/app/summits/{summit_id}/users/?date_time={dt}&interval=8'.format(
+            summit_id=summit.id, dt=date_time.strftime('%Y-%m-%dT%H:%M:%S%z').replace('+', '%2B'))
         response = api_client.get(url, format='json')
         assert {p['id']: p['visitor_locations']['date_time'].date() if p['visitor_locations'] else None
                 for p in response.data['profiles']} == {

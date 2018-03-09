@@ -6,6 +6,7 @@ import json
 import logging
 from datetime import datetime
 
+import pytz
 from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError, connection
@@ -595,11 +596,11 @@ class ChurchReportStatsView(views.APIView):
 
     @staticmethod
     def strpyear(datestr):
-        return datetime.strptime(datestr, '%Y')
+        return pytz.utc.localize(datetime.strptime(datestr, '%Y'))
 
     @staticmethod
     def strpmonth(datestr):
-        return datetime.strptime(datestr, '%Y%m')
+        return pytz.utc.localize(datetime.strptime(datestr, '%Y%m'))
 
     @staticmethod
     def get_weeks_of_month(year, month):

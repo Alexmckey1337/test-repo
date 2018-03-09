@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 import logging
 
+import pytz
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Case, When, BooleanField
 from django.db.models import Q
@@ -363,7 +364,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
     def create_report(self, request, pk):
         church = self.get_object()
         str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
-        date = datetime.strptime(str_date, '%Y-%m-%d')
+        date = pytz.utc.localize(datetime.strptime(str_date, '%Y-%m-%d'))
 
         start_week_day, end_week_date = week_range(date)
         start_week_day = start_week_day.strftime('%Y-%m-%d')
@@ -546,7 +547,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
         meeting_type = get_object_or_404(MeetingType, pk=request.data.get('type_id'))
 
-        date = datetime.strptime(str_date, '%Y-%m-%d')
+        date = pytz.utc.localize(datetime.strptime(str_date, '%Y-%m-%d'))
         start_week_day, end_week_date = week_range(date)
         start_week_day = start_week_day.strftime('%Y-%m-%d')
         end_week_date = end_week_date.strftime('%Y-%m-%d')

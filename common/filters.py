@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import coreapi
 import coreschema
+import pytz
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
@@ -144,8 +145,8 @@ class BaseFilterByBirthday(filters.BaseFilterBackend):
 
         if not (from_date and to_date):
             return queryset
-        from_date = datetime.strptime(from_date, '%Y-%m-%d')
-        to_date = datetime.strptime(to_date, '%Y-%m-%d')
+        from_date = pytz.utc.localize(datetime.strptime(from_date, '%Y-%m-%d'))
+        to_date = pytz.utc.localize(datetime.strptime(to_date, '%Y-%m-%d'))
         if from_date > to_date:
             raise exceptions.ValidationError(detail=_('Некоректный временной интервал.'))
 

@@ -1,6 +1,8 @@
+import json
 import logging
 from datetime import datetime, timedelta
 
+import pytz
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, ExpressionWrapper, F, IntegerField
@@ -118,9 +120,9 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         from_date = request.query_params.get('from_date', timezone.now().date() - timedelta(days=1))
         to_date = request.query_params.get('to_date', timezone.now().date() - timedelta(days=1))
         if isinstance(from_date, str):
-            from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+            from_date = pytz.utc.localize(datetime.strptime(from_date, '%Y-%m-%d')).date()
         if isinstance(to_date, str):
-            to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            to_date = pytz.utc.localize(datetime.strptime(to_date, '%Y-%m-%d')).date()
 
         if from_date > to_date:
             raise exceptions.ValidationError('Некорректно заданный временной интвервал. ')
@@ -215,7 +217,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
     def _get_start_and_end_date(self):
         """
         If:
-            http://example.com/?date_time=2000-02-24T11:33:55&interval=7
+            http://example.com/?date_time=2000-02-24T11:33:55+0000&interval=7
         Then returns:
             start_date == datetime(2000, 2, 24, 11, 26, 55, tzinfo=pytz.utc)
             end_date == datetime(2000, 2, 24, 11, 40, 55, tzinfo=pytz.utc)
@@ -230,8 +232,8 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         date_time = self.request.query_params.get('date_time', '')
         interval = int(self.request.query_params.get('interval', 5))
         try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S')
-        except ValueError:
+            date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S%z')
+        except ValueError as err:
             end_date = timezone.now()
             start_date = end_date - timedelta(minutes=2 * interval)
         else:
@@ -325,9 +327,9 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     @list_route(methods=['GET'])
     def location_by_interval(self, request):
         date_time = request.query_params.get('date_time')
-        date_format = '%Y-%m-%d %H:%M:%S'
+        date_format = '%Y-%m-%d %H:%M:%S%z'
         try:
-            date_time = datetime.strptime(date_time.replace('T', ' '), date_format)
+            date_time = pytz.utc.localize(datetime.strptime(date_time.replace('T', ' '), date_format))
         except ValueError:
             raise exceptions.ValidationError(
                 'Не верный формат даты. Передайте дату в формате date %s' % date_format)

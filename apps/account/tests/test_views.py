@@ -3,6 +3,7 @@ import datetime
 import itertools
 
 import pytest
+import pytz
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
@@ -572,7 +573,7 @@ class TestUserViewSet:
         divisions = create_user_data.pop('divisions')
         departments = create_user_data.pop('departments')
 
-        strptime = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d')
+        strptime = lambda d: pytz.utc.localize(datetime.datetime.strptime(d, '%Y-%m-%d'))
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
         create_user_data['born_date'] = strptime(create_user_data['born_date'])

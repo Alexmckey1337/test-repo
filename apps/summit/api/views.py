@@ -280,7 +280,7 @@ class SummitStatisticsView(SummitProfileListView):
             self.filter_date = timezone.now()
         else:
             try:
-                self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
+                self.filter_date = pytz.utc.localize(datetime.strptime(filter_date, '%Y-%m-%d'))
             except ValueError:
                 raise exceptions.ValidationError({'detail': _('Invalid date.')})
         return super(SummitStatisticsView, self).get(request, *args, **kwargs)
@@ -668,7 +668,7 @@ def summit_report_by_bishops(request, summit_id):
     hierarchy = request.query_params.get('hierarchy', None)
     report_date = request.query_params.get('date', timezone.now().strftime('%Y-%m-%d'))
     try:
-        report_date = datetime.strptime(report_date, '%Y-%m-%d')
+        report_date = pytz.utc.localize(datetime.strptime(report_date, '%Y-%m-%d'))
     except ValueError:
         report_date = timezone.now()
 

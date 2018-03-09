@@ -3,6 +3,8 @@ from decimal import Decimal
 
 import factory
 import factory.fuzzy
+import pytz
+
 from . import models
 
 
@@ -22,7 +24,7 @@ class PaymentFactory(factory.DjangoModelFactory):
         model = models.Payment
 
     sum = Decimal(200)
-    created_at = factory.fuzzy.FuzzyDate(start_date=datetime.date(2000, 1, 1))
+    created_at = factory.fuzzy.FuzzyDateTime(start_dt=datetime.datetime(2000, 1, 1, tzinfo=pytz.utc))
     manager = factory.SubFactory('apps.account.factories.UserFactory')
 
     currency_sum = factory.SubFactory(CurrencyFactory)

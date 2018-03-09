@@ -23,7 +23,7 @@ flower
 html2text
 Pillow==4.3.0
 premailer
-psycopg2
+psycopg2-binary
 raven
 redis>=2.10.5
 reportlab

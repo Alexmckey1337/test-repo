@@ -213,7 +213,7 @@ class Payment(LogModel):
         return old
 
     def __str__(self):
-        return '{}: {}'.format(self.created_at.strftime('%d %B %Y %H:%M'), self.purpose or 'UNKNOWN')
+        return '{}: {}'.format(self.created_at.strftime('%d %B %Y %H:%M:%S%z'), self.purpose or 'UNKNOWN')
 
     @property
     def payer(self):
