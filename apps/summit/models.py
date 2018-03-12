@@ -665,6 +665,7 @@ class TelegramPayment(models.Model):
                                        blank=True, null=True)
     liqpay_payment_url = models.URLField(blank=True, null=True)
     paid_date = models.DateField(verbose_name='Дата оплаты', blank=True, null=True)
+    err_description = models.CharField(verbose_name='Описание ошибки', max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name = _('Регистрация через Telegram Bot')
