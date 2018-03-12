@@ -5,10 +5,12 @@ from datetime import datetime
 from typing import List, NamedTuple
 
 import os
+import pytz
 from PIL import Image, ImageDraw
 from django.conf import settings
 from django.db import connection
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from io import BytesIO
 from reportlab.graphics import renderPDF
@@ -61,7 +63,7 @@ def get_report_by_bishop_or_high(
             "(bbu.last_name ilike %s or "
             "bbu.first_name ilike %s or "
             "bu.middle_name ilike %s)")
-        name_params += ['%'+name+'%'] * 3
+        name_params += ['%{name}%'.format(name=name)] * 3
     query = """
         SELECT DISTINCT ON (bu.user_ptr_id) bu.user_ptr_id pk,
             concat(bbu.last_name, ' ', bbu.first_name, ' ', bu.middle_name) user_name,
@@ -157,11 +159,11 @@ class SummitParticipantReport(object):
         self.master = master
         if report_date:
             try:
-                self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+                self.report_date = pytz.utc.localize(datetime.strptime(report_date, '%Y-%m-%d'))
             except ValueError:
                 raise exceptions.ValidationError({'detail': _('Invalid date.')})
         else:
-            self.report_date = datetime.now()
+            self.report_date = timezone.now()
         self.elements = list()
         self.names = dict()
         self._init_styles()
@@ -188,7 +190,7 @@ class SummitParticipantReport(object):
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
-            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+            'Отчет создан: {}'.upper().format(timezone.now().strftime('%d.%m.%Y %H:%M:%S%z')), self.styles['date']))
         self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
@@ -302,11 +304,11 @@ class FullSummitParticipantReport(object):
         self.master = master
         if report_date:
             try:
-                self.report_date = datetime.strptime(report_date, '%Y-%m-%d')
+                self.report_date = pytz.utc.localize(datetime.strptime(report_date, '%Y-%m-%d'))
             except ValueError:
                 raise exceptions.ValidationError({'detail': _('Invalid date.')})
         else:
-            self.report_date = datetime.now()
+            self.report_date = timezone.now()
         self.elements = list()
         self._init_styles()
         self.buffer = BytesIO()
@@ -332,7 +334,8 @@ class FullSummitParticipantReport(object):
 
     def _append_document_header(self):
         self.elements.append(Paragraph(
-            'Отчет создан: {}'.upper().format(datetime.now().strftime('%d.%m.%Y %H:%M:%S')), self.styles['date']))
+            'Отчет создан: {}'.upper().format(
+                timezone.now().strftime(timezone.now().strftime('%d.%m.%Y %H:%M:%S%z'))), self.styles['date']))
         self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))

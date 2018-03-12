@@ -1,9 +1,9 @@
 # -*- coding: utf-8
-from apps.help import views
-from django.urls import reverse, path
-from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.urls import reverse, path
+
+from apps.help import views
 
 
 def redirect_to_help(request):

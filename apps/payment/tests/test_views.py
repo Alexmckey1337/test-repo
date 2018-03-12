@@ -6,10 +6,11 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytest
+import pytz
 from rest_framework import status, permissions
 
 from apps.partnership.models import Deal, ChurchDeal
-from apps.payment.api.filters import FilterByDealDate
+from apps.payment.api.filters import FilterByDealDate, FilterByDeal
 from apps.payment.api.views import PaymentDealListView
 from apps.payment.models import Payment
 
@@ -226,9 +227,8 @@ class TestPaymentDealListView:
 
     def test_filter_by_sum(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         deal_payment_factory(sum=Decimal(100))
         deal_payment_factory(sum=Decimal(200))
         deal_payment_factory(sum=Decimal(300))
@@ -239,9 +239,8 @@ class TestPaymentDealListView:
 
     def test_filter_by_effective_sum(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         deal_payment_factory(effective_sum=Decimal(100), sum=Decimal(100))
         deal_payment_factory(effective_sum=Decimal(200), sum=Decimal(200))
         deal_payment_factory(effective_sum=Decimal(300), sum=Decimal(300))
@@ -252,9 +251,8 @@ class TestPaymentDealListView:
 
     def test_filter_by_currency_sum(self, monkeypatch, api_client, deal_payment_factory, currency_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         cur1 = currency_factory()
         cur2 = currency_factory()
         deal_payment_factory(currency_sum=cur1)
@@ -268,9 +266,8 @@ class TestPaymentDealListView:
     def test_filter_by_currency_rate(
             self, monkeypatch, api_client, payment_factory, currency_factory, deal_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         cur1 = currency_factory()
         cur2 = currency_factory()
         deal1 = deal_factory(partnership__currency=cur1)
@@ -287,9 +284,8 @@ class TestPaymentDealListView:
 
     def test_search_by_description(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         deal_payment_factory(description='visa')
         deal_payment_factory(description='mastercard')
         deal_payment_factory(description='I am master.')
@@ -300,35 +296,32 @@ class TestPaymentDealListView:
 
     def test_filter_by_created_at(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        deal_payment_factory(created_at=datetime(2000, 2, 20, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 21, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 22, 11))
-        deal_payment_factory(created_at=datetime(2000, 2, 23, 11))
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
+        deal_payment_factory(created_at=datetime(2000, 2, 20, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 21, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 22, 11, tzinfo=pytz.utc))
+        deal_payment_factory(created_at=datetime(2000, 2, 23, 11, tzinfo=pytz.utc))
         response = api_client.get('/payments/deal/?from_create=2000-02-21&to_create=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
 
     def test_filter_by_sent_date(self, monkeypatch, api_client, deal_payment_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        deal_payment_factory(sent_date=datetime(2000, 2, 20))
-        deal_payment_factory(sent_date=datetime(2000, 2, 21))
-        deal_payment_factory(sent_date=datetime(2000, 2, 22))
-        deal_payment_factory(sent_date=datetime(2000, 2, 23))
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
+        deal_payment_factory(sent_date=datetime(2000, 2, 20, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 21, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 22, tzinfo=pytz.utc))
+        deal_payment_factory(sent_date=datetime(2000, 2, 23, tzinfo=pytz.utc))
         response = api_client.get('/payments/deal/?from_sent=2000-02-21&to_sent=2000-02-22', format='json')
 
         assert len(response.data['results']) == 2
 
     def test_filter_by_manager(self, monkeypatch, api_client, deal_payment_factory, user_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
         manager = user_factory()
         other_manager = user_factory()
         deal_payment_factory(manager=manager)
@@ -338,40 +331,16 @@ class TestPaymentDealListView:
         response = api_client.get('/payments/deal/?manager={}'.format(manager.id), format='json')
 
         assert len(response.data['results']) == 2
-    #
-    # def test_search_by_purpose_fio(self, monkeypatch, api_client, payment_factory, deal_factory):
-    #     monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-    #     monkeypatch.setattr(
-    #         PaymentDealListView, 'get_queryset',
-    #         lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-    #     monkeypatch.setattr(FilterByDealDate, 'get_user_deals', lambda self, req: Deal.objects.all())
-    #     monkeypatch.setattr(FilterByDealDate, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
-    #
-    #     deal1 = deal_factory(partnership__user__first_name='Lee', partnership__user__last_name='Bruce')
-    #     deal2 = deal_factory(partnership__user__first_name='Bruce', partnership__user__last_name='Willis')
-    #     deal3 = deal_factory(partnership__user__first_name='First', partnership__user__last_name='Last')
-    #     deal4 = deal_factory(partnership__user__first_name='Name', partnership__user__last_name='Main')
-    #     payment_factory(purpose=deal1)
-    #     payment_factory(purpose=deal2)
-    #     payment_factory(purpose=deal3)
-    #     payment_factory(purpose=deal4)
-    #
-    #     response = api_client.get('/payments/deal/?search_purpose_fio=bruce', format='json')
-    #
-    #     assert len(response.data['results']) == 2
 
     def test_filter_by_purpose_date(self, monkeypatch, api_client, payment_factory, deal_factory):
         monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-        monkeypatch.setattr(
-            PaymentDealListView, 'get_queryset',
-            lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-        monkeypatch.setattr(FilterByDealDate, 'get_user_deals', lambda self, req: Deal.objects.all())
-        monkeypatch.setattr(FilterByDealDate, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_user_deals', lambda self, req: Deal.objects.all())
+        monkeypatch.setattr(FilterByDeal, 'get_church_deals', lambda self, req: ChurchDeal.objects.all())
 
-        deal1 = deal_factory(date_created=datetime(2000, 1, 1))
-        deal2 = deal_factory(date_created=datetime(2000, 2, 21))
-        deal3 = deal_factory(date_created=datetime(2000, 3, 22))
-        deal4 = deal_factory(date_created=datetime(2000, 4, 23))
+        deal1 = deal_factory(date_created=datetime(2000, 1, 1, tzinfo=pytz.utc))
+        deal2 = deal_factory(date_created=datetime(2000, 2, 21, tzinfo=pytz.utc))
+        deal3 = deal_factory(date_created=datetime(2000, 3, 22, tzinfo=pytz.utc))
+        deal4 = deal_factory(date_created=datetime(2000, 4, 23, tzinfo=pytz.utc))
         payment_factory(purpose=deal1)
         payment_factory(purpose=deal2)
         payment_factory(purpose=deal3)
@@ -381,28 +350,3 @@ class TestPaymentDealListView:
             '/payments/deal/?from_purpose_date=2000-02-21&to_purpose_date=2000-03-22', format='json')
 
         assert len(response.data['results']) == 2
-    #
-    # def test_search_by_purpose_manager_fio(
-    #         self, monkeypatch, api_client, payment_factory, deal_factory, partner_factory):
-    #     monkeypatch.setattr(PaymentDealListView, 'permission_classes', (permissions.AllowAny,))
-    #     monkeypatch.setattr(
-    #         PaymentDealListView, 'get_queryset',
-    #         lambda self: self.queryset.filter(content_type__model='deal').add_deal_fio())
-    #     monkeypatch.setattr(FilterByDealManagerFIO, 'get_deals', lambda self, req: Deal.objects.all())
-    #
-    #     responsible1 = partner_factory(user__first_name='Lee', user__last_name='Bruce')
-    #     responsible2 = partner_factory(user__first_name='Bruce', user__last_name='Willis')
-    #     responsible3 = partner_factory(user__first_name='First', user__last_name='Last')
-    #     responsible4 = partner_factory(user__first_name='Name', user__last_name='Main')
-    #     deal1 = deal_factory(partnership=partner_factory(responsible=responsible1))
-    #     deal2 = deal_factory(partnership=partner_factory(responsible=responsible2))
-    #     deal3 = deal_factory(partnership=partner_factory(responsible=responsible3))
-    #     deal4 = deal_factory(partnership=partner_factory(responsible=responsible4))
-    #     payment_factory(purpose=deal1)
-    #     payment_factory(purpose=deal2)
-    #     payment_factory(purpose=deal3)
-    #     payment_factory(purpose=deal4)
-    #
-    #     response = api_client.get('/payments/deal/?search_purpose_manager_fio=bruce', format='json')
-    #
-    #     assert len(response.data['results']) == 2

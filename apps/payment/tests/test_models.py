@@ -38,22 +38,22 @@ def test_get_default_currency_without_currencies():
 class TestPayment:
     def test__str__for_summit(self, summit_anket_payment, anket):
         assert summit_anket_payment.__str__() == '{}: {}'.format(
-            summit_anket_payment.created_at.strftime('%d %B %Y %H:%M'),
+            summit_anket_payment.created_at.strftime('%d %B %Y %H:%M:%S%z'),
             anket.__str__())
 
     def test__str__for_partner(self, partner_payment, partner):
         assert partner_payment.__str__() == '{}: {}'.format(
-            partner_payment.created_at.strftime('%d %B %Y %H:%M'),
+            partner_payment.created_at.strftime('%d %B %Y %H:%M:%S%z'),
             partner.__str__())
 
     def test__str__for_deal(self, deal_payment, deal):
         assert deal_payment.__str__() == '{}: {}'.format(
-            deal_payment.created_at.strftime('%d %B %Y %H:%M'),
+            deal_payment.created_at.strftime('%d %B %Y %H:%M:%S%z'),
             deal.__str__())
 
     def test__str__without_purpose(self, payment):
         assert payment.__str__() == '{}: UNKNOWN'.format(
-            payment.created_at.strftime('%d %B %Y %H:%M'))
+            payment.created_at.strftime('%d %B %Y %H:%M:%S%z'))
 
     def test_payer_for_summit(self, summit_anket_payment, user):
         assert isinstance(summit_anket_payment.purpose, SummitAnket)

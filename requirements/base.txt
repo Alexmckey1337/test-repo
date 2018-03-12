@@ -1,6 +1,7 @@
 asgi_redis
 celery==3.1.25
 channels<2.0.0
+drf-yasg
 django>=1.10
 django-allauth
 django-cors-middleware
@@ -22,7 +23,7 @@ flower
 html2text
 Pillow==4.3.0
 premailer
-psycopg2
+psycopg2-binary
 raven
 redis>=2.10.5
 reportlab

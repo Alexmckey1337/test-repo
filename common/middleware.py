@@ -1,9 +1,8 @@
 import logging
-from datetime import datetime
 from time import time
 
-import pytz
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from elasticsearch import Elasticsearch
 from rest_framework import exceptions
@@ -79,7 +78,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
             'query_string': request.META.get('QUERY_STRING', ''),
             'status_code': response.status_code,
             'user': {'id': request.user.id, 'name': request.user.fullname},
-            'timestamp': datetime.now(pytz.timezone('UTC')),
+            'timestamp': timezone.now(),
         }
         real_user = getattr(request, 'real_user', None)
         if real_user is not None:

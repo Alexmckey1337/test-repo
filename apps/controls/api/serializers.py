@@ -1,16 +1,14 @@
 # -*- coding: utf-8
-from rest_framework import serializers
-from apps.account.models import CustomUser
-from apps.account.api.serializers import HierarchyTitleSerializer
-from django.contrib.auth.hashers import make_password, check_password
-from django.utils.translation import ugettext_lazy as _
-from apps.summit.models import Summit, SummitType
-from apps.summit.api.serializers import SummitTypeSerializer
-from apps.payment.api.serializers import CurrencySerializer
-from apps.zmail.models import ZMailTemplate
-from apps.account.api.serializers import HierarchyTitleSerializer
 from django.contrib.auth import password_validation
+from rest_framework import serializers
+
+from apps.account.api.serializers import HierarchyTitleSerializer
+from apps.account.models import CustomUser
 from apps.analytics.models import LogRecord
+from apps.payment.api.serializers import CurrencySerializer
+from apps.summit.api.serializers import SummitTypeSerializer
+from apps.summit.models import Summit, SummitType
+from apps.zmail.models import ZMailTemplate
 
 
 class DatabaseAccessListSerializer(serializers.ModelSerializer):

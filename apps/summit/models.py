@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import datetime
 from decimal import Decimal
 
 from django.conf import settings
@@ -409,7 +408,7 @@ class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
 
     @property
     def get_passes_count(self):
-        return self.passes_count.filter(datetime__date=datetime.now().date()).count()
+        return self.passes_count.filter(datetime__date=timezone.now().date()).count()
 
 
 @python_2_unicode_compatible
@@ -655,7 +654,7 @@ class TelegramPayment(models.Model):
     phone_number = models.CharField(verbose_name='Номер Телефона', max_length=20)
     secret = models.CharField(verbose_name='Код регистрации', max_length=10, blank=True, null=True)
     reg_date = models.DateField(verbose_name='Дата регистрации', auto_now_add=True)
-    amount = models.DecimalField(verbose_name='Сумма оплаты', max_digits=10,  decimal_places=2, default=100)
+    amount = models.DecimalField(verbose_name='Сумма оплаты', max_digits=10, decimal_places=2, default=100)
     currency = models.CharField(verbose_name='Валюта оплаты', max_length=5, default='USD')
     chat_id = models.IntegerField(verbose_name='ID Telegram чата')
     paid = models.BooleanField(verbose_name='Статус оплаты', default=False)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals
 
-from datetime import date
 from decimal import Decimal
 
 from django.conf import settings
@@ -17,6 +16,7 @@ from apps.analytics.decorators import log_change_payment
 from apps.analytics.models import LogModel
 from apps.partnership.managers import DealManager, PartnerManager, ChurchDealManager
 from apps.payment.models import Payment, get_default_currency, AbstractPaymentPurpose
+from common import date_utils
 
 
 class PartnerRole(models.Model):
@@ -89,7 +89,7 @@ class PartnershipAbstractModel(models.Model):
     #: Currency of value
     currency = models.ForeignKey('payment.Currency', on_delete=models.PROTECT, verbose_name=_('Currency'),
                                  default=get_default_currency, null=True)
-    date = models.DateField(default=timezone.now)
+    date = models.DateField(default=date_utils.today)
     need_text = models.CharField(_('Need text'), max_length=600, blank=True)
 
     is_active = models.BooleanField(_('Is active?'), default=True)
@@ -235,7 +235,7 @@ class AbstractDeal(models.Model):
     done = models.BooleanField(default=False, help_text=_('Deal is done?'))
     expired = models.BooleanField(default=False)
 
-    date_created = models.DateField(null=True, blank=True, default=timezone.now)
+    date_created = models.DateField(null=True, blank=True, default=date_utils.today)
     date = models.DateField(null=True, blank=True)
 
     DONATION, TITHE = 1, 2

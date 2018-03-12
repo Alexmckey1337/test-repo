@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 import binascii
-import os
 import traceback
 
+import os
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.urls import reverse
@@ -17,13 +17,13 @@ from rest_framework.utils import model_meta
 from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
 from apps.account.models import CustomUser as User, CustomUser
-from apps.location.api.serializers import CityTitleSerializer, CityReadSerializer
-from common.fields import ReadOnlyChoiceField
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
+from apps.location.api.serializers import CityReadSerializer
 from apps.partnership.models import Partnership
 from apps.status.models import Division
 from apps.summit.models import SummitAnket, Summit
+from common.fields import ReadOnlyChoiceField
 
 BASE_USER_FIELDS = (
     'id',

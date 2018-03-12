@@ -1,10 +1,10 @@
+import uuid
+
 import os
 import re
-import uuid
-from premailer import transform
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from premailer import transform
 
 CACHE_TTL = None
 DEFAULT_FROM_EMAIL = None
@@ -19,7 +19,7 @@ def app_installed(app):
 
 if app_installed('tinymce'):
     try:
-        from tinymce.models import HTMLField
+        from tinymce.models import HTMLField  # pragma: no flake8
 
     except ImportError:
         pass

@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 import logging
 import requests
-from datetime import datetime, date
+from datetime import date
 from decimal import Decimal
 
 from django.db.models import OuterRef, Exists
+from django.utils import timezone
 
 from edem.settings.celery import app
 from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser
@@ -95,7 +96,7 @@ def create_new_deals():
         partnerships_deactivate_raw()
     except DealKeyError as err:
         logger.error(err)
-    current_date = datetime.now()
+    current_date = timezone.now()
     current_month = current_date.month
     current_year = current_date.year
     exists_deals = Deal.objects.filter(
@@ -124,7 +125,7 @@ def create_new_deals():
 
 @app.task(name='deals_to_expired')
 def deals_to_expired():
-    current_date = datetime.now()
+    current_date = timezone.now()
     current_month = current_date.month
     current_year = current_date.year
 

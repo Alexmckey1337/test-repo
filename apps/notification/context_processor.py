@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytz
 from django.utils import timezone
 
 from apps.notification.backend import RedisBackend
@@ -19,7 +20,8 @@ def notifications(request):
             list(map(lambda p: p.decode('utf8').split(':'), profile_email_error_ids)),
             key=lambda p: p[1])
         tickets = SummitTicket.objects.filter(id__in=ticket_ids)
-        profiles = [(SummitAnket.objects.get(id=p[0]), datetime.fromtimestamp(int(p[1])).strftime('%d.%m.%Y %H:%M'))
+        profiles = [(SummitAnket.objects.get(id=p[0]),
+                     pytz.utc.localize(datetime.fromtimestamp(int(p[1])).strftime('%d.%m.%Y %H:%M:%S%z')))
                     for p in profile_email_error_ids]
         exports_count = len(r.smembers('export:%s' % request.user.id))
 

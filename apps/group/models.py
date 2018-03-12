@@ -14,12 +14,13 @@ from apps.analytics.models import LogModel
 from apps.event.models import Meeting, MeetingType, ChurchReport
 from apps.group.managers import ChurchManager, HomeGroupManager
 from apps.payment.models import get_default_currency
+from common import date_utils
 
 
 @python_2_unicode_compatible
 class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
-    opening_date = models.DateField(_('Opening Date'), default=timezone.now)
+    opening_date = models.DateField(_('Opening Date'), default=date_utils.today)
     city = models.CharField(_('City'), max_length=50, blank=True)
 
     address = models.CharField(_('Address'), max_length=300, blank=True)

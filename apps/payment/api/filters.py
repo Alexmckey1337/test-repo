@@ -2,6 +2,7 @@ import operator
 from datetime import datetime, date, timedelta
 
 import django_filters
+import pytz
 from django import forms
 from django.db import models
 from django.db.models import Q
@@ -148,9 +149,9 @@ class FilterByDealDate(BaseFilterBackend):
         date_to = request.query_params.get('to_purpose_date', None)
         if not (date_from or date_to):
             return user_deals, church_deals
-        date_from = datetime.strptime(date_from, "%Y-%m-%d") if date_from else None
+        date_from = pytz.utc.localize(datetime.strptime(date_from, "%Y-%m-%d")) if date_from else None
         date_from = date(date_from.year, date_from.month, 1) if date_from else None
-        date_to = datetime.strptime(date_to, "%Y-%m-%d") if date_to else None
+        date_to = pytz.utc.localize(datetime.strptime(date_to, "%Y-%m-%d")) if date_to else None
         last_day = 31
         while date_to is not None:
             try:
