@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, ExpressionWrapper, F, IntegerField
+from django.db.models import Count, ExpressionWrapper, F, IntegerField, Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
@@ -33,6 +33,7 @@ from apps.summit.api.serializers import (
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
     SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer,
     TelegramPaymentSerializer)
+from apps.partnership.models import TelegramGroup
 
 logger = logging.getLogger(__name__)
 
@@ -419,6 +420,25 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                          'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    def add_to_telegram_group(self, request):
+        phone_number = request.query_params.get('phone_number')
+        if not phone_number or len(phone_number) < 10:
+            raise exceptions.ValidationError({'message': 'Parameter {phone_number} must be passed'})
+
+        phone_number = phone_number[-10:]
+        data = {'join_url': None}
+
+        visitor = SummitAnket.objects.filter(summit_id=10, user__hierarchy__level__gte=1).filter(Q(
+            user__phone_number__contains=phone_number) | Q(
+            user__extra_phone_numbers__contains=[phone_number])).first()
+
+        if visitor:
+            telegram_group = TelegramGroup.objects.get(title='VoSummit')
+            data['join_url'] = telegram_group.join_url
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
