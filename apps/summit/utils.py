@@ -4,10 +4,9 @@ from __future__ import unicode_literals
 from datetime import datetime
 from typing import List, NamedTuple
 
-import os
 import pytz
 from PIL import Image, ImageDraw
-from django.conf import settings
+from django.core.files.storage import default_storage
 from django.db import connection
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -471,7 +470,7 @@ def generate_ticket(code):
     anket = get_object_or_404(SummitAnket, code=code)
     user = anket.user
 
-    logo = os.path.join(settings.MEDIA_ROOT, 'background.png')
+    logo = default_storage.url('background.png')
 
     buffer = BytesIO()
 
@@ -488,7 +487,7 @@ def generate_ticket(code):
         'name': '{} {}'.format(user.last_name, user.first_name),
         'first_name': user.first_name,
         'last_name': user.last_name,
-        'image': user.image.path if user.image else None,
+        'image': user.image.url if user.image else None,
         'code': anket.code,
         'pastor': '{} {}'.format(pastor.last_name, pastor.first_name) if pastor else '',
         'bishop': '{} {}'.format(bishop.last_name, bishop.first_name) if bishop else '',
@@ -503,7 +502,7 @@ def generate_ticket(code):
 
 
 def generate_ticket_by_summit(ankets):
-    logo = os.path.join(settings.MEDIA_ROOT, 'background.png')
+    logo = default_storage.url('background.png')
 
     buffer = BytesIO()
 
@@ -577,7 +576,7 @@ def create_ticket_page(c, logo, w, h, u):
     #         im = Image.open(os.path.join(settings.MEDIA_ROOT, u['image']))
     #         im = to_circle(im)
     #         ir = ImageReader(im)
-    #         c.drawImage(ir, 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
+    #         c.drawImage(u['image'], 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
     # except ValueError:
     #     pass
     # except OSError:
