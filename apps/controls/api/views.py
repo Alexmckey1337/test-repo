@@ -14,13 +14,13 @@ from apps.account.models import CustomUser
 from apps.analytics.models import LogRecord
 from apps.controls.api.serializers import (
     DatabaseAccessListSerializer, DatabaseAccessDetailSerializer, SummitPanelListSerializer,
-    SummitPanelDetailSerializer, SummitPanelCreateUpdateSerializer, SummitTypePanelSerializer
+    SummitPanelDetailSerializer, SummitPanelCreateUpdateSerializer, SummitTypePanelSerializer,
+    LogPanelSerializer,
 )
 from apps.summit.models import Summit, SummitType
 from common.filters import FieldSearchFilter
 from common.views_mixins import ModelWithoutDeleteViewSet
-from .filters import SummitPanelDateFilter
-from .serializers import LogPanelSerializer
+from .filters import SummitPanelDateFilter, DbAccessFilterByDepartments, FilterMasterTree
 
 
 class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
@@ -38,14 +38,18 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
                        filters.OrderingFilter,
+                       DbAccessFilterByDepartments,
+                       FilterMasterTree,
                        )
 
-    filter_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy')
+    filter_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy', 'cchurch', 'is_dead', 'master')
 
     ordering_fields = ('is_staff', 'is_active', 'can_login', 'hierarchy__level', 'last_name')
 
     field_search_fields = {
-        'search_fio': ('first_name', 'last_name', 'middle_name')
+        'search_fio': ('first_name', 'last_name', 'middle_name'),
+        'search_country': ('country',),
+        'search_city': ('city',),
     }
 
     def get_serializer_class(self):

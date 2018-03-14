@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
-from apps.hierarchy.models import Hierarchy
+from apps.hierarchy.models import Hierarchy, Department
 from apps.payment.models import Currency
 from apps.summit.models import SummitType
 from apps.zmail.models import ZMailTemplate
+from apps.group.models import Church
 
 
 @login_required(login_url='entry')
@@ -13,7 +14,9 @@ def db_access_list(request):
         return redirect('/')
 
     ctx = {
-        'hierarchies': Hierarchy.objects.all()
+        'hierarchies': Hierarchy.objects.all(),
+        'departments': Department.objects.all(),
+        'churches': Church.objects.all(),
     }
 
     return render(request, 'controls/db_access_list.html', context=ctx)

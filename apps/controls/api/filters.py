@@ -1,5 +1,8 @@
 import django_filters
 from apps.summit.models import Summit
+from rest_framework import filters
+from apps.account.models import CustomUser as User
+from common.filters import BaseFilterMasterTree
 
 
 class SummitPanelDateFilter(django_filters.FilterSet):
@@ -9,3 +12,17 @@ class SummitPanelDateFilter(django_filters.FilterSet):
     class Meta:
         model = Summit
         fields = ('status', 'type', 'start_date', 'end_date')
+
+
+class DbAccessFilterByDepartments(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        departments = request.query_params.get('departments')
+        if departments:
+            departments = [int(x) for x in departments if x.isdigit()]
+            queryset = queryset.filter(departments__in=departments)
+
+        return queryset
+
+
+class FilterMasterTree(BaseFilterMasterTree):
+    include_self_master = False
