@@ -286,6 +286,7 @@ export function makePotencialSammitUsersList(config = {}) {
 export function setDataForAddParticipantPopup(id) {
     $('#popup').attr('data-id', id);
     getData(URLS.user.summit_info(id)).then(data => {
+        console.log(data)
         let bishop = data.bishop,
             email = data.email,
             name = data.fullname;
