@@ -3,15 +3,13 @@ import {showAlert} from '../ShowNotifications/index';
 
 export default function (data) {
     let msg = "";
-    if (typeof data == "string") {
+    if (data instanceof Error) {
+        msg = data.message;
+    } else if (typeof data === "string") {
         msg += data;
     } else {
         let errObj = null;
-        if (typeof data != 'object') {
-            errObj = JSON.parse(data);
-        } else {
-            errObj = data;
-        }
+        (typeof data != 'object') ? errObj = JSON.parse(data) : errObj = data;
         for (let key in errObj) {
             msg += key;
             msg += ': ';
@@ -20,7 +18,7 @@ export default function (data) {
                     msg += item;
                     msg += ' ';
                 });
-            } else if (typeof errObj[key] == 'object') {
+            } else if (typeof errObj[key] === 'object') {
                 let errKeys = Object.keys(errObj[key]),
                     html = errKeys.map(errkey => `${errObj[key][errkey]}`).join('');
                 msg += html;

@@ -31,6 +31,8 @@ export default function getData(url, options = {}, config = {}) {
         return fetch(url, initConfig).then(resp => {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp.json();
+            } else if (resp.status === 500) {
+                throw new Error('К сожалению, сервер временно недоступен. Повторите попытку позже');
             } else {
                 return resp.json().then(err => {
                     throw err;
@@ -77,6 +79,8 @@ export function deleteData(url, config = {}) {
         return fetch(url, initConfig).then(resp => {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp;
+            } else if (resp.status === 500) {
+                throw new Error('К сожалению, сервер временно недоступен. Повторите попытку позже');
             } else {
                 return resp.json().then(err => {
                     throw err;
@@ -97,6 +101,8 @@ export function postData(url, data = {}, config = {}) {
         return fetch(url, initConfig).then(resp => {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp.json();
+            } else if (resp.status === 500) {
+                throw new Error('К сожалению, сервер временно недоступен. Повторите попытку позже');
             } else {
                 return resp.json().then(err => {
                     throw err;
@@ -118,6 +124,8 @@ export function postFormData(url, data = {}, config = {}) {
         return fetch(url, initConfig).then(resp => {
             if (resp.status >= 200 && resp.status < 300) {
                 return resp;
+            } else if (resp.status === 500) {
+                throw new Error('К сожалению, сервер временно недоступен. Повторите попытку позже');
             } else {
                 return resp.json().then(err => {
                     throw err;
