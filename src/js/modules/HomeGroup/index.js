@@ -18,6 +18,7 @@ import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import OrderTable from '../Ordering/index';
 import {getPotentialLeadersForHG} from "../GetList/index";
 import updateHistoryUrl from '../History/index';
+import errHandling from '../Error';
 
 export function addHomeGroup(e, el, callback) {
     e.preventDefault();
@@ -414,7 +415,7 @@ export function createHomeGroupsTable(config = {}) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     updateHistoryUrl(config);
-    getHomeGroups(config).then(function (data) {
+    getData(URLS.home_group.list(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -469,7 +470,7 @@ export function createHomeGroupsTable(config = {}) {
         $('.table__count').text(text);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createHomeGroupsTable, ".table-wrap th");
-    });
+    }).catch(err => errHandling(err));
 }
 
 function getHomeGroups(config = {}) {
