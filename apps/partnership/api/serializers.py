@@ -3,15 +3,13 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from apps.account.api.serializers import UserTableSerializer, PartnerUserSerializer
+from apps.account.api.serializers import PartnerUserSerializer
+from apps.group.api.serializers import BaseChurchListSerializer
+from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
+from apps.partnership.models import TelegramUser
+from apps.payment.api.serializers import CurrencySerializer
 from apps.payment.models import Payment
 from common.fields import DecimalWithCurrencyField
-from apps.group.api.serializers import ChurchListSerializer, BaseChurchListSerializer
-from apps.partnership.models import Partnership, Deal, PartnerGroup, PartnerRole, ChurchPartner, ChurchDeal
-from apps.payment.api.serializers import CurrencySerializer
-from apps.account.models import CustomUser
-from apps.partnership.models import TelegramUser
-
 
 BASE_PARTNER_FIELDS = (
     'id', 'responsible', 'value', 'date', 'need_text', 'currency', 'is_active', 'group', 'title')
@@ -48,7 +46,6 @@ class PartnershipUpdateSerializer(serializers.ModelSerializer):
         if validated_data.get('is_active') is False and instance.is_active is True:
             if not Partnership.objects.filter(user_id=instance.user.id,
                                               is_active=True).exclude(id=instance.id).exists():
-
                 TelegramUser.objects.filter(user=instance.user).update(is_active=False, synced=False)
 
         return super(PartnershipUpdateSerializer, self).update(instance, validated_data)

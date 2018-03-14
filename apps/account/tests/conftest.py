@@ -44,7 +44,7 @@ def get_value(source, request=None):
     if isinstance(source, date):
         return source.strftime('%Y-%m-%d')
     if isinstance(source, datetime):
-        return source.strftime('%Y-%m-%d %H:%M')
+        return source.strftime('%Y-%m-%d %H:%M:%S%z')
     return source
 
 

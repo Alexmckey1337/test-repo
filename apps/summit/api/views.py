@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 
 import logging
 from datetime import datetime, time, date
+from typing import NamedTuple, List
 
 import collections
+import pytz
 from celery.result import AsyncResult
 from collections import defaultdict
 from django.conf import settings
@@ -15,6 +17,7 @@ from django.db.models import (
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django_filters import rest_framework
 from rest_framework import exceptions, viewsets, filters, status, mixins
@@ -24,7 +27,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.viewsets import GenericViewSet
-from typing import NamedTuple, List
 
 from apps.account.models import CustomUser
 from apps.account.signals import obj_add, obj_delete
@@ -275,10 +277,10 @@ class SummitStatisticsView(SummitProfileListView):
     def get(self, request, *args, **kwargs):
         filter_date = request.GET.get('date')
         if not filter_date:
-            self.filter_date = datetime.now()
+            self.filter_date = timezone.now()
         else:
             try:
-                self.filter_date = datetime.strptime(filter_date, '%Y-%m-%d')
+                self.filter_date = pytz.utc.localize(datetime.strptime(filter_date, '%Y-%m-%d'))
             except ValueError:
                 raise exceptions.ValidationError({'detail': _('Invalid date.')})
         return super(SummitStatisticsView, self).get(request, *args, **kwargs)
@@ -664,11 +666,11 @@ def summit_report_by_bishops(request, summit_id):
     department = request.query_params.get('department', None)
     fio = request.query_params.get('search_fio', '')
     hierarchy = request.query_params.get('hierarchy', None)
-    report_date = request.query_params.get('date', datetime.now().strftime('%Y-%m-%d'))
+    report_date = request.query_params.get('date', timezone.now().strftime('%Y-%m-%d'))
     try:
-        report_date = datetime.strptime(report_date, '%Y-%m-%d')
+        report_date = pytz.utc.localize(datetime.strptime(report_date, '%Y-%m-%d'))
     except ValueError:
-        report_date = datetime.now()
+        report_date = timezone.now()
 
     bishops = get_report_by_bishop_or_high(summit_id, report_date, department, fio, hierarchy)
 
@@ -887,8 +889,8 @@ class HistorySummitStatsMixin(GenericAPIView):
         # if self.request.query_params.get('master_tree') is not None:
         query = """
             SELECT date, time, created_at
-            FROM summit_summitattend WHERE anket_id in (
-                WITH RECURSIVE t as (
+            FROM summit_summitattend WHERE anket_id IN (
+                WITH RECURSIVE t AS (
                   SELECT
                     a.id aid,
                     a.user_id
@@ -901,12 +903,12 @@ class HistorySummitStatsMixin(GenericAPIView):
                     a.id aid,
                     a.user_id
                   FROM summit_summitanket a
-                    JOIN t on a.author_id = t.user_id
+                    JOIN t ON a.author_id = t.user_id
                     {department_join}
                   WHERE summit_id = {summit_id}
                       {department_filter}
                 )
-                SELECT aid from t
+                SELECT aid FROM t
             ) AND date BETWEEN '{start}' AND '{end}';
         """
         return query
@@ -1030,7 +1032,7 @@ class HistorySummitAttendStatsView(HistorySummitStatsMixin):
         for d in all_attends_by_date.keys():
             attends_by_date[d] = (attends_by_date.get(d, 0), self._count_profiles_by_date(d))
         return Response([
-            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
 
 
@@ -1053,7 +1055,7 @@ class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
             attend_count = len(attends_by_date[d])
             attends_by_date[d] = [late_count, attend_count - late_count]
         return Response([
-            (datetime(d.year, d.month, d.day).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
         ])
 
 

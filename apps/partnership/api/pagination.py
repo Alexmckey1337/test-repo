@@ -1,12 +1,12 @@
 from collections import OrderedDict
-
+from django.core.paginator import Paginator, InvalidPage
+from django.utils import six
+from django.utils.functional import cached_property
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from apps.navigation.table_columns import get_table
-from django.core.paginator import Paginator, InvalidPage
-from django.utils.functional import cached_property
-from rest_framework.exceptions import NotFound
 
 
 class CustomPagination(Paginator):

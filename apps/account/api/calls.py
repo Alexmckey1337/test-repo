@@ -2,6 +2,7 @@
 import time
 import json
 import requests
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from apps.account.models import CustomUser as User
@@ -9,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework import status, exceptions
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from datetime import datetime
 
 
 def func_time(func):
@@ -134,7 +134,7 @@ def calls_to_user(request):
 
     data['phone_number'] = phone_number
     data['range'] = request.query_params.get('range')
-    data['month_date'] = request.query_params.get('month_date') or datetime.now().date().strftime('%Y-%m')
+    data['month_date'] = request.query_params.get('month_date') or timezone.now().date().strftime('%Y-%m')
     data['query_type'] = 'user'
 
     response = request_to_asterisk(data, url='/calls')

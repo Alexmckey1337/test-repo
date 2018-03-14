@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+import pytz
 from collections import namedtuple
 from datetime import datetime, timedelta
 
@@ -120,7 +121,7 @@ class TestDeal:
         assert deal.payments.count() == 4
 
     def test_month_with_date_created(self, deal_factory):
-        deal = deal_factory(date_created=datetime(2000, 11, 20))
+        deal = deal_factory(date_created=datetime(2000, 11, 20, tzinfo=pytz.utc))
         assert deal.month == '2000.11'
 
     def test_month_without_date_created(self, deal):

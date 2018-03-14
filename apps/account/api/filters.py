@@ -1,12 +1,12 @@
 import django_filters
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from django_filters import rest_framework
+from rest_framework import filters
 
 from apps.account.models import CustomUser as User
-from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 from apps.hierarchy.models import Hierarchy, Department
 from apps.summit.models import Summit
+from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 
 
 class FilterByUserBirthday(BaseFilterByBirthday):
@@ -61,7 +61,7 @@ class ShortUserFilter(django_filters.FilterSet):
         fields = ['level_gt', 'level_gte', 'level_lt', 'level_lte', 'department', 'master', 'summit']
 
 
-class UserIsPartnershipFilter(rest_framework.DjangoFilterBackend):
+class UserIsPartnershipFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         is_partner = request.query_params.get('is_partner', '')
         if is_partner.lower() not in ['true', 'false']:
@@ -73,7 +73,7 @@ class UserIsPartnershipFilter(rest_framework.DjangoFilterBackend):
         return queryset
 
 
-class UserChurchFilter(rest_framework.DjangoFilterBackend):
+class UserChurchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         church_id = request.query_params.get('church_id')
 
@@ -88,7 +88,7 @@ class UserChurchFilter(rest_framework.DjangoFilterBackend):
         return queryset
 
 
-class UserHomeGroupFilter(rest_framework.DjangoFilterBackend):
+class UserHomeGroupFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         home_group_id = request.query_params.get('home_group_id')
 
@@ -101,7 +101,7 @@ class UserHomeGroupFilter(rest_framework.DjangoFilterBackend):
         return queryset
 
 
-class UserHGLeadersFilter(rest_framework.DjangoFilterBackend):
+class UserHGLeadersFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         user_type = request.query_params.get('user_type')
 

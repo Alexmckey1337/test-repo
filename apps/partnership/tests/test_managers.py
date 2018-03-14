@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import pytest
-import rest_framework.compat
 
 from apps.partnership.models import Partnership, Deal
 

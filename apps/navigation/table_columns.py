@@ -1,8 +1,6 @@
 from collections import OrderedDict
 from copy import deepcopy
 
-from apps.account.models import CustomUser
-
 church_columns = {
     'get_title': {
         'id': 0, 'title': 'Название церкви', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
@@ -473,6 +471,7 @@ TABLES = {
 
 
 def get_table(table_name, user):
+    from apps.account.models import CustomUser
     from apps.navigation.api.serializers import RedisTableSerializer
     user = user.id if isinstance(user, CustomUser) else user
 

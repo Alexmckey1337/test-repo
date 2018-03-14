@@ -2,21 +2,21 @@
 from __future__ import unicode_literals
 
 import datetime
-from datetime import date
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
-from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
-from apps.event.managers import MeetingManager, ChurchReportManager
-from apps.navigation.table_fields import meeting_table
-from django.utils.functional import cached_property
-from apps.payment.models import AbstractPaymentPurpose, get_default_currency
 from apps.analytics.decorators import log_change_payment
+from apps.event.managers import MeetingManager, ChurchReportManager
+from apps.navigation.table_columns import get_table
+from apps.payment.models import AbstractPaymentPurpose, get_default_currency
+from common import date_utils
 
 
 @python_2_unicode_compatible
@@ -76,7 +76,7 @@ class AbstractStatusModel(models.Model):
 
 
 def get_event_week():
-    week = datetime.datetime.now().isocalendar()[1]
+    week = timezone.now().isocalendar()[1]
     return 'event/%s/' % week
 
 
@@ -135,7 +135,7 @@ class Meeting(AbstractStatusModel):
 
     @property
     def table_columns(self):
-        return meeting_table(self.owner, category_title='attends')
+        return get_table('meeting', self.request.user.id)
 
     @cached_property
     def can_submit(self):
@@ -231,7 +231,7 @@ class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
 
 
 def current_week():
-    return datetime.date.today().isocalendar()[1]
+    return timezone.now().isocalendar()[1]
 
 
 @python_2_unicode_compatible
@@ -266,8 +266,8 @@ class EventAnket(models.Model):
 @python_2_unicode_compatible
 class Week(models.Model):
     week = models.IntegerField(default=current_week, unique=True)
-    from_date = models.DateField(default=timezone.now)
-    to_date = models.DateField(default=timezone.now)
+    from_date = models.DateField(default=date_utils.today)
+    to_date = models.DateField(default=date_utils.today)
 
     def __str__(self):
         return str(self.week)
@@ -278,8 +278,8 @@ class Event(models.Model):
     week = models.ForeignKey(Week, on_delete=models.PROTECT, null=True, blank=True)
     event_type = models.ForeignKey(EventType, on_delete=models.PROTECT,
                                    related_name='events', blank=True, null=True)
-    from_date = models.DateField(default=timezone.now)
-    to_date = models.DateField(default=timezone.now)
+    from_date = models.DateField(default=date_utils.today)
+    to_date = models.DateField(default=date_utils.today)
     time = models.TimeField(default=timezone.now)
     users = models.ManyToManyField(EventAnket,
                                    through='Participation',

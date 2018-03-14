@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+
+import pytz
 from io import BytesIO
 from json import dumps
 from time import sleep, time
@@ -14,6 +16,7 @@ from apps.zmail.models import ZMailTemplate
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
+from django.utils import timezone
 
 from edem.settings.celery import app
 from apps.notification.backend import RedisBackend
@@ -66,7 +69,7 @@ def send_error(profile_id, sender_id):
         'profile_id': profile_id,
         'profile_url': profile.get_absolute_url(),
         'profile_title': profile.fullname,
-        'time': datetime.fromtimestamp(error_time).strftime('%d.%m.%Y %H:%M'),
+        'time': pytz.utc.localize(datetime.fromtimestamp(error_time)).strftime('%d.%m.%Y %H:%M:%S%z'),
         'user_id': sender_id,
     }
     Group("summit_email_code_error_{}".format(sender_id)).send({'text': dumps(data)})
@@ -181,21 +184,3 @@ def generate_tickets(summit_id, ankets, ticket_id):
     except Exception as err:
         print(err)
     Group("summit_{}_ticket".format(ticket.owner.id)).send({'text': dumps(data)})
-
-
-@app.task(name='get_palace_logs', ignore_result=True, max_retries=5, default_retry_delay=10)
-def get_palace_logs():
-    url = 'https://armspalace.esport.in.ua/m-ticket/gatelog/getLogs/'
-    date_to = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    date_from = (datetime.now() - timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
-    data = requests.get(url + '?dateFrom=' + date_from + '&dateTo=' + date_to)
-
-    for _pass in data.json():
-        date_time = datetime.strptime(_pass['date'], '%Y-%m-%d %H:%M:%S')
-        try:
-            anket = SummitAnket.objects.get(code=_pass['barcode'][4:])
-        except ObjectDoesNotExist:
-            continue
-        SummitAttend.objects.get_or_create(
-            anket=anket, date=date_time.date(), defaults={'time': date_time.time(),
-                                                          'status': _pass['status']})

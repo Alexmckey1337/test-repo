@@ -4,18 +4,19 @@ from __future__ import unicode_literals
 import calendar
 import json
 import logging
-from collections import defaultdict
 from datetime import datetime
-from operator import or_
-from pprint import pprint
 
+import pytz
+from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField, F)
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from functools import reduce
+from operator import or_
 from rest_framework import status, filters, exceptions, views
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.parsers import JSONParser, FormParser
@@ -46,7 +47,6 @@ from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 
-
 logger = logging.getLogger(__name__)
 
 MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_submitted',
@@ -64,6 +64,7 @@ def by_currencies(func):
         for currency, res in result.items():
             stats[currency] = func(self, res, weeks)
         return stats
+
     return wrap
 
 
@@ -76,6 +77,7 @@ def reverse_currencies(func):
                 result[(d.pop('year'), d.pop('month'), d.pop('week'))][currency] = d
 
         return [{'date': {'year': d[0], 'month': d[1], 'week': d[2]}, 'result': r} for d, r in result.items()]
+
     return wrap
 
 
@@ -150,7 +152,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     output_field=IntegerField(), default=0))
             ).annotate(can_s=Exists(subqs)).annotate(
                 can_submit=Case(
-                    When(Q(status=True) & Q(can_s=True), then=False),
+                    When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
 
         return self.queryset.for_user(self.request.user)
@@ -594,11 +596,11 @@ class ChurchReportStatsView(views.APIView):
 
     @staticmethod
     def strpyear(datestr):
-        return datetime.strptime(datestr, '%Y')
+        return pytz.utc.localize(datetime.strptime(datestr, '%Y'))
 
     @staticmethod
     def strpmonth(datestr):
-        return datetime.strptime(datestr, '%Y%m')
+        return pytz.utc.localize(datetime.strptime(datestr, '%Y%m'))
 
     @staticmethod
     def get_weeks_of_month(year, month):
@@ -641,7 +643,7 @@ class ChurchReportStatsView(views.APIView):
     def get_months_of_interval(self, interval):
         fromto = interval.split('-')
         if len(fromto) == 1:
-            from_, to_ = self.strpmonth(fromto[0]), datetime.now()
+            from_, to_ = self.strpmonth(fromto[0]), timezone.now()
         elif len(fromto) == 2:
             from_, to_ = self.strpmonth(fromto[0]), self.strpmonth(fromto[1])
         else:
@@ -651,7 +653,7 @@ class ChurchReportStatsView(views.APIView):
     def get_years_of_interval(self, interval):
         fromto = interval.split('-')
         if len(fromto) == 1:
-            from_, to_ = self.strpyear(fromto[0]), datetime.now()
+            from_, to_ = self.strpyear(fromto[0]), timezone.now()
         elif len(fromto) == 2:
             from_, to_ = self.strpyear(fromto[0]), self.strpyear(fromto[1])
         else:
@@ -661,7 +663,7 @@ class ChurchReportStatsView(views.APIView):
     def get_weeks_of_interval(self, interval):
         fromto = interval.split('-')
         if len(fromto) == 1:
-            from_year, to_year = self.strpyear(fromto[0][:4]).year, datetime.now().year
+            from_year, to_year = self.strpyear(fromto[0][:4]).year, timezone.now().year
             from_week, to_week = fromto[0][4:], self.get_weeks_of_year(to_year)[1]
         elif len(fromto) == 2:
             from_year, to_year = self.strpyear(fromto[0][:4]).year, self.strpyear(fromto[1][:4]).year
@@ -693,14 +695,14 @@ class ChurchReportStatsView(views.APIView):
         if not last:
             return []
         if last[-1] == 'y':
-            from_, to_ = datetime.now().year - int(last[:-1]) + 1, datetime.now().year
+            from_, to_ = timezone.now().year - int(last[:-1]) + 1, datetime.now().year
             weeks = self.years_to_weeks(from_, to_)
         elif last[-1] == 'm':
-            current_month = datetime.now().year * 12 + datetime.now().month
+            current_month = timezone.now().year * 12 + datetime.now().month
             from_, to_ = current_month - int(last[:-1]) + 1, current_month
             weeks = self.months_to_weeks(from_, to_)
         elif last[-1] == 'w':
-            now = datetime.now()
+            now = timezone.now()
             from_year, to_year = now.year, now.year
             from_week, to_week = int(now.strftime('%W')) - int(last[:-1]) + 1, int(now.strftime('%W'))
             while from_week <= 0:
@@ -727,7 +729,7 @@ class ChurchReportStatsView(views.APIView):
         invalid_week = weeks['from']['year'] == weeks['to']['year'] and weeks['from']['week'] > weeks['to']['week']
         if invalid_year or invalid_week:
             raise IntervalOrderError()
-        now = datetime.now()
+        now = timezone.now()
         from_ = [weeks['from']['week'], self.get_weeks_of_year(weeks['from']['year'])[1]]
         to_ = [1, weeks['to']['week']]
         if weeks['from']['year'] == weeks['to']['year']:

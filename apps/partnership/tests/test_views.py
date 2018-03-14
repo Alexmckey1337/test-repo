@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, date
 from decimal import Decimal
 
 import pytest
+import pytz
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status, permissions
@@ -373,7 +374,7 @@ class TestDealViewSet:
             assert payment.rate == Decimal(data['rate'])
             assert payment.description == data['description']
             assert payment.currency_sum_id == data['currency']
-            assert payment.sent_date == datetime.strptime(data['sent_date'], '%Y-%m-%d').date()
+            assert payment.sent_date == pytz.utc.localize(datetime.strptime(data['sent_date'], '%Y-%m-%d')).date()
             assert response.data == PaymentShowSerializer(payment).data
 
     @pytest.mark.parametrize('is_responsible', (True, False))

@@ -1,6 +1,5 @@
 -r base.txt
 
-django-extensions
 django-debug-toolbar
 django-silk
 Werkzeug==0.11.15

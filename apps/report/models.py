@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from apps.event.models import Participation
+from common import date_utils
 
 
 @python_2_unicode_compatible
@@ -62,8 +63,8 @@ class AbstractReport(models.Model):
 @python_2_unicode_compatible
 class WeekReport(AbstractReport):
     week = models.ForeignKey('event.Week', on_delete=models.PROTECT, null=True, blank=True, related_name='week_reports')
-    from_date = models.DateField(default=timezone.now)
-    to_date = models.DateField(default=timezone.now)
+    from_date = models.DateField(default=date_utils.today)
+    to_date = models.DateField(default=date_utils.today)
     user = models.ForeignKey(UserReport, on_delete=models.PROTECT, related_name='week_reports')
 
     def __str__(self):

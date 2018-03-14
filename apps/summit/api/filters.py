@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import coreapi
 import coreschema
 import django_filters
@@ -8,13 +6,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 from django.db.models import OuterRef, Subquery
 from django.db.models import Q
+from django.utils import timezone
+from functools import reduce
 from rest_framework.filters import BaseFilterBackend
 
 from apps.account.api.filters import FilterMasterTreeWithSelf
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Hierarchy, Department
 from apps.summit.models import Summit, SummitAnket, SummitAttend
-from functools import reduce
 
 
 class FilterByClub(BaseFilterBackend):
@@ -234,7 +233,7 @@ class FilterBySummitAttend(BaseFilterBackend):
         if not is_visited:
             return queryset
 
-        date_today = datetime.now().strftime("%Y-%m-%d")
+        date_today = timezone.now().strftime("%Y-%m-%d")
         from_date = request.query_params.get('from_date', date_today)
         to_date = request.query_params.get('to_date', date_today)
 
@@ -309,8 +308,8 @@ class FilterByTicketMultipleStatus(BaseFilterBackend):
         ticket_statuses = request.query_params.get('ticket_statuses')
         if ticket_statuses:
             statuses = ticket_statuses.split(',')
-            queryset = SummitAnket.objects.filter(reduce(lambda x, y: x | y, [
-                Q(status=ticket_status) for ticket_status in statuses
-                ]))
+            queryset = queryset.filter(reduce(lambda x, y: x | y, [
+                Q(ticket_status=ticket_status) for ticket_status in statuses
+            ]))
 
         return queryset

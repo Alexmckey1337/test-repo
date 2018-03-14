@@ -1,10 +1,9 @@
 from collections import defaultdict
-
 from django.core.management.base import BaseCommand
 
+from apps.account.models import CustomUser
 from apps.group.models import Church, HomeGroup
 from apps.location.models import City
-from apps.account.models import CustomUser
 
 
 class Command(BaseCommand):
@@ -61,7 +60,8 @@ class Command(BaseCommand):
                 CustomUser.objects.filter(pk__in=uu).update(locality=c)
         self.stdout.write('USERS')
         self.stdout.write('Without city - %s/%s\n' % (sum([len(ucc[k]) for k in without_city]), len(without_city)))
-        self.stdout.write('Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
+        self.stdout.write(
+            'Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
         self.stdout.write('Not found - %s/%s\n' % (sum([len(ucc[k]) for k in not_exist]), len(not_exist)))
         self.stdout.write('Multi found - %s/%s\n' % (sum([len(ucc[k]) for k in multi]), len(multi)))
         self.stdout.write('Success - %s/%s\n' % (sum([len(ucc[k]) for k in success]), len(success)))
@@ -97,7 +97,8 @@ class Command(BaseCommand):
                 Church.objects.filter(pk__in=uu).update(locality=c)
         self.stdout.write('CHURCHES')
         self.stdout.write('Without city - %s/%s\n' % (sum([len(ucc[k]) for k in without_city]), len(without_city)))
-        self.stdout.write('Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
+        self.stdout.write(
+            'Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
         self.stdout.write('Not found - %s/%s\n' % (sum([len(ucc[k]) for k in not_exist]), len(not_exist)))
         self.stdout.write('Multi found - %s/%s\n' % (sum([len(ucc[k]) for k in multi]), len(multi)))
         self.stdout.write('Success - %s/%s\n' % (sum([len(ucc[k]) for k in success]), len(success)))
@@ -133,7 +134,8 @@ class Command(BaseCommand):
                 HomeGroup.objects.filter(pk__in=uu).update(locality=c)
         self.stdout.write('HG')
         self.stdout.write('Without city - %s/%s\n' % (sum([len(ucc[k]) for k in without_city]), len(without_city)))
-        self.stdout.write('Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
+        self.stdout.write(
+            'Without country - %s/%s\n' % (sum([len(ucc[k]) for k in without_country]), len(without_country)))
         self.stdout.write('Not found - %s/%s\n' % (sum([len(ucc[k]) for k in not_exist]), len(not_exist)))
         self.stdout.write('Multi found - %s/%s\n' % (sum([len(ucc[k]) for k in multi]), len(multi)))
         self.stdout.write('Success - %s/%s\n' % (sum([len(ucc[k]) for k in success]), len(success)))

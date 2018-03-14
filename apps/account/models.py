@@ -2,15 +2,12 @@
 from __future__ import unicode_literals
 
 import binascii
-import os
-from collections import OrderedDict
 
+import os
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import signals
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +19,6 @@ from apps.account.api.permissions import (
 from apps.account.managers import CustomUserManager
 from apps.analytics.models import LogModel
 from apps.group.abstract_models import GroupUserPermission
-from apps.navigation.models import Table
 from apps.partnership.abstract_models import PartnerUserPermission
 from apps.partnership.api.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from apps.summit.abstract_models import SummitUserPermission
@@ -163,22 +159,6 @@ class CustomUser(MP_Node, LogModel, User,
     @property
     def get_home_group(self):
         return self.hhome_group
-
-    @property
-    def column_table(self):
-        l = OrderedDict()
-        if hasattr(self, 'table') and isinstance(self.table, Table):
-            columns = self.table.columns.order_by('number')
-            for column in columns.all():
-                d = OrderedDict()
-                d['id'] = column.id
-                d['title'] = column.columnType.verbose_title
-                d['ordering_title'] = column.columnType.ordering_title
-                d['number'] = column.number
-                d['active'] = column.active
-                d['editable'] = column.editable
-                l[column.columnType.title] = d
-        return l
 
     @property
     def master_short_fullname(self):
@@ -409,12 +389,6 @@ def create_custom_user(sender, instance, created, **kwargs):
 
 
 post_save.connect(create_custom_user, User)
-
-
-@receiver(signals.post_save, sender=CustomUser)
-def sync_user(sender, instance, **kwargs):
-    if instance.can_login:
-        Table.objects.get_or_create(user=instance)
 
 
 class UserMarker(models.Model):

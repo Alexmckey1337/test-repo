@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 
 from django.core.files.storage import default_storage
 import io
+from django.utils import timezone
 
 from edem.settings.celery import app
 from django.conf import settings
-from datetime import datetime
 from channels import Group
 from json import dumps
 import shutil
@@ -22,7 +22,7 @@ def generate_export(user, model, ids, fields, resource_class, file_format, file_
         qs = qs.annotate_full_name()
     data = resource_class().export(qs, custom_export_fields=fields)
     export_data = file_format.export_data(data, delimiter=';')
-    file_name = file_name.replace(' ', '_') + '_export_at_' + datetime.now().strftime('%H:%M:%S')
+    file_name = file_name.replace(' ', '_') + '_export_at_' + timezone.now().strftime('%H:%M:%S')
     file_name_with_format = file_name + '.' + file_format.get_extension()
 
     path_to_file = 'exports/' + file_name_with_format
