@@ -51,11 +51,11 @@
                 <li>
                     <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
                 </li>
-{#                {% if user.can_see_any_summit_ticket %}#}
-{#                    <li>#}
-{#                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>#}
-{#                    </li>#}
-{#                {% endif %}#}
+                {% if user.can_see_any_summit_ticket %}
+                    <li>
+                        <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
