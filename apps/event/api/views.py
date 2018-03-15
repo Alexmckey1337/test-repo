@@ -73,6 +73,15 @@ class Report(NamedTuple):
     pastor_tithe: Decimal
 
 
+class MeetingReport(NamedTuple):
+    ids: List[int]
+    year: int
+    week: int
+    visitors: int
+    attended_visitors: int
+    total_sum: Decimal
+
+
 def encode_month(year: int, month: int) -> int:
     """
     Encode month of year to count of months from start of gregorian calendar
@@ -1064,26 +1073,27 @@ class WeekMixin:
 class ChurchReportStatsView(WeekMixin, views.APIView):
     SQL = """
         SELECT
-          c.code,
-          array_agg(r.id) ids,
-          date_part('year', r.date) _year,
-          date_part('week', r.date) week,
-          sum(r.count_people) count_people,
-          sum(r.new_people) new_people,
-          sum(r.count_repentance) count_repentance,
-          sum(r.tithe) tithe,
-          sum(r.donations) donations,
-          sum(r.transfer_payments) transfer_payments,
-          sum(r.pastor_tithe) pastor_tithe
-        FROM event_churchreport r
-          JOIN account_customuser a ON r.pastor_id = a.user_ptr_id
-          JOIN payment_currency c ON r.currency_id = c.id
+          currency.code,
+          array_agg(report.id) ids,
+          date_part('year', report.date) _year,
+          date_part('week', report.date) week,
+          sum(report.count_people) count_people,
+          sum(report.new_people) new_people,
+          sum(report.count_repentance) count_repentance,
+          sum(report.tithe) tithe,
+          sum(report.donations) donations,
+          sum(report.transfer_payments) transfer_payments,
+          sum(report.pastor_tithe) pastor_tithe
+        FROM event_churchreport report
+          JOIN account_customuser customuser ON report.pastor_id = customuser.user_ptr_id
+          JOIN payment_currency currency ON report.currency_id = currency.id
         {filter}
-        GROUP BY date_part('year', r.date), date_part('week', r.date), c.code
-        ORDER BY date_part('year', r.date), date_part('week', r.date);
+        GROUP BY date_part('year', report.date), date_part('week', report.date), currency.code
+        ORDER BY date_part('year', report.date), date_part('week', report.date);
     """
-    WEEKS_TEMPLATE = "(date_part('week', r.date) BETWEEN {w1} AND {w2} AND date_part('year', r.date) = {year})"
-    YEARS_TEMPLATE = "date_part('year', r.date) IN ({years})"
+    WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
+                      "date_part('year', report.date) = {year})")
+    YEARS_TEMPLATE = "date_part('year', report.date) IN ({years})"
 
     payment_content_type = ContentType.objects.get_for_model(ChurchReport)
 
@@ -1103,7 +1113,7 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
         church = self.request.query_params.get('church')
         if not church:
             return ''
-        return " AND r.church_id = {church}".format(church=church)
+        return f" AND report.church_id = {church}"
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
@@ -1115,13 +1125,13 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
             pastor = CustomUser.objects.get(pk=pastor_tree)
         except CustomUser.DoesNotExist:
             return ' AND FALSE'
-        return " AND a.path like '{path}%' AND a.depth >= {depth}".format(path=pastor.path, depth=pastor.depth)
+        return f" AND customuser.path like '{pastor.path}%' AND customuser.depth >= {pastor.depth}"
 
     def get_where_pastor(self):
         pastor = self.request.query_params.get('pastor')
         if not pastor:
             return ''
-        return " AND r.pastor_id = {pastor}".format(pastor=pastor)
+        return f" AND report.pastor_id = {pastor}"
 
     def get_where_filter(self, weeks):
         where = ''
@@ -1145,7 +1155,7 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
             connect.execute(query)
             reports = connect.fetchall()
             result = [Report(*r) for r in reports]
-        # logger.info(query)
+        logger.info(query)
         # logger.info(result)
         d = defaultdict(list)
         for r in result:
@@ -1192,8 +1202,146 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
             raise exceptions.ValidationError({'detail': _('Invalid "interval" order')})
         except LastPeriodFormatError:
             raise exceptions.ValidationError({'detail': _('Invalid "last" format')})
-        group_by = request.query_params.get('group_by', 'week')
+
         result = self.get_data(weeks)
+
+        group_by = request.query_params.get('group_by', 'week')
+        if group_by == 'week':
+            return Response(data=self.group_by_week(result, weeks))
+        if group_by == 'month':
+            return Response(data=self.group_by_month(result, weeks))
+        if group_by == 'year':
+            return Response(data=self.group_by_year(result, weeks))
+        return Response(data=[])
+
+
+class MeetingStatsView(WeekMixin, views.APIView):
+    SQL = """
+        SELECT
+          array_agg(report.id) ids,
+          date_part('year', report.date) _year,
+          date_part('week', report.date) week,
+          count(em.meeting_id) visitors,
+          count(em.meeting_id) FILTER (WHERE em.attended) attended_visitors,
+          sum(total_sum) total_sum
+        FROM event_meeting report
+          JOIN account_customuser customuser ON report.owner_id = customuser.user_ptr_id
+          JOIN event_meetingattend em ON report.id = em.meeting_id
+        {filter}
+        GROUP BY date_part('year', report.date), date_part('week', report.date)
+        ORDER BY date_part('year', report.date), date_part('week', report.date);
+    """
+    WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
+                      "date_part('year', report.date) = {year})")
+    YEARS_TEMPLATE = "date_part('year', report.date) IN ({years})"
+
+    def group_by(self, y, m, w, aggr_by_key):
+        # ids = aggr_by_key('ids', lambda a: reduce(or_, a), default=set())
+        return {
+            # 'ids': ids,
+            'visitors': aggr_by_key('visitors'),
+            'attended_visitors': aggr_by_key('attended_visitors'),
+            'year': y,
+            'week': w,
+            'month': m,
+            'total_sum': aggr_by_key('total_sum'),
+        }
+
+    def get_where_weeks(self, weeks):
+        where_weeks = [
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['from']['year'], w1=weeks['from']['week'][0], w2=weeks['from']['week'][1]),
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['to']['year'], w1=weeks['to']['week'][0], w2=weeks['to']['week'][1])
+        ]
+        years = ','.join([str(y) for y in range(weeks['from']['year'] + 1, weeks['to']['year'])])
+        if years:
+            where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
+        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else ''
+
+    def get_where_home_group(self):
+        hg = self.request.query_params.get('hg')
+        if not hg:
+            return ''
+        return f" AND report.home_group_id = {hg}"
+
+    def get_where_meeting_type(self):
+        meeting_type = self.request.query_params.get('meeting_type')
+        if not meeting_type:
+            return ''
+        return f" AND report.type_id = {meeting_type}"
+
+    def get_where_leader_tree(self):
+        leader_tree = self.request.query_params.get('leader_tree')
+        if not leader_tree and self.request.user.is_staff:
+            return ''
+        if not leader_tree:
+            leader_tree = self.request.user.id
+        try:
+            leader = CustomUser.objects.get(pk=leader_tree)
+        except CustomUser.DoesNotExist:
+            return ' AND FALSE'
+        return f" AND customuser.path like '{leader.path}%' AND customuser.depth >= {leader.depth}"
+
+    def get_where_leader(self):
+        leader = self.request.query_params.get('leader')
+        if not leader:
+            return ''
+        return f" AND report.owner_id = {leader}"
+
+    def get_where_filter(self, weeks):
+        where = ''
+        where += self.get_where_weeks(weeks)
+        where += self.get_where_home_group()
+        where += self.get_where_meeting_type()
+        where += self.get_where_leader()
+        where += self.get_where_leader_tree()
+        return 'WHERE ' + where if where else ''
+
+    def get_data(self, weeks: Dict[str, Dict[str, int]]) -> Dict[str, List[Dict]]:
+        """
+        :param weeks: {
+                 'from': {'year': XXXX, 'week': YY},
+                 'to': {'year': XXXX, 'week': YY},
+               }
+        :return:
+        """
+        where = self.get_where_filter(weeks)
+        query = self.SQL.format(filter=where)
+        with connection.cursor() as connect:
+            connect.execute(query)
+            reports = connect.fetchall()
+            result = [MeetingReport(*r) for r in reports]
+        logger.info(query)
+        # logger.info(result)
+        d = defaultdict(list)
+        for r in result:
+            d['uah'].append({
+                'ids': set(r.ids),
+                'year': int(r.year),
+                'week': int(r.week),
+                'month': self.week_to_month(int(r.year), int(r.week)),
+                'visitors': r.visitors,
+                'attended_visitors': r.attended_visitors,
+                'total_sum': r.total_sum,
+            })
+        return d
+
+    def get(self, request, *args, **kwargs):
+        try:
+            weeks = self.get_weeks()
+        except IntervalFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" format')})
+        except IntervalOrderError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" order')})
+        except LastPeriodFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "last" format')})
+
+        result = self.get_data(weeks)
+        # logger.info(result)
+        # logger.info(weeks)
+
+        group_by = request.query_params.get('group_by', 'week')
         if group_by == 'week':
             return Response(data=self.group_by_week(result, weeks))
         if group_by == 'month':
