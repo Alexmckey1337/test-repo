@@ -166,7 +166,7 @@ class CustomUser(MP_Node, LogModel, User,
 
     @property
     def bishop(self):
-        ancestors = self.get_ancestors().filter(hierarchy__level__gte=4)  # bishop+
+        ancestors = self.get_ancestors().order_by('-depth').filter(hierarchy__level__gte=4)  # bishop+
         return ancestors.first() or None
 
     @property

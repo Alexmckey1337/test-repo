@@ -628,7 +628,7 @@ class SummitTicketViewSet(viewsets.GenericViewSet):
 def generate_code(request, filename=''):
     code = request.query_params.get('code', '00000000')
 
-    pdf = generate_ticket(code)
+    pdf = generate_ticket(code, force_yellow='yellow' in request.query_params.keys())
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
@@ -679,10 +679,10 @@ def summit_report_by_bishops(request, summit_id):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    limit = 2000
+    limit = int(request.query_params.get('limit', 2000))
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
-        summit_id=summit_id, tickets__isnull=True).exclude(user__image='')[:limit].values_list('id', 'code'))
+        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
     if len(ankets) == 0:
         return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
     ticket = SummitTicket.objects.create(
