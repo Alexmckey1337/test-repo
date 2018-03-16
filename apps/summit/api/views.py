@@ -251,8 +251,6 @@ class SummitProfileListView(SummitProfileListMixin):
             select_related.add('status')
         if 'author' in [k for k, v in self.columns.items() if v['active']]:
             select_related.add('author')
-        logger.info(select_related)
-        logger.error([k for k, v in self.columns.items() if v['active']])
         if select_related:
             qs = qs.select_related(*select_related)
         return qs.for_user(self.request.user)
