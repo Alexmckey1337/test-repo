@@ -6,18 +6,20 @@ from apps.payment.models import Currency
 from apps.summit.models import SummitType
 from apps.zmail.models import ZMailTemplate
 from apps.group.models import Church
+from apps.account.models import CustomUser
 
 
 @login_required(login_url='entry')
 def db_access_list(request):
     if not request.user.is_staff:
         return redirect('/')
-
     ctx = {
         'hierarchies': Hierarchy.objects.all(),
         'departments': Department.objects.all(),
         'churches': Church.objects.all(),
     }
+    masters = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
+    ctx['master_options'] = [{'id': u.pk, 'title': u.fullname} for u in masters]
 
     return render(request, 'controls/db_access_list.html', context=ctx)
 
