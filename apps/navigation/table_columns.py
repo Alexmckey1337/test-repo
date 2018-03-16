@@ -221,6 +221,8 @@ summit_columns = {
         'id': 0, 'title': 'Email отправлен', 'ordering_title': 'has_email', 'number': 22, 'active': True, 'editable': True},
     'responsible': {
         'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 23, 'active': True, 'editable': True},
+    'action': {
+        'id': 0, 'title': 'Действие', 'ordering_title': 'done', 'number': 24, 'active': True, 'editable': True},
 }
 
 meeting_columns = {
