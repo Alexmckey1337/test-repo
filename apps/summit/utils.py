@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List, NamedTuple
 
 import pytz
+import requests
 from PIL import Image, ImageDraw
 from django.core.files.storage import default_storage
 from django.db import connection
@@ -20,7 +21,8 @@ from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm, cm
+from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -28,6 +30,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 from rest_framework import exceptions
 
 from apps.summit.models import SummitAnket
+
+EXTRA_PEOPLE = (22730, 22058, 8716, 28418, 6437, 2568, 3276, 1128, 7367,
+                2378, 2457, 2139, 4535, 12335, 5372, 12029, 3205, 6588, 6250)
 
 
 class Bishop(NamedTuple):
@@ -466,34 +471,79 @@ class FullSummitParticipantReport(object):
         return self.build()
 
 
-def generate_ticket(code):
+def get_background(user, extra=False):
+    background_name = 'byellow.png'
+
+    if user.hierarchy_id in (5, 10):
+        background_name = 'bbishop.png'
+    elif user.hierarchy_id == 3:
+        background_name = 'bresp.png'
+    elif user.hierarchy_id == 2:
+        background_name = 'bleader.png'
+    elif user.hierarchy_id == 1:
+        background_name = 'bhelper.png'
+    elif user.hierarchy_id == 4:
+        background_name = 'bpastor.png'
+    if extra and user.user_id in EXTRA_PEOPLE:
+        background_name = 'byellow.png'
+
+    return background_name
+
+
+def get_status(user, extra=False):
+    background_name = 'Служитель'
+
+    if user.hierarchy_id in (5, 10):
+        background_name = 'Епископ'
+    elif user.hierarchy_id == 3:
+        background_name = 'Ответственный'
+    elif user.hierarchy_id == 2:
+        background_name = 'Лидер'
+    elif user.hierarchy_id == 1:
+        background_name = 'Помощник'
+    elif user.hierarchy_id == 4:
+        background_name = 'Пастор'
+    if extra and user.user_id in EXTRA_PEOPLE:
+        background_name = 'Служитель'
+
+    return background_name
+
+
+def generate_ticket(code, force_yellow=False):
     anket = get_object_or_404(SummitAnket, code=code)
     user = anket.user
 
-    logo = default_storage.url('background.png')
+    background_name = get_background(anket)
+    if force_yellow:
+        background_name = 'byellow.png'
+    try:
+        bg = default_storage.path(background_name)
+    except NotImplementedError:
+        bg = default_storage.url(background_name)
 
     buffer = BytesIO()
 
-    w = .035 * A4[0] * cm
-    h = w * 941 / 2241
-    c = canvas.Canvas(buffer, pagesize=A4)
+    w = 58 * mm
+    h = 90 * mm
+    w += 6 * mm
+    h += 6 * mm
+    c = canvas.Canvas(buffer, pagesize=(w, h))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
 
-    pastor = user.get_pastor()
-    bishop = user.get_bishop()
     uu = {
-        'name': '{} {}'.format(user.last_name, user.first_name),
+        'name': ' '.join([user.last_name, user.first_name]).strip(),
         'first_name': user.first_name,
         'last_name': user.last_name,
-        'image': user.image.url if user.image else None,
+        'author_name': ' '.join([anket.author.last_name, anket.author.first_name]).strip() if anket.author else '',
+        'author_first_name': anket.author.first_name if anket.author else '',
+        'author_last_name': anket.author.last_name if anket.author else '',
+        'image': user.image.name if user.image else '',
         'code': anket.code,
-        'pastor': '{} {}'.format(pastor.last_name, pastor.first_name) if pastor else '',
-        'bishop': '{} {}'.format(bishop.last_name, bishop.first_name) if bishop else '',
     }
 
-    create_ticket_page(c, logo, w, h, uu)
+    create_ticket_page(c, bg, w, h, uu, status='Служитель' if force_yellow else get_status(anket))
     c.save()
     pdf = buffer.getvalue()
     buffer.close()
@@ -502,59 +552,64 @@ def generate_ticket(code):
 
 
 def generate_ticket_by_summit(ankets):
-    logo = default_storage.url('background.png')
-
     buffer = BytesIO()
 
-    w = .035 * A4[0] * cm
-    h = w * 941 / 2241
-    c = canvas.Canvas(buffer, pagesize=A4)
+    w = 58 * mm
+    h = 90 * mm
+    w += 6 * mm
+    h += 6 * mm
+    c = canvas.Canvas(buffer, pagesize=(w, h))
     pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
 
     raw = """
-    SELECT a.id, a.code, u1.image,
-      CASE WHEN h.level=4 THEN 'bishop'
-           WHEN h.level=2 THEN 'pastor'
-           ELSE ''
-      END AS hierarchy_level,
-      CASE WHEN h.level IN (2, 4) THEN concat(uu2.last_name, ' ', uu2.first_name)
-        ELSE '' END
-       AS master_name,
-      concat(uu1.last_name, ' ', uu1.first_name) AS user_name
+    SELECT a.id, a.code, u1.image, concat(uu1.last_name, ' ', uu1.first_name) AS user_name,
+      concat(author.last_name, ' ', author.first_name) AS author_name
     FROM summit_summitanket a
       INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
-      LEFT JOIN account_customuser u2 ON u1.path like u2.path||'%%' AND u1.depth >= u2.depth
       INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
-      LEFT JOIN auth_user uu2 ON u2.user_ptr_id = uu2.id
-      LEFT JOIN hierarchy_hierarchy h ON u2.hierarchy_id = h.id
+      JOIN auth_user author ON a.author_id = author.id
       WHERE a.id IN ({})
       ORDER BY a.id;
     """.format(','.join([str(a[0]) for a in ankets]))
     users = SummitAnket.objects.raw(raw)
     uu = dict()
     for u in users:
-        if u.id not in uu.keys():
-            name = u.user_name.split(maxsplit=1)
-            uu[u.id] = {
-                'name': u.user_name,
-                'first_name': name[1] if len(name) > 1 else '',
-                'last_name': u.user_name.split()[0],
-                'image': u.image,
-                'code': u.code,
-            }
-        if u.hierarchy_level == 'pastor':
-            uu[u.id]['pastor'] = u.master_name
-        elif u.hierarchy_level == 'bishop':
-            uu[u.id]['bishop'] = u.master_name
+        add_user(u, uu)
+        if u.user_id in EXTRA_PEOPLE:
+            add_user(u, uu, extra=True)
     for u in uu.values():
-        create_ticket_page(c, logo, w, h, u)
+        create_ticket_page(c, u['bg'], w, h, u, status=u['status'])
     c.save()
     pdf = buffer.getvalue()
     buffer.close()
 
     return pdf
+
+
+def add_user(u, uu, extra=False):
+    background_name = get_background(u, extra=extra)
+    try:
+        bg = default_storage.path(background_name)
+    except NotImplementedError:
+        bg = default_storage.url(background_name)
+    uid = u.id + 1_000_000 if extra else u.id
+    if uid not in uu.keys():
+        name = u.user_name.split(maxsplit=1)
+        author_name = u.author_name.split(maxsplit=1)
+        uu[uid] = {
+            'name': u.user_name,
+            'first_name': name[1] if len(name) > 1 else '',
+            'last_name': name[0],
+            'author_name': u.author_name,
+            'author_first_name': author_name[1] if len(author_name) > 1 else '',
+            'author_last_name': author_name[0],
+            'code': u.code,
+            'image': u.image,
+            'bg': bg,
+            'status': get_status(u, extra=extra),
+        }
 
 
 def to_circle(im):
@@ -565,55 +620,69 @@ def to_circle(im):
     return im
 
 
-def create_ticket_page(c, logo, w, h, u):
-    v = .035 * A4[1] * cm - h
+def create_ticket_page(c, logo, w, h, u, status='Ответственный'):
     try:
-        c.drawImage(logo, 0, v, width=w, height=h, mask='auto')
+        c.drawImage(logo, 3 * mm, 3 * mm, width=w - 6 * mm, height=h - 6 * mm, mask='auto')
     except OSError:
         pass
-    # try:
-    #     if u['image']:
-    #         im = Image.open(os.path.join(settings.MEDIA_ROOT, u['image']))
-    #         im = to_circle(im)
-    #         ir = ImageReader(im)
-    #         c.drawImage(u['image'], 7 * mm, 31 * mm, width=20 * mm, height=20 * mm, mask='auto')
-    # except ValueError:
-    #     pass
-    # except OSError:
-    #     pass
-    c.setFillColor(HexColor('0x3f4e55'))
-    c.setFont('FreeSansBold', 46 * w / 2241)
-    c.drawString(80 * w / 2241, 165 * w / 2241 + v, u['last_name'])
-    c.drawString(970 * w / 2241, 165 * w / 2241 + v, u['first_name'])
-    # c.setFillColor(HexColor('0x66787f'))
-
-    # c.setFont('FreeSansIt', 51 * w / 2241)
-    # if u.get('pastor'):
-    #     c.drawString(450 * w / 2241, 485 * w / 2241, '(пастор)')
-    # if u.get('bishop'):
-    #     c.drawString(450 * w / 2241, 335 * w / 2241, '(епископ)')
-    #
-    # c.setFont('FreeSansIt', 76 * w / 2241)
-    # if u.get('pastor'):
-    #     c.drawString(750 * w / 2241, 485 * w / 2241, u['pastor'])
-    # if u.get('bishop'):
-    #     c.drawString(750 * w / 2241, 335 * w / 2241, u['bishop'])
+    try:
+        if u['image']:
+            try:
+                src = default_storage.path(u['image'])
+            except NotImplementedError:
+                src = default_storage.url(u['image'])
+                try:
+                    src = BytesIO(requests.get(src).content)
+                except Exception:
+                    src = ''
+            im = Image.open(src)
+            im = to_circle(im)
+            ir = ImageReader(im)
+            c.drawImage(ir, 15 * mm, 43 * mm, width=28 * mm, height=28 * mm, mask='auto')
+    except ValueError:
+        pass
+    except OSError:
+        pass
+    c.setFillColor(HexColor('0xffffff'))
+    c.setFont('FreeSans', 6 * mm)
+    c.drawString(14 * mm, 86 * mm, 'Лидерская')
+    c.drawString(10 * mm, 80 * mm, 'конференция')
+    c.setFont('FreeSans', 3 * mm)
+    c.drawString(14 * mm, 37 * mm, status)
+    left_margin = 14 * mm
+    bottom_last_name_margin = 24 * mm
+    bottom_first_name_margin = bottom_last_name_margin + 5 * mm
+    c.setFont('FreeSansBold', 4 * mm)
+    c.drawString(left_margin, bottom_last_name_margin, u['last_name'])
+    c.setFont('FreeSansBold', 3.6 * mm)
+    c.drawString(left_margin, bottom_first_name_margin, u['first_name'])
 
     c.setFillColorRGB(1, 1, 1)
-    barcode_font_size = 70 * w / 2241
+    barcode_font_size = 4 * mm
     barcode = createBarcodeDrawing('Code128', value=u['code'], lquiet=0,
-                                   barWidth=1.65, barHeight=465 / 2 * w / 2241,
+                                   barWidth=1.35, barHeight=7 * mm,
                                    humanReadable=True,
                                    fontSize=barcode_font_size, fontName='FreeSans')
-    drawing_width = 988 / 2 * w / 2241
+    drawing_width = 56 * mm
     barcode_scale = drawing_width / barcode.width
     drawing_height = barcode.height * barcode_scale
     drawing = Drawing(drawing_width, drawing_height)
     drawing.scale(barcode_scale, barcode_scale)
     drawing.add(barcode, name='barcode')
     drawing_rotated = Drawing(drawing_height, drawing_width)
-    drawing_rotated.rotate(90)
+    # drawing_rotated.rotate(90)
     drawing_rotated.translate(0, -drawing_height)
     drawing_rotated.add(drawing, name='drawing')
-    renderPDF.draw(drawing_rotated, c, 1974 * w / 2241, 200 * w / 2241 + v)
+    renderPDF.draw(drawing_rotated, c, 7 * mm, 18 * mm)
+
+    # c.setFillColorRGB(0, 0, 0)
+    # c.line(3 * mm, 3 * mm, 3 * mm, h - 3 * mm)
+    # c.line(3 * mm, h - 3 * mm, w - 3 * mm, h - 3 * mm)
+    # c.line(w - 3 * mm, h - 3 * mm, w - 3 * mm, 3 * mm)
+    # c.line(w - 3 * mm, 3 * mm, 3 * mm, 3 * mm)
+    c.setFillColorRGB(1, 1, 1)
+
+    c.setFont('FreeSansBold', 3.4 * mm)
+    c.rotate(90)
+    c.drawString(23 * mm, 7.2 * mm - w, u['author_name'])
     c.showPage()

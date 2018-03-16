@@ -31,6 +31,7 @@ from rest_framework.viewsets import GenericViewSet
 from apps.account.models import CustomUser
 from apps.account.signals import obj_add, obj_delete
 from apps.analytics.utils import model_to_dict
+from apps.navigation.table_columns import get_table
 from apps.notification.backend import RedisBackend
 from apps.payment.api.serializers import PaymentShowWithUrlSerializer
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
@@ -51,7 +52,7 @@ from apps.summit.api.serializers import (
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
     SummitAnketStatisticsSerializer,
-    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer)
+    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer, ProfileTableSerializer)
 from apps.summit.models import (
     Summit, SummitAnket, SummitLesson, SummitUserConsultant, SummitTicket, SummitAttend, AnketEmail)
 from apps.summit.resources import SummitAnketResource, SummitStatisticsResource
@@ -168,8 +169,8 @@ class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
             )
 
 
-class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
-    serializer_class = SummitAnketSerializer
+class SummitProfileListView(SummitProfileListMixin):
+    serializer_class = ProfileTableSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
 
@@ -206,17 +207,52 @@ class SummitProfileListView(SummitProfileListMixin, mixins.RetrieveModelMixin):
         'search_city': ('city',),
     }
 
+    _columns = None
+
+    def list(self, request, *args, **kwargs):
+        request.columns = self.columns
+        return super().list(request, *args, **kwargs)
+
+    @property
+    def columns(self):
+        if self._columns is None:
+            self._columns = get_table('summit', self.request.user.id)
+        return self._columns
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        extra = {
+            'extra_fields': self.request.query_params.getlist('extra_fields'),
+            'columns': self.columns,
+        }
+        ctx.update(extra)
+
+        return ctx
+
     def get_queryset(self):
-        emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True)
+        select_related = {'user'}
+        qs = self.summit.ankets.order_by(
+            'user__last_name', 'user__first_name', 'user__middle_name')
         other_summits = SummitAnket.objects.filter(
             user_id=OuterRef('user_id'),
             summit__type_id=self.summit.type_id,
             summit__status=Summit.CLOSE
-        )
-        qs = self.summit.ankets.annotate(
-            has_email=Exists(emails), has_achievement=Exists(other_summits)) \
-            .base_queryset().annotate_total_sum().annotate_full_name().order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+        ).only('id')
+        qs = qs.annotate(has_achievement=Exists(other_summits))
+
+        if 'has_email' in [k for k, v in self.columns.items() if v['active']]:
+            emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True).only('id')
+            qs = qs.annotate(has_email=Exists(emails))
+        if 'total_sum' in [k for k, v in self.columns.items() if v['active']]:
+            qs = qs.annotate_total_sum()
+        if 'full_name' in [k for k, v in self.columns.items() if v['active']]:
+            qs = qs.annotate_full_name()
+        if 'e_ticket' in [k for k, v in self.columns.items() if v['active']]:
+            select_related.add('status')
+        if 'author' in [k for k, v in self.columns.items() if v['active']]:
+            select_related.add('author')
+        if select_related:
+            qs = qs.select_related(*select_related)
         return qs.for_user(self.request.user)
 
 
@@ -628,7 +664,7 @@ class SummitTicketViewSet(viewsets.GenericViewSet):
 def generate_code(request, filename=''):
     code = request.query_params.get('code', '00000000')
 
-    pdf = generate_ticket(code)
+    pdf = generate_ticket(code, force_yellow='yellow' in request.query_params.keys())
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
@@ -679,10 +715,10 @@ def summit_report_by_bishops(request, summit_id):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    limit = 2000
+    limit = int(request.query_params.get('limit', 2000))
 
     ankets = list(SummitAnket.objects.order_by('id').filter(
-        summit_id=summit_id, tickets__isnull=True).exclude(user__image='')[:limit].values_list('id', 'code'))
+        summit_id=summit_id, tickets__isnull=True)[:limit].values_list('id', 'code'))
     if len(ankets) == 0:
         return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
     ticket = SummitTicket.objects.create(
