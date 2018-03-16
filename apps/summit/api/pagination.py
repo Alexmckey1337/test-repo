@@ -4,6 +4,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from apps.navigation.table_columns import get_table
+from apps.payment.api.serializers import CurrencySerializer
 from apps.summit.models import Summit
 
 
@@ -22,6 +23,7 @@ class SummitPagination(PageNumberPagination):
             },
             'count': self.page.paginator.count,
             'user_table': get_table('summit', self.request.user),
+            'summit_currency': CurrencySerializer(self.summit.currency).data,
             'summit_cost': {'full': self.summit.full_cost, 'special': self.summit.special_cost},
             'common_table': OrderedDict(),
             'results': data
