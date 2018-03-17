@@ -324,8 +324,7 @@ class SummitStatisticsView(SummitProfileListView):
     def annotate_queryset(self, qs):
         subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
             first_time=Coalesce(
-                ToChar(F('time'), function='to_char', time_format='HH24:MI:SS', output_field=CharField()),
-                ToChar(F('created_at'), function='to_char', time_format='HH24:MI:SS el', output_field=CharField()),
+                ToChar(F('created_at'), function='to_char', time_format='YYYY-MM-DD HH24:MI:SSZ', output_field=CharField()),
                 V('true'),
                 output_field=CharField()))
         qs = qs.select_related('user', 'status').annotate(
