@@ -17,9 +17,11 @@ import {applyFilter, refreshFilter} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
 import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
-import {createPayment} from "./modules/Payment/index";
+import reverseDate from './modules/Date';
+import {convertNum} from "./modules/ConvertNum/index";
 import {
     createSummitUsersTable,
+    updateSummitUsersTable,
     unsubscribeOfSummit,
     updateSummitParticipant,
     registerUser,
@@ -81,52 +83,8 @@ $(document).ready(function () {
         $('#popupDelete').css('display', 'none');
     });
 
-    $("#close-payment").on('click', function () {
-        $('#popup-create_payment').css('display', 'none');
-    });
-
-    $("#close-payments").on('click', function () {
-        $('#popup-payments').css('display', 'none');
-        $('#popup-payments table').html('');
-    });
-
-    $("#popup-create_payment .top-text span").on('click', function (el) {
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', '');
-    });
-
-    $("#popup-payments .top-text span").on('click', function (el) {
-        $('#popup-payments').css('display', '');
-        $('#popup-payments table').html('');
-    });
-
-    $('#payment-form').on("submit", function (e) {
-        e.preventDefault();
-        let data = $('#payment-form').serializeArray();
-        let userID;
-        let new_data = {};
-        data.forEach(function (field) {
-            if (field.name == 'sent_date') {
-                new_data[field.name] = field.value.trim().split('.').reverse().join('-');
-            } else if (field.name != 'id') {
-                new_data[field.name] = field.value
-            } else {
-                userID = field.value;
-            }
-        });
-        if (userID) {
-            createPayment({
-                data: new_data
-            }, userID).then(function (data) {
-                console.log(data);
-            });
-        }
-        // create_payment(id, sum, description, rate, currency);
-
-        $('#new_payment_sum').val('');
-        $('#popup-create_payment textarea').val('');
-        $('#popup-create_payment').css('display', 'none');
+    $('#popup-create_payment').find('.pop_cont').on('click', function (e) {
+        e.stopPropagation();
     });
 
     $(".add-user-wrap .top-text span").on('click', function () {
@@ -261,49 +219,6 @@ $(document).ready(function () {
         registerUser(userID, SUMMIT_ID);
     });
 
-    // function create_payment(id, sum, description, rate, currency) {
-    //     let data = {
-    //         "sum": sum,
-    //         "description": description,
-    //         "rate": rate,
-    //         "currency": currency
-    //     };
-    //
-    //     let json = JSON.stringify(data);
-    //
-    //     ajaxRequest(URLS.summit_profile.create_payment(id), json, function (JSONobj) {
-    //         showAlert('Оплата прошла успешно.');
-    //     }, 'POST', true, {
-    //         'Content-Type': 'application/json'
-    //     }, {
-    //         403: function (data) {
-    //             data = data.responseJSON;
-    //             showAlert(data.detail)
-    //         }
-    //     });
-    // }
-
-    // function show_payments(id) {
-    //     ajaxRequest(URLS.summit_profile.list_payments(id), null, function (data) {
-    //         let payments_table = '';
-    //         let sum, date_time;
-    //         data.forEach(function (payment) {
-    //             sum = payment.effective_sum_str;
-    //             date_time = payment.created_at;
-    //             payments_table += `<tr><td>${sum}</td><td>${date_time}</td></tr>`
-    //         });
-    //         $('#popup-payments table').html(payments_table);
-    //         $('#popup-payments').css('display', 'block');
-    //     }, 'GET', true, {
-    //         'Content-Type': 'application/json'
-    //     }, {
-    //         403: function (data) {
-    //             data = data.responseJSON;
-    //             showAlert(data.detail)
-    //         }
-    //     });
-    // }
-
     $('#department_filter').select2().on('select2:open', function () {
         $('.select2-search__field').focus();
     });
@@ -371,7 +286,6 @@ $(document).ready(function () {
     });
 
     $('#filter_button').on('click', function () {
-        //$('#filterPopup').css('display', 'block');
         $('#filterPopup').addClass('active');
         $('.bg').addClass('active');
     });
@@ -398,7 +312,6 @@ $(document).ready(function () {
     });
 
     $('#summitUsersList').on('click', '.ticket_status', _.debounce(function(e) {
-        console.log($(this));
         let option = {
                 method: 'POST',
                 credentials: "same-origin",
@@ -505,6 +418,68 @@ $(document).ready(function () {
             $(this).parent().find('.edit').removeClass('active');
             $(this).parent().find('.comment').text('');
         }).catch(err => errHandling(err));
+    });
+
+    //Payments
+    function submitPayment() {
+        let id = $('#complete-payment').attr('data-id'),
+            data = {
+                "sum": convertNum($('#new_payment_sum').val(), '.'),
+                "description": $('#popup-create_payment textarea').val(),
+                "rate": convertNum($('#new_payment_rate').val(), '.'),
+                "sent_date": reverseDate($('#sent_date').val(), '-'),
+                "operation": $('#operation').val()
+            },
+            url = URLS.summit_profile.create_uah_payment(id);
+
+        postData(url, data).then(function () {
+            updateSummitUsersTable();
+            showAlert('Оплата прошла успешно.');
+            $('#new_payment_sum').val('');
+            $('#popup-create_payment textarea').val('');
+            $('#complete-payment').prop('disabled', false);
+            $('#popup-create_payment').css('display', 'none');
+        }).catch(err => {
+            errHandling(err);
+            $('#complete-payment').prop('disabled', false);
+        });
+    }
+
+    $.validate({
+        lang: 'ru',
+        form: '#payment-form',
+        onError: function () {
+            showAlert(`Введены некорректные данные либо заполнены не все поля`)
+        },
+        onSuccess: function () {
+            submitPayment();
+            $('#complete-payment').prop('disabled', true);
+
+            return false;
+        }
+    });
+
+    $("#close-payments").on('click', function () {
+        $('#popup-payments').css('display', 'none');
+        $('#popup-payments table').html('');
+    });
+
+    $("#close-payment").on('click', function (e) {
+        e.preventDefault();
+        $('#new_payment_rate').val(1);
+        $('#in_user_currency').text('');
+        $('#popup-create_payment').css('display', 'none');
+    });
+
+    $('#sent_date').datepicker({
+        dateFormat: "dd.mm.yyyy",
+        startDate: new Date(),
+        maxDate: new Date(),
+        autoClose: true
+    });
+
+    $('#payment-form').on("submit", function (e) {
+        e.preventDefault();
     });
 
 });

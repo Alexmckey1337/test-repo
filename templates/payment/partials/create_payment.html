@@ -14,7 +14,7 @@
                         <p>Ответственный:</p>
                         <p id="payment_responsible"></p>
                     </div>
-                    <div class="block_line">
+                    <div {% if hideData %} style="display: none" {% endif %} class="block_line">
                         <p>
                             {% if date == "report" %}
                                 Дата подачи отчета:

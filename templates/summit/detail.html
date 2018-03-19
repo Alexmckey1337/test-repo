@@ -127,41 +127,6 @@
                     <button id="close" class="close-popup">Отменить</button>
                     <button id="complete" class="check">Добавить</button>
                 </div>
-{#                <div class="padding-wrap">#}
-{#                    <div class="user-info">#}
-{#                        <img id="client_img" src="" alt="Фото пользователя">#}
-{#                        <h3 id="client_name"></h3>#}
-{#                        <label>#}
-{#                            <span class="label-wrapp">Отдел:</span>#}
-{#                            <span id="client_department"></span>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label-wrapp">Текущий бишоп:</span>#}
-{#                            <span id="client_bisop"></span>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label-wrapp">E-mail:</span>#}
-{#                            <input id="client_email" name="email" readonly/>#}
-{#                            <button class="edit"></button>#}
-{#                            <button class="save__info"></button>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label-wrapp">Телефон:</span>#}
-{#                            <input id="client_phone" name="phone_number" readonly/>#}
-{#                            <span class="comment"></span>#}
-{#                            <button class="edit"></button>#}
-{#                            <button class="save__info"></button>#}
-{#                        </label>#}
-{#                        <label>#}
-{#                            <span class="label-wrapp">Автор регистрации:</span>#}
-{#                            <select id="client_author_reg"></select>#}
-{#                        </label>#}
-{#                    </div>#}
-{#                    <div class="splash-bauttons">#}
-{#                        <button id="close">Отменить</button>#}
-{#                        <button id="complete">Добавить</button>#}
-{#                    </div>#}
-{#                </div>#}
             </div>
         </div>
     </div>
@@ -185,7 +150,6 @@
             </div>
         </div>
     </div>
-    {% create_payment_form %}
     <div id="popup-payments" class="pop-up-splash">
         <div class="flex-wrap">
             <div class="splash-screen">
@@ -200,38 +164,39 @@
             </div>
         </div>
     </div>
-    <div id="popupForNew" class="pop-up-splash">
-        <div class="flex-wrap">
-            <div class="splash-screen">
-                <div class="top-text">
-                    <h3><span>←</span> Информация об участнике</h3>
-                </div>
-                <div class="user-info">
-                    <div class="left-side">
-                        <p>Клиент:</p>
-                        <p>Ответственный:</p>
-                    </div>
-                    <div class="right-side">
-                        <p id="client-nameNew"></p>
-                        <p id="responsible-nameNew"></p>
-                    </div>
-                </div>
-                <div class="summa-wrap">
-                    <div class="code">
-                        <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                               type="text" id="code">
-                        <input id="check" type="checkbox">
-                    </div>
-                </div>
-                <textarea placeholder="Добавить коментарий"></textarea>
-                <div class="splash-bauttons">
-                    <button class="close-popup">Отменить</button>
-                    <button id="completeNew">Завершить</button>
-                </div>
-            </div>
-        </div>
-    </div><!--End Pop-up-splash-->
+{#    <div id="popupForNew" class="pop-up-splash">#}
+{#        <div class="flex-wrap">#}
+{#            <div class="splash-screen">#}
+{#                <div class="top-text">#}
+{#                    <h3><span>←</span> Информация об участнике</h3>#}
+{#                </div>#}
+{#                <div class="user-info">#}
+{#                    <div class="left-side">#}
+{#                        <p>Клиент:</p>#}
+{#                        <p>Ответственный:</p>#}
+{#                    </div>#}
+{#                    <div class="right-side">#}
+{#                        <p id="client-nameNew"></p>#}
+{#                        <p id="responsible-nameNew"></p>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="summa-wrap">#}
+{#                    <div class="code">#}
+{#                        <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"#}
+{#                               type="text" id="code">#}
+{#                        <input id="check" type="checkbox">#}
+{#                    </div>#}
+{#                </div>#}
+{#                <textarea placeholder="Добавить коментарий"></textarea>#}
+{#                <div class="splash-bauttons">#}
+{#                    <button class="close-popup">Отменить</button>#}
+{#                    <button id="completeNew">Завершить</button>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div><!--End Pop-up-splash-->#}
     {% include 'partials/create_user.html' with addToSummit="true" %}
+    {% include "payment/partials/create_payment.html" with hideData="true" %}
 
 {% endblock %}
 
@@ -298,6 +263,31 @@
                     <% } else { %>
                     <td></td>
                     <% } %>
+                    <% } else if (key === 'value' ) { %>
+                    <td>
+                        <% if (summit_cost.full != null || results[index].value != null) { %>
+                        <button class="show_payments inline__button" data-id="<%=results[index].id%>">
+                            <span><%= results[index].value %>/<%= (results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full %> <%= summit_currency.short_name %></span>
+                        </button>
+                        <% } %>
+                    </td>
+                    <% } else if (key == 'action' ) { %>
+                    <td>
+                        <% if ((can_create_payment) &&((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) < 0 )) { %>
+                        <button class="pay inline__button"
+                                data-id="<%=results[index].id%>"
+                                data-name="<%=results[index].full_name%>"
+                                data-responsible="<%=results[index].responsible%>"
+                                data-total_sum="<%=results[index].value%>"
+                                data-value="<%=(results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full%>"
+                                data-currency-name="<%=summit_currency.short_name %>"
+                                data-currency-id="<%=summit_currency.id %>"
+                        >Добавить платеж
+                        </button>
+                        <% } else if ((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) >= 0 ) { %>
+                        <p class="deals__done"></p>
+                        <% } %>
+                    </td>
                     <% } else if(key == 'code') { %>
                     <% if (results[index][key] != null) { %>
                     <td class="edit"><a

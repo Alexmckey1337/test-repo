@@ -2,7 +2,6 @@
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import getData, {postData, deleteData} from "../Ajax/index";
-import newAjaxRequest from '../Ajax/newAjaxRequest';
 import moment from 'moment/min/moment.min.js';
 import numeral from 'numeral/min/numeral.min.js';
 import getSearch from '../Search/index';
@@ -185,74 +184,6 @@ function makeQuickEditDeal(el, type) {
     });
 }
 
-// function getDealDetail(id) {
-//     let url = URLS.deal.detail(id);
-//
-//     let defaultOption = {
-//         method: 'GET',
-//         credentials: 'same-origin',
-//         headers: new Headers({
-//             'Content-Type': 'application/json',
-//         })
-//     };
-//     if (typeof url === "string") {
-//         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-//     }
-// }
-
-export function createDealsPayment(id, sum, description) {
-    return new Promise(function (resolve, reject) {
-        let config = {
-            "sum": sum,
-            "description": description,
-            "rate": $('#new_payment_rate').val(),
-            // "currency": $('#new_payment_currency').val(),
-            "sent_date": $('#sent_date').val().split('.').reverse().join('-'),
-            "operation": $('#operation').val()
-        };
-        let json = JSON.stringify(config);
-        let data = {
-            url: URLS.deal.create_uah_payment(id),
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: json
-        };
-        let status = {
-            200: function (req) {
-                resolve(req);
-            },
-            201: function (req) {
-                resolve(req);
-            },
-            403: function () {
-                reject('Вы должны авторизоватся');
-            },
-            400: function (err) {
-                reject(err);
-            }
-
-        };
-        newAjaxRequest(data, status);
-    })
-}
-
-// export function updateDeal(id, data) {
-//     let url = URLS.deal.detail(id);
-//
-//     let defaultOption = {
-//         method: 'PATCH',
-//         credentials: 'same-origin',
-//         headers: new Headers({
-//             'Content-Type': 'application/json',
-//         }),
-//         body: JSON.stringify(data),
-//     };
-//     if (typeof url === "string") {
-//         return fetch(url, defaultOption).then(data => data.json()).catch(err => err);
-//     }
-// }
 export function makeDuplicateDeals(config = {}) {
     let typeDeal = $('.partner_block_wrap').first().attr('data-type'),
         popup = $('#create_duplicate_deal_pop'),

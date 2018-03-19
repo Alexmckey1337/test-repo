@@ -239,14 +239,13 @@ class SummitProfileListView(SummitProfileListMixin):
             summit__status=Summit.CLOSE
         ).only('id')
         qs = qs.annotate(has_achievement=Exists(other_summits))
+        qs = qs.annotate_full_name()
 
         if 'has_email' in [k for k, v in self.columns.items() if v['active']]:
             emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True).only('id')
             qs = qs.annotate(has_email=Exists(emails))
         if 'total_sum' in [k for k, v in self.columns.items() if v['active']]:
             qs = qs.annotate_total_sum()
-        if 'full_name' in [k for k, v in self.columns.items() if v['active']]:
-            qs = qs.annotate_full_name()
         if 'e_ticket' in [k for k, v in self.columns.items() if v['active']]:
             select_related.add('status')
         if 'author' in [k for k, v in self.columns.items() if v['active']]:

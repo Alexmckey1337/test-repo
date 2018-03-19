@@ -1,5 +1,6 @@
 {% extends "layout_main.html" %}
 {% load i18n %}
+{% load l10n %}
 {% load static %}
 {% load partner_tags %}
 
@@ -217,8 +218,8 @@
                                             {% if church.latitude and church.longitude %}
                                                 <a href="#" id="address_show" class="address_btn"
                                                         data-title="{{ church.address }}"
-                                                        data-lat="{{ church.latitude }}"
-                                                        data-lng="{{ church.longitude }}"
+                                                        data-lat="{{ church.latitude|unlocalize }}"
+                                                        data-lng="{{ church.longitude|unlocalize }}"
                                                 ><i class="material-icons">&#xE55B;</i></a>
                                             {% endif %}
                                             <a href="#" id="address_choose" class="address_btn address_isHide">Указать</a>
