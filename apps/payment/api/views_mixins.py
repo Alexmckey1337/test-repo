@@ -64,22 +64,23 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
         raise NotImplementedError()
 
     @staticmethod
-    def get_currency(request, purpose, force_currency=None):
+    def get_currency(body, purpose, force_currency=None):
         if force_currency:
             return force_currency.id
-        return request.data.get('currency', purpose.currency.id)
+        return body.get('currency', purpose.currency.id)
 
     def _create_payment(self, request, pk=None, currency=None):
         purpose_model = self.get_queryset().model
         purpose = get_object_or_404(purpose_model, pk=pk)
         self.check_payment_permissions(request, purpose)
 
-        sum = request.data.get('sum', None)
-        description = request.data.get('description', '')
-        rate = request.data.get('rate', Decimal(1))
-        operation = request.data.get('operation', '*')
-        currency = self.get_currency(request, purpose, currency)
-        sent_date = request.data.get('sent_date')
+        body = request.data
+        sum = body.get('sum', None)
+        description = body.get('description', '')
+        rate = body.get('rate', Decimal(1))
+        operation = body.get('operation', '*')
+        currency = self.get_currency(body, purpose, currency)
+        sent_date = body.get('sent_date')
         if not sent_date:
             sent_date = timezone.now().strftime('%Y-%m-%d')
         if rate == 1 and currency != purpose.currency.id:

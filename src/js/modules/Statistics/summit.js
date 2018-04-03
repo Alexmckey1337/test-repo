@@ -1,4 +1,6 @@
 'use strict';
+import moment from 'moment';
+import 'moment/locale/ru';
 import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import ajaxRequest from '../Ajax/ajaxRequest';
@@ -65,6 +67,9 @@ export default class SummitStat {
 }
 
 function makeSammitsDataTable(data, id) {
+    data.results.map(item => {
+        (item.attended != null) && (item.attended = moment(item.attended).locale('ru').format('LTS'))
+    });
     let tmpl = document.getElementById('databaseUsers').innerHTML,
         rendered = _.template(tmpl)(data);
     document.getElementById(id).innerHTML = rendered;

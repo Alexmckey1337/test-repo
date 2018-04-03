@@ -75,6 +75,57 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
+class ProfileTableSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
+    emails = AnketEmailSerializer(many=True, read_only=True)
+    total_sum = serializers.DecimalField(max_digits=12, decimal_places=0)
+    full_name = serializers.CharField()
+    email = serializers.CharField(source='user.email')
+    phone_number = serializers.CharField(source='user.phone_number')
+    social = ListCharField(fields=('user.facebook', 'user.vkontakte', 'user.odnoklassniki', 'user.skype'))
+    region = serializers.CharField(source='user.region')
+    district = serializers.CharField(source='user.district')
+    address = serializers.CharField(source='user.address')
+    born_date = serializers.CharField(source='user.born_date')
+    repentance_date = serializers.CharField(source='user.repentance_date')
+    spiritual_level = serializers.CharField(source='get_spiritual_level_display')
+    ticket_status = ReadOnlyChoiceWithKeyField(choices=SummitAnket.TICKET_STATUSES, read_only=True)
+    e_ticket = serializers.BooleanField(source='status.reg_code_requested', read_only=True)
+    reg_code = serializers.CharField()
+    has_email = serializers.BooleanField()
+    has_achievement = serializers.BooleanField()
+    author = UserForSelectSerializer()
+
+    class Meta:
+        model = SummitAnket
+        required_fields = ['id', 'link', 'has_achievement', 'user_id', 'code', 'reg_code']
+        fields = ('id', 'user_id', 'full_name', 'responsible', 'spiritual_level',
+                  'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
+                  'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
+                  'code', 'value', 'description',
+                  'link',
+                  'ticket_status',
+                  'e_ticket',
+                  'reg_code',
+                  'has_email',
+                  'has_achievement',
+                  'author',
+
+                  'emails',
+                  'visited',
+                  'total_sum',
+                  )
+
+    def get_field_names(self, declared_fields, info):
+        fields = getattr(self.Meta, 'fields', None)
+        if self.context.get('request') is not None:
+            columns = self.context.get('columns', [])
+            return (self.Meta.required_fields +
+                    [c for c in columns.keys() if columns[c]['active'] and c != 'action'] +
+                    list(self._context.get('extra_fields', [])))
+        return fields
+
+
 class SummitProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SummitAnket

@@ -74,6 +74,18 @@
     {% include "partials/filter/select.html" with label="Персонал" options=true_false_options name="is_staff" %}
     {% include "partials/filter/select.html" with label="Активный" options=true_false_options name="is_active" %}
     {% include "partials/filter/select.html" with label="Имеет право входа" options=true_false_options name="can_login" %}
+    {% include "partials/filter/select.html" with label="Отдел" options=departments name="departments" %}
+    {% include "partials/filter/select.html" with label="Церковь" options=churches name="cchurch" %}
+    {% include "partials/filter/select.html" with label="Ветка" options=master_options name="master_tree" %}
+    {% include "partials/filter/select.html" with label="Ответственный" options=master_options name="master" %}
+    {% include "partials/filter/input.html" with label="Страна" name="search_country" placeholder="страна или часть названия" %}
+    {% include "partials/filter/input.html" with label="Город" name="search_city" placeholder="город или часть названия" %}
+    {% include "partials/filter/select.html" with label="Архив (умер)" options=true_false_options name="is_dead" %}
+    <ul>
+    {% for option in masters %}
+            <li value="{{ option.id }}">{{ option.title }}</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
 
 {% block extra_scripts %}

@@ -13,7 +13,6 @@ from apps.account.models import CustomUser
 def db_access_list(request):
     if not request.user.is_staff:
         return redirect('/')
-
     ctx = {
         'hierarchies': Hierarchy.objects.all(),
         'departments': Department.objects.all(),
