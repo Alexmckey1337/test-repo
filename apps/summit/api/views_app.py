@@ -430,12 +430,12 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         phone_number = phone_number[-10:]
         data = {'join_url': None}
 
-        visitor = SummitAnket.objects.filter(summit_id=10, user__hierarchy__level__gte=1).filter(Q(
-            user__phone_number__contains=phone_number) | Q(
-            user__extra_phone_numbers__contains=[phone_number])).first()
+        visitor = CustomUser.objects.filter(hierarchy__level__gte=1).filter(Q(
+            phone_number__contains=phone_number) | Q(
+            extra_phone_numbers__contains=[phone_number])).first()
 
         if visitor:
-            telegram_group = TelegramGroup.objects.get(title='VoSummit')
+            telegram_group = TelegramGroup.objects.get(title='Leaders')
             data['join_url'] = telegram_group.join_url
 
         return Response(data, status=status.HTTP_200_OK)
