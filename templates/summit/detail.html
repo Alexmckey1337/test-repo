@@ -267,13 +267,15 @@
                     <td>
                         <% if (summit_cost.full != null || results[index].value != null) { %>
                         <button class="show_payments inline__button" data-id="<%=results[index].id%>">
-                            <span><%= results[index].value %>/<%= (results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full %> <%= summit_currency.short_name %></span>
+{#                            <span><%= results[index].value %>/<%= (results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full %> <%= summit_currency.short_name %></span>#}
+                            <span><%= results[index].value %> / <%= summit_cost.full %> <%= summit_currency.short_name %></span>
                         </button>
                         <% } %>
                     </td>
                     <% } else if (key == 'action' ) { %>
                     <td>
-                        <% if ((can_create_payment) &&((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) < 0 )) { %>
+{#                        <% if ((can_create_payment) &&((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) < 0 )) { %>#}
+                        <% if (can_create_payment && ((results[index].value.match(/\d+(\.\d+)?/g)[0] - summit_cost.full) < 0 )) { %>
                         <button class="pay inline__button"
                                 data-id="<%=results[index].id%>"
                                 data-name="<%=results[index].full_name%>"
@@ -284,7 +286,8 @@
                                 data-currency-id="<%=summit_currency.id %>"
                         >Добавить платеж
                         </button>
-                        <% } else if ((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) >= 0 ) { %>
+{#                        <% } else if ((results[index].value.match(/\d+(\.\d+)?/g)[0] - ((results[index].has_achievement && summit_cost.special) ? summit_cost.special : summit_cost.full)) >= 0 ) { %>#}
+                        <% } else if ((results[index].value.match(/\d+(\.\d+)?/g)[0] - summit_cost.full) >= 0 ) { %>
                         <p class="deals__done"></p>
                         <% } %>
                     </td>
