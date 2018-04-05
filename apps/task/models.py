@@ -1,10 +1,7 @@
-# -*- coding: utf-8
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class TaskType(models.Model):
     title = models.CharField(_('Title'), unique=True, max_length=255)
 
@@ -12,7 +9,6 @@ class TaskType(models.Model):
         return self.title
 
 
-@python_2_unicode_compatible
 class Task(models.Model):
     IN_WORK, DONE = 'in_work', 'done'
     STATUSES = (

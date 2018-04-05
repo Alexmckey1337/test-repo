@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.urls import path
 
 from apps.payment import views

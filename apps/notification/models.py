@@ -1,11 +1,6 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class NotificationTheme(models.Model):
     title = models.CharField(max_length=100)
     birth_day = models.BooleanField(default=False)
@@ -15,7 +10,6 @@ class NotificationTheme(models.Model):
         return self.title
 
 
-@python_2_unicode_compatible
 class Notification(models.Model):
     user = models.ForeignKey('account.CustomUser', on_delete=models.CASCADE, null=True, blank=True)
     theme = models.ForeignKey(NotificationTheme, on_delete=models.CASCADE, related_name='notifications')

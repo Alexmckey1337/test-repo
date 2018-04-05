@@ -1,5 +1,6 @@
-import django_filters
 import re
+
+import django_filters
 from rest_framework import filters
 
 from apps.account.models import CustomUser
@@ -105,18 +106,14 @@ class ChurchPartnerFilter(django_filters.FilterSet):
 
 class PartnerFilterByDateAge(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        age_gt = request.query_params.get('age_gt')
-        age_lt = request.query_params.get('age_lt')
+        age_gt = request.query_params.get('age_gt', '')
+        age_lt = request.query_params.get('age_lt', '')
 
         age_reg = re.compile('(\d+\s*(year|month|day))')
-        try:
-            age_gt = age_reg.search(age_gt).group(0) if age_gt else None
-        except:
-            age_gt = None
-        try:
-            age_lt = age_reg.search(age_lt).group(0) if age_lt else None
-        except:
-            age_lt = None
+        age_gt = age_reg.search(age_gt)
+        age_gt = age_gt.group(0) if age_gt else None
+        age_lt = age_reg.search(age_lt)
+        age_lt = age_lt.group(0) if age_lt else None
 
         if age_gt and age_lt:
             return queryset.extra(where=["age(date) BETWEEN INTERVAL %s AND interval %s"], params=[age_gt, age_lt])

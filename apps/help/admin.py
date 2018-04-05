@@ -1,4 +1,3 @@
-# -*- coding: utf-8
 from django.contrib import admin
 from apps.help.models import Manual, ManualCategory
 

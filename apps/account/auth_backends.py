@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _

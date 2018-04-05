@@ -1,5 +1,6 @@
-from apps.account.models import CustomUser
 from django.db.models import Q
+
+from apps.account.models import CustomUser
 
 
 def print_phone_numbers_ukraine():
@@ -8,10 +9,14 @@ def print_phone_numbers_ukraine():
     Used by broadcast SMS mailing in Ukraine.
     """
     phone_numbers = []
-    for user in CustomUser.objects.filter(phone_number__isnull=False).filter(is_active=True).filter(Q(
-            phone_number__startswith='06') | Q(phone_number__startswith='07') | Q(
-            phone_number__startswith='09') | Q(phone_number__startswith='+380') | Q(
-            phone_number__startswith='380') | Q(phone_number__startswith='+09')):
+    for user in CustomUser.objects.filter(phone_number__isnull=False).filter(is_active=True).filter(
+            Q(phone_number__startswith='06') |
+            Q(phone_number__startswith='07') |
+            Q(phone_number__startswith='09') |
+            Q(phone_number__startswith='+380') |
+            Q(phone_number__startswith='380') |
+            Q(phone_number__startswith='+09')
+    ):
 
         phone_number = ''.join([x for x in user.phone_number if x.isdigit()])
         if 11 <= len(phone_number) <= 13 and '9' * 6 not in phone_number and '0' * 6 not in phone_number:
@@ -30,11 +35,16 @@ def print_phone_numbers_other():
     Other World (without Ukraine)
     """
     phone_numbers = []
-    for user in CustomUser.objects.filter(phone_number__isnull=False, is_active=True).exclude(Q(
-        phone_number__startswith='06') | Q(phone_number__startswith='07') | Q(
-        phone_number__startswith='09') | Q(phone_number__startswith='+380') | Q(
-        phone_number__startswith='380') | Q(phone_number__startswith='+06') | Q(
-        phone_number__startswith='+07') | Q(phone_number__startswith='044')):
+    for user in CustomUser.objects.filter(phone_number__isnull=False, is_active=True).exclude(
+            Q(phone_number__startswith='06') |
+            Q(phone_number__startswith='07') |
+            Q(phone_number__startswith='09') |
+            Q(phone_number__startswith='+380') |
+            Q(phone_number__startswith='380') |
+            Q(phone_number__startswith='+06') |
+            Q(phone_number__startswith='+07') |
+            Q(phone_number__startswith='044')
+    ):
 
         if '+' in user.phone_number:
             valid_number = user.phone_number.split('+')[1]

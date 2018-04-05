@@ -6,7 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import six
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible, smart_text
+from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 
@@ -33,7 +33,6 @@ class LogModel(models.Model):
         )
 
 
-@python_2_unicode_compatible
 class LogRecord(models.Model):
     action_time = models.DateTimeField(
         _('action time'),

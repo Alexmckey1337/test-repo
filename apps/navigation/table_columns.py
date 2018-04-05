@@ -1,453 +1,288 @@
 from collections import OrderedDict
 from copy import deepcopy
+from typing import List
 
-church_columns = {
-    'get_title': {
-        'id': 0, 'title': 'Название церкви', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
-    'department': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department__title', 'number': 2, 'active': True, 'editable': True},
-    'city': {
-        'id': 0, 'title': 'Город', 'ordering_title': 'city', 'number': 3, 'active': True, 'editable': True},
-    'pastor': {
-        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'pastor__last_name', 'number': 4, 'active': True, 'editable': True},
-    'is_open': {
-        'id': 0, 'title': 'Открыта', 'ordering_title': 'is_open', 'number': 5, 'active': True, 'editable': True},
-    'address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'address', 'number': 6, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'phone_number', 'number': 7, 'active': True, 'editable': True},
-    'website': {
-        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'website', 'number': 8, 'active': True, 'editable': True},
-    'country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 9, 'active': True, 'editable': True},
-    'opening_date': {
-        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 10, 'active': True, 'editable': True},
-    'region': {
-        'id': 0, 'title': 'Область', 'ordering_title': 'region', 'number': 11, 'active': True, 'editable': True},
-    'stable_count': {
-        'id': 0, 'title': 'Количество стабильных', 'ordering_title': '', 'number': 12, 'active': True, 'editable': True},
-    'count_people': {
-        'id': 0, 'title': 'Количество людей', 'ordering_title': '', 'number': 13, 'active': True, 'editable': True},
-    'count_home_groups': {
-        'id': 0, 'title': 'Количество домашних групп', 'ordering_title': '', 'number': 14, 'active': True, 'editable': True},
-    'locality': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 15, 'active': True, 'editable': True},
-}
 
-user_columns = {
-    'fullname': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': False},
-    'email': {
-        'id': 0, 'title': 'Email', 'ordering_title': 'email', 'number': 2, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Номер телефона', 'ordering_title': 'phone_number', 'number': 3, 'active': True, 'editable': True},
-    'born_date': {
-        'id': 0, 'title': 'Дата рождения', 'ordering_title': 'born_date', 'number': 4, 'active': True, 'editable': True},
-    'hierarchy': {
-        'id': 0, 'title': 'Иерархия', 'ordering_title': 'hierarchy__level', 'number': 5, 'active': True, 'editable': True},
-    'departments': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department_title', 'number': 6, 'active': True, 'editable': True},
-    'country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 7, 'active': True, 'editable': True},
-    'region': {
-        'id': 0, 'title': 'Область', 'ordering_title': 'region', 'number': 8, 'active': True, 'editable': True},
-    'city': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': 'city', 'number': 9, 'active': True, 'editable': True},
-    'district': {
-        'id': 0, 'title': 'Район', 'ordering_title': 'district', 'number': 10, 'active': True, 'editable': True},
-    'address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'address', 'number': 11, 'active': True, 'editable': True},
-    'social': {
-        'id': 0, 'title': 'Социальные сети', 'ordering_title': 'facebook', 'number': 12, 'active': True, 'editable': True},
-    'divisions': {
-        'id': 0, 'title': 'Служения', 'ordering_title': 'divisions', 'number': 13, 'active': True, 'editable': True},
-    'master': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'master__last_name', 'number': 14, 'active': True, 'editable': True},
-    'repentance_date': {
-        'id': 0, 'title': 'Дата покаяния', 'ordering_title': 'repentance_date', 'number': 15, 'active': True, 'editable': True},
-    'spiritual_level': {
-        'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'spiritual_level', 'number': 16, 'active': True, 'editable': True},
-    'get_church': {
-        'id': 0, 'title': 'Церковь', 'ordering_title': '', 'number': 17, 'active': True, 'editable': True},
-    'locality': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 18, 'active': True, 'editable': True},
-    'get_home_group': {
-        'id': 0, 'title': 'Домашняя Группа', 'ordering_title': '', 'number': 19, 'active': True, 'editable': True},
-}
+class Column:
+    def __init__(self, name, title, ordering_title='', active=True, editable=True):
+        self.name = name
+        self.id = 0
+        self.title = title
+        self.ordering_title = ordering_title
+        self.active = active
+        self.editable = editable
 
-partner_columns = {
-    'user.fullname': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'user__last_name', 'number': 1, 'active': True, 'editable': False},
-    'user.email': {
-        'id': 0, 'title': 'Email', 'ordering_title': 'user__email', 'number': 2, 'active': True, 'editable': True},
-    'user.phone_number': {
-        'id': 0, 'title': 'Номер телефона', 'ordering_title': 'user__phone_number', 'number': 3, 'active': True, 'editable': True},
-    'user.born_date': {
-        'id': 0, 'title': 'Дата рождения', 'ordering_title': 'user__born_date', 'number': 4, 'active': True, 'editable': True},
-    'user.hierarchy.title': {
-        'id': 0, 'title': 'Иерархия', 'ordering_title': 'user__hierarchy__level', 'number': 5, 'active': True, 'editable': True},
-    'user.departments': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'user__department_title', 'number': 6, 'active': True, 'editable': True},
-    'user.country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'user__country', 'number': 7, 'active': True, 'editable': True},
-    'user.region': {
-        'id': 0, 'title': 'Область', 'ordering_title': 'user__region', 'number': 8, 'active': True, 'editable': True},
-    'user.city': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': 'user__city', 'number': 9, 'active': True, 'editable': True},
-    'user.district': {
-        'id': 0, 'title': 'Район', 'ordering_title': 'user__district', 'number': 10, 'active': True, 'editable': True},
-    'user.address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'user__address', 'number': 11, 'active': True, 'editable': True},
-    'user.social': {
-        'id': 0, 'title': 'Социальные сети', 'ordering_title': 'user__facebook', 'number': 12, 'active': True, 'editable': True},
-    'user.divisions': {
-        'id': 0, 'title': 'Служения', 'ordering_title': 'user__divisions', 'number': 13, 'active': True, 'editable': True},
-    'user.master.fullname': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'user__master__last_name', 'number': 14, 'active': True, 'editable': True},
-    'user.repentance_date': {
-        'id': 0, 'title': 'Дата покаяния', 'ordering_title': 'user__repentance_date', 'number': 15, 'active': True, 'editable': True},
-    'user.spiritual_level': {
-        'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'user__spiritual_level', 'number': 16, 'active': True, 'editable': True},
-    'user.get_church': {
-        'id': 0, 'title': 'Церковь', 'ordering_title': '', 'number': 17, 'active': True, 'editable': True},
-    'user.locality': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 18, 'active': True, 'editable': True},
-    'group': {
-        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 19, 'active': True, 'editable': False},
-    'responsible': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 20, 'active': True, 'editable': True},
-    'value': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 21, 'active': True, 'editable': True},
-}
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'ordering_title': self.ordering_title,
+            'active': self.active,
+            'editable': self.editable,
+        }
 
-church_partner_columns = {
-    'church.get_title': {
-        'id': 0, 'title': 'Название церкви', 'ordering_title': 'church__title', 'number': 1, 'active': True, 'editable': False},
-    'church.department.title': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'church__department__title', 'number': 2, 'active': True, 'editable': True},
-    'church.city': {
-        'id': 0, 'title': 'Город', 'ordering_title': 'church__city', 'number': 3, 'active': True, 'editable': True},
-    'church.pastor.fullname': {
-        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'church__pastor__last_name', 'number': 4, 'active': True, 'editable': True},
-    'church.is_open': {
-        'id': 0, 'title': 'Открыта', 'ordering_title': 'church__is_open', 'number': 5, 'active': True, 'editable': True},
-    'church.address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'church__address', 'number': 6, 'active': True, 'editable': True},
-    'church.phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'church__phone_number', 'number': 7, 'active': True, 'editable': True},
-    'church.website': {
-        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'church__website', 'number': 8, 'active': True, 'editable': True},
-    'church.country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'church__country', 'number': 9, 'active': True, 'editable': True},
-    'church.opening_date': {
-        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'church__opening_date', 'number': 10, 'active': True, 'editable': True},
-    'church.locality': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 11, 'active': True, 'editable': True},
-    'group': {
-        'id': 0, 'title': 'Тег', 'ordering_title': 'group__title', 'number': 12, 'active': True, 'editable': False},
-    'responsible': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 13, 'active': True, 'editable': True},
-    'value': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 14, 'active': True, 'editable': True},
-}
 
-home_group_columns = {
-    'get_title': {
-        'id': 0, 'title': 'Название Группы', 'ordering_title': 'title', 'number': 1, 'active': True, 'editable': False},
-    'church': {
-        'id': 0, 'title': 'Церковь', 'ordering_title': 'church__title', 'number': 2, 'active': True, 'editable': True},
-    'city': {
-        'id': 0, 'title': 'Город', 'ordering_title': 'city', 'number': 3, 'active': True, 'editable': True},
-    'leader': {
-        'id': 0, 'title': 'Лидер', 'ordering_title': 'leader__last_name', 'number': 4, 'active': True, 'editable': True},
-    'opening_date': {
-        'id': 0, 'title': 'Дата открытия', 'ordering_title': 'opening_date', 'number': 5, 'active': True, 'editable': True},
-    'address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'address', 'number': 6, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'phone_number', 'number': 7, 'active': True, 'editable': True},
-    'website': {
-        'id': 0, 'title': 'Адрес сайта', 'ordering_title': 'website', 'number': 8, 'active': True, 'editable': True},
-    'count_users': {
-        'id': 0, 'title': 'Количество людей', 'ordering_title': 'count_users', 'number': 9, 'active': True, 'editable': True},
-    'locality': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': '', 'number': 10, 'active': True, 'editable': True},
-}
+class Table:
+    def __init__(self, name: str, columns: List[Column]):
+        self.name = name
+        self.columns = columns
 
-summit_columns = {
-    'full_name': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': True},
-    'author': {
-        'id': 0, 'title': 'Автор регистрации', 'ordering_title': 'author__last_name', 'number': 2, 'active': True, 'editable': True},
-    'spiritual_level': {
-        'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'spiritual_level', 'number': 3, 'active': True, 'editable': True},
-    'divisions_title': {
-        'id': 0, 'title': 'Служения', 'ordering_title': 'divisions_title', 'number': 4, 'active': True, 'editable': True},
-    'department': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department', 'number': 5, 'active': True, 'editable': True},
-    'hierarchy_title': {
-        'id': 0, 'title': 'Иерархия', 'ordering_title': 'hierarchy_level', 'number': 6, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Номер телефона', 'ordering_title': 'user__phone_number', 'number': 7, 'active': True, 'editable': True},
-    'email': {
-        'id': 0, 'title': 'Email', 'ordering_title': 'user__email', 'number': 8, 'active': True, 'editable': True},
-    'social': {
-        'id': 0, 'title': 'Социальные сети', 'ordering_title': 'user__facebook', 'number': 9, 'active': True, 'editable': True},
-    'country': {
-        'id': 0, 'title': 'Страна', 'ordering_title': 'country', 'number': 10, 'active': True, 'editable': True},
-    'city': {
-        'id': 0, 'title': 'Населенный пункт', 'ordering_title': 'city', 'number': 11, 'active': True, 'editable': True},
-    'region': {
-        'id': 0, 'title': 'Область', 'ordering_title': 'user__region', 'number': 12, 'active': True, 'editable': True},
-    'district': {
-        'id': 0, 'title': 'Район', 'ordering_title': 'user__district', 'number': 13, 'active': True, 'editable': True},
-    'address': {
-        'id': 0, 'title': 'Адрес', 'ordering_title': 'user__address', 'number': 14, 'active': True, 'editable': True},
-    'born_date': {
-        'id': 0, 'title': 'Дата рождения', 'ordering_title': 'user__born_date', 'number': 15, 'active': True, 'editable': True},
-    'repentance_date': {
-        'id': 0, 'title': 'Дата Покаяния', 'ordering_title': 'user__repentance_date', 'number': 16, 'active': True, 'editable': True},
-    'code': {
-        'id': 0, 'title': 'Код', 'ordering_title': 'code', 'number': 17, 'active': True, 'editable': True},
-    'value': {
-        'id': 0, 'title': 'Оплата', 'ordering_title': 'value', 'number': 18, 'active': True, 'editable': True},
-    'description': {
-        'id': 0, 'title': 'Примечания', 'ordering_title': 'description', 'number': 19, 'active': True, 'editable': True},
-    'ticket_status': {
-        'id': 0, 'title': 'Статус билета', 'ordering_title': 'ticket_status', 'number': 20, 'active': True, 'editable': True},
-    'e_ticket': {
-        'id': 0, 'title': 'Электронный билет', 'ordering_title': 'status__reg_code_requested', 'number': 21, 'active': True, 'editable': True},
-    'has_email': {
-        'id': 0, 'title': 'Email отправлен', 'ordering_title': 'has_email', 'number': 22, 'active': True, 'editable': True},
-    'responsible': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 23, 'active': True, 'editable': True},
-    # 'action': {
-    #     'id': 0, 'title': 'Действие', 'ordering_title': 'done', 'number': 24, 'active': True, 'editable': True},
-}
+    def to_dict(self):
+        columns = {}
+        for i, c in enumerate(self.columns):
+            columns[c.name] = c.to_dict()
+            columns[c.name]['number'] = i
+        return columns
 
-meeting_columns = {
-    'id': {
-        'id': 0, 'title': '№', 'ordering_title': 'id', 'number': 1, 'active': True, 'editable': False},
-    'home_group': {
-        'id': 0, 'title': 'Домашняя группа', 'ordering_title': 'home_group__title', 'number': 2, 'active': True, 'editable': True},
-    'owner': {
-        'id': 0, 'title': 'Лидер домашней группы', 'ordering_title': 'owner__last_name', 'number': 3, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'home_group__phone_number', 'number': 4, 'active': True, 'editable': True},
-    'type': {
-        'id': 0, 'title': 'Тип отчета', 'ordering_title': 'type__code', 'number': 5, 'active': True, 'editable': True},
-    'visitors_attended': {
-        'id': 0, 'title': 'Присутствовали', 'ordering_title': 'visitors_attended', 'number': 6, 'active': True, 'editable': True},
-    'visitors_absent': {
-        'id': 0, 'title': 'Отсутствовали', 'ordering_title': 'visitors_absent', 'number': 7, 'active': True, 'editable': True},
-    'total_sum': {
-        'id': 0, 'title': 'Сумма пожертвований', 'ordering_title': 'total_sum', 'number': 8, 'active': True, 'editable': True},
-    'date': {
-        'id': 0, 'title': 'Дата создания', 'ordering_title': 'date', 'number': 9, 'active': True, 'editable': True},
-}
 
-attend_columns = {
-    'attended': {
-        'id': 0, 'title': 'Присутствие', 'ordering_title': 'attended', 'number': 1, 'active': True, 'editable': True},
-    'user': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'user__last_name', 'number': 2, 'active': True, 'editable': False},
-    'spiritual_level': {
-        'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'user__spiritual_level', 'number': 3, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Телефонный номер', 'ordering_title': 'user__phone_number', 'number': 4, 'active': True, 'editable': True},
-    'note': {
-        'id': 0, 'title': 'Коментарий', 'ordering_title': 'note', 'number': 5, 'active': True, 'editable': True},
-}
+church_columns = Table('church', [
+    Column('get_title', 'Название церкви', 'title', editable=False),
+    Column('department', 'Отдел', 'department__title'),
+    Column('city', 'Город', 'city'),
+    Column('pastor', 'Пастор Церкви', 'pastor__last_name'),
+    Column('is_open', 'Открыта', 'is_open'),
+    Column('address', 'Адрес', 'address'),
+    Column('phone_number', 'Телефонный номер', 'phone_number'),
+    Column('website', 'Адрес сайта', 'website'),
+    Column('country', 'Страна', 'country'),
+    Column('opening_date', 'Дата открытия', 'opening_date'),
+    Column('region', 'Область', 'region'),
+    Column('stable_count', 'Количество стабильных'),
+    Column('count_people', 'Количество людей'),
+    Column('count_home_groups', 'Количество домашних групп'),
+    Column('locality', 'Населенный пункт'),
+]).to_dict()
 
-church_report_columns = {
-    'id': {
-        'id': 0, 'title': '№', 'ordering_title': 'id', 'number': 1, 'active': True, 'editable': False},
-    'date': {
-        'id': 0, 'title': 'Дата создания', 'ordering_title': 'date', 'number': 2, 'active': True, 'editable': True},
-    'church': {
-        'id': 0, 'title': 'Церковь', 'ordering_title': 'church__title', 'number': 3, 'active': True, 'editable': True},
-    'pastor': {
-        'id': 0, 'title': 'Пастор Церкви', 'ordering_title': 'pastor__last_name', 'number': 4, 'active': True, 'editable': True},
-    'total_peoples': {
-        'id': 0, 'title': 'Людей на собрании', 'ordering_title': 'count_people', 'number': 5, 'active': True, 'editable': True},
-    'total_new_peoples': {
-        'id': 0, 'title': 'Новых людей', 'ordering_title': 'new_people', 'number': 6, 'active': True, 'editable': True},
-    'total_repentance': {
-        'id': 0, 'title': 'Покаяний', 'ordering_title': 'count_repentance', 'number': 7, 'active': True, 'editable': True},
-    'total_tithe': {
-        'id': 0, 'title': 'Десятины', 'ordering_title': 'tithe', 'number': 8, 'active': True, 'editable': True},
-    'total_donations': {
-        'id': 0, 'title': 'Пожертвования', 'ordering_title': 'donations', 'number': 9, 'active': True, 'editable': True},
-    'total_pastor_tithe': {
-        'id': 0, 'title': 'Десятина пастора', 'ordering_title': 'pastor_tithe', 'number': 10, 'active': True, 'editable': True},
-    'transfer_payments': {
-        'id': 0, 'title': '15% к перечислению', 'ordering_title': 'transfer_payments', 'number': 11, 'active': True, 'editable': True},
-    'currency_donations': {
-        'id': 0, 'title': 'Пожертвований в другой валюте', 'ordering_title': 'currency_donations', 'number': 12, 'active': True, 'editable': True},
-    'value': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 13, 'active': True, 'editable': True},
-    'action': {
-        'id': 0, 'title': 'Действие', 'ordering_title': 'payment_status', 'number': 14, 'active': True, 'editable': True},
-}
+user_columns = Table('user', [
+    Column('fullname', 'ФИО', 'last_name', editable=False),
+    Column('email', 'Email', 'email'),
+    Column('phone_number', 'Номер телефона', 'phone_number'),
+    Column('born_date', 'Дата рождения', 'born_date'),
+    Column('hierarchy', 'Иерархия', 'hierarchy__level'),
+    Column('departments', 'Отдел', 'department_title'),
+    Column('country', 'Страна', 'country'),
+    Column('region', 'Область', 'region'),
+    Column('city', 'Населенный пункт', 'city'),
+    Column('district', 'Район', 'district'),
+    Column('address', 'Адрес', 'address'),
+    Column('social', 'Социальные сети', 'facebook'),
+    Column('divisions', 'Служения', 'divisions'),
+    Column('master', 'Ответственный', 'master__last_name'),
+    Column('repentance_date', 'Дата покаяния', 'repentance_date'),
+    Column('spiritual_level', 'Духовный уровень', 'spiritual_level'),
+    Column('get_church', 'Церковь', ''),
+    Column('locality', 'Населенный пункт', ''),
+    Column('get_home_group', 'Домашняя Группа', ''),
+]).to_dict()
 
-deal_columns = {
-    'full_name': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'partnership__user__last_name', 'number': 1, 'active': True, 'editable': False},
-    'date_created': {
-        'id': 0, 'title': 'Дата сделки', 'ordering_title': 'date_created', 'number': 2, 'active': True, 'editable': True},
-    'responsible': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'responsible__last_name', 'number': 3, 'active': True, 'editable': True},
-    'sum': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'value', 'number': 4, 'active': True, 'editable': True},
-    'type': {
-        'id': 0, 'title': 'Тип сделки', 'ordering_title': 'type', 'number': 5, 'active': True, 'editable': True},
-    'action': {
-        'id': 0, 'title': 'Действие', 'ordering_title': 'done', 'number': 6, 'active': True, 'editable': True},
-    # 'done': {
-    #     'id': 0, 'title': 'Закрыта', 'ordering_title': 'done', 'number': 7, 'active': True, 'editable': True},
-}
+partner_columns = Table('partner', [
+    Column('user.fullname', 'ФИО', 'user__last_name', editable=False),
+    Column('user.email', 'Email', 'user__email'),
+    Column('user.phone_number', 'Номер телефона', 'user__phone_number'),
+    Column('user.born_date', 'Дата рождения', 'user__born_date'),
+    Column('user.hierarchy.title', 'Иерархия', 'user__hierarchy__level'),
+    Column('user.departments', 'Отдел', 'user__department_title'),
+    Column('user.country', 'Страна', 'user__country'),
+    Column('user.region', 'Область', 'user__region'),
+    Column('user.city', 'Населенный пункт', 'user__city'),
+    Column('user.district', 'Район', 'user__district'),
+    Column('user.address', 'Адрес', 'user__address'),
+    Column('user.social', 'Социальные сети', 'user__facebook'),
+    Column('user.divisions', 'Служения', 'user__divisions'),
+    Column('user.master.fullname', 'Ответственный', 'user__master__last_name'),
+    Column('user.repentance_date', 'Дата покаяния', 'user__repentance_date'),
+    Column('user.spiritual_level', 'Духовный уровень', 'user__spiritual_level'),
+    Column('user.get_church', 'Церковь', ''),
+    Column('user.locality', 'Населенный пункт', ''),
+    Column('group', 'Тег', 'group__title', editable=False),
+    Column('responsible', 'Менеджер', 'responsible__last_name'),
+    Column('value', 'Сумма', 'value'),
+]).to_dict()
 
-deal_payment_columns = {
-    'purpose_fio': {
-        'id': 0, 'title': 'Плательщик', 'ordering_title': 'deals__partnership__user__last_name', 'number': 1, 'active': True, 'editable': False},
-    'sum_str': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'sum', 'number': 2, 'active': True, 'editable': True},
-    'manager': {
-        'id': 0, 'title': 'Супервайзер', 'ordering_title': 'manager__last_name', 'number': 3, 'active': True, 'editable': True},
-    'description': {
-        'id': 0, 'title': 'Примечание', 'ordering_title': 'description', 'number': 4, 'active': True, 'editable': True},
-    'sent_date': {
-        'id': 0, 'title': 'Дата поступления', 'ordering_title': 'sent_date', 'number': 5, 'active': True, 'editable': True},
-    'purpose_date': {
-        'id': 0, 'title': 'Дата сделки', 'ordering_title': 'deals__date_created', 'number': 6, 'active': True, 'editable': True},
-    'purpose_manager_fio': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'deals__responsible__last_name', 'number': 7, 'active': True, 'editable': True},
-    'created_at': {
-        'id': 0, 'title': 'Дата создания', 'ordering_title': 'created_at', 'number': 8, 'active': True, 'editable': True},
-    'purpose_type': {
-        'id': 0, 'title': 'Тип сделки', 'ordering_title': 'deals__type', 'number': 9, 'active': True, 'editable': True},
-}
+church_partner_columns = Table('church_partner', [
+    Column('church.get_title', 'Название церкви', 'church__title', editable=False),
+    Column('church.department.title', 'Отдел', 'church__department__title'),
+    Column('church.city', 'Город', 'church__city'),
+    Column('church.pastor.fullname', 'Пастор Церкви', 'church__pastor__last_name'),
+    Column('church.is_open', 'Открыта', 'church__is_open'),
+    Column('church.address', 'Адрес', 'church__address'),
+    Column('church.phone_number', 'Телефонный номер', 'church__phone_number'),
+    Column('church.website', 'Адрес сайта', 'church__website'),
+    Column('church.country', 'Страна', 'church__country'),
+    Column('church.opening_date', 'Дата открытия', 'church__opening_date'),
+    Column('church.locality', 'Населенный пункт', ''),
+    Column('group', 'Тег', 'group__title', editable=False),
+    Column('responsible', 'Менеджер', 'responsible__last_name'),
+    Column('value', 'Сумма', 'value'),
+]).to_dict()
 
-meeting_summary_columns = {
-    'owner': {
-        'id': 0, 'title': 'Лидер', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': False},
-    'master': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'master__last_name', 'number': 2, 'active': True, 'editable': True},
-    'meetings_submitted': {
-        'id': 0, 'title': 'Заполненные отчеты', 'ordering_title': 'meetings_submitted', 'number': 3, 'active': True, 'editable': True},
-    'meetings_in_progress': {
-        'id': 0, 'title': 'Отчеты к заполнению', 'ordering_title': 'meetings_in_progress', 'number': 4, 'active': True, 'editable': True},
-    'meetings_expired': {
-        'id': 0, 'title': 'Просроченные отчеты', 'ordering_title': 'meetings_expired', 'number': 5, 'active': True, 'editable': True},
-}
+home_group_columns = Table('home_group', [
+    Column('get_title', 'Название Группы', 'title', editable=False),
+    Column('church', 'Церковь', 'church__title'),
+    Column('city', 'Город', 'city'),
+    Column('leader', 'Лидер', 'leader__last_name'),
+    Column('opening_date', 'Дата открытия', 'opening_date'),
+    Column('address', 'Адрес', 'address'),
+    Column('phone_number', 'Телефонный номер', 'phone_number'),
+    Column('website', 'Адрес сайта', 'website'),
+    Column('count_users', 'Количество людей', 'count_users'),
+    Column('locality', 'Населенный пункт', ''),
+]).to_dict()
 
-report_summary_columns = {
-    'pastor': {
-        'id': 0, 'title': 'Пастор', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': False},
-    'master': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'master__last_name', 'number': 2, 'active': True, 'editable': True},
-    'reports_submitted': {
-        'id': 0, 'title': 'Заполненные отчеты', 'ordering_title': 'reports_submitted', 'number': 3, 'active': True, 'editable': True},
-    'reports_in_progress': {
-        'id': 0, 'title': 'Отчеты к заполнению', 'ordering_title': 'reports_in_progress', 'number': 4, 'active': True, 'editable': True},
-    'reports_expired': {
-        'id': 0, 'title': 'Просроченные отчеты', 'ordering_title': 'reports_expired', 'number': 5, 'active': True, 'editable': True},
-}
+summit_columns = Table('summit', [
+    Column('full_name', 'ФИО', 'last_name'),
+    Column('author', 'Автор регистрации', 'author__last_name'),
+    Column('spiritual_level', 'Духовный уровень', 'spiritual_level'),
+    Column('divisions_title', 'Служения', 'divisions_title'),
+    Column('department', 'Отдел', 'department'),
+    Column('hierarchy_title', 'Иерархия', 'hierarchy_level'),
+    Column('phone_number', 'Номер телефона', 'user__phone_number'),
+    Column('email', 'Email', 'user__email'),
+    Column('social', 'Социальные сети', 'user__facebook'),
+    Column('country', 'Страна', 'country'),
+    Column('city', 'Населенный пункт', 'city'),
+    Column('region', 'Область', 'user__region'),
+    Column('district', 'Район', 'user__district'),
+    Column('address', 'Адрес', 'user__address'),
+    Column('born_date', 'Дата рождения', 'user__born_date'),
+    Column('repentance_date', 'Дата Покаяния', 'user__repentance_date'),
+    Column('code', 'Код', 'code'),
+    Column('value', 'Оплата', 'value'),
+    Column('description', 'Примечания', 'description'),
+    Column('ticket_status', 'Статус билета', 'ticket_status'),
+    Column('e_ticket', 'Электронный билет', 'status__reg_code_requested'),
+    Column('has_email', 'Email отправлен', 'has_email'),
+    Column('responsible', 'Ответственный', 'responsible'),
+]).to_dict()
 
-partner_summary_columns = {
-    'manager': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'manager', 'number': 1, 'active': True, 'editable': False},
-    'plan': {
-        'id': 0, 'title': 'План', 'ordering_title': 'plan', 'number': 2, 'active': True, 'editable': True},
-    'potential_sum': {
-        'id': 0, 'title': 'Потенциал', 'ordering_title': 'potential_sum', 'number': 3, 'active': True, 'editable': True},
-    'sum_deals': {
-        'id': 0, 'title': 'Сумма сделок', 'ordering_title': 'sum_deals', 'number': 4, 'active': True, 'editable': True},
-    'percent_of_plan': {
-        'id': 0, 'title': '% выполнения плана', 'ordering_title': 'percent_of_plan', 'number': 5, 'active': True, 'editable': True},
-    'total_partners': {
-        'id': 0, 'title': 'Всего партнеров (активные/неактивные)', 'ordering_title': 'total_partners', 'number': 6, 'active': True, 'editable': True},
-    'sum_pay': {
-        'id': 0, 'title': 'Сумма партнерских', 'ordering_title': 'sum_pay', 'number': 7, 'active': True, 'editable': True},
-    'sum_pay_tithe': {
-        'id': 0, 'title': 'Сумма десятин', 'ordering_title': 'sum_pay_tithe', 'number': 8, 'active': True, 'editable': True},
-    'sum_pay_church': {
-        'id': 0, 'title': 'Сумма по церквям', 'ordering_title': 'sum_pay_church', 'number': 9, 'active': True, 'editable': True},
-    'total_sum': {
-        'id': 0, 'title': 'Общая сумма', 'ordering_title': 'total_sum', 'number': 10, 'active': True, 'editable': True},
-}
+meeting_columns = Table('meeting', [
+    Column('id', '№', 'id', editable=False),
+    Column('home_group', 'Домашняя группа', 'home_group__title'),
+    Column('owner', 'Лидер домашней группы', 'owner__last_name'),
+    Column('phone_number', 'Телефонный номер', 'home_group__phone_number'),
+    Column('type', 'Тип отчета', 'type__code'),
+    Column('visitors_attended', 'Присутствовали', 'visitors_attended'),
+    Column('visitors_absent', 'Отсутствовали', 'visitors_absent'),
+    Column('total_sum', 'Сумма пожертвований', 'total_sum'),
+    Column('date', 'Дата создания', 'date'),
+]).to_dict()
 
-report_payment_columns = {
-    'church': {
-        'id': 0, 'title': 'Церковь', 'ordering_title': 'church_reports__church__title', 'number': 1, 'active': True, 'editable': False},
-    'sum_str': {
-        'id': 0, 'title': 'Сумма', 'ordering_title': 'sum', 'number': 2, 'active': True, 'editable': True},
-    'manager': {
-        'id': 0, 'title': 'Менеджер', 'ordering_title': 'manager__last_name', 'number': 3, 'active': True, 'editable': True},
-    'description': {
-        'id': 0, 'title': 'Примечание', 'ordering_title': 'description', 'number': 4, 'active': True, 'editable': True},
-    'sent_date': {
-        'id': 0, 'title': 'Дата поступления', 'ordering_title': 'sent_date', 'number': 5, 'active': True, 'editable': True},
-    'report_date': {
-        'id': 0, 'title': 'Дата подачи отчета', 'ordering_title': 'church_reports__date', 'number': 6, 'active': True, 'editable': True},
-    'pastor_fio': {
-        'id': 0, 'title': 'Пастор', 'ordering_title': 'church_reports__church__pastor__last_name', 'number': 7, 'active': True, 'editable': True},
-    'created_at': {
-        'id': 0, 'title': 'Дата создания', 'ordering_title': 'created_at', 'number': 8, 'active': True, 'editable': True},
-}
+attend_columns = Table('attend', [
+    Column('attended', 'Присутствие', 'attended'),
+    Column('user', 'ФИО', 'user__last_name', editable=False),
+    Column('spiritual_level', 'Духовный уровень', 'user__spiritual_level'),
+    Column('phone_number', 'Телефонный номер', 'user__phone_number'),
+    Column('note', 'Коментарий', 'note'),
+]).to_dict()
 
-task_columns = {
-    'date_published': {
-        'id': 0, 'title': 'Дата', 'ordering_title': 'date_published', 'number': 1, 'active': True, 'editable': True},
-    'type': {
-        'id': 0, 'title': 'Тип', 'ordering_title': 'type', 'number': 2, 'active': True, 'editable': True},
-    'creator': {
-        'id': 0, 'title': 'Автор', 'ordering_title': 'creator__last_name', 'number': 3, 'active': True, 'editable': True},
-    'executor': {
-        'id': 0, 'title': 'Исполнитель', 'ordering_title': 'executor__last_name', 'number': 4, 'active': True, 'editable': True},
-    'division': {
-        'id': 0, 'title': 'Депортамент', 'ordering_title': 'division__title', 'number': 5, 'active': True, 'editable': True},
-    'target': {
-        'id': 0, 'title': 'Объект', 'ordering_title': 'target__last_name', 'number': 6, 'active': True, 'editable': True},
-    'description': {
-        'id': 0, 'title': 'Описание', 'ordering_title': 'description', 'number': 7, 'active': True, 'editable': True},
-    'status': {
-        'id': 0, 'title': 'Статус', 'ordering_title': 'status', 'number': 8, 'active': True, 'editable': True},
-    'finish_report': {
-        'id': 0, 'title': 'Комментарий', 'ordering_title': 'finish_report', 'number': 9, 'active': True, 'editable': True},
-    'date_finish': {
-        'id': 0, 'title': 'Дата закрытия', 'ordering_title': 'date_finish', 'number': 10, 'active': True, 'editable': True},
-}
+church_report_columns = Table('church_report', [
+    Column('id', '№', 'id', editable=False),
+    Column('date', 'Дата создания', 'date'),
+    Column('church', 'Церковь', 'church__title'),
+    Column('pastor', 'Пастор Церкви', 'pastor__last_name'),
+    Column('total_peoples', 'Людей на собрании', 'count_people'),
+    Column('total_new_peoples', 'Новых людей', 'new_people'),
+    Column('total_repentance', 'Покаяний', 'count_repentance'),
+    Column('total_tithe', 'Десятины', 'tithe'),
+    Column('total_donations', 'Пожертвования', 'donations'),
+    Column('total_pastor_tithe', 'Десятина пастора', 'pastor_tithe'),
+    Column('transfer_payments', '15% к перечислению', 'transfer_payments'),
+    Column('currency_donations', 'Пожертвований в другой валюте', 'currency_donations'),
+    Column('value', 'Сумма', 'value'),
+    Column('action', 'Действие', 'payment_status'),
+]).to_dict()
 
-group_user_columns = {
-    'fullname': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 1, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Номер телефона', 'ordering_title': 'phone_number', 'number': 2, 'active': True, 'editable': True},
-    'repentance_date': {
-        'id': 0, 'title': 'Дата Покаяния', 'ordering_title': 'repentance_date', 'number': 3, 'active': True, 'editable': True},
-    'spiritual_level': {
-        'id': 0, 'title': 'Духовный уровень', 'ordering_title': 'spiritual_level', 'number': 4, 'active': True, 'editable': True},
-    'born_date': {
-        'id': 0, 'title': 'Дата рождения', 'ordering_title': 'born_date', 'number': 5, 'active': True, 'editable': True},
-}
+deal_columns = Table('deal', [
+    Column('full_name', 'ФИО', 'partnership__user__last_name', editable=False),
+    Column('date_created', 'Дата сделки', 'date_created'),
+    Column('responsible', 'Менеджер', 'responsible__last_name'),
+    Column('sum', 'Сумма', 'value'),
+    Column('type', 'Тип сделки', 'type'),
+    Column('action', 'Действие', 'done'),
+]).to_dict()
 
-summit_stats_columns = {
-    'attended': {
-        'id': 0, 'title': 'Присутствие', 'ordering_title': 'attended', 'number': 1, 'active': True, 'editable': False},
-    'full_name': {
-        'id': 0, 'title': 'ФИО', 'ordering_title': 'last_name', 'number': 2, 'active': True, 'editable': False},
-    'author': {
-        'id': 0, 'title': 'Автор регистрации', 'ordering_title': 'author__last_name', 'number': 3, 'active': True, 'editable': True},
-    'phone_number': {
-        'id': 0, 'title': 'Номер телефона', 'ordering_title': 'user__phone_number', 'number': 4, 'active': True, 'editable': True},
-    'code': {
-        'id': 0, 'title': 'Номер билета', 'ordering_title': 'code', 'number': 5, 'active': True, 'editable': True},
-    'department': {
-        'id': 0, 'title': 'Отдел', 'ordering_title': 'department', 'number': 6, 'active': True, 'editable': True},
-    'responsible': {
-        'id': 0, 'title': 'Ответственный', 'ordering_title': 'responsible', 'number': 7, 'active': True, 'editable': True},
-}
+deal_payment_columns = Table('deal_payment', [
+    Column('purpose_fio', 'Плательщик', 'deals__partnership__user__last_name', editable=False),
+    Column('sum_str', 'Сумма', 'sum'),
+    Column('manager', 'Супервайзер', 'manager__last_name'),
+    Column('description', 'Примечание', 'description'),
+    Column('sent_date', 'Дата поступления', 'sent_date'),
+    Column('purpose_date', 'Дата сделки', 'deals__date_created'),
+    Column('purpose_manager_fio', 'Менеджер', 'deals__responsible__last_name'),
+    Column('created_at', 'Дата создания', 'created_at'),
+    Column('purpose_type', 'Тип сделки', 'deals__type'),
+]).to_dict()
+
+meeting_summary_columns = Table('meeting_summary', [
+    Column('owner', 'Лидер', 'last_name', editable=False),
+    Column('master', 'Ответственный', 'master__last_name'),
+    Column('meetings_submitted', 'Заполненные отчеты', 'meetings_submitted'),
+    Column('meetings_in_progress', 'Отчеты к заполнению', 'meetings_in_progress'),
+    Column('meetings_expired', 'Просроченные отчеты', 'meetings_expired'),
+]).to_dict()
+
+report_summary_columns = Table('report_summary', [
+    Column('pastor', 'Пастор', 'last_name', editable=False),
+    Column('master', 'Ответственный', 'master__last_name'),
+    Column('reports_submitted', 'Заполненные отчеты', 'reports_submitted'),
+    Column('reports_in_progress', 'Отчеты к заполнению', 'reports_in_progress'),
+    Column('reports_expired', 'Просроченные отчеты', 'reports_expired'),
+]).to_dict()
+
+partner_summary_columns = Table('partner_summary', [
+    Column('manager', 'Менеджер', 'manager', editable=False),
+    Column('plan', 'План', 'plan'),
+    Column('potential_sum', 'Потенциал', 'potential_sum'),
+    Column('sum_deals', 'Сумма сделок', 'sum_deals'),
+    Column('percent_of_plan', '% выполнения плана', 'percent_of_plan'),
+    Column('total_partners', 'Всего партнеров (активные/неактивные)', 'total_partners'),
+    Column('sum_pay', 'Сумма партнерских', 'sum_pay'),
+    Column('sum_pay_tithe', 'Сумма десятин', 'sum_pay_tithe'),
+    Column('sum_pay_church', 'Сумма по церквям', 'sum_pay_church'),
+    Column('total_sum', 'Общая сумма', 'total_sum'),
+]).to_dict()
+
+report_payment_columns = Table('report_payment', [
+    Column('church', 'Церковь', 'church_reports__church__title', editable=False),
+    Column('sum_str', 'Сумма', 'sum'),
+    Column('manager', 'Менеджер', 'manager__last_name'),
+    Column('description', 'Примечание', 'description'),
+    Column('sent_date', 'Дата поступления', 'sent_date'),
+    Column('report_date', 'Дата подачи отчета', 'church_reports__date'),
+    Column('pastor_fio', 'Пастор', 'church_reports__church__pastor__last_name'),
+    Column('created_at', 'Дата создания', 'created_at'),
+]).to_dict()
+
+task_columns = Table('task', [
+    Column('date_published', 'Дата', 'date_published'),
+    Column('type', 'Тип', 'type'),
+    Column('creator', 'Автор', 'creator__last_name'),
+    Column('executor', 'Исполнитель', 'executor__last_name'),
+    Column('division', 'Депортамент', 'division__title'),
+    Column('target', 'Объект', 'target__last_name'),
+    Column('description', 'Описание', 'description'),
+    Column('status', 'Статус', 'status'),
+    Column('finish_report', 'Комментарий', 'finish_report'),
+    Column('date_finish', 'Дата закрытия', 'date_finish'),
+]).to_dict()
+
+group_user_columns = Table('group_user', [
+    Column('fullname', 'ФИО', 'last_name'),
+    Column('phone_number', 'Номер телефона', 'phone_number'),
+    Column('repentance_date', 'Дата Покаяния', 'repentance_date'),
+    Column('spiritual_level', 'Духовный уровень', 'spiritual_level'),
+    Column('born_date', 'Дата рождения', 'born_date'),
+]).to_dict()
+
+summit_stats_columns = Table('summit_stats', [
+    Column('attended', 'Присутствие', 'attended', editable=False),
+    Column('full_name', 'ФИО', 'last_name', editable=False),
+    Column('author', 'Автор регистрации', 'author__last_name'),
+    Column('phone_number', 'Номер телефона', 'user__phone_number'),
+    Column('code', 'Номер билета', 'code'),
+    Column('department', 'Отдел', 'department'),
+    Column('responsible', 'Ответственный', 'responsible'),
+]).to_dict()
 
 TABLES = {
     'home_group': home_group_columns,

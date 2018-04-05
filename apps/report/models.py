@@ -1,16 +1,10 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.db import models
 from django.db.models import Sum
-from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 
 from apps.event.models import Participation
 from common import date_utils
 
 
-@python_2_unicode_compatible
 class UserReport(models.Model):
     user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT,
                                 related_name='user_report', null=True, blank=True)
@@ -19,7 +13,6 @@ class UserReport(models.Model):
         return self.user.get_full_name()
 
 
-@python_2_unicode_compatible
 class AbstractReport(models.Model):
     home_count = models.IntegerField(default=0)
     home_value = models.IntegerField(default=0)
@@ -60,7 +53,6 @@ class AbstractReport(models.Model):
         return self.user.user.master.id
 
 
-@python_2_unicode_compatible
 class WeekReport(AbstractReport):
     week = models.ForeignKey('event.Week', on_delete=models.PROTECT, null=True, blank=True, related_name='week_reports')
     from_date = models.DateField(default=date_utils.today)

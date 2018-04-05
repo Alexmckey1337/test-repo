@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.utils import six
 
 from apps.account.resources import USER_RESOURCE_FIELDS, UserResource, UserMetaclass

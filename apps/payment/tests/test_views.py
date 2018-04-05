@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 import json
 from datetime import datetime
 from decimal import Decimal
@@ -10,7 +7,7 @@ import pytz
 from rest_framework import status, permissions
 
 from apps.partnership.models import Deal, ChurchDeal
-from apps.payment.api.filters import FilterByDealDate, FilterByDeal
+from apps.payment.api.filters import FilterByDeal
 from apps.payment.api.views import PaymentDealListView
 from apps.payment.models import Payment
 

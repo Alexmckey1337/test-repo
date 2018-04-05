@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django_filters import rest_framework
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated

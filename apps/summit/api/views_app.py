@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime, timedelta
 
@@ -15,17 +14,10 @@ from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from apps.account.models import CustomUser
 from apps.account.api.permissions import IsSuperUser
-from common.exception import InvalidRegCode
-from common.filters import FieldSearchFilter
-from common.test_helpers.utils import get_real_user
-from common.views_mixins import ModelWithoutDeleteViewSet
+from apps.account.models import CustomUser
 from apps.notification.backend import RedisBackend
-from apps.summit.regcode import decode_reg_code
-from apps.summit.models import (
-    SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
-    AnketPasses, TelegramPayment)
+from apps.partnership.models import TelegramGroup
 from apps.summit.api.permissions import HasAPIAccess
 from apps.summit.api.serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
@@ -33,7 +25,14 @@ from apps.summit.api.serializers import (
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
     SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer,
     TelegramPaymentSerializer)
-from apps.partnership.models import TelegramGroup
+from apps.summit.models import (
+    SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
+    AnketPasses, TelegramPayment)
+from apps.summit.regcode import decode_reg_code
+from common.exception import InvalidRegCode
+from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
+from common.views_mixins import ModelWithoutDeleteViewSet
 
 logger = logging.getLogger(__name__)
 

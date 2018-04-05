@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from decimal import Decimal
 
 from django.conf import settings
@@ -12,7 +9,6 @@ from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -23,7 +19,6 @@ from apps.summit.managers import ProfileManager, SummitManager
 from apps.summit.regcode import encode_reg_code
 
 
-@python_2_unicode_compatible
 class SummitType(models.Model):
     """
     Type of the summit.
@@ -53,7 +48,6 @@ class SummitType(models.Model):
             return ''
 
 
-@python_2_unicode_compatible
 class Summit(models.Model):
     #: Start date of the summit
     start_date = models.DateField()
@@ -202,7 +196,6 @@ class ProfileAbstract(models.Model):
         abstract = True
 
 
-@python_2_unicode_compatible
 class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='summit_profiles')
     summit = models.ForeignKey('Summit', on_delete=models.PROTECT, related_name='ankets', verbose_name='Саммит',
@@ -411,7 +404,6 @@ class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
         return self.passes_count.filter(datetime__date=timezone.now().date()).count()
 
 
-@python_2_unicode_compatible
 class SummitTicket(models.Model):
     title = models.CharField(_('Title'), max_length=255, blank=True)
     summit = models.ForeignKey('Summit', on_delete=models.CASCADE, related_name='tickets', verbose_name=_('Summit'))
@@ -445,7 +437,6 @@ class SummitTicket(models.Model):
         return reverse("summit:ticket-detail", kwargs={"pk": self.id})
 
 
-@python_2_unicode_compatible
 class AnketEmail(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='emails',
                               verbose_name=_('Anket'))
@@ -477,7 +468,6 @@ class AnketEmail(models.Model):
         verbose_name_plural = _('Anket emails')
 
 
-@python_2_unicode_compatible
 class SummitLesson(models.Model):
     #: Summit to which the lesson
     summit = models.ForeignKey('summit.Summit', on_delete=models.CASCADE, related_name='lessons',
@@ -498,7 +488,6 @@ class SummitLesson(models.Model):
         unique_together = ('name', 'summit')
 
 
-@python_2_unicode_compatible
 class SummitUserConsultant(models.Model):
     consultant = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='consultees',
                                    limit_choices_to={'role__gte': SummitAnket.CONSULTANT},
@@ -523,7 +512,6 @@ class SummitUserConsultant(models.Model):
             raise ValidationError(_('Этот пользователь не является консультантом на данном саммите.'))
 
 
-@python_2_unicode_compatible
 class SummitAnketNote(models.Model):
     summit_anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='notes',
                                      verbose_name=_('Summit anket'))
@@ -551,7 +539,6 @@ class SummitAnketNote(models.Model):
         ordering = ('-date_created',)
 
 
-@python_2_unicode_compatible
 class SummitVisitorLocation(models.Model):
     visitor = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, verbose_name=_('Summit Visitor'),
                                 related_name='visitor_locations')
@@ -570,7 +557,6 @@ class SummitVisitorLocation(models.Model):
         return 'Местонахождение участника саммита %s. Дата и время: %s' % (self.visitor, self.date_time)
 
 
-@python_2_unicode_compatible
 class SummitEventTable(models.Model):
     summit = models.ForeignKey('Summit', on_delete=models.CASCADE, verbose_name=_('Саммит'))
     hide_time = models.BooleanField(verbose_name=_('Не отображать время'), default=False)
@@ -599,7 +585,6 @@ class SummitEventTable(models.Model):
         return self.author_ru
 
 
-@python_2_unicode_compatible
 class SummitAttend(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', on_delete=models.PROTECT, related_name='attends',
                               verbose_name=_('Anket'))
@@ -618,7 +603,6 @@ class SummitAttend(models.Model):
         return '%s - visitor of Summit. Date: %s' % (self.anket.user.fullname, self.date)
 
 
-@python_2_unicode_compatible
 class AnketStatus(models.Model):
     anket = models.OneToOneField('summit.SummitAnket', on_delete=models.CASCADE, related_name='status',
                                  verbose_name=_('Anket'))
@@ -635,7 +619,6 @@ class AnketStatus(models.Model):
         return 'Anket %s. Reg_code_requested: %s. Active: %s' % (self.anket, self.reg_code_requested, self.active)
 
 
-@python_2_unicode_compatible
 class AnketPasses(models.Model):
     anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='passes_count',
                               verbose_name=_('Anket'))
@@ -645,7 +628,6 @@ class AnketPasses(models.Model):
         return 'Проход анкеты: %s. Дата и время: %s.' % (self.anket, self.datetime)
 
 
-@python_2_unicode_compatible
 class TelegramPayment(models.Model):
     summit = models.ForeignKey('summit.Summit', verbose_name='Событие', related_name='telegram_payments',
                                on_delete=models.PROTECT)

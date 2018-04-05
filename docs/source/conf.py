@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # vocrm documentation build configuration file, created by
 # sphinx-quickstart on Fri Dec  9 12:19:56 2016.

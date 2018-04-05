@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from django_filters import rest_framework

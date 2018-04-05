@@ -1,4 +1,3 @@
-# -*- coding: utf-8
 from django.shortcuts import render
 from apps.help.models import Manual, ManualCategory
 

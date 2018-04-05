@@ -1,10 +1,11 @@
-import uuid
-
 import os
 import re
+import uuid
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from premailer import transform
+from tinymce.models import HTMLField  # pragma: no flake8
 
 CACHE_TTL = None
 DEFAULT_FROM_EMAIL = None
@@ -15,21 +16,6 @@ def app_installed(app):
     from django.conf import settings
 
     return app in settings.INSTALLED_APPS
-
-
-if app_installed('tinymce'):
-    try:
-        from tinymce.models import HTMLField  # pragma: no flake8
-
-    except ImportError:
-        pass
-
-if app_installed('ckeditor'):
-    try:
-        from ckeditor.fields import RichTextField as HTMLField
-
-    except ImportError:
-        pass
 
 
 def _upload_mail_file(instance, filename):

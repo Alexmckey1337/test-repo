@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import absolute_import, unicode_literals
-
 from decimal import Decimal
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -8,7 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from apps.analytics.models import LogModel
@@ -48,7 +44,6 @@ class AbstractPaymentPurpose(models.Model):
         return False
 
 
-@python_2_unicode_compatible
 class Currency(models.Model):
     #: Name of currency, e.g. Dollar USA, Гривня, Euro, Рубль
     name = models.CharField(_('Name'), max_length=50)
@@ -118,7 +113,6 @@ class Currency(models.Model):
         return output
 
 
-@python_2_unicode_compatible
 class Payment(LogModel):
     #: Sum of the payment
     sum = models.DecimalField(_('Sum'), max_digits=12, decimal_places=2,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8
 from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework

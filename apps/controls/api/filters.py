@@ -1,7 +1,7 @@
 import django_filters
-from apps.summit.models import Summit
 from rest_framework import filters
-from apps.account.models import CustomUser as User
+
+from apps.summit.models import Summit
 from common.filters import BaseFilterMasterTree
 
 

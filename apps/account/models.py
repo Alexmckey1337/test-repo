@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 import binascii
 
 import os
@@ -9,7 +6,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.signals import post_save
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from treebeard.mp_tree import MP_Node
 
@@ -25,7 +21,6 @@ from apps.summit.abstract_models import SummitUserPermission
 from apps.summit.models import SummitAnket, Summit
 
 
-@python_2_unicode_compatible
 class CustomUser(MP_Node, LogModel, User,
                  GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
@@ -351,7 +346,6 @@ class CustomUser(MP_Node, LogModel, User,
         return can_see_deal_block(self, user)
 
 
-@python_2_unicode_compatible
 class Token(models.Model):
     """
     The default authorization token model.

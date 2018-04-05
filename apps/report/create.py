@@ -1,8 +1,4 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.utils import timezone
-from datetime import date
 
 from apps.account.models import CustomUser as User
 from apps.report.models import WeekReport, MonthReport, YearReport, UserReport

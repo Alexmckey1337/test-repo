@@ -1,4 +1,3 @@
-# -*- coding: utf-8
 from import_export import fields
 from django.utils.translation import ugettext_lazy as _
 

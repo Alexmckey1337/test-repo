@@ -1,14 +1,11 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 import logging
+from collections import defaultdict
 from datetime import datetime, time, date
 from typing import NamedTuple, List
 
 import collections
 import pytz
 from celery.result import AsyncResult
-from collections import defaultdict
 from django.conf import settings
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (
@@ -324,7 +321,8 @@ class SummitStatisticsView(SummitProfileListView):
     def annotate_queryset(self, qs):
         subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
             first_time=Coalesce(
-                ToChar(F('created_at'), function='to_char', time_format='YYYY-MM-DD HH24:MI:SSZ', output_field=CharField()),
+                ToChar(F('created_at'), function='to_char', time_format='YYYY-MM-DD HH24:MI:SSZ',
+                       output_field=CharField()),
                 V('true'),
                 output_field=CharField()))
         qs = qs.select_related('user', 'status').annotate(
@@ -1067,7 +1065,8 @@ class HistorySummitAttendStatsView(HistorySummitStatsMixin):
         for d in all_attends_by_date.keys():
             attends_by_date[d] = (attends_by_date.get(d, 0), self._count_profiles_by_date(d))
         return Response([
-            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in
+            sorted(attends_by_date.keys())
         ])
 
 
@@ -1090,7 +1089,8 @@ class HistorySummitLatecomerStatsView(HistorySummitStatsMixin):
             attend_count = len(attends_by_date[d])
             attends_by_date[d] = [late_count, attend_count - late_count]
         return Response([
-            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in sorted(attends_by_date.keys())
+            (datetime(d.year, d.month, d.day, tzinfo=pytz.utc).timestamp(), attends_by_date[d]) for d in
+            sorted(attends_by_date.keys())
         ])
 
 

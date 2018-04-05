@@ -1,14 +1,8 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
-import datetime
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 
@@ -19,7 +13,6 @@ from apps.payment.models import AbstractPaymentPurpose, get_default_currency
 from common import date_utils
 
 
-@python_2_unicode_compatible
 class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
     code = models.SlugField(_('Code'), max_length=255, unique=True)
@@ -33,7 +26,6 @@ class MeetingType(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class MeetingAttend(models.Model):
     user = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT, related_name='attends',
                              verbose_name=_('User'))
@@ -60,7 +52,6 @@ class MeetingAttend(models.Model):
         return self.user.phone_number
 
 
-@python_2_unicode_compatible
 class AbstractStatusModel(models.Model):
     IN_PROGRESS, SUBMITTED, EXPIRED = 1, 2, 3
 
@@ -80,7 +71,6 @@ def get_event_week():
     return 'event/%s/' % week
 
 
-@python_2_unicode_compatible
 class Meeting(AbstractStatusModel):
     date = models.DateField(_('Date'))
     type = models.ForeignKey(MeetingType, on_delete=models.PROTECT, verbose_name=_('Meeting type'))
@@ -151,7 +141,6 @@ class Meeting(AbstractStatusModel):
         return ''
 
 
-@python_2_unicode_compatible
 class ChurchReport(AbstractStatusModel, AbstractPaymentPurpose):
     pastor = models.ForeignKey('account.CustomUser', on_delete=models.PROTECT,
                                limit_choices_to={'hierarchy__level__gte': 2})
@@ -234,7 +223,6 @@ def current_week():
     return timezone.now().isocalendar()[1]
 
 
-@python_2_unicode_compatible
 class EventType(models.Model):
     title = models.CharField(max_length=50)
     image = models.ImageField(upload_to='images/eventTypes/', blank=True)
@@ -255,7 +243,6 @@ class EventType(models.Model):
         return str(last_event.from_date)
 
 
-@python_2_unicode_compatible
 class EventAnket(models.Model):
     user = models.OneToOneField('account.CustomUser', on_delete=models.PROTECT, related_name='event_anket', )
 
@@ -263,7 +250,6 @@ class EventAnket(models.Model):
         return self.user.get_full_name()
 
 
-@python_2_unicode_compatible
 class Week(models.Model):
     week = models.IntegerField(default=current_week, unique=True)
     from_date = models.DateField(default=date_utils.today)
@@ -273,7 +259,6 @@ class Week(models.Model):
         return str(self.week)
 
 
-@python_2_unicode_compatible
 class Event(models.Model):
     week = models.ForeignKey(Week, on_delete=models.PROTECT, null=True, blank=True)
     event_type = models.ForeignKey(EventType, on_delete=models.PROTECT,
@@ -298,7 +283,6 @@ class Event(models.Model):
         return self.event_type.title
 
 
-@python_2_unicode_compatible
 class Participation(models.Model):
     user = models.ForeignKey(EventAnket, on_delete=models.PROTECT, related_name='participations')
     event = models.ForeignKey(Event, on_delete=models.PROTECT, related_name='participations')

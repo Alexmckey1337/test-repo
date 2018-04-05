@@ -1,13 +1,9 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
 from django.core.cache import cache
 from django.db import models
 from django.db import transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
 
 from apps.analytics.models import LogModel
@@ -17,7 +13,6 @@ from apps.payment.models import get_default_currency
 from common import date_utils
 
 
-@python_2_unicode_compatible
 class CommonGroup(models.Model):
     title = models.CharField(_('Title'), max_length=50)
     opening_date = models.DateField(_('Opening Date'), default=date_utils.today)

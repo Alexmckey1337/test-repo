@@ -1,27 +1,21 @@
-# -*- coding: utf-8
-from __future__ import unicode_literals
-
-from datetime import datetime, timedelta
-
-import pytz
+from datetime import datetime
 from io import BytesIO
 from json import dumps
 from time import sleep, time
 
+import pytz
 import requests
 from celery.result import AsyncResult
 from channels import Group
-from apps.zmail.utils import send_zmail
-from apps.zmail.models import ZMailTemplate
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
-from django.utils import timezone
 
-from edem.settings.celery import app
 from apps.notification.backend import RedisBackend
-from apps.summit.models import SummitAnket, SummitTicket, SummitAttend
+from apps.summit.models import SummitAnket, SummitTicket
 from apps.summit.utils import generate_ticket, generate_ticket_by_summit
+from apps.zmail.models import ZMailTemplate
+from apps.zmail.utils import send_zmail
+from edem.settings.celery import app
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
