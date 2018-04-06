@@ -64,6 +64,7 @@ THIRD_PARTY_APPS = (
     'corsheaders',
     'tinymce',
     # 'rest_auth.registration',
+    'django_extensions',
     'channels',
     'drf_yasg',
 )
@@ -317,7 +318,7 @@ REST_AUTH_SERIALIZERS = {
 OLD_PASSWORD_FIELD_ENABLED = True
 
 # SESSION_COOKIE_AGE = 1
-SITE_DOMAIN_URL = 'http://vocrm.net/'
+SITE_DOMAIN_URL = 'https://vocrm.net/'
 
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
