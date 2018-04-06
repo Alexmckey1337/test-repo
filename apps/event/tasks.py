@@ -16,7 +16,7 @@ from django.db import transaction, IntegrityError
 def processing_home_meetings():
     current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
-    meeting_types = MeetingType.objects.all()
+    meeting_types = MeetingType.objects.exclude(code='night')
 
     try:
         with transaction.atomic():
