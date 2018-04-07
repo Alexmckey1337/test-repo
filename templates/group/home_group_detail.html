@@ -1,5 +1,6 @@
 {% extends "layout_main.html" %}
 {% load i18n %}
+{% load l10n %}
 {% load static %}
 
 {% block body_id %} id="database"{% endblock %}
@@ -201,8 +202,8 @@
                                             {% if home_group.latitude and home_group.longitude %}
                                                 <a href="#" id="address_show" class="address_btn"
                                                         data-title="{{ home_group.address }}"
-                                                        data-lat="{{ home_group.latitude }}"
-                                                        data-lng="{{ home_group.longitude }}"
+                                                        data-lat="{{ home_group.latitude|unlocalize }}"
+                                                        data-lng="{{ home_group.longitude|unlocalize }}"
                                                 ><i class="material-icons">&#xE55B;</i></a>
                                             {% endif %}
                                             <a href="#" id="address_choose" class="address_btn address_isHide">Указать</a>

@@ -153,6 +153,7 @@ summit_columns = Table('summit', [
     Column('e_ticket', 'Электронный билет', 'status__reg_code_requested'),
     Column('has_email', 'Email отправлен', 'has_email'),
     Column('responsible', 'Ответственный', 'responsible'),
+    Column('action', 'Действие', 'done'),
 ]).to_dict()
 
 meeting_columns = Table('meeting', [

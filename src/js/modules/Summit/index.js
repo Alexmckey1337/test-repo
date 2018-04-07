@@ -4,7 +4,6 @@ import URLS from '../Urls/index';
 import {CONFIG} from "../config";
 import getData, {postData} from "../Ajax/index";
 import ajaxRequest from '../Ajax/ajaxRequest';
-import newAjaxRequest from '../Ajax/newAjaxRequest';
 import getSearch from '../Search/index';
 import {getOrderingData} from "../Ordering/index";
 import makeSortForm from '../Sort/index';
@@ -12,98 +11,86 @@ import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
 import OrderTable from '../Ordering/index';
 import {getFilterParam} from "../Filter/index";
+import {btnDeals} from "../Deals/index";
 import {showAlert} from "../ShowNotifications/index";
 import shortenText from '../shortenText';
 import errHandling from '../Error';
 
 export function createSummitUsersTable(data = {}) {
-    let page = data.page || $('.pagination__input').val();
-    let summitId = data.summit || $('#summitsTypes').find('.active').data('id') || $('#summitUsersList').data('summit');
-    let config = {
-        page: page
-    };
+    let page = data.page || $('.pagination__input').val() || 1,
+        summitId = data.summit || $('#summitsTypes').find('.active').data('id') || $('#summitUsersList').data('summit'),
+        config = {page};
     Object.assign(config, getSearch('search_fio'));
     Object.assign(config, data);
     Object.assign(config, getOrderingData());
+    Object.assign(config, getFilterParam());
 
-    getSummitUsers(summitId, config).then(function (data) {
-        let filter_data = {};
-        let common_table = Object.keys(data.common_table);
-        filter_data.results = data.results.map(function (item) {
-            let data;
-            data = item;
-            data.ankets_id = item.id;
-            common_table.forEach(function (field) {
-                data[field] = item[field];
-            });
-            return data;
-        });
-        filter_data.user_table = data.user_table;
-        common_table.forEach(function (item) {
-            filter_data.user_table[item] = data.common_table[item];
-        });
-        let count = data.count;
-        let page = config.page || 1;
-        let pages = Math.ceil(count / CONFIG.pagination_count);
-        let showCount = (count < CONFIG.pagination_count) ? count : data.results.length;
-        let id = "summitUsersList";
-        let text = `Показано ${showCount} из ${count}`;
-        let paginationConfig = {
-            container: ".users__pagination",
-            currentPage: page,
-            pages: pages,
-            callback: createSummitUsersTable
-        };
-        makeSammitsDataTable(filter_data, id);
+    getData(URLS.summit.users(summitId), config).then(data => {
+        let count = data.count,
+            page = config.page || 1,
+            pages = Math.ceil(count / CONFIG.pagination_count),
+            showCount = (count < CONFIG.pagination_count) ? count : data.results.length,
+            text = `Показано ${showCount} из ${count}`,
+            paginationConfig = {
+                container: ".users__pagination",
+                currentPage: page,
+                pages: pages,
+                callback: createSummitUsersTable
+            };
+        makeSammitsDataTable(data, "summitUsersList");
         makePagination(paginationConfig);
         $('.table__count').text(text);
         makeSortForm(data.user_table);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
+    }).catch(err => {
+        errHandling(err);
+        $('.preloader').css('display', 'none');
     });
 }
 
-function getSummitUsers(summitId, config = {}) {
-    Object.assign(config, getFilterParam());
-    return new Promise(function (resolve, reject) {
-        let data = {
-            url: URLS.summit.users(summitId),
-            data: config,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        };
-        let status = {
-            200: function (req) {
-                resolve(req)
-            },
-            403: function () {
-                reject('Вы должны авторизоватся')
-            }
-
-        };
-        newAjaxRequest(data, status, reject)
-    });
+export function updateSummitUsersTable() {
+    $('.preloader').css('display', 'block');
+    let page = $('.pagination .pagination__input').val();
+    createSummitUsersTable({page: page});
 }
 
-function makeSammitsDataTable(data, id) {
+function makeSammitsDataTable(data, selector) {
     let tmpl = document.getElementById('databaseUsers').innerHTML,
         rendered = _.template(tmpl)(data);
-    document.getElementById(id).innerHTML = rendered;
+    document.getElementById(selector).innerHTML = rendered;
     $('.quick-edit').on('click', function () {
         makeQuickEditSammitCart(this);
     });
+    btnDeals();
+    $('#summitUsersList').on('click', '.show_payments', function () {
+        let id = $(this).data('id');
+        showSummitPayments(id);
+    });
     $('.send_email').on('click', function () {
         let id = $(this).attr('data-id');
-        getData(URLS.summit.send_code(id)).then(() => {
+        getData(URLS.summit.send_code(id)).then(_ => {
             showAlert('Код отправлен на почту');
             createSummitUsersTable();
-        }).catch(err => {
-            showAlert(err.detail);
-        });
+        }).catch(err => errHandling(err));
     });
     fixedTableHead();
+}
+
+function showSummitPayments(id) {
+    let url = URLS.summit_profile.list_payments(id);
+    getData(url).then(function (data) {
+        let payments_table = '';
+        let sum, date_time, manager;
+        data.forEach(function (payment) {
+            sum = payment.sum_str;
+            date_time = payment.sent_date;
+            manager = `${payment.manager.last_name} ${payment.manager.first_name} ${payment.manager.middle_name}`;
+            payments_table += `<tr><td>${sum}</td><td>${date_time}</td><td>${manager}</td></tr>`
+        });
+        $('#popup-payments table').html(payments_table);
+        $('#popup-payments').css('display', 'block');
+    })
 }
 
 function makeQuickEditSammitCart(el) {
@@ -125,41 +112,6 @@ function makeQuickEditSammitCart(el) {
         'Content-Type': 'application/json'
     });
 }
-
-// export function predeliteAnket(id) {
-//     let config = {
-//         url: URLS.summit_profile.predelete(id),
-//     };
-//     return new Promise((resolve, reject) => {
-//         let codes = {
-//             200: function (data) {
-//                 resolve(data);
-//             },
-//             400: function (data) {
-//                 reject(data)
-//             }
-//         };
-//         newAjaxRequest(config, codes, reject);
-//     })
-// }
-
-// export function deleteSummitProfile(id) {
-//     let config = {
-//         url: URLS.summit_profile.detail(id),
-//         method: "DELETE"
-//     };
-//     return new Promise((resolve, reject) => {
-//         let codes = {
-//             204: function () {
-//                 resolve('Пользователь удален из саммита');
-//             },
-//             400: function (data) {
-//                 reject(data)
-//             }
-//         };
-//         newAjaxRequest(config, codes, reject);
-//     })
-// }
 
 export function unsubscribeOfSummit(id) {
     ajaxRequest(URLS.summit_profile.detail(id), null, function () {

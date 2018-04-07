@@ -47,6 +47,7 @@ const SUMMIT_PROFILE = {
     list: () => `/api/summit_profiles/`,
     predelete: (profileId) => `/api/summit_profiles/${profileId}/predelete/`,
     create_payment: (profileId) => `/api/summit_profiles/${profileId}/create_payment/`,
+    create_uah_payment: (profileId) => `/api/summit_profiles/${profileId}/create_uah_payment/`,
     list_payments: (profileId) => `/api/summit_profiles/${profileId}/payments/`,
     set_ticket_status: (profileId) => `/api/summit_profiles/${profileId}/set_ticket_status/`,
     create_note: (profileId) => `/api/summit_profiles/${profileId}/create_note/`,

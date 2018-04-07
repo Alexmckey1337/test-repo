@@ -95,7 +95,8 @@ class ProfileTableSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = SummitAnket
-        required_fields = ['id', 'link', 'has_achievement', 'user_id', 'code', 'reg_code']
+        required_fields = ['id', 'link', 'has_achievement', 'user_id', 'code', 'reg_code', 'full_name', 'responsible',
+                           'value']
         fields = ('id', 'user_id', 'full_name', 'responsible', 'spiritual_level',
                   'divisions_title', 'department', 'hierarchy_title', 'phone_number', 'email', 'social',
                   'country', 'city', 'region', 'district', 'address', 'born_date', 'repentance_date',
