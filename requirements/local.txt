@@ -4,19 +4,6 @@ django-debug-toolbar
 django-silk
 Werkzeug==0.11.15
 
-# Tests
-coverage==4.3.4
-django-coverage-plugin==1.3.1
-factory_boy
-pytest
-pytest-factoryboy
-pytest-django
-pytest-sugar
-pytest-xdist
-
-# improved REPL
-ipdb==0.10.2
-
 # Static and Media Storage
 # ------------------------------------------------
 boto3==1.5.4

@@ -37,3 +37,10 @@ build:
 
 push: build
 	docker push $(CONTAINER_IMAGE):$(TAG)
+
+clean:
+	rm -rf ./**/*.pyc
+	rm -rf ./**/__pycache__
+
+test: clean
+	docker-compose -f dev.yml run --rm django python manage.py test

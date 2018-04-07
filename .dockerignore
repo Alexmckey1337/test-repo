@@ -19,3 +19,6 @@
 !src
 !.babelrc
 !compose/
+!conftest.py
+!pytest.ini
+!setup.cfg

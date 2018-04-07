@@ -21,6 +21,8 @@ function postgres_ready(){
 python << END
 import sys
 import psycopg2
+if "$POSTGRES_USER" == "postgres":
+    sys.exit(0)
 try:
     conn = psycopg2.connect(dbname="$POSTGRES_DB", user="$POSTGRES_USER", password="$POSTGRES_PASSWORD", host="$POSTGRES_HOST")
 except psycopg2.OperationalError:
