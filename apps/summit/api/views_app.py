@@ -423,19 +423,31 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
     @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
     def add_to_telegram_group(self, request):
         phone_number = request.query_params.get('phone_number')
+        group_type = request.query_params.get('group_type', 'leaders')
+
         if not phone_number or len(phone_number) < 10:
             raise exceptions.ValidationError({'message': 'Parameter {phone_number} must be passed'})
 
         phone_number = phone_number[-10:]
         data = {'join_url': None}
 
-        visitor = CustomUser.objects.filter(hierarchy__level__gte=1).filter(Q(
-            phone_number__contains=phone_number) | Q(
-            extra_phone_numbers__contains=[phone_number])).first()
+        if group_type == 'leaders':
+            visitor = CustomUser.objects.filter(hierarchy__level__gte=1).filter(Q(
+                phone_number__contains=phone_number) | Q(
+                extra_phone_numbers__contains=[phone_number])).first()
 
-        if visitor:
-            telegram_group = TelegramGroup.objects.get(title='Leaders')
-            data['join_url'] = telegram_group.join_url
+            if visitor:
+                telegram_group = TelegramGroup.objects.get(title='Leaders')
+                data['join_url'] = telegram_group.join_url
+
+        if group_type == 'pastors':
+            visitor = CustomUser.objects.filter(hierarchy__level__gte=2).filter(Q(
+                phone_number__contains=phone_number) | Q(
+                extra_phone_numbers__contains=[phone_number])).first()
+
+            if visitor:
+                telegram_group = TelegramGroup.objects.get(title='Pastors')
+                data['join_url'] = telegram_group.join_url
 
         return Response(data, status=status.HTTP_200_OK)
 
