@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import mixins, viewsets
 from rest_framework import status, filters, exceptions
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -56,7 +56,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             return self.serializer_retrieve_class
         return self.serializer_list_class
 
-    @list_route(methods=['POST'])
+    @action(detail=False, methods=['POST'])
     def submit(self, request):
         data = request.data.get('data')  # {"data": [{"user_id": 20782, "is_staff": true, "can_login": true}]}
         if not data:

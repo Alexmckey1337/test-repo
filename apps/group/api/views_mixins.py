@@ -1,14 +1,13 @@
 from django.db.models import Count, Q
 from rest_framework import filters
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 
 from apps.account.models import CustomUser
-from common.views_mixins import BaseExportViewSetMixin
 from apps.group.api.filters import ChurchAllUserFilter
 from apps.group.api.pagination import HomeGroupPagination, GroupUsersPagination
-from apps.group.resources import GroupUserResource, HomeGroupResource
 from apps.group.api.serializers import HomeGroupListSerializer, GroupUserSerializer
-
+from apps.group.resources import GroupUserResource, HomeGroupResource
+from common.views_mixins import BaseExportViewSetMixin
 
 GROUP_USER_ORDERING_FIELDS = ('id', 'last_name', 'spiritual_level', 'leader__last_name',
                               'phone_number', 'born_date', 'repentance_date')
@@ -32,10 +31,10 @@ class HomeGroupListMixin:
     def get_paginated_response(self, data):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['get'],
-                  pagination_class=HomeGroupPagination,
-                  ordering_fields=HOME_GROUP_ORDERING_FIELDS,
-                  filter_backends=(filters.OrderingFilter,))
+    @action(detail=True, methods=['get'],
+            pagination_class=HomeGroupPagination,
+            ordering_fields=HOME_GROUP_ORDERING_FIELDS,
+            filter_backends=(filters.OrderingFilter,))
     def home_groups(self, request, pk):
         instance = self.get_object()
         queryset = instance.home_group.annotate(count_users=Count('uusers'))
@@ -83,10 +82,10 @@ class BaseUserListMixin:
 
 
 class UserListMixin(BaseUserListMixin):
-    @detail_route(methods=['get'],
-                  pagination_class=GroupUsersPagination,
-                  ordering_fields=GROUP_USER_ORDERING_FIELDS,
-                  filter_backends=(filters.OrderingFilter,))
+    @action(detail=True, methods=['get'],
+            pagination_class=GroupUsersPagination,
+            ordering_fields=GROUP_USER_ORDERING_FIELDS,
+            filter_backends=(filters.OrderingFilter,))
     def users(self, request, pk):
         instance = self.get_object()
         queryset = getattr(instance, self.user_field).order_by('last_name', 'first_name', 'middle_name')
@@ -102,9 +101,9 @@ class UserListMixin(BaseUserListMixin):
 
 
 class AllUserListMixin(BaseUserListMixin):
-    @detail_route(methods=['get'], pagination_class=GroupUsersPagination,
-                  ordering_fields=GROUP_USER_ORDERING_FIELDS,
-                  filter_backends=(ChurchAllUserFilter, filters.OrderingFilter,))
+    @action(detail=True, methods=['get'], pagination_class=GroupUsersPagination,
+            ordering_fields=GROUP_USER_ORDERING_FIELDS,
+            filter_backends=(ChurchAllUserFilter, filters.OrderingFilter,))
     def all_users(self, request, pk):
         queryset = CustomUser.objects.order_by('last_name', 'first_name', 'middle_name')
         queryset = self.filter_queryset(queryset)
@@ -124,7 +123,7 @@ class GroupUserExportViewSetMixin(BaseExportViewSetMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['post'], filter_backends=())
+    @action(detail=True, methods=['post'], filter_backends=())
     def export_users(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
 
@@ -141,7 +140,7 @@ class ChurchAllUserExportViewSetMixin(BaseExportViewSetMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['post'], filter_backends=(ChurchAllUserFilter,))
+    @action(detail=True, methods=['post'], filter_backends=(ChurchAllUserFilter,))
     def export_all_users(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
 
@@ -156,7 +155,7 @@ class ChurchHomeGroupExportViewSetMixin(BaseExportViewSetMixin):
     def get_object(self):  # pragma: no cover
         raise NotImplementedError()
 
-    @detail_route(methods=['post'], filter_backends=())
+    @action(detail=True, methods=['post'], filter_backends=())
     def export_groups(self, request, *args, **kwargs):
         fields = self.get_export_fields(request.data)
 

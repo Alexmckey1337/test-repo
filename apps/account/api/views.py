@@ -13,7 +13,7 @@ from django_filters import rest_framework
 from rest_auth.views import LogoutView as RestAuthLogoutView
 from rest_framework import filters
 from rest_framework import status, mixins, exceptions
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser, FormParser
@@ -152,7 +152,7 @@ class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):
 
 
 class UserExportViewSetMixin(ExportViewSetMixin):
-    @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportUserList))
+    @action(detail=False, methods=['post'], permission_classes=(IsAuthenticated, CanExportUserList))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
@@ -215,7 +215,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         """
         return super().list(request, *args, **kwargs)
 
-    @detail_route(methods=['post'], serializer_class=HomeGroupIdSerializer)
+    @action(detail=True, methods=['post'], serializer_class=HomeGroupIdSerializer)
     def set_home_group(self, request, pk):
         """
         Set home group for user
@@ -227,7 +227,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': 'Домашняя группа установлена.'},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], serializer_class=ChurchIdSerializer)
+    @action(detail=True, methods=['post'], serializer_class=ChurchIdSerializer)
     def set_church(self, request, pk):
         """
         Set church for user
@@ -243,7 +243,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Церковь установлена.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def set_managers(self, request, pk):
         """
         Add manager for user
@@ -258,7 +258,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Менеджер добавлен.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def set_skins(self, request, pk):
         """
         Add skin for user
@@ -273,7 +273,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Добавлено.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def add_manager(self, request, pk):
         """
         Add manager for user
@@ -286,7 +286,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Менеджер добавлен.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def add_skin(self, request, pk):
         """
         Add skin for user
@@ -299,7 +299,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Добавлено.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def delete_manager(self, request, pk):
         """
         Delete manager of user
@@ -312,7 +312,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Менеджер удален.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def delete_skin(self, request, pk):
         """
         Delete skin of user
@@ -325,7 +325,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Удалено.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def clear_managers(self, request, pk):
         """
         Clear managers of user
@@ -337,7 +337,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         return Response({'detail': _('Менеджеры удалены.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['post'], permission_classes=(IsSuperUser,))
     def clear_skins(self, request, pk):
         """
         Clear skins of user
@@ -350,7 +350,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
                         status=status.HTTP_200_OK)
 
     # TODO tmp
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def departments(self, request, pk):
         """
         List of user.departments
@@ -360,7 +360,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def skins(self, request, pk):
         """
         List of user.skins
@@ -371,7 +371,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
 
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def summit_info(self, request, pk):
         """
         Info for summit add popup
@@ -498,7 +498,7 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
                 church.del_count_stable_people_cache()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @list_route(methods=['GET'], serializer_class=DashboardSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=DashboardSerializer)
     def dashboard_counts(self, request):
         user_id = request.query_params.get('user_id')
         if user_id:
@@ -520,8 +520,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSet, Use
         result = self.serializer_class(result)
         return Response(result.data)
 
-    @list_route(methods=['GET'], serializer_class=DuplicatesAvoidedSerializer,
-                pagination_class=DuplicatesAvoidedPagination)
+    @action(detail=False, methods=['GET'], serializer_class=DuplicatesAvoidedSerializer,
+            pagination_class=DuplicatesAvoidedPagination)
     def duplicates_avoided(self, request):
         valid_keys = ['last_name', 'first_name', 'middle_name']
         params = [(k, v) for (k, v) in request.query_params.items() if k in valid_keys]

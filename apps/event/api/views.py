@@ -1,10 +1,12 @@
 import calendar
 import json
 import logging
+from collections import defaultdict
 from datetime import datetime
+from functools import reduce
+from operator import or_
 
 import pytz
-from collections import defaultdict
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
@@ -12,10 +14,8 @@ from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Ex
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from functools import reduce
-from operator import or_
 from rest_framework import status, filters, exceptions, views
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -154,7 +154,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         return self.queryset.for_user(self.request.user)
 
-    @detail_route(methods=['POST'])
+    @action(detail=True, methods=['POST'])
     def clean_image(self, request, pk):
         meeting = self.get_object()
         if not meeting.image:
@@ -165,8 +165,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         return Response({'message': 'Image was successfully deleted'})
 
-    @detail_route(methods=['POST'], serializer_class=MeetingDetailSerializer,
-                  parser_classes=(MultiPartAndJsonParser, JSONParser, FormParser))
+    @action(detail=True, methods=['POST'], serializer_class=MeetingDetailSerializer,
+            parser_classes=(MultiPartAndJsonParser, JSONParser, FormParser))
     def submit(self, request, pk):
         home_meeting = self.get_object()
         valid_attends = self.validate_to_submit(home_meeting, request.data)
@@ -262,8 +262,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         return Response({'message': _('Отчет Домашней Группы успешно изменен.')},
                         status=status.HTTP_200_OK, headers=headers)
 
-    @detail_route(methods=['GET'], serializer_class=MeetingVisitorsSerializer,
-                  pagination_class=MeetingVisitorsPagination)
+    @action(detail=True, methods=['GET'], serializer_class=MeetingVisitorsSerializer,
+            pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
         visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name')
@@ -276,7 +276,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         visitors = self.serializer_class(visitors, many=True)
         return Response(visitors.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingStatisticSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=MeetingStatisticSerializer)
     def statistics(self, request):
         queryset = self.filter_queryset(self.queryset.for_user(self.request.user))
 
@@ -317,7 +317,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         statistics = self.serializer_class(statistics)
         return Response(statistics.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingDashboardSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=MeetingDashboardSerializer)
     def dashboard_counts(self, request):
         user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user, extra_perms=False)
@@ -337,7 +337,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MobileReportsDashboardSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=MobileReportsDashboardSerializer)
     def mobile_dashboard(self, request):
         user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user, extra_perms=False).filter(status__in=[1, 3])
@@ -363,12 +363,12 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         mobile_counts = self.serializer_class(mobile_counts)
         return Response(mobile_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=MeetingSummarySerializer,
-                filter_backends=(filters.OrderingFilter, EventSummaryFilter,
-                                 EventSummaryMasterFilter, FieldSearchFilter),
-                ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
-                field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
-                pagination_class=MeetingSummaryPagination)
+    @action(detail=False, methods=['GET'], serializer_class=MeetingSummarySerializer,
+            filter_backends=(filters.OrderingFilter, EventSummaryFilter,
+                             EventSummaryMasterFilter, FieldSearchFilter),
+            ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
+            field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
+            pagination_class=MeetingSummaryPagination)
     def meetings_summary(self, request):
         user = self.master_for_summary(request)
 
@@ -441,7 +441,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
             return self.serializer_retrieve_class
         return self.serializer_class
 
-    @detail_route(methods=['POST'])
+    @action(detail=True, methods=['POST'])
     def submit(self, request, pk):
         church_report = self.get_object()
         if church_report.status == ChurchReport.SUBMITTED:
@@ -491,7 +491,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
             status=status.HTTP_200_OK,
         )
 
-    @list_route(methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=ChurchReportStatisticSerializer)
     def statistics(self, request):
         user = request.query_params.get('master_tree', request.user)
         queryset = self.filter_queryset(self.queryset.for_user(user))
@@ -518,7 +518,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
         statistics = self.serializer_class(statistics)
         return Response(statistics.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=ChurchReportsDashboardSerializer)
     def dashboard_counts(self, request):
         user = self.user_for_dashboard(request)
         queryset = self.queryset.for_user(user, extra_perms=False)
@@ -538,12 +538,12 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
         dashboards_counts = self.serializer_class(dashboards_counts)
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=ChurchReportSummarySerializer,
-                filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
-                                 EventSummaryFilter, FieldSearchFilter),
-                ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
-                field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
-                pagination_class=ReportsSummaryPagination)
+    @action(detail=False, methods=['GET'], serializer_class=ChurchReportSummarySerializer,
+            filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
+                             EventSummaryFilter, FieldSearchFilter),
+            ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
+            field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
+            pagination_class=ReportsSummaryPagination)
     def reports_summary(self, request):
         user = self.master_for_summary(request)
 

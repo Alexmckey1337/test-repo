@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import mixins, viewsets, exceptions, status
-from rest_framework.decorators import list_route, api_view, detail_route
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -65,7 +65,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
     pagination_class = None
     filter_fields = ('summit',)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def by_reg_code(self, request):
         reg_code = request.query_params.get('reg_code', '').lower().strip()
         code_error_message = {
@@ -108,14 +108,14 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         visitor = self.get_serializer(visitor)
         return Response(visitor.data, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['POST'], permission_classes=(IsSuperUser,))
+    @action(detail=True, methods=['POST'], permission_classes=(IsSuperUser,))
     def reset_device_id(self, request, pk):
         profile = self.get_object()
         r = RedisBackend()
         r.delete(profile.reg_code)
         return Response(data={'detail': profile.reg_code})
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def by_reg_date(self, request):
         from_date = request.query_params.get('from_date', timezone.now().date() - timedelta(days=1))
         to_date = request.query_params.get('to_date', timezone.now().date() - timedelta(days=1))
@@ -133,8 +133,8 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         profiles = self.serializer_class(profiles, many=True)
         return Response(profiles.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], serializer_class=SummitNameAnketCodeSerializer,
-                permission_classes=(IsAuthenticated,))
+    @action(detail=False, methods=['GET'], serializer_class=SummitNameAnketCodeSerializer,
+            permission_classes=(IsAuthenticated,))
     def get_tickets(self, request):
         user_id = request.query_params.get('user_id')
         user = get_object_or_404(CustomUser, pk=user_id)
@@ -290,7 +290,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
     pagination_class = None
     permission_classes = (HasAPIAccess,)
 
-    @list_route(methods=['POST'])
+    @action(detail=False, methods=['POST'])
     def post(self, request):
         if not request.data.get('data'):
             user = get_real_user(request)
@@ -314,7 +314,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response({'message': 'Successful created'}, status=status.HTTP_201_CREATED)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def get_location(self, request):
         anket_id = request.query_params.get('visitor_id')
         date_time = request.query_params.get('date_time')
@@ -324,7 +324,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response(visitor_location.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def location_by_interval(self, request):
         date_time = request.query_params.get('date_time')
         date_format = '%Y-%m-%d %H:%M:%S%z'
@@ -343,7 +343,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
 
         return Response(locations.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def location_by_date(self, request):
         anket_id = request.query_params.get('visitor_id')
         date = request.query_params.get('date')
@@ -364,7 +364,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             return self.serializer_list_class
         return self.serializer_class
 
-    @list_route(methods=['POST', 'GET'])
+    @action(detail=False, methods=['POST', 'GET'])
     def confirm_attend(self, request):
         code = request.data.get('code')
         date = request.data.get('date')
@@ -382,7 +382,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError(
                 _('Запись о присутствии этой анкеты за сегоднящней день уже существует'))
 
-    @list_route(methods=['GET'], serializer_class=SummitAcceptMobileCodeSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=SummitAcceptMobileCodeSerializer)
     def accept_mobile_code(self, request):
         code = request.query_params.get('code', '')
         summit_id = request.query_params.get('summit_id')
@@ -403,8 +403,8 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         anket = self.serializer_class(anket)
         return Response(anket.data)
 
-    @list_route(methods=['POST'], serializer_class=AnketActiveStatusSerializer,
-                permission_classes=(IsAuthenticated,))
+    @action(detail=False, methods=['POST'], serializer_class=AnketActiveStatusSerializer,
+            permission_classes=(IsAuthenticated,))
     def anket_active_status(self, request):
         active = request.data.get('active', 1)
         anket_id = request.data.get('anket_id', None)
@@ -420,7 +420,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                          'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    @action(detail=False, methods=['GET'], permission_classes=(HasAPIAccess,))
     def add_to_telegram_group(self, request):
         phone_number = request.query_params.get('phone_number')
         group_type = request.query_params.get('group_type', 'leaders')

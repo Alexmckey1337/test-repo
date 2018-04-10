@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -116,11 +116,11 @@ class CreatePaymentMixin(PaymentCheckPermissionMixin):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def create_payment(self, request, pk=None):
         return self._create_payment(request, pk)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def create_uah_payment(self, request, pk=None):
         try:
             uah = Currency.objects.get(code='uah')
@@ -151,6 +151,6 @@ class ListPaymentMixin(PaymentCheckPermissionMixin):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def payments(self, request, pk=None):
         return self._payments(request, pk)

@@ -7,7 +7,7 @@ from django.db.models import Sum, When, Case, F, IntegerField, Q, Subquery
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import exceptions, filters, status
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404, DestroyAPIView, UpdateAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -163,7 +163,7 @@ class PartnershipViewSet(
         return super(PartnershipViewSet, self).get_permissions()
 
     # TODO deprecated
-    @detail_route(methods=['put'], permission_classes=(IsAuthenticated, CanUpdatePartner))
+    @action(detail=True, methods=['put'], permission_classes=(IsAuthenticated, CanUpdatePartner))
     def update_need(self, request, pk=None):
         """
         Update the text of the partner's needs.
@@ -185,7 +185,7 @@ class PartnershipViewSet(
 
         return Response({'need_text': text})
 
-    @detail_route(methods=['POST'], permission_classes=(CanUpdateManagersPlan,))
+    @action(detail=True, methods=['POST'], permission_classes=(CanUpdateManagersPlan,))
     def set_plan(self, request, pk):
         manager = get_object_or_404(CustomUser, pk=pk)
         plan_sum = request.data.get('plan_sum')
@@ -205,7 +205,7 @@ class PartnershipViewSet(
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
 
-    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,))
+    @action(detail=False, methods=['GET'], permission_classes=(HasAPIAccess,))
     def add_to_telegram_group(self, request):
         phone_number = request.query_params.get('phone_number')
         if not phone_number or len(phone_number) < 10:
@@ -565,9 +565,9 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
 
         return deal
 
-    @list_route(methods=['GET'],
-                serializer_class=DealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination, )
+    @action(detail=False, methods=['GET'],
+            serializer_class=DealDuplicateSerializer,
+            pagination_class=DealDuplicatePagination, )
     def check_duplicates(self, request):
         data = request.query_params
         if data.get('date_created') and data.get('value') and data.get('partnership_id'):
@@ -598,7 +598,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def get_duplicates(self, request):
         deal_ids = self.filter_queryset(self.queryset).values_list('id', flat=True)
         if not deal_ids:
@@ -738,9 +738,9 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         self.perform_destroy(instance)
         return Response({'message': 'Сделка успещно удалена.'}, status=status.HTTP_204_NO_CONTENT)
 
-    @list_route(methods=['GET'],
-                serializer_class=ChurchDealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination, )
+    @action(detail=False, methods=['GET'],
+            serializer_class=ChurchDealDuplicateSerializer,
+            pagination_class=DealDuplicatePagination, )
     def check_duplicates(self, request):
         data = request.query_params
         if data.get('date_created') and data.get('value') and data.get('partnership_id'):
@@ -770,9 +770,9 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         deals = self.serializer_class(deals, many=True)
         return Response(deals.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'],
-                serializer_class=ChurchDealDuplicateSerializer,
-                pagination_class=DealDuplicatePagination, )
+    @action(detail=False, methods=['GET'],
+            serializer_class=ChurchDealDuplicateSerializer,
+            pagination_class=DealDuplicatePagination, )
     def get_duplicates(self, request):
         query = """
                 SELECT

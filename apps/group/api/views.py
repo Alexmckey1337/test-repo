@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import pytz
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,7 +12,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, exceptions, filters
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -20,10 +21,7 @@ from rest_framework.viewsets import ModelViewSet
 from apps.account.api.serializers import AddExistUserSerializer
 from apps.account.models import CustomUser
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
-from apps.navigation.table_columns import get_table
-from common.filters import FieldSearchFilter
-from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin
+from apps.event.models import ChurchReport, Meeting, MeetingType
 from apps.group.api.filters import (
     HomeGroupFilter, ChurchFilter, FilterChurchMasterTree, FilterHomeGroupMasterTree,
     HomeGroupsDepartmentFilter, FilterHGLeadersByMasterTree, FilterHGLeadersByChurch,
@@ -42,8 +40,10 @@ from apps.group.api.serializers import (
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
-from apps.event.models import ChurchReport, Meeting, MeetingType
-from datetime import datetime
+from apps.navigation.table_columns import get_table
+from common.filters import FieldSearchFilter
+from common.test_helpers.utils import get_real_user
+from common.views_mixins import ExportViewSetMixin
 from common.week_range import week_range
 
 logger = logging.getLogger(__name__)
@@ -133,11 +133,11 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @list_route(methods=['post'], permission_classes=(CanExportChurch,))
+    @action(detail=False, methods=['post'], permission_classes=(CanExportChurch,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
-    @list_route(methods=['GET'], serializer_class=UserNameSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=UserNameSerializer)
     def available_pastors(self, request):
         department_id = request.query_params.get('department_id')
         master_tree_id = request.query_params.get('master_tree')
@@ -154,17 +154,17 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         pastors = self.serializer_class(pastors, many=True)
         return Response(pastors.data)
 
-    @list_route(methods=['get'], pagination_class=PotentialUsersPagination)
+    @action(detail=False, methods=['get'], pagination_class=PotentialUsersPagination)
     def potential_users_church(self, request):
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_church, users)
 
-    @detail_route(methods=['get'], pagination_class=PotentialUsersPagination)
+    @action(detail=True, methods=['get'], pagination_class=PotentialUsersPagination)
     def potential_users_group(self, request, pk):
         users = CustomUser.objects.all()
         return self._get_potential_users(request, self.filter_potential_users_for_group, users, pk)
 
-    @detail_route(methods=['post', 'put'])
+    @action(detail=True, methods=['post', 'put'])
     def add_user(self, request, pk):
         church = get_object_or_404(Church, pk=pk)
         user = self._get_user(request.data.get('user_id', None))
@@ -177,7 +177,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         return Response({'detail': _('Пользователь успешно добавлен.')},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def del_user(self, request, pk):
         user_id = request.data.get('user_id')
         church = self.get_object()
@@ -200,7 +200,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         return Response({'detail': _('Пользователь успешно удален из Церкви')},
                         status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['GET'], permission_classes=(CanSeeChurch,))
+    @action(detail=True, methods=['GET'], permission_classes=(CanSeeChurch,))
     def statistics(self, request, pk):
         stats = {}
         church = get_object_or_404(Church, pk=pk)
@@ -237,8 +237,8 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         stats = serializer(stats)
         return Response(stats.data)
 
-    @list_route(methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer,
-                pagination_class=ForSelectPagination)
+    @action(detail=False, methods=['GET'], serializer_class=ChurchWithoutPaginationSerializer,
+            pagination_class=ForSelectPagination)
     def for_select(self, request):
         churches = Church.objects.all()
 
@@ -340,7 +340,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
             raise exceptions.ValidationError(
                 {'detail': _('Невозможно добавить пользователя, данный пользователь уже состоит в Домашней Группе.')})
 
-    @list_route(methods=['GET'], serializer_class=ChurchDashboardSerializer)
+    @action(detail=False, methods=['GET'], serializer_class=ChurchDashboardSerializer)
     def dashboard_counts(self, request):
         user_id = request.query_params.get('user_id')
         if user_id:
@@ -359,7 +359,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         result = self.serializer_class(result)
         return Response(result.data)
 
-    @detail_route(methods=['POST'])
+    @action(detail=True, methods=['POST'])
     def create_report(self, request, pk):
         church = self.get_object()
         str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
@@ -372,7 +372,6 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         if ChurchReport.objects.filter(church=church,
                                        date__range=[start_week_day, end_week_date]
                                        ).exists():
-
             raise exceptions.ValidationError(
                 {'message': _('Невозможно создать отчет. '
                               'Для данной церкви на данную неделю есть созданный отчет.')})
@@ -435,7 +434,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
             return self.queryset.for_user(self.request.user).annotate(count_users=Count('uusers'))
         return self.queryset.for_user(self.request.user)
 
-    @list_route(methods=['post'], permission_classes=(CanExportHomeGroup,))
+    @action(detail=False, methods=['post'], permission_classes=(CanExportHomeGroup,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
@@ -453,7 +452,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def add_user(self, request, pk):
         home_group = get_object_or_404(HomeGroup, pk=pk)
         user = self._get_user(request.data.get('user_id', None))
@@ -465,7 +464,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         return Response({'detail': 'Пользователь успешно добавлен.'},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def del_user(self, request, pk):
         user_id = request.data.get('user_id', None)
         home_group = get_object_or_404(HomeGroup, pk=pk)
@@ -478,11 +477,11 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @list_route(methods=['GET'],
-                filter_backends=(
-                        FilterPotentialHGLeadersByMasterTree,
-                        FilterPotentialHGLeadersByChurch,
-                        FilterPotentialHGLeadersByDepartment,))
+    @action(detail=False, methods=['GET'],
+            filter_backends=(
+                    FilterPotentialHGLeadersByMasterTree,
+                    FilterPotentialHGLeadersByChurch,
+                    FilterPotentialHGLeadersByDepartment,))
     def potential_leaders(self, request):
         """
         Potential leaders
@@ -491,8 +490,8 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
         return Response(UserNameSerializer(leaders, many=True).data)
 
-    @list_route(methods=['GET'],
-                filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
+    @action(detail=False, methods=['GET'],
+            filter_backends=(FilterHGLeadersByMasterTree, FilterHGLeadersByChurch, FilterHGLeadersByDepartment,))
     def leaders(self, request):
         """
         Leaders
@@ -501,7 +500,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
         return Response(UserNameSerializer(leaders, many=True).data)
 
-    @detail_route(methods=["GET"])
+    @action(detail=True, methods=["GET"])
     def statistics(self, request, pk):
         stats = {}
         home_group = get_object_or_404(HomeGroup, pk=pk)
@@ -516,8 +515,8 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         stats = serializer(stats)
         return Response(stats.data)
 
-    @list_route(methods=['GET'], serializer_class=AllHomeGroupsListSerializer,
-                pagination_class=ForSelectPagination)
+    @action(detail=False, methods=['GET'], serializer_class=AllHomeGroupsListSerializer,
+            pagination_class=ForSelectPagination)
     def for_select(self, request):
         home_groups = HomeGroup.objects.all()
 
@@ -540,7 +539,7 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
         home_groups = self.serializer_class(home_groups, many=True)
         return Response(home_groups.data)
 
-    @detail_route(methods=['POST'])
+    @action(detail=True, methods=['POST'])
     def create_report(self, request, pk):
         home_group = self.get_object()
         str_date = request.data.get('date', timezone.now().date().strftime('%Y-%m-%d'))
@@ -556,7 +555,6 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
                                   date__gte=start_week_day,
                                   date__lte=end_week_date,
                                   ).exists():
-
             raise exceptions.ValidationError(
                 {'message': _('Невозможно создать отчет. '
                               'На данной неделе отчет типа {%s} уже создан.' % meeting_type)})
@@ -608,6 +606,6 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
                 {'detail': _('Невозможно удалить пользователя.'
                              'Пользователь не принадлежит к данной Домашней Группе.')})
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def visits_stats(self, request):
         pass

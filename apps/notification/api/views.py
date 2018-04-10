@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -32,7 +32,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     pagination_class = NotificationPagination
     serializer_class = BirthdayNotificationSerializer
 
-    @list_route()
+    @action(detail=False)
     def tickets(self, request):
         try:
             r = RedisBackend()
@@ -43,10 +43,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
             print(err)
         return Response({'tickets_count': tickets.count()})
 
-    @list_route(methods=['GET'],
-                filter_backends=[FilterByUserBirthday],
-                serializer_class=BirthdayNotificationSerializer,
-                pagination_class=NotificationPagination)
+    @action(detail=False, methods=['GET'],
+            filter_backends=[FilterByUserBirthday],
+            serializer_class=BirthdayNotificationSerializer,
+            pagination_class=NotificationPagination)
     def birthdays(self, request):
         birthdays = self.filter_queryset(self.request.user.get_descendants())
 
@@ -61,10 +61,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
         birthdays = self.serializer_class(birthdays, many=True)
         return Response(birthdays.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'],
-                filter_backends=[FilterByUserRepentance],
-                serializer_class=RepentanceNotificationSerializer,
-                pagination_class=NotificationPagination)
+    @action(detail=False, methods=['GET'],
+            filter_backends=[FilterByUserRepentance],
+            serializer_class=RepentanceNotificationSerializer,
+            pagination_class=NotificationPagination)
     def repentance(self, request):
         repentance = self.filter_queryset(self.request.user.get_descendants())
 
@@ -79,7 +79,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         repentance = self.serializer_class(repentance, many=True)
         return Response(repentance.data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def exports(self, request):
         try:
             r = RedisBackend()

@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django_filters import rest_framework
 from rest_framework import exceptions, viewsets, filters, status, mixins
-from rest_framework.decorators import list_route, detail_route, api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -410,7 +410,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
         )
         profile.delete()
 
-    @detail_route(methods=['get'], )
+    @action(detail=True, methods=['get'], )
     def predelete(self, request, pk=None):
         profile = self.get_object()
         lessons = profile.all_lessons.all()
@@ -427,7 +427,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
             'consultants': SummitAnketShortSerializer(consultants, many=True).data,
         })
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def notes(self, request, pk=None):
         serializer = SummitAnketNoteSerializer
         anket = self.get_object()
@@ -437,7 +437,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def create_note(self, request, pk=None):
         text = request.data['text']
         data = {
@@ -451,7 +451,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @list_route(methods=['GET'], permission_classes=(HasAPIAccess,), pagination_class=SummitTicketPagination)
+    @action(detail=False, methods=['GET'], permission_classes=(HasAPIAccess,), pagination_class=SummitTicketPagination)
     def codes(self, request):
         serializer = SummitAnketCodeSerializer
         summit_id = request.query_params.get('summit_id')
@@ -462,7 +462,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
 
         return self.get_paginated_response(ankets.data)
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def set_ticket_status(self, request, pk=None):
         profile = self.get_object()
         new_status = request.data.get('new_status', settings.NEW_TICKET_STATUS.get(profile.ticket_status, None))
@@ -483,7 +483,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
     queryset = SummitLesson.objects.all()
     serializer_class = SummitLessonSerializer
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def add_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
         lesson = self.get_object()
@@ -503,7 +503,7 @@ class SummitLessonViewSet(viewsets.ModelViewSet):
 
         return Response({'lesson': lesson.name, 'lesson_id': pk, 'anket_id': anket_id, 'checked': True})
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def del_viewer(self, request, pk=None):
         anket_id = request.data['anket_id']
         lesson = self.get_object()
@@ -563,7 +563,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('type',)
     permission_classes = (IsAuthenticated,)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def lessons(self, request, pk=None):
         serializer = SummitLessonSerializer
         summit = self.get_object()
@@ -573,7 +573,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'], )
+    @action(detail=True, methods=['post'], )
     def add_lesson(self, request, pk=None):
         name = request.data['name']
         data = dict()
@@ -586,7 +586,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def consultants(self, request, pk=None):
         serializer = SummitAnketForSelectSerializer
         summit = self.get_object()
@@ -596,7 +596,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'], )
+    @action(detail=True, methods=['post'], )
     def add_consultant(self, request, pk=None):
         summit = self.get_object()
 
@@ -615,7 +615,7 @@ class SummitViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(data, status=status.HTTP_201_CREATED)
 
-    @detail_route(methods=['post'], )
+    @action(detail=True, methods=['post'], )
     def del_consultant(self, request, pk=None):
         summit = self.get_object()
 
@@ -640,7 +640,7 @@ class SummitTicketViewSet(viewsets.GenericViewSet):
     serializer_class = SummitTicketSerializer
     permission_classes = (IsAuthenticated,)
 
-    @detail_route(['get'])
+    @action(detail=True, methods=['get'])
     def users(self, request, pk=None):
         code = request.query_params.get('code')
         ticket = self.get_object()

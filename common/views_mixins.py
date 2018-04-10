@@ -1,9 +1,10 @@
 from django.utils import timezone
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
-from rest_framework.decorators import list_route
-from apps.payment.tasks import generate_export
+from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from apps.payment.tasks import generate_export
 
 
 class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin,
@@ -70,6 +71,6 @@ class ExportViewSetMixin(BaseExportViewSetMixin):
 
         return self.get_response(queryset, fields)
 
-    @list_route(methods=['post'])
+    @action(detail=False, methods=['post'])
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)

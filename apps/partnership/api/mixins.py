@@ -11,7 +11,7 @@ from django.db.models import (
 from django.db.models.functions import Coalesce, Concat
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -43,7 +43,7 @@ def func_time(func):
 
 
 class PartnerStatMixin:
-    @list_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
+    @action(detail=False, methods=['get'], permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stats_payments(self, request):
         current_manager = request.user
 
@@ -62,8 +62,8 @@ class PartnerStatMixin:
 
         return Response(stats)
 
-    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
-                permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
+    @action(detail=False, methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
+            permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stat_deals(self, request):
         current_manager = request.user
 
@@ -81,8 +81,8 @@ class PartnerStatMixin:
 
         return Response({'deals': deals}, template_name='partner/partials/stat_deals.html')
 
-    @list_route(methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
-                permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
+    @action(detail=False, methods=['get'], renderer_classes=(TemplateHTMLRenderer,),
+            permission_classes=(IsAuthenticated, CanSeePartnerStatistics))
     def stat_payments(self, request):
         current_manager = request.user
 
@@ -196,7 +196,7 @@ class PartnerStatMixin:
 
 
 class StatsByManagersMixin:
-    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    @action(detail=False, methods=['GET'], permission_classes=(CanSeeManagerSummary,))
     def managers_summary(self, request):
         year = int(request.query_params.get('year', timezone.now().year))
         month = int(request.query_params.get('month', timezone.now().month))
@@ -527,11 +527,11 @@ class StatsByManagersMixin:
 
 
 class StatsByMonthsMixin:
-    @list_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,), url_path='all/manager_summary')
+    @action(detail=False, methods=['GET'], permission_classes=(CanSeeManagerSummary,), url_path='all/manager_summary')
     def managers_by_period(self, request):
         return Response(data=self._get_manager_summary(request.query_params.get('period', '3month')))
 
-    @detail_route(methods=['GET'], permission_classes=(CanSeeManagerSummary,))
+    @action(detail=True, methods=['GET'], permission_classes=(CanSeeManagerSummary,))
     def manager_summary(self, request, pk=None):
         user = get_object_or_404(CustomUser, pk=pk)
         return Response(data=self._get_manager_summary(request.query_params.get('period', '3month'), user))
@@ -870,31 +870,31 @@ class StatsSummaryMixin(StatsByManagersMixin, StatsByMonthsMixin):
 
 
 class DealCreatePaymentMixin(CreatePaymentMixin):
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, CanCreatePartnerPayment))
+    @action(detail=True, methods=['post'], permission_classes=(IsAuthenticated, CanCreatePartnerPayment))
     def create_payment(self, request, pk=None):
         return self._create_payment(request, pk)
 
 
 class DealListPaymentMixin(ListPaymentMixin):
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeeDealPayments))
+    @action(detail=True, methods=['get'], permission_classes=(IsAuthenticated, CanSeeDealPayments))
     def payments(self, request, pk=None):
         return self._payments(request, pk)
 
 
 class ChurchDealCreatePaymentMixin(CreatePaymentMixin):
-    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, CanCreateChurchPartnerPayment))
+    @action(detail=True, methods=['post'], permission_classes=(IsAuthenticated, CanCreateChurchPartnerPayment))
     def create_payment(self, request, pk=None):
         return self._create_payment(request, pk)
 
 
 class ChurchDealListPaymentMixin(ListPaymentMixin):
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, CanSeeChurchDealPayments))
+    @action(detail=True, methods=['get'], permission_classes=(IsAuthenticated, CanSeeChurchDealPayments))
     def payments(self, request, pk=None):
         return self._payments(request, pk)
 
 
 class PartnerExportViewSetMixin(ExportViewSetMixin):
-    @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
+    @action(detail=False, methods=['post'], permission_classes=(IsAuthenticated, CanExportPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
@@ -906,7 +906,7 @@ class PartnerExportViewSetMixin(ExportViewSetMixin):
 
 
 class ChurchPartnerExportViewSetMixin(ExportViewSetMixin):
-    @list_route(methods=['post'], permission_classes=(IsAuthenticated, CanExportChurchPartnerList,))
+    @action(detail=False, methods=['post'], permission_classes=(IsAuthenticated, CanExportChurchPartnerList,))
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
 
