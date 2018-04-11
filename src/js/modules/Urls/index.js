@@ -28,19 +28,19 @@ const CONTROLS = {
 };
 
 const SUMMIT = {
-	users: (summitId) => `/api/summits/${summitId}/users/`,
-	authors: (summitId) => `/api/summits/${summitId}/authors/`,
-	stats: (summitId) => `/api/summits/${summitId}/stats/`,
-	report_by_bishop: (summitId) => `/api/summit/${summitId}/report_by_bishops/`,
-	master: (summitId) => `/api/summit/${summitId}/master/`,
-	bishop_high_masters: (summitId) => `/api/summits/${summitId}/bishop_high_masters/`,
-	attends: (summitId) => `/api/summit/${summitId}/stats/attends/`,
-	stats_by_master: (summitId, masterId) => `/api/summit/${summitId}/stats/master/${masterId}/disciples/`,
-	stats_latecomer: (summitId) => `/api/summit/${summitId}/stats/latecomers/`,
-	send_codes: (summitId) => `/api/summit/${summitId}/send_unsent_codes/`,
-	send_schedules: (summitId) => `/api/summit/${summitId}/send_unsent_schedules/`,
-	send_code: (anketId) => `/api/summit/profile/${anketId}/send_code/?method=email`,
-	author_registration: (id) => `/api/summits/${id}/authors/`,
+    users: (summitId) => `/api/summits/${summitId}/users/`,
+    stats: (summitId) => `/api/summits/${summitId}/stats/`,
+    report_by_bishop: (summitId) => `/api/summit/${summitId}/report_by_bishops/`,
+    master: (summitId) => `/api/summit/${summitId}/master/`,
+    bishop_high_masters: (summitId) => `/api/summits/${summitId}/bishop_high_masters/`,
+    attends: (summitId) => `/api/summit/${summitId}/stats/attends/`,
+    stats_by_master: (summitId, masterId) => `/api/summit/${summitId}/stats/master/${masterId}/disciples/`,
+    stats_latecomer: (summitId) => `/api/summit/${summitId}/stats/latecomers/`,
+    send_codes: (summitId) => `/api/summit/${summitId}/send_unsent_codes/`,
+    send_schedules: (summitId) => `/api/summit/${summitId}/send_unsent_schedules/`,
+    send_code: (anketId) => `/api/summit/profile/${anketId}/send_code/?method=email`,
+    authors:             (summitId) => `/api/summits/${summitId}/authors/`,
+    author_registration: (summitId) => `/api/summits/${summitId}/authors/`,
 };
 
 const SUMMIT_PROFILE = {

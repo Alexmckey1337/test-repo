@@ -58,7 +58,7 @@ from apps.summit.utils import generate_ticket, get_report_by_bishop_or_high, \
     FullSummitParticipantReport
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
-from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin
+from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin, TableViewMixin
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,8 @@ class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
             )
 
 
-class SummitProfileListView(SummitProfileListMixin):
+class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
+    table_name = 'summit'
     serializer_class = ProfileTableSerializer
     pagination_class = SummitPagination
     permission_classes = (IsAuthenticated,)
@@ -205,27 +206,15 @@ class SummitProfileListView(SummitProfileListMixin):
         'search_city': ('city',),
     }
 
-    _columns = None
+    def get(self, request, *args, **kwargs):
+        """
+        Getting list of summit profiles for table
 
-    def list(self, request, *args, **kwargs):
-        request.columns = self.columns
-        return super().list(request, *args, **kwargs)
 
-    @property
-    def columns(self):
-        if self._columns is None:
-            self._columns = get_table('summit', self.request.user.id)
-        return self._columns
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        extra = {
-            'extra_fields': self.request.query_params.getlist('extra_fields'),
-            'columns': self.columns,
-        }
-        ctx.update(extra)
-
-        return ctx
+        By default ordering by ``last_name``, ``first_name``, ``middle_name``.
+        Pagination by 30 profiles per page.
+        """
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         select_related = {'user'}
@@ -294,8 +283,6 @@ class SummitStatisticsView(SummitProfileListView):
     serializer_class = SummitAnketStatisticsSerializer
     pagination_class = SummitStatisticsPagination
 
-    filter_date = None
-
     ordering_fields = (
         'last_name', 'first_name', 'middle_name',
         'responsible', 'author__last_name',
@@ -315,7 +302,16 @@ class SummitStatisticsView(SummitProfileListView):
         FilterByTime,
     )
 
+    filter_date = None
+
     def get(self, request, *args, **kwargs):
+        """
+        Getting list of summit profiles for table with statistics by attended
+
+
+        By default ordering by ``last_name``, ``first_name``, ``middle_name``.
+        Pagination by 30 profiles per page.
+        """
         filter_date = request.GET.get('date')
         if not filter_date:
             self.filter_date = timezone.now()
@@ -324,7 +320,7 @@ class SummitStatisticsView(SummitProfileListView):
                 self.filter_date = pytz.utc.localize(datetime.strptime(filter_date, '%Y-%m-%d'))
             except ValueError:
                 raise exceptions.ValidationError({'detail': _('Invalid date.')})
-        return super(SummitStatisticsView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def annotate_queryset(self, qs):
         subqs = SummitAttend.objects.filter(date=self.filter_date, anket=OuterRef('pk')).annotate(
