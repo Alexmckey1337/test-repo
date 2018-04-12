@@ -47,7 +47,7 @@ admin.site.register(PartnerGroup)
 
 @admin.register(TelegramUser)
 class TelegramUser(admin.ModelAdmin):
-    list_display = ('user', 'is_active', 'synced')
+    list_display = ('user', 'telegram_id', 'telegram_group', 'is_active', 'synced')
 
     class Meta:
         model = TelegramUser
@@ -55,7 +55,7 @@ class TelegramUser(admin.ModelAdmin):
 
 @admin.register(TelegramGroup)
 class TelegramGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'join_url')
+    list_display = ('id', 'title', 'chat_id', 'join_url')
 
     class Meta:
         model = TelegramGroup

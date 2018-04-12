@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from apps.account.api.permissions import IsSuperUser
 from apps.account.models import CustomUser
 from apps.notification.backend import RedisBackend
-from apps.partnership.models import TelegramGroup
+from apps.partnership.models import TelegramGroup, TelegramUser
 from apps.summit.api.permissions import HasAPIAccess
 from apps.summit.api.serializers import (
     SummitTypeForAppSerializer, SummitAnketForAppSerializer, SummitProfileTreeForAppSerializer,
@@ -33,6 +33,7 @@ from common.exception import InvalidRegCode
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet
+from apps.hierarchy.models import Hierarchy
 
 logger = logging.getLogger(__name__)
 
@@ -420,10 +421,26 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                          'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
 
+    @staticmethod
+    def get_or_create_telegram_user(user_id, telegram_id, telegram_group_id):
+        user = get_object_or_404(CustomUser, pk=user_id)
+        telegram_group = get_object_or_404(TelegramGroup, pk=telegram_group_id)
+
+        TelegramUser.objects.get_or_create(
+            user=user,
+            telegram_id=telegram_id,
+            telegram_group=telegram_group,  # is_active Partner, doesn't matter for this case
+            defaults={'is_active': False, 'synced': True}
+        )
+
+        return 'done'
+
     @action(detail=False, methods=['GET'], permission_classes=(HasAPIAccess,))
     def add_to_telegram_group(self, request):
         phone_number = request.query_params.get('phone_number')
         group_type = request.query_params.get('group_type', 'leaders')
+        telegram_id = request.query_params.get('telegram_id')
+        group_id = request.query_params.get('group_id')
 
         if not phone_number or len(phone_number) < 10:
             raise exceptions.ValidationError({'message': 'Parameter {phone_number} must be passed'})
@@ -440,14 +457,30 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
                 telegram_group = TelegramGroup.objects.get(title='Leaders')
                 data['join_url'] = telegram_group.join_url
 
-        if group_type == 'pastors':
-            visitor = CustomUser.objects.filter(hierarchy__level__gte=2).filter(Q(
+        if group_type == 'trainee':
+            if not telegram_id or not group_id:
+                raise exceptions.ValidationError({'message': 'Parameters {telegram_id}, {group_id} is required'})
+
+            trainee_hierarchy = get_object_or_404(Hierarchy, title='Стажёр')
+
+            visitor = CustomUser.objects.filter(hierarchy=trainee_hierarchy).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
+            visitor = CustomUser.objects.get(id=15287)
+
             if visitor:
-                telegram_group = TelegramGroup.objects.get(title='Pastors')
+                telegram_group = TelegramGroup.objects.get(chat_id=group_id)
                 data['join_url'] = telegram_group.join_url
+
+                try:
+                    self.get_or_create_telegram_user(
+                        user_id=visitor.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
+                    )
+                except Exception as e:
+                    print(e)
+                    return Response({'message': 'Service temporarily unavailable'},
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         return Response(data, status=status.HTTP_200_OK)
 

@@ -450,7 +450,7 @@ class TelegramGroup(models.Model):
         ordering = ('-id',)
 
     def __str__(self):
-        return 'Telegram Группа: "%s"' % self.title
+        return '%s' % self.title
 
 
 class TelegramUser(models.Model):
@@ -470,4 +470,4 @@ class TelegramUser(models.Model):
         unique_together = ['user', 'telegram_id', 'telegram_group']
 
     def __str__(self):
-        return 'Пользователь Telegram: %s' % self.user
+        return '%s' % self.user
