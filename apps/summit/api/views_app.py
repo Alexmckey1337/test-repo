@@ -467,8 +467,6 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
-            visitor = CustomUser.objects.get(id=15287)
-
             if visitor:
                 telegram_group = TelegramGroup.objects.get(chat_id=group_id)
                 data['join_url'] = telegram_group.join_url
