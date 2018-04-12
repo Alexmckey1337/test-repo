@@ -11,6 +11,7 @@ class Department(models.Model):
 class Hierarchy(models.Model):
     title = models.CharField(max_length=50, unique=True)
     level = models.IntegerField()
+    code = models.SlugField('Code', max_length=50, blank=True)
 
     class Meta:
         ordering = ['level']
