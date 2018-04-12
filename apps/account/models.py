@@ -100,6 +100,14 @@ class CustomUser(MP_Node, LogModel, User,
     is_dead = models.BooleanField(_('Is Dead'), default=False)
     is_stable = models.BooleanField(_('Is Stable'), default=True)
 
+    UNKNOWN, MALE, FEMALE = 'unknown', 'male', 'female'
+    SEX = (
+        (UNKNOWN, _('Unknown')),
+        (MALE, _('Male')),
+        (FEMALE, _('Female')),
+    )
+    sex = models.CharField(_('Sex'), max_length=7, choices=SEX, default=UNKNOWN)
+
     objects = CustomUserManager()
 
     tracking_fields = (
