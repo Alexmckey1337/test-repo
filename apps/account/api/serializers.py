@@ -212,6 +212,11 @@ class BaseUserSerializer(serializers.ModelSerializer):
                     raise ValidationError({'master': _('Master is required field.')})
             elif self.instance.hierarchy.level < 70 and not attrs['master']:
                 raise ValidationError({'master': _('Master is required field.')})
+        if 'hierarchy' in attrs.keys():
+            repentance_date = self.instance.repentance_date if self.instance else None
+            repentance_date = attrs.get('repentance_date', repentance_date)
+            if attrs['hierarchy'].code == 'convert' and not repentance_date:
+                raise ValidationError({'repentance_date': _('"repentance_date" is required field.')})
         return attrs
 
 

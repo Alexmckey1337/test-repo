@@ -439,6 +439,7 @@ HIERARCHIES = (
 )
 
 CHANGE_HIERARCHY_LEVELS = {
+    -10: set(),
     0: set(),
     1: {0},
     2: {0, 1, 2},
