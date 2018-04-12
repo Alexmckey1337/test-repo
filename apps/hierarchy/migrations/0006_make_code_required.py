@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hierarchy', '0004_added_code_field_to_hierarchy'),
+        ('hierarchy', '0005_set_codes'),
     ]
 
     operations = [
