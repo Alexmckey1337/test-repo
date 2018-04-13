@@ -1,208 +1,221 @@
 {% load static %}
 <div class="popap popap_slide" id="addNewUserPopup">
-<div class="splash-screen editprofile-screen">
-    <form action="./" name="createUser" id="createUser" novalidate>
-        <div class="step first_step">
-            <div class="pop_cont">
-                <div class="popup_text">
-                    <h2>Создание пользователя</h2>
-                    <h3>Шаг 1 из 2</h3>
-                </div>
-                <div class="popup_body">
-                    <div class="container">
-                        <p>Обязательные поля отмечены *</p>
-                        <label>
-                            <span class="label_block">Фамилия*</span>
-                            <input class="must" type="text" name="last_name" id="last_name" data-validation="length"
-                                   data-validation-length="min2" tabindex="1" placeholder="Фамилия на русском">
-                        </label>
-                        <label>
-                            <span class="label_block">Имя*</span>
-                            <input class="must" type="text" name="first_name" id="first_name" data-validation="length"
-                                   data-validation-length="min2" tabindex="2" placeholder="Имя на русском">
-                        </label>
-                        <label>
-                            <span class="label_block">Отчество</span>
-                            <input name="middle_name" id="middle_name" type="text" tabindex="3" placeholder="Отчество на русском">
-                        </label>
-                        <label>
-                            <span class="label_block">Имя на родном языке</span>
-                            <input type="text" name="search_name" id="search_name"tabindex="4" placeholder="Фамилия и имя на любом языке">
-                        </label>
-                        <label>
-                            <span class="label_block">Телефон*</span>
-                            <div class="phone">
-                                <input id="phone" type="text" tabindex="5">
-                                <span class="comment"></span>
-                            </div>
-{#                            <div class="phone">#}
-{#                                    <select name="" id="chooseCountryCode"></select>#}
-{#                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">#}
-{#                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"#}
-{#                                           required data-validation="required number">#}
-{#                                </div>#}
-                        </label>
-                        <label>
-                            <span class="label_block">Отдел церкви*</span>
-                            <select multiple disabled
-                                    id="chooseDepartment"
-                                    tabindex="6"
-                                    class="must"
-                                    data-validation="required">
-
-                            </select>
-                        </label>
-                        <label>
-                            <span class="label_block">Иерархия*</span>
-                            <select name="hierarchy"
-                                    id="chooseStatus"
-                                    class="cleared must"
-                                    tabindex="7"
-                                    data-validation="required">
-                            </select>
-                        </label>
-                        <label>
-                            <span class="label_block">Ответственный*</span>
-                            <select disabled name="master" id="chooseResponsible" tabindex="8" class="cleared must"></select>
-                        </label>
-                        <div class="duplicate_users">
-                        <a id="duplicate_link" href="javascript:void(0)">Найдено <span id="duplicate_count">0</span> совпадений</a>
-                        <div class="_preloader">
-                            <svg preserveaspectratio="" viewbox="-5 -5 65 65">
-                                <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>
-                                <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32" transform="translate(1 2)">
-                                    <animatetransform attributename="transform" dur="1s" from="0 26 27"
-                                                      repeatcount="indefinite" to="360 26 27" type="rotate">
-                                    </animatetransform>
-                                </path>
-                            </svg>
-                        </div>
+    <div class="splash-screen editprofile-screen">
+        <form action="./" name="createUser" id="createUser" novalidate>
+            <div class="step first_step">
+                <div class="pop_cont">
+                    <div class="popup_text">
+                        <h2>Создание пользователя</h2>
+                        <h3>Шаг 1 из 2</h3>
                     </div>
-                    </div>
-                </div>
-                <div class="container">
-                    <div class="btn-block">
-                        <a href="#" class="btn closeForm" tabindex="10">Отменить</a>
-                        <a href="#" class="btn nextForm" tabindex="9">Продолжить</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="step second_step">
-            <div class="pop_cont">
-                <div class="popup_text">
-                    <h2>Создание пользователя</h2>
-                    <h3>Шаг 2 из 2</h3>
-                </div>
-                <div class="popup_body">
-                    <div class="container">
-                        <h1 class="user"></h1>
-                        <div class="upload-photo">
-                            <div id="edit-photo" class="anketa-photo">
-                                <img src="{% static "img/no-usr.jpg" %}" alt="photo">
-                            </div>
-                            <div class="btn-wrap">
-                                <input type="file" name="file" id="file" tabindex="11">
-                                <button id="file_upload">Загрузить фото</button>
-                            </div>
-                        </div>
-                        <p>Размер файла не должен превышать 10 Мб (jpg, jpeg, png)</p>
-                        <h2>Контактная информация</h2>
-                        <label>
-                            <span class="label_block">Доп.телефон</span>
-                            <div id="phones">
-                                <div class="phone" id="extra_phone">
-                                    <input type="text" class="extra_phone_numbers" tabindex="12">
+                    <div class="popup_body">
+                        <div class="container">
+                            <p>* Обязательные поля</p>
+                            <p>** Обязательные поля для иерархии "Новообращенный"</p>
+                            <label>
+                                <span class="label_block">Фамилия*</span>
+                                <input class="must" type="text" name="last_name" id="last_name" data-validation="length"
+                                       data-validation-length="min2" tabindex="1" placeholder="Фамилия на русском">
+                            </label>
+                            <label>
+                                <span class="label_block">Имя*</span>
+                                <input class="must" type="text" name="first_name" id="first_name"
+                                       data-validation="length"
+                                       data-validation-length="min2" tabindex="2" placeholder="Имя на русском">
+                            </label>
+                            <label>
+                                <span class="label_block">Отчество</span>
+                                <input name="middle_name" id="middle_name" type="text" tabindex="3"
+                                       placeholder="Отчество на русском">
+                            </label>
+                            <label>
+                                <span class="label_block">Имя на родном языке</span>
+                                <input type="text" name="search_name" id="search_name" tabindex="4"
+                                       placeholder="Фамилия и имя на любом языке">
+                            </label>
+                            <label>
+                                <span class="label_block">Пол</span>
+                                <select id="sex" tabindex="5">
+                                    <option value="" selected disabled>Выберите пол</option>
+                                    <option value="male">Мужской</option>
+                                    <option value="female">Женский</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span class="label_block">Телефон*</span>
+                                <div class="phone">
+                                    <input id="phone" type="text" tabindex="6">
                                     <span class="comment"></span>
-                                    <span id="addExtraPhone"></span>
+                                </div>
+                                {#                            <div class="phone">#}
+                                {#                                    <select name="" id="chooseCountryCode"></select>#}
+                                {#                                    <input id="phoneNumberCode" type="text" readonly data-validation="required">#}
+                                {#                                    <input class="must" id="phoneNumber" type="text"  tabindex="5"#}
+                                {#                                           required data-validation="required number">#}
+                                {#                                </div>#}
+                            </label>
+                            <label>
+                                <span class="label_block">Отдел церкви*</span>
+                                <select multiple disabled
+                                        id="chooseDepartment"
+                                        tabindex="7"
+                                        class="must"
+                                        data-validation="required">
+                                </select>
+                            </label>
+                            <label>
+                                <span class="label_block">Иерархия*</span>
+                                <select name="hierarchy"
+                                        id="chooseStatus"
+                                        class="cleared must"
+                                        tabindex="8"
+                                        data-validation="required">
+                                </select>
+                            </label>
+                            <label>
+                                <span class="label_block">Ответственный*</span>
+                                <select disabled name="master" id="chooseResponsible" tabindex="9"
+                                        class="cleared must"></select>
+                            </label>
+                            <label>
+                                <span class="label_block">Дата покаяния**</span>
+                                <input name="repentance_date" type="text" tabindex="10" id="repentanceDate">
+                            </label>
+                            <label>
+                                <span class="label_block">Духовный уровень</span>
+                                <select type="text" id="spir_level" name="" tabindex="11">
+                                    <option value="">Выберите духовный уровень</option>
+                                    {% for spiritual_level in spiritual_levels %}
+                                        <option value="{{ spiritual_level.id }}">
+                                            {{ spiritual_level.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                            <div class="duplicate_users">
+                                <a id="duplicate_link" href="javascript:void(0)">Найдено <span
+                                        id="duplicate_count">0</span> совпадений</a>
+                                <div class="_preloader">
+                                    <svg preserveaspectratio="" viewbox="-5 -5 65 65">
+                                        <circle class="cls-1" cx="26.1" cy="26.9" r="26.3"></circle>
+                                        <path class="cls-2" d="M25,0A24.92,24.92,0,0,1,42.68,7.32"
+                                              transform="translate(1 2)">
+                                            <animatetransform attributename="transform" dur="1s" from="0 26 27"
+                                                              repeatcount="indefinite" to="360 26 27" type="rotate">
+                                            </animatetransform>
+                                        </path>
+                                    </svg>
                                 </div>
                             </div>
-                        </label>
-                        <label>
-                            <span class="label_block">E-mail</span>
-                            <input name="email" id="email" type="text" tabindex="15"
-                           data-validation="email" data-validation-optional="true">
-                        </label>
-                        <label>
-                            <span class="label_block">Skype</span>
-                            <input name="skype" id="skype" tabindex="16" type="text">
-                        </label>
-                        <h2>Социальные сети</h2>
-                        <label>
-                            <span class="label_block">Facebook</span>
-                            <input name="facebook" id="facebook" type="text" tabindex="17"
-                               data-validation="url" data-validation-optional="true">
-                        </label>
-                        <label>
-                            <span class="label_block">Vkontakte</span>
-                            <input name="vkontakte" id="vkontakte" type="text" tabindex="18"
-                           data-validation="url" data-validation-optional="true">
-                        </label>
-                        <label>
-                            <span class="label_block">Odnaklasniki</span>
-                            <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="19"
-                           data-validation="url" data-validation-optional="true">
-                        </label>
-                        <h2>День рождения и адрес</h2>
-                        <label>
-                            <span class="label_block">Дата рождения</span>
-                            <input name="born_date" type="text" id="bornDate" tabindex="20">
-                        </label>
-                        <label>
-                            <span class="label_block">Нас.пункт:</span>
-                            <span class="select select_small" id="chooseCity" data-id=""></span>
-                            <a href="{% url 'search_city' %}" class="search_city_link" tabindex="21">Выбрать</a>
-                        </label>
-                        <label>
-                            <span class="label_block">Страна</span>
-                            <span class="select" id="chooseCountry"></span>
-                        </label>
-                        <label>
-                            <span class="label_block">Область</span>
-                            <span class="select" id="chooseRegion"></span>
-                        </label>
-                        <label>
-                            <span class="label_block">Район</span>
-                            <span class="select" id="chooseDistrict"></span>
-                        </label>
-                        <label>
-                            <span class="label_block">Адрес</span>
-                            <input name="address" id="address" type="text" tabindex="22">
-                        </label>
-                        <h2>Информация о служениях</h2>
-                        <label>
-                            <span class="label_block">Департамент</span>
-                            <select id="chooseDivision" multiple="multiple" tabindex="23"></select>
-                        </label>
-                        <h2>Духовный уровень</h2>
-                        <label>
-                            <span class="label_block">Дата покаяния</span>
-                            <input name="repentance_date" type="text" tabindex="24" id="repentanceDate">
-                        </label>
-                        <label>
-                            <span class="label_block">Духовный уровень</span>
-                            <select type="text" id="spir_level" name="" tabindex="25">
-                                <option value="">Выберите духовный уровень</option>
-                                {% for spiritual_level in spiritual_levels %}
-                                    <option value="{{ spiritual_level.id }}">
-                                          {{ spiritual_level.title }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </label>
+                        </div>
                     </div>
-                </div>
-                <div class="container">
-                    <div class="btn-block">
-                        <a href="#" class="btn prevForm" tabindex="29">Вернуться к первому шагу</a>
-                        <a href="#" class="btn closeForm" tabindex="30">Отменить</a>
-                        <button id="saveNew" class="btn" type="submit" tabindex="28">Сохранить</button>
+                    <div class="container">
+                        <div class="btn-block">
+                            <a href="#" class="btn closeForm" tabindex="13">Отменить</a>
+                            <a href="#" class="btn nextForm" tabindex="12">Продолжить</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+            <div class="step second_step">
+                <div class="pop_cont">
+                    <div class="popup_text">
+                        <h2>Создание пользователя</h2>
+                        <h3>Шаг 2 из 2</h3>
+                    </div>
+                    <div class="popup_body">
+                        <div class="container">
+                            <h1 class="user"></h1>
+                            <div class="upload-photo">
+                                <div id="edit-photo" class="anketa-photo">
+                                    <img src="{% static "img/no-usr.jpg" %}" alt="photo">
+                                </div>
+                                <div class="btn-wrap">
+                                    <input type="file" name="file" id="file" tabindex="15">
+                                    <button id="file_upload">Загрузить фото</button>
+                                </div>
+                            </div>
+                            <p>Размер файла не должен превышать 10 Мб (jpg, jpeg, png)</p>
+                            <h2>Контактная информация</h2>
+                            <label>
+                                <span class="label_block">Доп.телефон</span>
+                                <div id="phones">
+                                    <div class="phone" id="extra_phone">
+                                        <input type="text" class="extra_phone_numbers" tabindex="16">
+                                        <span class="comment"></span>
+                                        <span id="addExtraPhone"></span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label>
+                                <span class="label_block">E-mail</span>
+                                <input name="email" id="email" type="text" tabindex="17"
+                                       data-validation="email" data-validation-optional="true">
+                            </label>
+                            <label>
+                                <span class="label_block">Skype</span>
+                                <input name="skype" id="skype" tabindex="18" type="text">
+                            </label>
+                            <h2>Социальные сети</h2>
+                            <label>
+                                <span class="label_block">Facebook</span>
+                                <input name="facebook" id="facebook" type="text" tabindex="19"
+                                       data-validation="url" data-validation-optional="true">
+                            </label>
+                            <label>
+                                <span class="label_block">Vkontakte</span>
+                                <input name="vkontakte" id="vkontakte" type="text" tabindex="20"
+                                       data-validation="url" data-validation-optional="true">
+                            </label>
+                            <label>
+                                <span class="label_block">Odnaklasniki</span>
+                                <input name="odnoklassniki" id="odnoklassniki" type="text" tabindex="21"
+                                       data-validation="url" data-validation-optional="true">
+                            </label>
+                            <h2>День рождения и адрес</h2>
+                            <label>
+                                <span class="label_block">Дата рождения</span>
+                                <input name="born_date" type="text" id="bornDate" tabindex="22">
+                            </label>
+                            <label>
+                                <span class="label_block">Нас.пункт:</span>
+                                <span class="select select_small" id="chooseCity" data-id=""></span>
+                                <a href="{% url 'search_city' %}" class="search_city_link" tabindex="23">Выбрать</a>
+                            </label>
+                            <label>
+                                <span class="label_block">Страна</span>
+                                <span class="select" id="chooseCountry"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Область</span>
+                                <span class="select" id="chooseRegion"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Район</span>
+                                <span class="select" id="chooseDistrict"></span>
+                            </label>
+                            <label>
+                                <span class="label_block">Адрес</span>
+                                <input name="address" id="address" type="text" tabindex="24">
+                            </label>
+                            <h2>Информация о служениях</h2>
+                            <label>
+                                <span class="label_block">Департамент</span>
+                                <select id="chooseDivision" multiple="multiple" tabindex="25"></select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="btn-block">
+                            <a href="#" class="btn prevForm" tabindex="29">Вернуться к первому шагу</a>
+                            <a href="#" class="btn closeForm" tabindex="30">Отменить</a>
+                            <button id="saveNew" class="btn" type="submit" tabindex="28">Сохранить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 <div id="impPopup">
     <div class="splash-screen">
@@ -222,49 +235,49 @@
 {% include 'partials/find_duplicate.html' %}
 
 <script type="text/template" id="addUserSuccessPopup">
-<div id="addPopup">
-    <div class="splash-screen wrapper is-center">
-        <h3>Пользователь успешно создан!</h3>
-        <div class="card">
-            <div class="photo-block">
-                <div class="photo">
-                    <% if (image_source) { %>
+    <div id="addPopup">
+        <div class="splash-screen wrapper is-center">
+            <h3>Пользователь успешно создан!</h3>
+            <div class="card">
+                <div class="photo-block">
+                    <div class="photo">
+                        <% if (image_source) { %>
                         <img src="<%=image_source%>" alt="Фото пользователя">
-                    <% } else { %>
+                        <% } else { %>
                         <img src="/static/img/no-usr.jpg" alt="Фото пользователя">
-                    <% } %>
+                        <% } %>
+                    </div>
+                    <div class="photo-title">
+                        <p class="card_title card_title__ru"><%=fullname%></p>
+                        <p class="card_title card_title__en"><%=search_name%></p>
+                    </div>
                 </div>
-                <div class="photo-title">
-                    <p class="card_title card_title__ru"><%=fullname%></p>
-                    <p class="card_title card_title__en"><%=search_name%></p>
-                </div>
+                <ul>
+                    <li>Отдел церкви</li>
+                    <% let depart = departments[0] %>
+                    <li><%=depart.title%></li>
+                    <li>Иерархия</li>
+                    <li><%=hierarchy.title%></li>
+                    <li>Ответственный</li>
+                    <li>
+                        <% if (master == null) { %>
+                        Нет ответственного
+                        <% } else { %>
+                        <%=master.fullname%>
+                        <% } %>
+                    </li>
+                    <li>Телефон</li>
+                    <li><%=phone_number%></li>
+                </ul>
             </div>
-            <ul>
-                <li>Отдел церкви</li>
-                <% let depart = departments[0] %>
-                <li><%=depart.title%></li>
-                <li>Иерархия</li>
-                <li><%=hierarchy.title%></li>
-                <li>Ответственный</li>
-                <li>
-                    <% if (master == null) { %>
-                       Нет ответственного
-                    <% } else { %>
-                    <%=master.fullname%>
-                    <% } %>
-                </li>
-                <li>Телефон</li>
-                <li><%=phone_number%></li>
-            </ul>
-        </div>
-        <a class="rewrite" target="_blank" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
-        <div class="btn-block">
-            {% if addToSummit %}
-                <button id="addToSummit" data-id="<%=id%>">Добавить в саммит</button>
-            {% endif %}
-            <button class="addMore">Создать ещё одного</button>
-            <button class="close">Закрыть</button>
+            <a class="rewrite" target="_blank" href="/account/<%=id%>">Ошибка? Исправить карточку пользователя.</a>
+            <div class="btn-block">
+                {% if addToSummit %}
+                    <button id="addToSummit" data-id="<%=id%>">Добавить в саммит</button>
+                {% endif %}
+                <button class="addMore">Создать ещё одного</button>
+                <button class="close">Закрыть</button>
+            </div>
         </div>
     </div>
-</div>
 </script>
