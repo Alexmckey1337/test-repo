@@ -292,7 +292,11 @@ CELERYBEAT_SCHEDULE = {
     'telegram_users_to_kick': {
         'task': 'telegram_users_to_kick',
         'schedule': crontab(minute=0, hour=0)
-    }
+    },
+    'improve_convert_to_congregation': {
+        'task': 'improve_convert_to_congregation',
+        'schedule': 3600
+    },
 }
 
 REST_AUTH_SERIALIZERS = {

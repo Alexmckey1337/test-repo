@@ -7,7 +7,7 @@ node_modules/
 *.mo
 edem/local_settings.py
 /.sift.conf
-/celerybeat-schedule
+celerybeat-schedule
 __pycache__/
 celerybeat.pid
 celeryev.pid
