@@ -8,14 +8,25 @@ before_script:
 stages:
   - build
   - test
+  - deploy
 
-prepare:
+build-stage:
   stage: build
   script:
     - docker build -t reg.sobsam.com/vocrm:latest .
     - docker push reg.sobsam.com/vocrm:latest
+  only:
+    - master
 
-pytest:
+build-prod:
+  stage: build
+  script:
+    - docker build -t reg.sobsam.com/vocrm:$CI_COMMIT_TAG .
+    - docker push reg.sobsam.com/vocrm:$CI_COMMIT_TAG
+  only:
+    - tags
+
+test-stage:
   stage: test
   services:
   - name: docker:dind
@@ -29,3 +40,51 @@ pytest:
     - docker run -d --name redis redis:latest
     - docker ps && sleep 10
     - docker run --rm -e POSTGRES_USER='postgres' -e POSTGRES_PASSWORD='' -e POSTGRES_DB='test_crm_db' -e DJANGO_SETTINGS_MODULE='edem.settings.test' -e POSTGRES_HOST='db' --name pytest --link db --link redis reg.sobsam.com/vocrm:latest python manage.py test
+  only:
+    - master
+
+test-prod:
+  stage: test
+  services:
+  - name: docker:dind
+  - name: postgres:10
+    alias: db
+  - name: redis:latest
+    alias: redis
+  script:
+    - docker pull reg.sobsam.com/vocrm:$CI_COMMIT_TAG
+    - docker run -d --name db reg.sobsam.com/postgres:10
+    - docker run -d --name redis redis:latest
+    - docker ps && sleep 10
+    - docker run --rm -e POSTGRES_USER='postgres' -e POSTGRES_PASSWORD='' -e POSTGRES_DB='test_crm_db' -e DJANGO_SETTINGS_MODULE='edem.settings.test' -e POSTGRES_HOST='db' --name pytest --link db --link redis reg.sobsam.com/vocrm:$CI_COMMIT_TAG python manage.py test
+  only:
+    - tags
+
+deploy-stage:
+  stage: deploy
+  image: python:3.6
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh $STAGE_USER@$STAGE_HOST "/home/vocrm/sites/vocrm/update.sh"
+  only:
+    - master
+
+deploy-prod:
+  stage: deploy
+  image: python:3.6
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh $PROD_USER@$PROD_HOST "VOCRM_TAG=$CI_COMMIT_TAG /home/vocrm/sites/vocrm/update.sh"
+  only:
+    - tags
+  when: manual
