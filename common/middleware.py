@@ -79,7 +79,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
             'status_code': response.status_code,
             'timestamp': timezone.now(),
         }
-        if request.user and request.user.is_authenticated:
+        if hasattr(request, 'user') and request.user and request.user.is_authenticated:
             content['user'] = {'id': request.user.id, 'name': request.user.fullname}
         real_user = getattr(request, 'real_user', None)
         if real_user is not None:
