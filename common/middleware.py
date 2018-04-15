@@ -84,7 +84,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
         real_user = getattr(request, 'real_user', None)
         if real_user is not None:
             content['real_user'] = {'id': real_user.id, 'name': real_user.fullname}
-        else:
+        elif content.get('user') is not None:
             content['real_user'] = content['user'].copy()
         if hasattr(request, '_post'):
             content['post_params'] = dict(request._post)
