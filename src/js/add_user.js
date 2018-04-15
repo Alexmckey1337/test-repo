@@ -139,7 +139,7 @@ $('document').ready(function () {
 		$('.bg').removeClass('active');
 		$(this).closest('form').get(0).reset();
 		$(this).closest('form').find('input[type=file]').val('');
-		$(this).closest('form').find('#edit-photo img').attr('src', '/static/img/no-usr.jpg');
+		$(this).closest('form').find('#edit-photo img').attr('src', `${BASE_STATIC_PATH}img/no-usr.jpg`);
 	});
 
 	$('.btn-block').find('.nextForm').on('click', function (e) {

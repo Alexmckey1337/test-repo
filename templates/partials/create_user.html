@@ -244,7 +244,7 @@
                         <% if (image_source) { %>
                         <img src="<%=image_source%>" alt="Фото пользователя">
                         <% } else { %>
-                        <img src="/static/img/no-usr.jpg" alt="Фото пользователя">
+                        <img src="{% static "img/no-usr.jpg" %}" alt="Фото пользователя">
                         <% } %>
                     </div>
                     <div class="photo-title">

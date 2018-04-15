@@ -77,9 +77,10 @@ class AnalyticsMiddleware(MiddlewareMixin):
             'query_params': dict(list(request.GET.lists())),
             'query_string': request.META.get('QUERY_STRING', ''),
             'status_code': response.status_code,
-            'user': {'id': request.user.id, 'name': request.user.fullname},
             'timestamp': timezone.now(),
         }
+        if request.user and request.user.is_authenticated:
+            content['user'] = {'id': request.user.id, 'name': request.user.fullname}
         real_user = getattr(request, 'real_user', None)
         if real_user is not None:
             content['real_user'] = {'id': real_user.id, 'name': real_user.fullname}

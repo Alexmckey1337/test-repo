@@ -163,7 +163,7 @@ function clearAddNewUser() {
         $select = form.find('#spir_level, #church_list');
     $('#addNewUserPopup').find('.body').scrollTop(0);
     form.get(0).reset();
-    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
+    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', `${BASE_STATIC_PATH}img/no-usr.jpg`);
     form.find('.anketa-photo').unbind('click');
     form.find('select:not(#payment_currency, #sex, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
         .select2('destroy').find('option').remove();
