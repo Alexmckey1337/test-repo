@@ -465,17 +465,40 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
 
             trainee_hierarchy = get_object_or_404(Hierarchy, title='Стажёр')
 
-            visitor = CustomUser.objects.filter(hierarchy=trainee_hierarchy).filter(Q(
+            trainee = CustomUser.objects.filter(hierarchy=trainee_hierarchy).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
-            if visitor:
+            if trainee:
                 telegram_group = TelegramGroup.objects.get(chat_id=group_id)
                 data['join_url'] = telegram_group.join_url
 
                 try:
                     self.get_or_create_telegram_user(
-                        user_id=visitor.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
+                        user_id=trainee.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
+                    )
+                except Exception as e:
+                    print(e)
+                    return Response({'message': 'Service temporarily unavailable'},
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        if group_type == 'vip_partners':
+            if not telegram_id or not group_id:
+                raise exceptions.ValidationError({'message': 'Parameters {telegram_id} and {group_id} is required'})
+
+            vip_partner = CustomUser.objects.filter(partners__value__gte=12500).filter(Q(
+                phone_number__contains=phone_number) | Q(
+                extra_phone_numbers__contains=[phone_number])).first()
+
+            vip_partner = CustomUser.objects.get(id=15287)
+
+            if vip_partner:
+                telegram_group = TelegramGroup.objects.get(title='VIP_Partners')
+                data['join_url'] = telegram_group.join_url
+
+                try:
+                    self.get_or_create_telegram_user(
+                        user_id=vip_partner.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
                     )
                 except Exception as e:
                     print(e)

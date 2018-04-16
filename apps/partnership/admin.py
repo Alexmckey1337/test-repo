@@ -59,8 +59,6 @@ class TelegramUser(admin.ModelAdmin):
 class TelegramGroupAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'chat_id', 'join_url', 'bot_address')
 
-    readonly_fields = ('chat_id',)
-
     class Meta:
         model = TelegramGroup
 
