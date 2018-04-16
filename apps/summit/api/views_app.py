@@ -1,5 +1,7 @@
 import logging
 from datetime import datetime, timedelta
+import requests
+import json
 
 import pytz
 from django.conf import settings
@@ -507,3 +509,27 @@ class TelegramPaymentsViewSet(viewsets.ModelViewSet):
     queryset = TelegramPayment.objects.all()
     serializer_class = TelegramPaymentSerializer
     permission_classes = (IsAuthenticated,)
+
+
+def kick_from_telegram_group(telegram_group_id, telegram_user_id):
+    telegram_user = get_object_or_404(TelegramUser, telegram_id=telegram_user_id)
+    telegram_group = get_object_or_404(TelegramGroup, chat_id=telegram_group_id)
+
+    url = 'https://%s/kick_user_from_group/' % telegram_group.bot_address
+    data = json.dumps({'telegram_group_id': telegram_group_id, 'telegram_user_id': telegram_user_id})
+    headers = {'Visitors-Location-Token': settings.VISITORS_LOCATION_TOKEN, 'Content-Type': 'application/json'}
+    try:
+        kick_request = requests.post(url, data=data, headers=headers)
+        if kick_request.status_code == 200:
+            telegram_user.synced = True
+            telegram_user.save()
+
+            return Response(
+                {'message': '%s successful kicked for Telegram group' % telegram_user},
+                status=status.HTTP_200_OK
+            )
+    except Exception as e:
+        print(e)
+
+    return Response({'message': 'Kick %s from group has been failed. Try again later' % telegram_user},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
