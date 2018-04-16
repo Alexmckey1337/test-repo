@@ -431,8 +431,8 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         TelegramUser.objects.get_or_create(
             user=user,
             telegram_id=telegram_id,
-            telegram_group=telegram_group,  # is_active Partner, doesn't matter for this case
-            defaults={'is_active': False, 'synced': True}
+            telegram_group=telegram_group,
+            defaults={'is_active': True, 'synced': True}
         )
 
         return 'done'
@@ -486,12 +486,12 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             if not telegram_id or not group_id:
                 raise exceptions.ValidationError({'message': 'Parameters {telegram_id} and {group_id} is required'})
 
-            vip_partner = CustomUser.objects.filter(partners__value__gte=12500).filter(Q(
+            vip_partner = CustomUser.objects.filter(partners__value__gte=12500, is_active=True).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
             if vip_partner:
-                telegram_group = TelegramGroup.objects.get(title='VIP_Partners')
+                telegram_group = TelegramGroup.objects.get(chat_id=group_id)
                 data['join_url'] = telegram_group.join_url
 
                 try:
