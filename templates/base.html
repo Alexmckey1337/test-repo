@@ -95,7 +95,11 @@
                         <% if (key === 'fullname') { %>
                             <% if (results[index][key] != null) { %>
                             <td class="edit">
-                                <% if(results[index].is_stable_newbie) { %>
+                                <% if(results[index].is_vip) { %>
+                                <i class="material-icons is_stable_icon is_vip_icon">
+                                    {% include 'partials/vip_icon.html' %}
+                                </i>
+                                <% } else if(results[index].is_stable_newbie) { %>
                                 <i class="material-icons is_stable_icon">&#xE877;</i>
                                 <% } %>
                                 <a href="/account/<%= results[index].id %>"
@@ -112,7 +116,11 @@
                         <% } else if (key === 'user.fullname') { %>
                             <% if (results[index][key] != null) { %>
                             <td class="edit">
-                                <% if(results[index].is_stable_newbie) { %>
+                                <% if(results[index].is_vip) { %>
+                                <i class="material-icons is_stable_icon is_vip_icon">
+                                    {% include 'partials/vip_icon.html' %}
+                                </i>
+                                <% } else if(results[index].is_stable_newbie) { %>
                                 <i class="material-icons is_stable_icon">&#xE877;</i>
                                 <% } %>
                                 <a href="/account/<%= results[index].user.id %>"
