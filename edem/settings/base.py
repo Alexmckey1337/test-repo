@@ -292,7 +292,11 @@ CELERYBEAT_SCHEDULE = {
     'telegram_users_to_kick': {
         'task': 'telegram_users_to_kick',
         'schedule': crontab(minute=0, hour=0)
-    }
+    },
+    'improve_convert_to_congregation': {
+        'task': 'improve_convert_to_congregation',
+        'schedule': 3600
+    },
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -307,9 +311,6 @@ SITE_DOMAIN_URL = 'https://vocrm.net/'
 # ADMINS = (('Iskander', 'zumichke@gmail.com'), )
 ARCHONS = [1, ]
 AXES_COOLOFF_TIME = 1
-
-# LOG_FILE = env('LOG_FILE', default='/tmp/vocrm.log')
-LOG_FILE = '/tmp/vocrm.log'
 
 LOGGING = {
     'version': 1,
@@ -332,32 +333,26 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOG_FILE,
-            'formatter': 'verbose'
-        }
     },
     'loggers': {
         'django.db.backends': {
             'level': 'ERROR',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'middleware': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'apps.account.api.views': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'apps.event.api.views': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'apps.group.api.views': {
@@ -367,32 +362,32 @@ LOGGING = {
         },
         'apps.summit.api.views': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'apps.partnership.api.tasks': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'partner.sql': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'performance': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'raven': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
         'sentry.errors': {
             'level': 'DEBUG',
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'propagate': False,
         },
     },

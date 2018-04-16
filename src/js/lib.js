@@ -1260,7 +1260,7 @@ function clearAddNewUser() {
     let flag = $('#addNewUserPopup').attr('data-flagdepart');
     form.find('#partner').attr('checked', false);
     form.find('.hidden-partner').hide();
-    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', '/static/img/no-usr.jpg');
+    form.find('#edit-photo').attr('data-source', '').find('img').attr('src', `${BASE_STATIC_PATH}img/no-usr.jpg`);
     form.find('.anketa-photo').unbind('click');
     form.find('select:not(#payment_currency, #spir_level, #chooseDepartment).select2-hidden-accessible')
         .select2('destroy').find('option').remove();

@@ -27,7 +27,7 @@ BASE_USER_FIELDS = (
     # 'username',
     'email', 'first_name', 'last_name', 'middle_name', 'search_name',
     'facebook', 'vkontakte', 'odnoklassniki', 'skype',
-    'description', 'spiritual_level',
+    'description', 'spiritual_level', 'sex',
 
     'phone_number', 'extra_phone_numbers',
     'born_date', 'coming_date', 'repentance_date',
@@ -376,6 +376,7 @@ class UserSingleSerializer(BaseUserSerializer):
     hierarchy = HierarchyTitleSerializer()
     divisions = DivisionSerializer(many=True, read_only=True)
     spiritual_level = ReadOnlyChoiceField(choices=User.SPIRITUAL_LEVEL_CHOICES, read_only=True)
+    sex = ReadOnlyChoiceField(choices=User.SEX, read_only=True)
     locality = CityReadSerializer()
 
 

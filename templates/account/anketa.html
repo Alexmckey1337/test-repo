@@ -223,6 +223,14 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
+                                            <span class="label_block">Пол:</span>
+                                            <select type="text" id="sex" class="sex" readonly disabled>
+                                                <option value="" selected disabled>Выберите пол</option>
+                                                <option value="male" {% if account.sex == 'male' %}selected{% endif %}>Мужской</option>
+                                                <option value="female" {% if account.sex == 'female' %}selected{% endif %}>Женский</option>
+                                            </select>
+                                        </label>
+                                        <label>
                                             <span class="label_block">Дата рождения:</span>
                                             <input type="text" id="born_date"
                                                    class="sel__date"

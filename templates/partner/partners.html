@@ -147,6 +147,7 @@
     {% include "partials/filter/fromto.html" with label="День рождения" name="date" custom_classes="select_date_filter" pclass="birthday" %}
     {% include "partials/filter/select.html" with label="Статус партнера" options=active_status_options name="is_active" %}
     {% include "partials/filter/fromto.html" with label="Дата покаяния" name="repentance_date" custom_classes="select_rep_date_filter" pclass="birthday" %}
+    {% include "partials/filter/fromto.html" with label="Сумма" name="value" custom_classes="select_value_filter" pclass="birthday" input_type="number" %}
 {% endblock %}
 
 {% block add_user_modal.buttons.create %}

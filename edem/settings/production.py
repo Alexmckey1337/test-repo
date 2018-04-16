@@ -167,37 +167,37 @@ LOGGING['handlers']['sentry'] = {
 }
 LOGGING['loggers']['apps.account.api.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['middleware'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['apps.event.api.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['apps.group.api.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['apps.summit.api.views'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['apps.partnership.api.tasks'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 LOGGING['loggers']['partners.sql'] = {
     'level': 'INFO',
-    'handlers': ['console', 'sentry', 'file'],
+    'handlers': ['console', 'sentry'],
     'propagate': False,
 }
 SENTRY_CELERY_LOGLEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
