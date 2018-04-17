@@ -7,7 +7,7 @@ from django.db.models import OuterRef, Exists
 from django.utils import timezone
 
 from edem.settings.celery import app
-from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser
+from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser, TelegramGroup
 from apps.account.models import CustomUser
 from rest_framework.generics import get_object_or_404
 
@@ -133,3 +133,32 @@ def deals_to_expired():
     church_expired_deals = ChurchDeal.objects.filter(date_created__lt=date(current_year, current_month, 1),
                                                      expired=False, done=False)
     church_expired_deals.update(expired=True)
+
+
+@app.task(name='trainee_group_members_deactivate')
+def trainee_group_members_deactivate():
+    trainee_group = TelegramGroup.objects.get(title='Trainees')
+    trainees = TelegramUser.objects.filter(telegram_group=trainee_group).exclude(is_active=False)
+
+    for trainee in trainees:
+        if trainee.user.hierarchy.title != 'Стажёр':
+            trainee.is_active = False
+            trainee.synced = False
+            trainee.save()
+
+
+@app.task(name='vip_partners_group_members_deactivate')
+def vip_partners_group_members_deactivate():
+    vip_partners_group = TelegramGroup.objects.get(title='VIP_Partners')
+    vip_partners = TelegramUser.objects.filter(telegram_group=vip_partners_group).exclude(is_active=False)
+    print(vip_partners)
+    for group_member in vip_partners:
+        print(group_member)
+        for partner_account in group_member.user.partners.filter(value__gte=12500):
+            print(partner_account if partner_account else 'None')
+            if not partner_account or partner_account.is_active:
+                print('1')
+                group_member.is_active = False
+                group_member.synced = False
+                group_member.save()
+    # TO DO - FINISH THIS

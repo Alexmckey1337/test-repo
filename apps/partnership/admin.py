@@ -49,7 +49,7 @@ admin.site.register(PartnerGroup)
 class TelegramUser(admin.ModelAdmin):
     list_display = ('user', 'telegram_id', 'telegram_group', 'is_active', 'synced')
 
-    readonly_fields = ('user', 'telegram_id', 'telegram_group', 'is_active', 'synced')
+    readonly_fields = ('user', 'telegram_id', 'telegram_group', 'synced')
 
     class Meta:
         model = TelegramUser

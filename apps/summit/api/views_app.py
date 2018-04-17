@@ -505,6 +505,26 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
 
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['GET'], permission_classes=(HasAPIAccess,))
+    def check_and_send_college_code(self, request):
+        phone_number = request.query_params.get('phone_number')
+
+        if not phone_number or len(phone_number) < 10:
+            raise exceptions.ValidationError({'message': 'Parameter {phone_number} must be passed'})
+
+        phone_number = phone_number[-10:]
+        data = {'code': None}
+
+        college_2018 = get_object_or_404(Summit, pk=11)
+        college_visitor = SummitAnket.objects.filter(summit=college_2018).filter(Q(
+                user__phone_number__contains=phone_number) | Q(
+                user__extra_phone_numbers__contains=[phone_number])).first()
+
+        if college_visitor:
+            data['code'] = college_visitor.code
+
+        return Response(data, status=status.HTTP_200_OK)
+
 
 class SummitEventTableViewSet(viewsets.ModelViewSet):
     queryset = SummitEventTable.objects.all()
