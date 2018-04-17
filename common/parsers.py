@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.http import QueryDict
 from django.http.multipartparser import MultiPartParserError, MultiPartParser as DjangoMultiPartParser
 from django.utils import six
 from rest_framework.exceptions import ParseError
@@ -93,7 +94,8 @@ class MultiPartAndJsonParser(BaseParser):
         try:
             parser = DjangoMultiPartParser(meta, stream, upload_handlers, encoding)
             data, files = parser.parse()
-            data._mutable = True
+            if isinstance(data, QueryDict):
+                data._mutable = True
 
             for field_name in list_fields:
                 field_value = self._parse_json(data, field_name)
@@ -104,7 +106,8 @@ class MultiPartAndJsonParser(BaseParser):
                 field_value = self._parse_json(data, field_name)
                 if field_value is not None:
                     data[field_name] = field_value
-            data._mutable = False
+            if isinstance(data, QueryDict):
+                data._mutable = False
 
             return DataAndFiles(data, files)
         except MultiPartParserError as exc:
