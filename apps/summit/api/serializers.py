@@ -427,9 +427,10 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
 
 class SummitNameAnketCodeSerializer(SummitAnketCodeSerializer):
     name = serializers.CharField(source='summit.__str__', read_only=True)
+    title = serializers.CharField(source='summit.description', read_only=True)
 
     class Meta(SummitAnketCodeSerializer.Meta):
-        fields = SummitAnketCodeSerializer.Meta.fields + ('name',)
+        fields = SummitAnketCodeSerializer.Meta.fields + ('name', 'title')
 
 
 class SummitAttendSerializer(serializers.ModelSerializer):

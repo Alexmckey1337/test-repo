@@ -154,11 +154,11 @@ class HomeGroup(LogModel, CommonGroup):
     )
 
     def save(self, *args, **kwargs):
-        is_create = True if not self.pk else False
+        is_create = self.pk is None
         super(HomeGroup, self).save(*args, **kwargs)
 
         if is_create:
-            meeting_types = MeetingType.objects.all()
+            meeting_types = MeetingType.objects.exclude(code='night')
             with transaction.atomic():
                 for meeting_type in meeting_types:
                     Meeting.objects.create(home_group=self,
