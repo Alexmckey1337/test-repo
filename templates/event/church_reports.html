@@ -28,9 +28,17 @@
         <ul class="top-buttons">
             {% block header.buttons.add %}
                 <li>
+<<<<<<< Updated upstream
 
                 </li>
             {% endblock %}
+=======
+                    <a href="{% url 'events:church_report_statistics' %}"><button class="stat-btn"><i class="material-icons">&#xE01D;</i></button></a>
+                </li>
+                {% block header.buttons.add %}
+
+                {% endblock %}
+>>>>>>> Stashed changes
 
             {% block header.buttons.export %}
 
