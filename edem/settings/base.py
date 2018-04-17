@@ -1,5 +1,5 @@
-from django.utils.translation import ugettext_lazy as _
 import environ
+from django.utils.translation import ugettext_lazy as _
 
 from apps.account.utils import create_token
 
@@ -450,6 +450,15 @@ NEW_TICKET_STATUS = {
     'download': 'print',
     'print': 'given',
     'given': 'print',
+}
+
+DEFAULT_SITE_SETTINGS = {
+    "partners": {
+        # Минимальная сумма партнерских пожертвований для получения VIP статуса
+        "vip_status": {"uah": 12500, "usd": 500, "rur": 30000, "eur": 400},
+    },
+    # Срок после покаяния чтобы Новообращенный автоматически был повышен до Прихожанина
+    "convert_experience": {"value": 6, "unit": "month"},
 }
 
 # Notifications

@@ -1,11 +1,16 @@
+import operator
 import re
+from functools import reduce
 
 import django_filters
+from django.conf import settings
+from django.db.models import Q
 from rest_framework import filters
 
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Hierarchy, Department
 from apps.partnership.models import Deal, Partnership, PartnerGroup, ChurchDeal, ChurchPartner
+from apps.payment.models import Currency
 from common.filters import BaseFilterByBirthday, BaseFilterMasterTree
 
 
@@ -56,6 +61,25 @@ class PartnerFilterByLevel(filters.BaseFilterBackend):
         level = request.query_params.get('level')
         if level:
             queryset = queryset.filter(user__partner_role__level=level)
+
+        return queryset
+
+
+class PartnerFilterByVIP(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        currencies = Currency.objects.all()
+        vip_status = request.query_params.get('vip_status', '')
+        if vip_status.upper() in ('TRUE', 'T', 'YES', 'Y', 'ON', '1'):
+            orm_q = 'value__gte'
+        elif vip_status.upper() in ('FALSE', 'F', 'NO', 'N', 'OFF', '0'):
+            orm_q = 'value__lt'
+        else:
+            return queryset
+        statuses = settings.DEFAULT_SITE_SETTINGS.get('partners', {}).get('vip_status', {})
+        q = list()
+        for currency in currencies.filter(code__in=statuses.keys()):
+            q.append(Q(currency=currency, **{orm_q: statuses[currency.code]}))
+        queryset = queryset.filter(reduce(operator.or_, q))
 
         return queryset
 
