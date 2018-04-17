@@ -64,12 +64,14 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
     group = serializers.StringRelatedField()
     value = DecimalWithCurrencyField(max_digits=12, decimal_places=0,
                                      read_only=True, currency_field='currency')
+    is_vip = serializers.BooleanField()
     is_stable_newbie = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Partnership
         fields = ('id',
                   'user',
+                  'is_vip',
                   'fullname', 'is_stable_newbie') + BASE_PARTNER_FIELDS
 
 

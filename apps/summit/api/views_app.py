@@ -1,5 +1,7 @@
 import logging
 from datetime import datetime, timedelta
+import requests
+import json
 
 import pytz
 from django.conf import settings
@@ -429,8 +431,8 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
         TelegramUser.objects.get_or_create(
             user=user,
             telegram_id=telegram_id,
-            telegram_group=telegram_group,  # is_active Partner, doesn't matter for this case
-            defaults={'is_active': False, 'synced': True}
+            telegram_group=telegram_group,
+            defaults={'is_active': True, 'synced': True}
         )
 
         return 'done'
@@ -463,17 +465,38 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
 
             trainee_hierarchy = get_object_or_404(Hierarchy, title='Стажёр')
 
-            visitor = CustomUser.objects.filter(hierarchy=trainee_hierarchy).filter(Q(
+            trainee = CustomUser.objects.filter(hierarchy=trainee_hierarchy).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
-            if visitor:
+            if trainee:
                 telegram_group = TelegramGroup.objects.get(chat_id=group_id)
                 data['join_url'] = telegram_group.join_url
 
                 try:
                     self.get_or_create_telegram_user(
-                        user_id=visitor.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
+                        user_id=trainee.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
+                    )
+                except Exception as e:
+                    print(e)
+                    return Response({'message': 'Service temporarily unavailable'},
+                                    status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        if group_type == 'vip_partners':
+            if not telegram_id or not group_id:
+                raise exceptions.ValidationError({'message': 'Parameters {telegram_id} and {group_id} is required'})
+
+            vip_partner = CustomUser.objects.filter(partners__value__gte=12500, is_active=True).filter(Q(
+                phone_number__contains=phone_number) | Q(
+                extra_phone_numbers__contains=[phone_number])).first()
+
+            if vip_partner:
+                telegram_group = TelegramGroup.objects.get(chat_id=group_id)
+                data['join_url'] = telegram_group.join_url
+
+                try:
+                    self.get_or_create_telegram_user(
+                        user_id=vip_partner.id, telegram_id=telegram_id, telegram_group_id=telegram_group.id
                     )
                 except Exception as e:
                     print(e)
@@ -507,3 +530,27 @@ class TelegramPaymentsViewSet(viewsets.ModelViewSet):
     queryset = TelegramPayment.objects.all()
     serializer_class = TelegramPaymentSerializer
     permission_classes = (IsAuthenticated,)
+
+
+def kick_from_telegram_group(telegram_group_id, telegram_user_id):
+    telegram_user = get_object_or_404(TelegramUser, telegram_id=telegram_user_id)
+    telegram_group = get_object_or_404(TelegramGroup, chat_id=telegram_group_id)
+
+    url = 'https://%s/kick_user_from_group/' % telegram_group.bot_address
+    data = json.dumps({'telegram_group_id': telegram_group_id, 'telegram_user_id': telegram_user_id})
+    headers = {'Visitors-Location-Token': settings.VISITORS_LOCATION_TOKEN, 'Content-Type': 'application/json'}
+    try:
+        kick_request = requests.post(url, data=data, headers=headers)
+        if kick_request.status_code == 200:
+            telegram_user.synced = True
+            telegram_user.save()
+
+            return Response(
+                {'message': '%s successful kicked for Telegram group' % telegram_user},
+                status=status.HTTP_200_OK
+            )
+    except Exception as e:
+        print(e)
+
+    return Response({'message': 'Kick %s from group has been failed. Try again later' % telegram_user},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE)

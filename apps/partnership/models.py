@@ -216,6 +216,10 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
             filter(expired=True) \
             .order_by('-date_created')
 
+    @property
+    def is_vip(self):
+        return True
+
 
 class AbstractDeal(models.Model):
     partnership = None
@@ -443,6 +447,7 @@ class TelegramGroup(models.Model):
     title = models.CharField(_('Group Title'), max_length=255)  # CHAT_ID = -317988135
     join_url = models.URLField(_('Join url'))
     chat_id = models.CharField(_('Chat ID'), max_length=255)
+    bot_address = models.CharField(_('Bot address'), max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Группа в Telegram'
@@ -460,7 +465,7 @@ class TelegramUser(models.Model):
     telegram_id = models.IntegerField(_('Telegram ID'))
     telegram_group = models.ForeignKey('TelegramGroup', related_name='telegram_users',
                                        verbose_name=_('Telegram Group'), on_delete=models.PROTECT)
-    is_active = models.BooleanField(_('Is Active Partner'), default=True)
+    is_active = models.BooleanField(_('Is Active'), default=True)
     synced = models.BooleanField(_('Is synced?'), default=True)
 
     class Meta:
