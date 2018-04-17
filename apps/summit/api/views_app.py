@@ -513,7 +513,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             raise exceptions.ValidationError({'message': 'Parameter {phone_number} must be passed'})
 
         phone_number = phone_number[-10:]
-        data = {'code': None}
+        data = {'reg_code': None}
 
         college_2018 = get_object_or_404(Summit, pk=11)
         college_visitor = SummitAnket.objects.filter(summit=college_2018).filter(Q(
@@ -521,7 +521,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
                 user__extra_phone_numbers__contains=[phone_number])).first()
 
         if college_visitor:
-            data['code'] = college_visitor.code
+            data['reg_code'] = college_visitor.reg_code
 
         return Response(data, status=status.HTTP_200_OK)
 
