@@ -216,6 +216,10 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
             filter(expired=True) \
             .order_by('-date_created')
 
+    @property
+    def is_vip(self):
+        return True
+
 
 class AbstractDeal(models.Model):
     partnership = None

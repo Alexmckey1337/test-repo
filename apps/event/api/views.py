@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField, F)
+from django.http import QueryDict
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
@@ -200,7 +201,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         #     raise exceptions.ValidationError({
         #         'detail': _('Невозможно подать отчет. Данный лидер имеет просроченные отчеты.')
         #     })
-        data._mutable = True
+        if isinstance(data, QueryDict):
+            data._mutable = True
 
         if meeting.type.code == 'service' and data.get('total_sum'):
             raise exceptions.ValidationError({
@@ -240,7 +242,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             return Response(meeting.data)
 
         data = request.data
-        data._mutable = True
+        if isinstance(data, QueryDict):
+            data._mutable = True
 
         attends = json.loads(data.pop('attends')[0])
 
