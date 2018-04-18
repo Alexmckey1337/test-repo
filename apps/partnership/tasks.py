@@ -1,15 +1,20 @@
 import logging
 import requests
+import json
 from datetime import date
 from decimal import Decimal
 
-from django.db.models import OuterRef, Exists
 from django.utils import timezone
+from django.conf import settings
+from django.db.models import OuterRef, Exists
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
 
 from edem.settings.celery import app
-from apps.partnership.models import Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser, TelegramGroup
 from apps.account.models import CustomUser
-from rest_framework.generics import get_object_or_404
+from apps.partnership.models import (
+    Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser, TelegramGroup)
 
 
 logger = logging.getLogger(__name__)
@@ -47,44 +52,44 @@ def partnerships_deactivate_raw():
 
     partners_to_deactivate = set(make_partners_list(key='done')) & set(make_partners_list(key='expired'))
     Partnership.objects.filter(id__in=partners_to_deactivate).update(is_active=False)
-    telegram_users_to_deactivate(partners_to_deactivate)
+    # telegram_users_to_deactivate(partners_to_deactivate)
 
 
-def telegram_users_to_deactivate(deactivate_partners):
-    users = CustomUser.objects.filter(partners__in=deactivate_partners,
-                                      telegram_users__isnull=False)
-
-    for user in users:
-        if not user.partners.filter(is_active=True).exists():
-            telegram_user = get_object_or_404(TelegramUser, user=user)
-            if telegram_user.is_active:
-                telegram_user.is_active = False
-                telegram_user.synced = False
-                telegram_user.save()
-
-
-@app.task(name='telegram_users_to_kick')
-def telegram_users_to_kick():
-    users_to_kick = TelegramUser.objects.filter(synced=False)
-
-    if users_to_kick:
-        for telegram_user in users_to_kick:
-            kick_from_telegram.apply_async(args=[telegram_user.id])
-
-
-@app.task(name='kick_from_telegram')
-def kick_from_telegram(telegram_user_id):
-    telegram_user = TelegramUser.objects.get(id=telegram_user_id)
-
-    r = requests.delete('http://hola.nodeads.com:8888/bot/partner/',
-                        params={'user_id': telegram_user.telegram_id,
-                                'chat_id': telegram_user.telegram_group.chat_id})
-
-    if r.status_code == 200:
-        telegram_user.synced = True
-        telegram_user.save()
-    else:
-        print(r.status_code)
+# def telegram_users_to_deactivate(deactivate_partners):
+#     users = CustomUser.objects.filter(partners__in=deactivate_partners,
+#                                       telegram_users__isnull=False)
+#
+#     for user in users:
+#         if not user.partners.filter(is_active=True).exists():
+#             telegram_user = get_object_or_404(TelegramUser, user=user)
+#             if telegram_user.is_active:
+#                 telegram_user.is_active = False
+#                 telegram_user.synced = False
+#                 telegram_user.save()
+#
+#
+# @app.task(name='telegram_users_to_kick')
+# def telegram_users_to_kick():
+#     users_to_kick = TelegramUser.objects.filter(synced=False)
+#
+#     if users_to_kick:
+#         for telegram_user in users_to_kick:
+#             kick_from_telegram.apply_async(args=[telegram_user.id])
+#
+#
+# @app.task(name='kick_from_telegram')
+# def kick_from_telegram(telegram_user_id):
+#     telegram_user = TelegramUser.objects.get(id=telegram_user_id)
+#
+#     r = requests.delete('http://hola.nodeads.com:8888/bot/partner/',
+#                         params={'user_id': telegram_user.telegram_id,
+#                                 'chat_id': telegram_user.telegram_group.chat_id})
+#
+#     if r.status_code == 200:
+#         telegram_user.synced = True
+#         telegram_user.save()
+#     else:
+#         print(r.status_code)
 
 
 @app.task(name='create_new_deals')
@@ -138,7 +143,8 @@ def deals_to_expired():
 @app.task(name='trainee_group_members_deactivate')
 def trainee_group_members_deactivate():
     trainee_group = TelegramGroup.objects.get(title='Trainees')
-    trainees = TelegramUser.objects.filter(telegram_group=trainee_group).exclude(is_active=False)
+    trainees = TelegramUser.objects.filter(
+        telegram_group=trainee_group).exclude(is_active=False)
 
     for trainee in trainees:
         if trainee.user.hierarchy.title != 'Стажёр':
@@ -147,18 +153,44 @@ def trainee_group_members_deactivate():
             trainee.save()
 
 
-@app.task(name='vip_partners_group_members_deactivate')
-def vip_partners_group_members_deactivate():
-    vip_partners_group = TelegramGroup.objects.get(title='VIP_Partners')
-    vip_partners = TelegramUser.objects.filter(telegram_group=vip_partners_group).exclude(is_active=False)
-    print(vip_partners)
-    for group_member in vip_partners:
-        print(group_member)
-        for partner_account in group_member.user.partners.filter(value__gte=12500):
-            print(partner_account if partner_account else 'None')
-            if not partner_account or partner_account.is_active:
-                print('1')
-                group_member.is_active = False
-                group_member.synced = False
-                group_member.save()
-    # TO DO - FINISH THIS
+# @app.task(name='vip_partners_group_members_deactivate')
+# def vip_partners_group_members_deactivate():
+#     vip_partners_group = TelegramGroup.objects.get(title='VIP_Partners')
+#     vip_partners = TelegramUser.objects.filter(
+#         telegram_group=vip_partners_group).exclude(is_active=False)
+#
+#     for group_member in vip_partners:
+#         if not group_member.user.partners.filter(value__gte=12500, is_active=True).exists():
+#             group_member.is_active = False
+#             group_member.synced = False
+#             group_member.save()
+
+
+@app.task(name='kick_from_telegram_groups')
+def kick_from_telegram_groups():
+    users_to_kick = TelegramUser.objects.filter(is_active=False, synced=False)
+    for telegram_user in users_to_kick:
+        kick_group_member.apply_async(args=[telegram_user.telegram_group, telegram_user.telegram_id])
+
+
+@app.task(name='kick_group_member')
+def kick_group_member(telegram_group_id, telegram_user_id):
+    telegram_user = get_object_or_404(TelegramUser, telegram_id=telegram_user_id)
+    telegram_group = get_object_or_404(TelegramGroup, chat_id=telegram_group_id)
+
+    url = 'https://%s/kick_user_from_group/' % telegram_group.bot_address
+    data = json.dumps({'telegram_group_id': telegram_group_id, 'telegram_user_id': telegram_user_id})
+    headers = {'Visitors-Location-Token': settings.VISITORS_LOCATION_TOKEN, 'Content-Type': 'application/json'}
+    try:
+        kick_request = requests.post(url, data=data, headers=headers)
+        if kick_request.status_code == 200:
+            telegram_user.synced = True
+            telegram_user.save()
+
+            return Response({'message': '%s successful kicked for Telegram group' % telegram_user},
+                            status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+
+    return Response({'message': 'Kick %s from group has been failed. Try again later' % telegram_user},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE)

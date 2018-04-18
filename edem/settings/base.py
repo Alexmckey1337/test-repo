@@ -289,9 +289,17 @@ CELERYBEAT_SCHEDULE = {
         'task': 'delete_expired_export',
         'schedule': crontab(hour=5, minute=0)
     },
-    'telegram_users_to_kick': {
-        'task': 'telegram_users_to_kick',
-        'schedule': crontab(minute=0, hour=0)
+    # 'telegram_users_to_kick': {
+    #     'task': 'telegram_users_to_kick',
+    #     'schedule': crontab(minute=0, hour=0)
+    # },
+    'trainee_group_members_deactivate': {
+        'task': 'trainee_group_members_deactivate',
+        'schedule': crontab(minute=0, hour=3)
+    },
+    'kick_from_telegram_groups': {
+        'task': 'kick_from_telegram_groups',
+        'schedule': crontab(minute=0, hour=3)
     },
     'improve_convert_to_congregation': {
         'task': 'improve_convert_to_congregation',
