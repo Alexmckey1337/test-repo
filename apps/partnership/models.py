@@ -218,7 +218,7 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
 
     @property
     def is_vip(self):
-        return True
+        return False
 
 
 class AbstractDeal(models.Model):
