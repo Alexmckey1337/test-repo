@@ -15,6 +15,7 @@ from edem.settings.celery import app
 from apps.account.models import CustomUser
 from apps.partnership.models import (
     Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser, TelegramGroup)
+from django.db import transaction, IntegrityError
 
 
 logger = logging.getLogger(__name__)
@@ -140,7 +141,7 @@ def deals_to_expired():
     church_expired_deals.update(expired=True)
 
 
-@app.task(name='trainee_group_members_deactivate')
+@app.task(name='trainee_group_members_deactivate', max_retries=3, default_retry_delay=600)
 def trainee_group_members_deactivate():
     trainee_group = TelegramGroup.objects.get(title='Trainees')
     trainees = TelegramUser.objects.filter(
@@ -148,10 +149,13 @@ def trainee_group_members_deactivate():
 
     for trainee in trainees:
         if trainee.user.hierarchy.title != 'Стажёр':
-            trainee.is_active = False
-            trainee.synced = False
-            trainee.save()
-
+            try:
+                with transaction.atomic():
+                    trainee.is_active = False
+                    trainee.synced = False
+                    trainee.save()
+            except IntegrityError as e:
+                print(e)
 
 # @app.task(name='vip_partners_group_members_deactivate')
 # def vip_partners_group_members_deactivate():

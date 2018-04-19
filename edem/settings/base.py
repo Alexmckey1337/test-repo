@@ -305,6 +305,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'improve_convert_to_congregation',
         'schedule': 3600
     },
+    'users_is_stable_review': {
+        'task': 'users_is_stable_review',
+        'schedule': crontab(hour=6, minute=0, day_of_week='mon')
+    }
 }
 
 REST_AUTH_SERIALIZERS = {
