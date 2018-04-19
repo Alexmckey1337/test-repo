@@ -3,14 +3,15 @@ import json
 import logging
 from collections import defaultdict
 from datetime import datetime
+from decimal import Decimal
 from functools import reduce
+from itertools import chain
 from operator import or_
+from typing import NamedTuple, List, Dict, Iterable, Tuple
 
 import pytz
-from collections import defaultdict
-from decimal import Decimal
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction, IntegrityError, connection
+from django.db import transaction, IntegrityError, connection, DataError
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField, F)
 from django.http import QueryDict
@@ -23,7 +24,6 @@ from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from typing import NamedTuple, List, Dict, Iterable, Tuple
 
 from apps.account.models import CustomUser
 from apps.event.api.filters import (
@@ -82,6 +82,15 @@ class MeetingReport(NamedTuple):
     total_sum: Decimal
 
 
+class MeetingAttendReport(NamedTuple):
+    year: int
+    week: int
+    sex: List[int]
+    congregation: List[int]
+    convert: List[int]
+    age: List[int]
+
+
 def encode_month(year: int, month: int) -> int:
     """
     Encode month of year to count of months from start of gregorian calendar
@@ -136,6 +145,7 @@ def by_currencies(func):
     :param func:
     :return:
     """
+
     def wrap(self, result, weeks):
         """
 
@@ -177,6 +187,7 @@ def reverse_currencies(func):
     :param func: func
     :return: wrap
     """
+
     def wrap(*args, **kwargs):
         result = defaultdict(dict)
         data_by_currencies = func(*args, **kwargs)
@@ -198,6 +209,7 @@ def weeks_to_list(get_weeks):
     :param get_weeks: func
     :return:
     """
+
     def wrap(self):
         weeks = get_weeks(self)
 
@@ -213,6 +225,7 @@ def weeks_to_list(get_weeks):
         weeks['to']['week'] = to_
         logger.info(weeks)
         return weeks
+
     return wrap
 
 
@@ -1107,39 +1120,40 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
         years = ','.join([str(y) for y in range(weeks['from']['year'] + 1, weeks['to']['year'])])
         if years:
             where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
-        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else ''
+        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else '', []
 
     def get_where_church(self):
         church = self.request.query_params.get('church')
         if not church:
-            return ''
-        return f" AND report.church_id = {church}"
+            return '', []
+        return " AND report.church_id = %s", [church]
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
         if not pastor_tree and self.request.user.is_staff:
-            return ''
+            return '', []
         if not pastor_tree:
             pastor_tree = self.request.user.id
         try:
             pastor = CustomUser.objects.get(pk=pastor_tree)
         except CustomUser.DoesNotExist:
-            return ' AND FALSE'
-        return f" AND customuser.path like '{pastor.path}%' AND customuser.depth >= {pastor.depth}"
+            return ' AND FALSE', []
+        return " AND customuser.path like %s AND customuser.depth >= %s", [f'{pastor.path}%', pastor.depth]
 
     def get_where_pastor(self):
         pastor = self.request.query_params.get('pastor')
         if not pastor:
-            return ''
-        return f" AND report.pastor_id = {pastor}"
+            return '', []
+        return " AND report.pastor_id = %s", [pastor]
 
     def get_where_filter(self, weeks):
-        where = ''
-        where += self.get_where_weeks(weeks)
-        where += self.get_where_church()
-        where += self.get_where_pastor()
-        where += self.get_where_pastor_tree()
-        return 'WHERE ' + where if where else ''
+        where = list()
+        where.append(self.get_where_weeks(weeks))
+        where.append(self.get_where_church())
+        where.append(self.get_where_pastor())
+        where.append(self.get_where_pastor_tree())
+        a = tuple(zip(*where))
+        return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
 
     def get_data(self, weeks: Dict[str, Dict[str, int]]) -> Dict[str, List[Dict]]:
         """
@@ -1149,12 +1163,15 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
                }
         :return:
         """
-        where = self.get_where_filter(weeks)
+        where, params = self.get_where_filter(weeks)
         query = self.SQL.format(filter=where)
-        with connection.cursor() as connect:
-            connect.execute(query)
-            reports = connect.fetchall()
-            result = [Report(*r) for r in reports]
+        try:
+            with connection.cursor() as connect:
+                connect.execute(query, params)
+                reports = connect.fetchall()
+                result = [Report(*r) for r in reports]
+        except DataError:
+            raise exceptions.ValidationError({'detail': _('Invalid filter params')})
         logger.info(query)
         # logger.info(result)
         d = defaultdict(list)
@@ -1257,46 +1274,47 @@ class MeetingStatsView(WeekMixin, views.APIView):
         years = ','.join([str(y) for y in range(weeks['from']['year'] + 1, weeks['to']['year'])])
         if years:
             where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
-        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else ''
+        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else '', []
 
     def get_where_home_group(self):
         hg = self.request.query_params.get('hg')
         if not hg:
-            return ''
-        return f" AND report.home_group_id = {hg}"
+            return '', []
+        return " AND report.home_group_id = %s", [hg]
 
     def get_where_meeting_type(self):
         meeting_type = self.request.query_params.get('meeting_type')
         if not meeting_type:
-            return ''
-        return f" AND report.type_id = {meeting_type}"
+            return '', []
+        return " AND report.type_id = %s", [meeting_type]
 
     def get_where_leader_tree(self):
         leader_tree = self.request.query_params.get('leader_tree')
         if not leader_tree and self.request.user.is_staff:
-            return ''
+            return '', []
         if not leader_tree:
             leader_tree = self.request.user.id
         try:
             leader = CustomUser.objects.get(pk=leader_tree)
         except CustomUser.DoesNotExist:
-            return ' AND FALSE'
-        return f" AND customuser.path like '{leader.path}%' AND customuser.depth >= {leader.depth}"
+            return ' AND FALSE', []
+        return " AND customuser.path like %s AND customuser.depth >= %s", [f'{leader.path}%', leader.depth]
 
     def get_where_leader(self):
         leader = self.request.query_params.get('leader')
         if not leader:
-            return ''
-        return f" AND report.owner_id = {leader}"
+            return '', []
+        return " AND report.owner_id = %s", [leader]
 
     def get_where_filter(self, weeks):
-        where = ''
-        where += self.get_where_weeks(weeks)
-        where += self.get_where_home_group()
-        where += self.get_where_meeting_type()
-        where += self.get_where_leader()
-        where += self.get_where_leader_tree()
-        return 'WHERE ' + where if where else ''
+        where = list()
+        where.append(self.get_where_weeks(weeks))
+        where.append(self.get_where_home_group())
+        where.append(self.get_where_meeting_type())
+        where.append(self.get_where_leader())
+        where.append(self.get_where_leader_tree())
+        a = tuple(zip(*where))
+        return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
 
     def get_data(self, weeks: Dict[str, Dict[str, int]]) -> Dict[str, List[Dict]]:
         """
@@ -1306,12 +1324,15 @@ class MeetingStatsView(WeekMixin, views.APIView):
                }
         :return:
         """
-        where = self.get_where_filter(weeks)
+        where, params = self.get_where_filter(weeks)
         query = self.SQL.format(filter=where)
-        with connection.cursor() as connect:
-            connect.execute(query)
-            reports = connect.fetchall()
-            result = [MeetingReport(*r) for r in reports]
+        try:
+            with connection.cursor() as connect:
+                connect.execute(query)
+                reports = connect.fetchall()
+                result = [MeetingReport(*r) for r in reports]
+        except DataError:
+            raise exceptions.ValidationError({'detail': _('Invalid filter params')})
         logger.info(query)
         # logger.info(result)
         d = defaultdict(list)
@@ -1349,3 +1370,188 @@ class MeetingStatsView(WeekMixin, views.APIView):
         if group_by == 'year':
             return Response(data=self.group_by_year(result, weeks))
         return Response(data=[])
+
+
+class MeetingAttendStatsView(WeekMixin, views.APIView):
+    SQL = """
+        select
+          date_part('year', report.date) _year,
+          date_part('week', report.date) week,
+          array[count(distinct user_id) FILTER (WHERE a.sex = 'male'),
+          count(distinct user_id) FILTER (WHERE a.sex = 'female'),
+          count(distinct user_id) FILTER (WHERE a.sex != 'female' and a.sex != 'male')] sex,
+          array[count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and a.is_stable),
+          count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and not a.is_stable)] congregation,
+          array[count(distinct user_id) FILTER (WHERE h3.code = 'convert' and a.is_stable),
+          count(distinct user_id) FILTER (WHERE h3.code = 'convert' and not a.is_stable)] convert,
+          array[count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) < '13 year'),
+          count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) between '13 year' and '26 year'),
+          count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) between '26 year' and '41 year'),
+          count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) between '41 year' and '61 year'),
+          count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) >= '61 year'),
+          count(distinct user_id) FILTER (WHERE a.born_date is null)] age
+        from event_meetingattend e
+          join account_customuser a on e.user_id = a.user_ptr_id
+          join hierarchy_hierarchy h3 on a.hierarchy_id = h3.id
+          join event_meeting report on e.meeting_id = report.id
+          join group_homegroup hg on report.home_group_id = hg.id
+          join group_church church on hg.church_id = church.id
+          {filter}
+        GROUP BY date_part('year', report.date), date_part('week', report.date)
+        ORDER BY date_part('year', report.date), date_part('week', report.date);
+    """
+    WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
+                      "date_part('year', report.date) = {year})")
+    YEARS_TEMPLATE = "date_part('year', report.date) IN ({years})"
+
+    def group_by(self, y, m, w, aggr_by_key):
+        def sum_lists(length):
+            def f(a):
+                return [sum(b) for b in zip(*a)]
+            return {
+                'func': f,
+                'default': [0] * length
+            }
+
+        return {
+            'sex': aggr_by_key('sex', **sum_lists(3)),
+            'congregation': aggr_by_key('congregation', **sum_lists(2)),
+            'convert': aggr_by_key('convert', **sum_lists(2)),
+            'age': aggr_by_key('age', **sum_lists(6)),
+            'year': y,
+            'week': w,
+            'month': m,
+        }
+
+    def get_where_weeks(self, weeks):
+        where_weeks = [
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['from']['year'], w1=weeks['from']['week'][0], w2=weeks['from']['week'][1]),
+            self.WEEKS_TEMPLATE.format(
+                year=weeks['to']['year'], w1=weeks['to']['week'][0], w2=weeks['to']['week'][1])
+        ]
+        years = ','.join([str(y) for y in range(weeks['from']['year'] + 1, weeks['to']['year'])])
+        if years:
+            where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
+        return ('(' + ' OR '.join(where_weeks) + ')') if weeks else '', []
+
+    def get_where_department(self):
+        department = self.request.query_params.get('department')
+        if not department:
+            return '', []
+        return " AND church.department_id = %s", [department]
+
+    def get_where_church(self):
+        church = self.request.query_params.get('church')
+        if not church:
+            return '', []
+        return " AND hg.church_id = %s", [church]
+
+    def get_where_home_group(self):
+        hg = self.request.query_params.get('hg')
+        if not hg:
+            return '', []
+        return " AND report.home_group_id = %s", [hg]
+
+    def get_where_meeting_type(self):
+        meeting_type = self.request.query_params.get('meeting_type')
+        if not meeting_type:
+            return '', []
+        return " AND report.type_id = %s", [meeting_type]
+
+    def get_where_leader_tree(self):
+        leader_tree = self.request.query_params.get('leader_tree')
+        if not leader_tree and self.request.user.is_staff:
+            return '', []
+        if not leader_tree:
+            leader_tree = self.request.user.id
+        try:
+            leader = CustomUser.objects.get(pk=leader_tree)
+        except CustomUser.DoesNotExist:
+            return ' AND FALSE', []
+        return " AND a.path like %s AND a.depth >= %s", [f'{leader.path}%', leader.depth]
+
+    def get_where_leader(self):
+        leader = self.request.query_params.get('leader')
+        if not leader:
+            return '', []
+        return " AND report.owner_id = %s", [leader]
+
+    def get_where_filter(self, weeks):
+        where = list()
+        where.append(self.get_where_weeks(weeks))
+        where.append(self.get_where_home_group())
+        where.append(self.get_where_church())
+        where.append(self.get_where_department())
+        where.append(self.get_where_meeting_type())
+        where.append(self.get_where_leader())
+        where.append(self.get_where_leader_tree())
+        a = tuple(zip(*where))
+        return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
+
+    def get_data(self, weeks: Dict[str, Dict[str, int]]) -> Dict[str, List[Dict]]:
+        """
+        :param weeks: {
+                 'from': {'year': XXXX, 'week': YY},
+                 'to': {'year': XXXX, 'week': YY},
+               }
+        :return:
+        """
+        where, params = self.get_where_filter(weeks)
+        query = self.SQL.format(filter=where)
+        # logger.info(query)
+        # logger.info(params)
+        try:
+            with connection.cursor() as connect:
+                connect.execute(query, params)
+                reports = connect.fetchall()
+                result = [MeetingAttendReport(*r) for r in reports]
+        except DataError:
+            raise exceptions.ValidationError({'detail': _('Invalid filter params')})
+        # logger.info(result)
+        d = defaultdict(list)
+        for r in result:
+            d['res'].append({
+                'year': int(r.year),
+                'week': int(r.week),
+                'month': self.week_to_month(int(r.year), int(r.week)),
+                'sex': r.sex,
+                'congregation': r.congregation,
+                'convert': r.convert,
+                'age': r.age,
+            })
+        return d or {'res': []}
+
+    def get(self, request, *args, **kwargs):
+        try:
+            weeks = self.get_weeks()
+        except IntervalFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" format')})
+        except IntervalOrderError:
+            raise exceptions.ValidationError({'detail': _('Invalid "interval" order')})
+        except LastPeriodFormatError:
+            raise exceptions.ValidationError({'detail': _('Invalid "last" format')})
+
+        result = self.get_data(weeks)
+        # logger.info(result)
+        # logger.info(weeks)
+
+        group_by = request.query_params.get('group_by', 'week')
+        data = {
+            'week': lambda: self.group_by_week(result, weeks),
+            'month': lambda: self.group_by_month(result, weeks),
+            'year': lambda: self.group_by_year(result, weeks),
+        }.get(group_by, lambda: self.group_by_week(result, weeks))()
+
+        return Response(data=[
+            {
+                'date': d['date'],
+                'result': {
+                    'sex': dict(zip(('male', 'female', 'unknown'), d['result']['res']['sex'])),
+                    'congregation': dict(zip(('stable', 'unstable'), d['result']['res']['congregation'])),
+                    'convert': dict(zip(('stable', 'unstable'), d['result']['res']['convert'])),
+                    'age': dict(zip(('12-', '13-25', '26-40', '41-60', '60+'), d['result']['res']['age'])),
+                }
+            }
+            for d in data
+        ])
