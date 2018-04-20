@@ -117,6 +117,7 @@ class PartnershipViewSet(
             self.base_qs = self.queryset.for_user(user=self.request.user)
             queryset = self.base_qs.select_related(
                 'user', 'user__hierarchy', 'user__master', 'responsible',
+                'user__locality__country', 'user__locality__area',
                 'currency', 'group', 'user__cchurch', 'user__hhome_group__church').extra(
                 select={'is_stable_newbie': """CASE WHEN (SELECT sum(CASE WHEN U0.done = TRUE THEN 1
                         ELSE 0 END)
