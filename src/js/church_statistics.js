@@ -56,7 +56,6 @@ $('document').ready(function () {
                 month = set.interval.split('-')[1].slice(4),
                 date = moment(`${+month}-${+year}`, "MM-YYYY").format('MMM YYYY');
 
-            console.log(year, month, date);
             $('#calendar_range').attr('data-interval', set.interval).val(date);
         }
         (async () => {
