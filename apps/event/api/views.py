@@ -1499,8 +1499,8 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         """
         where, params = self.get_where_filter(weeks)
         query = self.SQL.format(filter=where)
-        # logger.info(query)
-        # logger.info(params)
+        logger.info(query)
+        logger.info(params)
         try:
             with connection.cursor() as connect:
                 connect.execute(query, params)
@@ -1508,7 +1508,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
                 result = [MeetingAttendReport(*r) for r in reports]
         except DataError:
             raise exceptions.ValidationError({'detail': _('Invalid filter params')})
-        # logger.info(result)
+        logger.warning(result)
         d = defaultdict(list)
         for r in result:
             d['res'].append({
@@ -1550,7 +1550,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
                     'sex': dict(zip(('male', 'female', 'unknown'), d['result']['res']['sex'])),
                     'congregation': dict(zip(('stable', 'unstable'), d['result']['res']['congregation'])),
                     'convert': dict(zip(('stable', 'unstable'), d['result']['res']['convert'])),
-                    'age': dict(zip(('12-', '13-25', '26-40', '41-60', '60+'), d['result']['res']['age'])),
+                    'age': dict(zip(('12-', '13-25', '26-40', '41-60', '60+', 'unknown'), d['result']['res']['age'])),
                 }
             }
             for d in data
