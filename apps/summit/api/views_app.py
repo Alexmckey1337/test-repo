@@ -497,7 +497,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             if not telegram_id or not group_id:
                 raise exceptions.ValidationError({'message': 'Parameters {telegram_id} and {group_id} is required'})
 
-            vip_partner = CustomUser.objects.filter(partners__value__gte=12500, is_active=True).filter(Q(
+            vip_partner = CustomUser.objects.filter(partners__value__gte=6000, is_active=True).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 
