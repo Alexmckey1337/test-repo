@@ -58,6 +58,12 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'hierarchies': Hierarchy.objects.order_by('level'),
             'currencies': Currency.objects.all(),
             'levels': [{'id': r[0], 'title': r[1]} for r in PartnerRole.LEVELS],
+            'statuses': [
+                {'id': 'vip', 'title': 'VIP'},
+                {'id': 'ruby', 'title': 'Рубиновый'},
+                {'id': 'any', 'title': 'Любой'},
+                {'id': 'empty', 'title': 'Никакой'},
+            ],
             'active_status_options': [{'id': 'True', 'title': 'Активный'}, {'id': 'False', 'title': 'Не активный'}]
         }
         user = self.request.user
