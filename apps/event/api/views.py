@@ -223,7 +223,7 @@ def weeks_to_list(get_weeks):
             from_[1] = int(now.strftime('%W'))
         weeks['from']['week'] = from_
         weeks['to']['week'] = to_
-        logger.info(weeks)
+        # logger.info(weeks)
         return weeks
 
     return wrap
@@ -1000,7 +1000,7 @@ class WeekMixin:
         )
         if not weeks:
             return {}
-        logger.info(weeks)
+        # logger.info(weeks)
         invalid_year = weeks['from']['year'] > weeks['to']['year']
         invalid_week = weeks['from']['year'] == weeks['to']['year'] and weeks['from']['week'] > weeks['to']['week']
         if invalid_year or invalid_week:
@@ -1172,7 +1172,7 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
                 result = [Report(*r) for r in reports]
         except DataError:
             raise exceptions.ValidationError({'detail': _('Invalid filter params')})
-        logger.info(query)
+        # logger.info(query)
         # logger.info(result)
         d = defaultdict(list)
         for r in result:
@@ -1333,7 +1333,7 @@ class MeetingStatsView(WeekMixin, views.APIView):
                 result = [MeetingReport(*r) for r in reports]
         except DataError:
             raise exceptions.ValidationError({'detail': _('Invalid filter params')})
-        logger.info(query)
+        # logger.info(query)
         # logger.info(result)
         d = defaultdict(list)
         for r in result:
@@ -1499,8 +1499,8 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         """
         where, params = self.get_where_filter(weeks)
         query = self.SQL.format(filter=where)
-        logger.info(query)
-        logger.info(params)
+        # logger.info(query)
+        # logger.info(params)
         try:
             with connection.cursor() as connect:
                 connect.execute(query, params)
@@ -1508,7 +1508,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
                 result = [MeetingAttendReport(*r) for r in reports]
         except DataError:
             raise exceptions.ValidationError({'detail': _('Invalid filter params')})
-        logger.warning(result)
+        # logger.warning(result)
         d = defaultdict(list)
         for r in result:
             d['res'].append({
