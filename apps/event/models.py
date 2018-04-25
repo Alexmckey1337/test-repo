@@ -88,7 +88,7 @@ class Meeting(AbstractStatusModel):
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,
                                     decimal_places=2, default=0)
 
-    image = models.ImageField(_('Event Image'), upload_to=get_event_week(), blank=True, null=True)
+    image = models.ImageField(_('Event Image'), upload_to=get_event_week, blank=True, null=True)
 
     objects = MeetingManager()
 

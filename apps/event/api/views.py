@@ -47,6 +47,7 @@ from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.payment.models import Payment
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
+from common.utils import encode_month, decode_month
 
 logger = logging.getLogger(__name__)
 
@@ -89,27 +90,6 @@ class MeetingAttendReport(NamedTuple):
     congregation: List[int]
     convert: List[int]
     age: List[int]
-
-
-def encode_month(year: int, month: int) -> int:
-    """
-    Encode month of year to count of months from start of gregorian calendar
-
-    :param year: year number
-    :param month: month number
-    :return: encode month
-    """
-    return year * 12 + month
-
-
-def decode_month(month: int) -> Tuple[int, int]:
-    """
-    Decode (count of months from start of gregorian calendar) to tuple of year and month number
-
-    :param month: decode month
-    :return: tuple (year, month)
-    """
-    return (month - 1) // 12, month % 12 or 12
 
 
 def by_currencies(func):

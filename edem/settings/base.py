@@ -60,6 +60,7 @@ LOCAL_APPS = (
     'apps.group.apps.GroupConfig',
     'apps.hierarchy.apps.HierarchyConfig',
     'apps.location.apps.LocationConfig',
+    'apps.lesson.apps.LessonConfig',
     'apps.navigation.apps.NavigationConfig',
     'apps.notification.apps.NotificationConfig',
     'apps.partnership.apps.PartnershipConfig',

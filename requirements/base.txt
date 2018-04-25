@@ -24,6 +24,7 @@ html2text
 Pillow==4.3.0
 premailer
 psycopg2-binary
+python-slugify
 raven
 redis>=2.10.5
 reportlab

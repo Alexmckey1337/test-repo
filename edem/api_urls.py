@@ -7,6 +7,7 @@ urlpatterns = [
     path('', include('apps.task.api.urls')),
     path('', include('apps.hierarchy.api.urls')),
     path('', include('apps.location.api.urls')),
+    path('', include('apps.lesson.api.urls')),
     path('', include('apps.navigation.api.urls')),
     path('', include('apps.notification.api.urls')),
     path('', include('apps.partnership.api.urls')),
