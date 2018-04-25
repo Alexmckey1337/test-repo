@@ -20,7 +20,8 @@
                 <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
                 <li><a href="{% url 'events:report_payments' %}">Таблица платежей</a></li>
                 <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
-                <li><a class="active" href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
+                <li><a class="active" href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a>
+                </li>
             </ul>
         </div>
     {% endblock %}
@@ -51,7 +52,7 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="container-full">
+    <div class="container-full content-managerStats">
         <div class="tab-status tab-home-stats">
             <input id="calendar_range" type="text" readonly>
             <button class="range" data-range="3m">3 мес.</button>
@@ -75,9 +76,21 @@
         {% block pagination_top %}
         {% endblock %}
 
+        <div class="charts">
+            <div class="chart">
+                <canvas id="chart_sex"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="chart_people"></canvas>
+            </div>
+        </div>
+
         {% block table %}
             <div class="table-wrap table-wrap_margin clearfix">
                 <div class="table scrollbar-inner" id="tableHomeStats"></div>
+            </div>
+            <div class="charts">
+                <canvas id="chart_age"></canvas>
             </div>
             <div class="table-wrap table-wrap_margin clearfix">
                 <div class="table scrollbar-inner" id="tableHomeStatsAge"></div>

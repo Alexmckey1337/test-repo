@@ -4,6 +4,7 @@ import {getFilterParam} from "../Filter/index";
 import getData from "../Ajax/index";
 import updateHistoryUrl from '../History/index';
 import beautifyNumber from '../beautifyNumber';
+import {initCharts} from "../Chart/hg_stats";
 
 export function homeStatistics(update = false) {
 	$('.preloader').css('display', 'block');
@@ -13,6 +14,7 @@ export function homeStatistics(update = false) {
 	getData(`${URLS.event.home_meeting.statistics()}`, config).then(data => {
 		$('.preloader').css('display', 'none');
 		makeStatsTable(data, config.last);
+		initCharts(data, update, config.last);
 	})
 }
 
@@ -30,7 +32,7 @@ function getTransformData(data, isGroup = '1m') {
 				title: 'Всего людей',
 			},
 			{
-				title: 'Мужчин/Женщин/Неизвестно',
+				title: 'Мужчин/Женщин',
 			},
 			{
 				title: 'Стабильные/Нестабильные прихожане',
@@ -73,8 +75,8 @@ function getTransformData(data, isGroup = '1m') {
 			congregation = elem.congregation,
 			convert = elem.convert,
 			age = elem.age;
-		dataPeoples[0][item] = +sex.male + +sex.female + +sex.unknown;
-		dataPeoples[1][item] = `${sex.male} / ${sex.female} / ${sex.unknown}`;
+		dataPeoples[0][item] = +sex.male + +sex.female;
+		dataPeoples[1][item] = `${sex.male} / ${sex.female}`;
 		dataPeoples[2][item] = `${congregation.stable} / ${congregation.unstable}`;
 		dataPeoples[3][item] = `${convert.stable} / ${convert.unstable}`;
 		dataAges[0][item] = age['12-'];

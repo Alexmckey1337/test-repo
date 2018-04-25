@@ -189,7 +189,8 @@ $('document').ready(function () {
 				});
 			}
 			(set.hg) && $homeGroupFilter.val(set.hg).trigger('change');
-			$('.apply-filter').trigger('click');
+			// $('.apply-filter').trigger('click');
+			homeStatistics();
 			filterChange();
 		})();
 	}
