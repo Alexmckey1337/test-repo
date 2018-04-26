@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
+from slugify import slugify
 
 from apps.analytics.decorators import log_change_payment
 from apps.event.managers import MeetingManager, ChurchReportManager
@@ -66,9 +67,9 @@ class AbstractStatusModel(models.Model):
         abstract = True
 
 
-def get_event_week():
+def get_event_week(instance, filename):
     week = timezone.now().isocalendar()[1]
-    return 'event/%s/' % week
+    return f'event/{week}/{slugify(filename)}'
 
 
 class Meeting(AbstractStatusModel):
