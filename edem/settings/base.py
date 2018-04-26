@@ -300,7 +300,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'kick_from_telegram_groups': {
         'task': 'kick_from_telegram_groups',
-        'schedule': crontab(minute=0, hour=3)
+        'schedule': crontab(minute=0, hour=4)
     },
     'improve_convert_to_congregation': {
         'task': 'improve_convert_to_congregation',
@@ -308,7 +308,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'users_is_stable_review': {
         'task': 'users_is_stable_review',
-        'schedule': crontab(hour=6, minute=0, day_of_week='mon')
+        'schedule': crontab(minute=0, hour=6, day_of_week='mon')
     }
 }
 
