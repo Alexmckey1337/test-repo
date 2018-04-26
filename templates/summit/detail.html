@@ -223,6 +223,7 @@
     {% include "partials/filter/select.html" with label=has_achievement_label options=true_false_options name="has_achievement" custom_classes="select__custom" %}
     {% trans "Партнеры" as is_partner_label %}
     {% include "partials/filter/select.html" with label=is_partner_label options=true_false_options name="is_partner" custom_classes="select__custom" %}
+    {% include "partials/filter/select.html" with label="Статус сделки" options=payment_status_options name="payment_status" %}
 {% endblock %}
 
 {% block extra_scripts %}

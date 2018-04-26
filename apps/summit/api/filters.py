@@ -245,6 +245,16 @@ class FilterBySummitAttend(BaseFilterBackend):
         return queryset
 
 
+class ProfileFilterByPaymentStatus(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        payment_status = request.query_params.get('payment_status')
+
+        if payment_status:
+            queryset = queryset.filter(payment_status=payment_status)
+
+        return queryset
+
+
 class FilterBySummitAttendByDate(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         attended = request.query_params.get('attended', '')
