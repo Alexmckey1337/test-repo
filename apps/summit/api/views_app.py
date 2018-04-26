@@ -111,6 +111,17 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         visitor = self.get_serializer(visitor)
         return Response(visitor.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['GET'])
+    def clean_reg_code(self, request):
+        reg_code = request.query_params.get('reg_code', '').lower().strip()
+        if not reg_code:
+            raise exceptions.ValidationError({'message': 'Parameter reg_code not passed'})
+
+        r = RedisBackend()
+        r.delete(reg_code)
+
+        return Response({'message': 'Successful cleaned'}, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['POST'], permission_classes=(IsSuperUser,))
     def reset_device_id(self, request, pk):
         profile = self.get_object()
@@ -486,7 +497,7 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
             if not telegram_id or not group_id:
                 raise exceptions.ValidationError({'message': 'Parameters {telegram_id} and {group_id} is required'})
 
-            vip_partner = CustomUser.objects.filter(partners__value__gte=12500, is_active=True).filter(Q(
+            vip_partner = CustomUser.objects.filter(partners__value__gte=6000, is_active=True).filter(Q(
                 phone_number__contains=phone_number) | Q(
                 extra_phone_numbers__contains=[phone_number])).first()
 

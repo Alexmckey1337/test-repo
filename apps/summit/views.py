@@ -1,5 +1,6 @@
-from celery.result import AsyncResult
 from collections import defaultdict
+
+from celery.result import AsyncResult
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
@@ -64,6 +65,11 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
             'departments': Department.objects.all(),
             'authors': [{'id': author.user_id, 'title': author.full_name} for author in authors],
             'hierarchies': Hierarchy.objects.order_by('level'),
+            'payment_status_options': [
+                {'id': '0', 'title': 'Hе оплачена'},
+                {'id': '1', 'title': 'Оплачена частично'},
+                {'id': '2', 'title': 'Оплачена полностью'},
+            ],
             'ticket_status_options': [
                 {'id': 'none', 'title': _('Не создан')},
                 {'id': 'download', 'title': _('Создан')},

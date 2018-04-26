@@ -68,17 +68,23 @@ class PartnerFilterByLevel(filters.BaseFilterBackend):
 class PartnerFilterByVIP(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         currencies = Currency.objects.all()
-        vip_status = request.query_params.get('vip_status', '')
-        if vip_status.upper() in ('TRUE', 'T', 'YES', 'Y', 'ON', '1'):
-            orm_q = 'value__gte'
-        elif vip_status.upper() in ('FALSE', 'F', 'NO', 'N', 'OFF', '0'):
-            orm_q = 'value__lt'
+        status = request.query_params.get('vip_status', '')
+        vip = settings.DEFAULT_SITE_SETTINGS.get('partners', {}).get('vip_status', {})
+        ruby = settings.DEFAULT_SITE_SETTINGS.get('partners', {}).get('ruby_status', {})
+
+        if status == 'vip':
+            orm_q = 'value__gte', lambda c: vip[c]
+        elif status == 'ruby':
+            orm_q = 'value__range', lambda c: (ruby[c], vip[c]-0.001)
+        elif status == 'any':
+            orm_q = 'value__gte', lambda c: ruby[c]
+        elif status == 'empty':
+            orm_q = 'value__lt', lambda c: ruby[c]
         else:
             return queryset
-        statuses = settings.DEFAULT_SITE_SETTINGS.get('partners', {}).get('vip_status', {})
         q = list()
-        for currency in currencies.filter(code__in=statuses.keys()):
-            q.append(Q(currency=currency, **{orm_q: statuses[currency.code]}))
+        for currency in currencies.filter(code__in=(set(vip.keys()) & set(ruby.keys()))):
+            q.append(Q(currency=currency, **{orm_q[0]: orm_q[1](currency.code)}))
         queryset = queryset.filter(reduce(operator.or_, q))
 
         return queryset

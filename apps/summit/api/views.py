@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q, Exists)
+    Func, Q, Exists, Sum, IntegerField)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -37,7 +37,7 @@ from apps.summit.api.filters import (
     HasPhoto, FilterBySummitAttend,
     FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
     FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement, FilterProfileAuthorTree, AuthorFilter,
-    FilterByTicketMultipleStatus)
+    FilterByTicketMultipleStatus, ProfileFilterByPaymentStatus)
 from apps.summit.api.pagination import (
     SummitPagination, SummitTicketPagination, SummitStatisticsPagination, SummitSearchPagination)
 from apps.summit.api.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
@@ -194,6 +194,7 @@ class SummitProfileListView(SummitProfileListMixin):
         FilterBySummitAttend,
         FilterByElecTicketStatus,
         FilterByTicketMultipleStatus,
+        ProfileFilterByPaymentStatus,
     )
 
     field_search_fields = {
@@ -241,12 +242,20 @@ class SummitProfileListView(SummitProfileListMixin):
         if 'has_email' in [k for k, v in self.columns.items() if v['active']]:
             emails = AnketEmail.objects.filter(anket=OuterRef('pk'), is_success=True).only('id')
             qs = qs.annotate(has_email=Exists(emails))
-        if 'total_sum' in [k for k, v in self.columns.items() if v['active']]:
+        if ('total_sum' in [k for k, v in self.columns.items() if v['active']] or
+                'payment_status' in self.request.query_params):
             qs = qs.annotate_total_sum()
         if 'e_ticket' in [k for k, v in self.columns.items() if v['active']]:
             select_related.add('status')
         if 'author' in [k for k, v in self.columns.items() if v['active']]:
             select_related.add('author')
+        if 'payment_status' in self.request.query_params:
+            qs = qs.annotate(
+                payment_status=Case(
+                    When(Q(total_sum__lt=self.summit.full_cost) & Q(total_sum__gt=0), then=1),
+                    When(total_sum__gte=self.summit.full_cost, then=2),
+                    default=0, output_field=IntegerField())
+            )
         if select_related:
             qs = qs.select_related(*select_related)
         return qs.for_user(self.request.user)

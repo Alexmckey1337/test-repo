@@ -96,8 +96,8 @@ class AnalyticsMiddleware(MiddlewareMixin):
             t = time()
             es = Elasticsearch(['es'])
             es.index(index='request', doc_type='doc', body=self.content)
-            logger.debug(f'{time() - t:.3f}')
-            logger.debug(self.content)
+            # logger.debug(f'{time() - t:.3f}')
+            # logger.debug(self.content)
         except Exception as err:
             logger.error(err)
         return response

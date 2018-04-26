@@ -15,12 +15,12 @@ class MeetingQuerySet(models.query.QuerySet):
             return self.base_queryset()
         return self.filter(owner__in=user.__class__.get_tree(user))
 
-    def annotate_owner_name(self):
+    def annotate_owner_name(self, alias='owner_name'):
         return self.annotate(
-            owner_name=Concat(
+            **{alias: Concat(
                 'owner__last_name', V(' '),
                 'owner__first_name', V(' '),
-                'owner__middle_name'))
+                'owner__middle_name')})
 
 
 class MeetingManager(models.Manager):
@@ -33,8 +33,8 @@ class MeetingManager(models.Manager):
     def for_user(self, user, extra_perms=True):
         return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
 
-    def annotate_owner_name(self):
-        return self.get_queryset().annotate_owner_name()
+    def annotate_owner_name(self, alias='owner_name'):
+        return self.get_queryset().annotate_owner_name(alias=alias)
 
 
 class ChurchReportQuerySet(models.query.QuerySet):
@@ -48,11 +48,11 @@ class ChurchReportQuerySet(models.query.QuerySet):
             return self.base_queryset()
         return self.filter(pastor__in=user.__class__.get_tree(user))
 
-    def annotate_total_sum(self):
-        return self.annotate(total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
+    def annotate_total_sum(self, alias='total_sum'):
+        return self.annotate(**{alias: Coalesce(Sum('payments__effective_sum'), V(0))})
 
-    def annotate_value(self):
-        return self.annotate(value=F('transfer_payments') + F('pastor_tithe'))
+    def annotate_value(self, alias='value'):
+        return self.annotate(**{alias: F('transfer_payments') + F('pastor_tithe')})
 
 
 class ChurchReportManager(models.Manager):
@@ -64,3 +64,9 @@ class ChurchReportManager(models.Manager):
 
     def for_user(self, user, extra_perms=True):
         return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
+
+    def annotate_total_sum(self, alias='total_sum'):
+        return self.get_queryset().annotate_total_sum(alias=alias)
+
+    def annotate_value(self, alias='value'):
+        return self.get_queryset().annotate_value(alias=alias)

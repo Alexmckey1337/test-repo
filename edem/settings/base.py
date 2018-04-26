@@ -60,6 +60,7 @@ LOCAL_APPS = (
     'apps.group.apps.GroupConfig',
     'apps.hierarchy.apps.HierarchyConfig',
     'apps.location.apps.LocationConfig',
+    'apps.lesson.apps.LessonConfig',
     'apps.navigation.apps.NavigationConfig',
     'apps.notification.apps.NotificationConfig',
     'apps.partnership.apps.PartnershipConfig',
@@ -305,6 +306,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'improve_convert_to_congregation',
         'schedule': 3600
     },
+    'users_is_stable_review': {
+        'task': 'users_is_stable_review',
+        'schedule': crontab(hour=6, minute=0, day_of_week='mon')
+    }
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -464,6 +469,7 @@ DEFAULT_SITE_SETTINGS = {
     "partners": {
         # Минимальная сумма партнерских пожертвований для получения VIP статуса
         "vip_status": {"uah": 12500, "usd": 500, "rur": 30000, "eur": 400},
+        "ruby_status": {"uah": 6000, "usd": 250, "rur": 15000, "eur": 200},
     },
     # Срок после покаяния чтобы Новообращенный автоматически был повышен до Прихожанина
     "convert_experience": {"value": 6, "unit": "month"},

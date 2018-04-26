@@ -9,16 +9,16 @@ class ProfileQuerySet(models.query.QuerySet):
         return self.select_related(
             'user', 'user__hierarchy', 'user__master', 'summit', 'summit__type', 'status', 'author')
 
-    def annotate_total_sum(self):
+    def annotate_total_sum(self, alias='total_sum'):
         return self.annotate(
-            total_sum=Coalesce(Sum('payments__effective_sum'), V(0)))
+            **{alias: Coalesce(Sum('payments__effective_sum'), V(0))})
 
-    def annotate_full_name(self):
+    def annotate_full_name(self, alias='full_name'):
         return self.annotate(
-            full_name=Concat(
+            **{alias: Concat(
                 'last_name', V(' '),
                 'first_name', V(' '),
-                'middle_name'))
+                'middle_name')})
 
     def for_user(self, user, extra_perms=True):
         if not user.is_authenticated:
@@ -37,11 +37,11 @@ class ProfileManager(models.Manager):
     def base_queryset(self):
         return self.get_queryset().base_queryset()
 
-    def annotate_total_sum(self):
-        return self.get_queryset().annotate_total_sum()
+    def annotate_total_sum(self, alias='total_sum'):
+        return self.get_queryset().annotate_total_sum(alias=alias)
 
-    def annotate_full_name(self):
-        return self.get_queryset().annotate_full_name()
+    def annotate_full_name(self, alias='full_name'):
+        return self.get_queryset().annotate_full_name(alias=alias)
 
     def for_user(self, user, extra_perms=True):
         return self.get_queryset().for_user(user=user, extra_perms=extra_perms)

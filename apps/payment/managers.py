@@ -164,12 +164,12 @@ class PaymentQuerySet(models.query.QuerySet):
                     '''.format(deal_id, church_deal_id)
             })
 
-    def annotate_manager_name(self):
+    def annotate_manager_name(self, alias='manager_name'):
         return self.annotate(
-            manager_name=Concat(
+            **{alias: Concat(
                 'manager__last_name', V(' '),
                 'manager__first_name', V(' '),
-                'manager__middle_name'))
+                'manager__middle_name')})
 
     def add_church_report_info(self):
         return self.annotate(
@@ -206,5 +206,5 @@ class PaymentManager(models.Manager):
     def add_deal_fio(self):
         return self.get_queryset().add_deal_fio()
 
-    def annotate_manager_name(self):
-        return self.get_queryset().annotate_manager_name()
+    def annotate_manager_name(self, alias='manager_name'):
+        return self.get_queryset().annotate_manager_name(alias=alias)
