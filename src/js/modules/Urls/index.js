@@ -184,7 +184,7 @@ const PHONE = {
 	lastThree: (id) => `/api/calls_to_user/?user_id=${id}&range=last_3`,
 	filterMonth: (id, date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
 	// detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
-	play: (file) => `http://83.142.233.148:7000/file/?file_name=${file}`,
+	play: (file) => `https://vocrm.net/file/?file_name=${file}`,
 };
 
 const URLS = {
