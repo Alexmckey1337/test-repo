@@ -141,7 +141,7 @@
     {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
     {% include "partials/filter/select.html" with label="Ветка" options=master_options name="master_tree" %}
     {% include "partials/filter/select.html" with label="Пастор" options='' name="pastor" %}
-    {% include "partials/filter/select.html" with label="Открыта" options=true_false_options name="is_open" custom_classes="select__custom" empty_value="ВСЕ" %}
+    {% include "partials/filter/select.html" with label="Открыта" options=true_false_options name="is_open" custom_classes="select__custom" empty_value="ВСЕ" default_value='True' %}
     {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" custom_data_filter="opening_date" %}
     {% include "partials/filter/input.html" with label="Страна" name="country" custom_data_filter="country" placeholder="страна или часть названия" %}
     {% include "partials/filter/input.html" with label="Область" name="region" custom_data_filter="region" placeholder="область или часть названия" %}

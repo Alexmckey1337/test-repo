@@ -10,6 +10,8 @@ Changelog
 
 * Добавлена колонка "Людей в домашних группах" в таблице церквей
   `issue <https://gitlab.sobsam.com/web/vocrm/issues/10>`_
+* По умолчанию в таблице церквей показываются только открытые церкви.
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/11>`_
 
 
 1.8.16 - 2018-04-26
