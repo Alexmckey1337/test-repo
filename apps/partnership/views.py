@@ -61,6 +61,7 @@ class PartnerListView(LoginRequiredMixin, CanSeePartnersMixin, TemplateView):
             'statuses': [
                 {'id': 'vip', 'title': 'VIP'},
                 {'id': 'ruby', 'title': 'Рубиновый'},
+                {'id': 'gold', 'title': 'Голд'},
                 {'id': 'any', 'title': 'Любой'},
                 {'id': 'empty', 'title': 'Никакой'},
             ],
