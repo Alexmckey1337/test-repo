@@ -415,7 +415,7 @@ export function createHomeGroupsTable(config = {}) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     updateHistoryUrl(config);
-    getData(URLS.home_group.list(), config).then(function (data) {
+    getData(URLS.home_group.table(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);

@@ -35,8 +35,9 @@ from apps.group.api.serializers import (
     ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer)
-from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
+    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
+    HomeGroupLocationSerializer)
+from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
 from common.filters import FieldSearchFilter
@@ -90,6 +91,10 @@ class ChurchExportView(ChurchTableView, ExportViewSetMixin):
 
     def post(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+
+class ChurchLocationListView(LocationMixin, ChurchTableView):
+    serializer_class = ChurchLocationSerializer
 
 
 class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, ChurchUsersMixin,
@@ -620,14 +625,5 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet,
         return Response(data={})
 
 
-class ChurchLocationListView(GenericAPIView):
-    serializer_class = ChurchLocationSerializer
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def get_queryset(self):
-        return Church.objects.has_location()
+class HomeGroupLocationListView(LocationMixin, HomeGroupTableView):
+    serializer_class = HomeGroupLocationSerializer

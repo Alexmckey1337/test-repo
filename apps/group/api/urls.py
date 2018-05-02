@@ -15,6 +15,9 @@ urlpatterns = [
 
     path('exports/church/', views.ChurchExportView.as_view(), name="exports-church"),
     path('exports/home_group/', views.HomeGroupExportView.as_view(), name="exports-home_group"),
+
     path('locations/church/', views.ChurchLocationListView.as_view()),
+    path('locations/home_group/', views.HomeGroupLocationListView.as_view()),
+
     path('', include(router_v1_0.urls)),
 ]
