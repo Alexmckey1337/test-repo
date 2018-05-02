@@ -66,13 +66,14 @@ class PartnershipTableSerializer(serializers.ModelSerializer):
                                      read_only=True, currency_field='currency')
     is_vip = serializers.BooleanField()
     is_ruby = serializers.BooleanField()
+    is_gold = serializers.BooleanField()
     is_stable_newbie = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Partnership
         fields = ('id',
                   'user',
-                  'is_vip', 'is_ruby',
+                  'is_vip', 'is_ruby', 'is_gold',
                   'fullname', 'is_stable_newbie') + BASE_PARTNER_FIELDS
 
 
