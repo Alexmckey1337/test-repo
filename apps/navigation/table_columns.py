@@ -49,6 +49,7 @@ church_columns = Table('church', [
     Column('region', 'Область', 'region'),
     Column('stable_count', 'Количество стабильных'),
     Column('count_people', 'Количество людей'),
+    Column('count_hg_people', 'Людей в домашних группах'),
     Column('count_home_groups', 'Количество домашних групп'),
     Column('locality', 'Населенный пункт'),
 ]).to_dict()

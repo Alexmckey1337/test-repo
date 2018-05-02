@@ -10,5 +10,6 @@ router_v1_0.register('churches', views.ChurchViewSet)
 router_v1_0.register('home_groups', views.HomeGroupViewSet)
 
 urlpatterns = [
+    path('churches/location/', views.ChurchLocationListView.as_view()),
     path('', include(router_v1_0.urls)),
 ]

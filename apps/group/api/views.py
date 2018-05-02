@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, exceptions, filters
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -36,7 +36,7 @@ from apps.group.api.serializers import (
     ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer)
+    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
@@ -609,3 +609,16 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
     @action(detail=False, methods=['GET'])
     def visits_stats(self, request):
         pass
+
+
+class ChurchLocationListView(GenericAPIView):
+    serializer_class = ChurchLocationSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        return Church.objects.has_location()

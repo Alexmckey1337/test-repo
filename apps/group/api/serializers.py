@@ -145,7 +145,7 @@ class ChurchListSerializer(BaseChurchListSerializer):
         required_fields = ['id', 'link']
         fields = ('id', 'opening_date', 'is_open', 'link', 'title', 'get_title',
                   'department', 'pastor', 'country', 'city', 'address', 'website',
-                  'phone_number', 'report_currency', 'region', 'stable_count',
+                  'phone_number', 'report_currency', 'region', 'stable_count', 'count_hg_people',
                   'count_people', 'count_home_groups', 'locality', 'latitude', 'longitude',)
 
     def get_field_names(self, declared_fields, info):
@@ -156,6 +156,14 @@ class ChurchListSerializer(BaseChurchListSerializer):
                     [i for i in columns.keys() if columns[i]['active']] +
                     list(self._context.get('extra_fields', [])))
         return fields
+
+
+class ChurchLocationSerializer(serializers.ModelSerializer):
+    pastor = UserNameSerializer()
+
+    class Meta:
+        model = Church
+        fields = ('id', 'title', 'pastor', 'count_people', 'count_home_groups', 'latitude', 'longitude')
 
 
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):

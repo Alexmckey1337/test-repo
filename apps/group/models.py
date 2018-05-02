@@ -113,6 +113,17 @@ class Church(LogModel, CommonGroup):
     del_count_stable_people_cache.alters_data = True
 
     @property
+    def count_hg_people(self):
+        from apps.account.models import CustomUser
+
+        cache_key = f'church.{self.id}.hg.people.count'
+        count = cache.get(cache_key)
+        if count is None:
+            count = CustomUser.objects.filter(hhome_group__church=self).count()
+            cache.set(cache_key, count, timeout=60 * 60)
+        return count
+
+    @property
     def count_people(self):
         from apps.account.models import CustomUser
 

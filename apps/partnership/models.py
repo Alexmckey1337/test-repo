@@ -234,6 +234,16 @@ class Partnership(PartnershipAbstractModel, AbstractPaymentPurpose, LogModel):
             get(self.currency.code, -1)
         return self.value >= vip_value >= 0
 
+    @property
+    def is_gold(self):
+        if self.is_vip or self.is_ruby:
+            return False
+        vip_value = settings.DEFAULT_SITE_SETTINGS. \
+            get('partners', {}). \
+            get('gold_status', {}). \
+            get(self.currency.code, -1)
+        return self.value >= vip_value >= 0
+
 
 class AbstractDeal(models.Model):
     partnership = None

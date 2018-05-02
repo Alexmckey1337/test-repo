@@ -10,7 +10,7 @@
             <option value="{{ empty_value }}">{{ empty_title|default:"ВСЕ" }}</option>
         {% endif %}
         {% for option in options %}
-            <option value="{{ option.id }}">{{ option.title }}</option>
+            <option value="{{ option.id }}"{% if default_value == option.id %} selected{% endif %}>{{ option.title }}</option>
         {% endfor %}
     </select>
 </label>
