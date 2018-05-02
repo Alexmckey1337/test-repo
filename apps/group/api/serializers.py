@@ -158,6 +158,14 @@ class ChurchListSerializer(BaseChurchListSerializer):
         return fields
 
 
+class ChurchLocationSerializer(serializers.ModelSerializer):
+    pastor = UserNameSerializer()
+
+    class Meta:
+        model = Church
+        fields = ('id', 'title', 'pastor', 'count_people', 'count_home_groups', 'latitude', 'longitude')
+
+
 class ChurchWithoutPaginationSerializer(serializers.ModelSerializer):
     get_title = serializers.CharField(read_only=True)
 
