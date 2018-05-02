@@ -99,6 +99,10 @@
                                 <i class="material-icons is_stable_icon is_vip_icon">
                                     {% include 'partials/vip_icon.html' %}
                                 </i>
+                                <% } else if(results[index].is_gold) { %>
+                                    <i class="material-icons is_stable_icon is_vip_icon">
+                                        {% include 'partials/coin_icon.html' %}
+                                    </i>
                                 <% } else if(results[index].is_ruby) { %>
                                     <i class="material-icons is_stable_icon is_vip_icon">
                                         {% include 'partials/ruby_icon.html' %}
@@ -124,6 +128,10 @@
                                 <i class="material-icons is_stable_icon is_vip_icon">
                                     {% include 'partials/vip_icon.html' %}
                                 </i>
+                                <% } else if(results[index].is_gold) { %>
+                                    <i class="material-icons is_stable_icon is_vip_icon">
+                                        {% include 'partials/coin_icon.html' %}
+                                    </i>
                                 <% } else if(results[index].is_ruby) { %>
                                     <i class="material-icons is_stable_icon is_vip_icon">
                                         {% include 'partials/ruby_icon.html' %}
