@@ -62,4 +62,4 @@ class TextLessonDetailSerializer(BaseLessonDetailSerializer):
 class VideoLessonDetailSerializer(BaseLessonDetailSerializer):
     class Meta:
         model = VideoLesson
-        fields = LESSON_LIST_FIELDS + ('url', 'description')
+        fields = LESSON_LIST_FIELDS + ('url', 'description', 'youtube_id')

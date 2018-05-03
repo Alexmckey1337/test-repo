@@ -108,6 +108,10 @@ class VideoLesson(AbstractLesson):
         verbose_name = 'Video lesson'
         verbose_name_plural = 'Video lessons'
 
+    @property
+    def youtube_id(self):
+        return self.url.split("/")[-1].split("?", 1)[0]
+
 
 class AbstractTextLessonUserRelation(models.Model):
     lesson = models.ForeignKey('TextLesson', on_delete=models.CASCADE, related_name='+')
