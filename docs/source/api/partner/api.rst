@@ -83,7 +83,7 @@ List of partners
               "editable": false
             }
           },
-          "user_table": {
+          "table_columns": {
             "phone_number": {
               "id": 220752,
               "title": "Номер телефона",

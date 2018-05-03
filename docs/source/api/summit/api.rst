@@ -355,7 +355,7 @@ List of summit profiles
           "previous": null
         },
         "count": 2565,
-        "user_table": {
+        "table_columns": {
           "full_name": {
             "id": 1260620,
             "title": "ФИО",
@@ -785,7 +785,7 @@ Statistics by summit
               "previous": null
           },
           "count": 1664,
-          "user_table": {
+          "table_columns": {
               "attended": {
                   "id": 1,
                   "title": "Присутствие",

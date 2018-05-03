@@ -1,6 +1,8 @@
 from django.db.models import Count, Q
 from rest_framework import filters
 from rest_framework.decorators import action
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
 
 from apps.account.models import CustomUser
 from apps.group.api.filters import ChurchAllUserFilter
@@ -177,3 +179,16 @@ class ChurchHomeGroupMixin(HomeGroupListMixin, ChurchHomeGroupExportViewSetMixin
 
 class HomeGroupUsersMixin(UserListMixin, GroupUserExportViewSetMixin):
     pass
+
+
+class LocationMixin(GenericAPIView):
+    ordering_fields = []
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        return super().get_queryset().has_location().order_by()

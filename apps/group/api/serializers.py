@@ -67,6 +67,16 @@ class HomeGroupListSerializer(HomeGroupSerializer):
     locality = CityReadSerializer()
 
 
+class HomeGroupLocationSerializer(serializers.ModelSerializer):
+    leader = UserNameSerializer()
+    church = ChurchNameSerializer()
+    count_users = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = ('id', 'title', 'leader', 'church', 'count_users', 'latitude', 'longitude')
+
+
 class HomeGroupReadSerializer(HomeGroupListSerializer):
     pass
 

@@ -40,7 +40,7 @@ export function createSummitUsersTable(data = {}) {
         makeSammitsDataTable(data, "summitUsersList");
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(data.user_table);
+        makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
     }).catch(err => {

@@ -48,7 +48,7 @@ export function clearAddHomeGroupData() {
 function addHomeGroupToDataBase(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.create(),
             data: config,
             method: 'POST',
             headers: {
@@ -160,7 +160,7 @@ export function createHomeGroupUsersTable(config = {}, id) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
@@ -177,7 +177,7 @@ export function createHomeGroupUsersTable(config = {}, id) {
         //     //     createHomeGroupUsersTable(config, id);
         //     // })
         // });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -415,7 +415,7 @@ export function createHomeGroupsTable(config = {}) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     updateHistoryUrl(config);
-    getData(URLS.home_group.list(), config).then(function (data) {
+    getData(URLS.home_group.table(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -423,7 +423,7 @@ export function createHomeGroupsTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableHomeGroup').html(rendered);
@@ -458,7 +458,7 @@ export function createHomeGroupsTable(config = {}) {
                 }, 100)
             })
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -476,7 +476,7 @@ export function createHomeGroupsTable(config = {}) {
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.table(),
             data: config,
             method: 'GET',
             headers: {

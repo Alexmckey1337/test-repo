@@ -343,7 +343,7 @@ function getOrderingData() {
 function getChurches(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.table(),
             data: config,
             method: 'GET',
             headers: {
@@ -454,7 +454,7 @@ function createHomeGroupsTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableHomeGroup').html(rendered);
@@ -486,7 +486,7 @@ function createHomeGroupsTable(config = {}) {
                 }, 100)
             })
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -575,9 +575,9 @@ function getPartners(config) {
         let id = "partnersList";
         let text = `Показано ${CONFIG.pagination_count} из ${count}`;
         let common_table = Object.keys(response.common_table);
-        data.user_table = response.user_table;
+        data.table_columns = response.table_columns;
         common_table.forEach(function (item) {
-            data.user_table[item] = response.common_table[item];
+            data.table_columns[item] = response.common_table[item];
         });
         data.results = response.results.map(function (item) {
             let result = item.user;
@@ -599,7 +599,7 @@ function getPartners(config) {
         };
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(response.user_table);
+        makeSortForm(response.table_columns);
         new OrderTable().sort(getPartners, ".table-wrap th");
     });
 }
@@ -677,7 +677,7 @@ function getHomeGroupsINChurches(id) {
 function getHomeGroups(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.table(),
             data: config,
             method: 'GET',
             headers: {
@@ -852,7 +852,7 @@ function newAjaxRequest(data, codes, fail) {
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.user.list(),
+            url: URLS.user.table(),
             data: config,
             method: 'GET',
             headers: {
@@ -1095,11 +1095,11 @@ function createChurchesUsersTable(id, config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1132,7 +1132,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
@@ -1142,7 +1142,7 @@ function createChurchesDetailsTable(config = {}, id, link) {
             DelUser.popup();
 
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1173,7 +1173,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINHomeGroups').html(rendered).on('click', '.delete_btn', function () {
@@ -1190,7 +1190,7 @@ function createHomeGroupUsersTable(config = {}, id) {
         //     //     createHomeGroupUsersTable(config, id);
         //     // })
         // });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1208,7 +1208,7 @@ function createHomeGroupUsersTable(config = {}, id) {
 function addHomeGroupToDataBase(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.home_group.list(),
+            url: URLS.home_group.create(),
             data: config,
             method: 'POST',
             headers: {
@@ -1312,7 +1312,7 @@ function createChurchesTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableChurches').html(rendered);
@@ -1340,7 +1340,7 @@ function createChurchesTable(config = {}) {
             })
         });
 
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -1358,7 +1358,7 @@ function createChurchesTable(config = {}) {
 function addChurchTODataBase(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.create(),
             data: config,
             method: 'POST',
             headers: {
@@ -1613,7 +1613,7 @@ function getResponsibleStatuses() {
 
 function getUsersFromDatabase(config) {
     return new Promise(function (resolve, reject) {
-        ajaxRequest(URLS.user.list(), config, function (data) {
+        ajaxRequest(URLS.user.table(), config, function (data) {
             if (data) {
                 resolve(data);
             } else {
@@ -2438,9 +2438,9 @@ function createSummitUsersTable(data = {}) {
             });
             return data;
         });
-        filter_data.user_table = data.user_table;
+        filter_data.table_columns = data.table_columns;
         common_table.forEach(function (item) {
-            filter_data.user_table[item] = data.common_table[item];
+            filter_data.table_columns[item] = data.common_table[item];
         });
         let count = data.count;
         let page = config.page || 1;
@@ -2457,7 +2457,7 @@ function createSummitUsersTable(data = {}) {
         makeSammitsDataTable(filter_data, id);
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(data.user_table);
+        makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
     });
@@ -3118,7 +3118,7 @@ function createUsersTable(config) {
         makeDataTable(data, id);
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(data.user_table);
+        makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createUsersTable, ".table-wrap th");
     }).catch(function (err) {
@@ -3774,7 +3774,7 @@ function createNewUser(callback) {
             console.log(err);
         }
     }
-    let url = URLS.user.list();
+    let url = URLS.user.create();
     let config = {
         url: url,
         data: formData,
