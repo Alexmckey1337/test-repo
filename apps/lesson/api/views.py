@@ -1,13 +1,14 @@
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.lesson.api.filters import FilterLessonsByMonth, FilterLessonsByViews, FilterLessonsByLikes
-from apps.lesson.api.permissions import CanSeeLessonMonths, CanSeeLessons
+from apps.lesson.api.permissions import CanSeeLessonMonths, CanSeeLessons, CanLikeLessons
 from apps.lesson.api.serializers import TextLessonListSerializer, VideoLessonListSerializer, \
     VideoLessonDetailSerializer, TextLessonDetailSerializer
-from apps.lesson.models import TextLesson, VideoLesson
+from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike
 from common import filters
 
 
@@ -20,17 +21,9 @@ class MonthListMixin(GenericAPIView):
         return Response(data=self.model.objects.count_by_months(request.user))
 
 
-class LessonDetailMixin(mixins.RetrieveModelMixin, GenericAPIView):
+class LessonObjectMixin(GenericAPIView):
     model = None
-    obj = None
-    lookup_field = 'slug'
-
-    permission_classes = (IsAuthenticated, CanSeeLessons)
-
-    def get(self, request, *args, **kwargs):
-        responsible = self.retrieve(request, *args, **kwargs)
-        self.model.views.through.objects.create(lesson=self.obj, user=request.user)
-        return responsible
+    lesson = None
 
     def get_queryset(self):
         qs = self.model.published.for_user(self.request.user)
@@ -43,8 +36,40 @@ class LessonDetailMixin(mixins.RetrieveModelMixin, GenericAPIView):
         return qs
 
     def get_object(self):
-        self.obj = super().get_object()
-        return self.obj
+        self.lesson = super().get_object()
+        return self.lesson
+
+
+class LessonDetailMixin(mixins.RetrieveModelMixin, LessonObjectMixin):
+    lookup_field = 'slug'
+
+    permission_classes = (IsAuthenticated, CanSeeLessons)
+
+    def get(self, request, *args, **kwargs):
+        responsible = self.retrieve(request, *args, **kwargs)
+        self.model.views.through.objects.create(lesson=self.lesson, user=request.user)
+        return responsible
+
+
+class LessonLikeMixin(LessonObjectMixin):
+    lookup_field = 'slug'
+
+    permission_classes = (IsAuthenticated, CanLikeLessons)
+
+    like_model = None
+
+    def post(self, request, *args, **kwargs):
+        """
+        Mark a lesson as liked.
+        """
+        lesson = self.get_object()
+        self.like_lesson(lesson, request.user)
+
+        return Response(data={'detail': _('Successful')})
+
+    def like_lesson(self, lesson, user):
+        if not self.like_model.objects.filter(lesson=lesson, user=user).exists():
+            self.like_model.objects.create(lesson=lesson, user=user)
 
 
 class LessonListMixin(mixins.ListModelMixin, GenericAPIView):
@@ -115,6 +140,17 @@ class TextLessonDetailView(LessonDetailMixin):
         return super().get(request, *args, **kwargs)
 
 
+class TextLessonLikeView(LessonLikeMixin):
+    model = TextLesson
+    like_model = TextLessonLike
+
+    def post(self, request, *args, **kwargs):
+        """
+        Mark text lesson as liked.
+        """
+        return super().post(request, *args, **kwargs)
+
+
 class VideoLessonMonthListView(MonthListMixin):
     model = VideoLesson
 
@@ -147,3 +183,14 @@ class VideoLessonDetailView(LessonDetailMixin):
         Getting video lesson by slug
         """
         return super().get(request, *args, **kwargs)
+
+
+class VideoLessonLikeView(LessonLikeMixin):
+    model = VideoLesson
+    like_model = VideoLessonLike
+
+    def post(self, request, *args, **kwargs):
+        """
+        Mark video lesson as liked.
+        """
+        return super().post(request, *args, **kwargs)

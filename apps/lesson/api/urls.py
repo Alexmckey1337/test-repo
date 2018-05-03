@@ -6,7 +6,10 @@ urlpatterns = [
     path('lessons/text/', views.TextLessonListView.as_view()),
     path('lessons/text/months/', views.TextLessonMonthListView.as_view()),
     path('lessons/text/<str:slug>/', views.TextLessonDetailView.as_view()),
+    path('lessons/text/<str:slug>/like/', views.TextLessonLikeView.as_view()),
+
     path('lessons/video/', views.VideoLessonListView.as_view()),
     path('lessons/video/months/', views.VideoLessonMonthListView.as_view()),
     path('lessons/video/<str:slug>/', views.VideoLessonDetailView.as_view()),
+    path('lessons/video/<str:slug>/like/', views.VideoLessonLikeView.as_view()),
 ]
