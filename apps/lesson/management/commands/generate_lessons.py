@@ -65,6 +65,7 @@ class Command(BaseCommand):
                 ),
                 status=choice([s[0] for s in TextLesson.STATUS]),
                 content='<p>Слушайтесь маму.</p>' * randint(3, 11),
+                access_level=choice([s[0] for s in TextLesson.ACCESS_LEVELS]),
             ))
             videos.append(VideoLesson(
                 title=f'Видео урок #{i}',
@@ -77,6 +78,7 @@ class Command(BaseCommand):
                 status=choice([s[0] for s in TextLesson.STATUS]),
                 description='<p>Это мой видео урок.</p>' * randint(3, 11),
                 url='https://www.youtube.com/embed/' + choice(YOUTUBE_URLS),
+                access_level=choice([s[0] for s in TextLesson.ACCESS_LEVELS]),
             ))
 
         text_lessons = [l.pk for l in TextLesson.objects.bulk_create(texts)]

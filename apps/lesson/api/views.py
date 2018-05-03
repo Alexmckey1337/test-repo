@@ -17,7 +17,7 @@ class MonthListMixin(GenericAPIView):
     model = None
 
     def get(self, request, *args, **kwargs):
-        return Response(data=self.model.objects.count_by_months())
+        return Response(data=self.model.objects.count_by_months(request.user))
 
 
 class LessonDetailMixin(mixins.RetrieveModelMixin, GenericAPIView):
@@ -33,7 +33,7 @@ class LessonDetailMixin(mixins.RetrieveModelMixin, GenericAPIView):
         return responsible
 
     def get_queryset(self):
-        qs = self.model.published.all()
+        qs = self.model.published.for_user(self.request.user)
         qs = qs.annotate_count_views_of_user(self.request.user)
         qs = qs.annotate_total_views()
         qs = qs.annotate_total_likes()
@@ -66,7 +66,7 @@ class LessonListMixin(mixins.ListModelMixin, GenericAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = self.model.published.all()
+        qs = self.model.published.for_user(self.request.user)
         qs = qs.annotate_count_views_of_user(self.request.user)
         qs = qs.annotate_total_views()
         qs = qs.annotate_total_likes()

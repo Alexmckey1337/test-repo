@@ -31,6 +31,13 @@ class AbstractLesson(models.Model):
     )
     status = models.CharField(_('Status'), max_length=9, choices=STATUS, default=DRAFT)
 
+    LEADER, PASTOR = 1, 2
+    ACCESS_LEVELS = (
+        (LEADER, _('Leader+')),
+        (PASTOR, _('Pastor+')),
+    )
+    access_level = models.IntegerField(_('Access level'), choices=ACCESS_LEVELS, default=LEADER)
+
     objects = LessonManager()
     published = PublishedLessonManager()
 
