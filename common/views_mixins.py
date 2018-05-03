@@ -2,7 +2,7 @@ from django.utils import timezone
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import action
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
 from apps.navigation.table_columns import get_table
@@ -88,7 +88,7 @@ class ExportViewSetMixin(BaseExportViewSetMixin):
         return self._export(request, *args, **kwargs)
 
 
-class TableViewMixin(GenericAPIView):
+class TableViewMixin(ListAPIView):
     table_name = ''
     pagination_class = TablePageNumberPagination
 
@@ -97,13 +97,6 @@ class TableViewMixin(GenericAPIView):
     def get(self, request, *args, **kwargs):
         request.columns = self.columns
         return self.list(request, *args, **kwargs)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
 
     @property
     def columns(self):
