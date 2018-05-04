@@ -5,10 +5,10 @@ from common.test_helpers.utils import get_real_user
 
 
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ('title', 'status', 'published_date', 'author', 'creator', 'access_level')
+    list_display = ('title', 'status', 'published_date', 'creator', 'access_level')
     list_display_links = ('title',)
 
-    autocomplete_fields = ('author',)
+    autocomplete_fields = ('authors',)
 
     def save_model(self, request, obj, form, change):
         obj.creator = get_real_user(request)

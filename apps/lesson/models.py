@@ -11,9 +11,8 @@ from apps.lesson.validators import YoutubeURLField
 class AbstractLesson(models.Model):
     title = models.CharField(_('Title'), max_length=30)
     slug = models.SlugField(_('URL'), max_length=255, editable=False)
-    author = models.ForeignKey(
-        'account.CustomUser', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='author_%(class)ss',
+    authors = models.ManyToManyField(
+        'account.CustomUser', related_name='authors_%(class)ss',
     )
     creator = models.ForeignKey(
         'account.CustomUser', on_delete=models.CASCADE, editable=False,
