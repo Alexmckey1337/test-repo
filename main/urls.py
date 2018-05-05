@@ -13,6 +13,10 @@ def redirect_to_churches(request):
     return redirect(reverse('db:churches'))
 
 
+def redirect_to_map_churches(request):
+    return redirect(reverse('map:churches'))
+
+
 database_patterns = (
     [
         path('', login_required(redirect_to_churches, login_url='entry'), name='main'),
@@ -20,6 +24,13 @@ database_patterns = (
         path('churches/', views.ChurchListView.as_view(), name='churches'),
         path('home_groups/', views.HomeGroupListView.as_view(), name='home_groups'),
     ], 'db')
+
+map_patterns = (
+    [
+        path('', login_required(redirect_to_map_churches, login_url='entry'), name='main'),
+        path('churches/', views.ChurchMapView.as_view(), name='churches'),
+        path('home_groups/', views.HomeGroupMapView.as_view(), name='home_groups'),
+    ], 'map')
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -29,6 +40,7 @@ urlpatterns = [
 
     path('account/', include('apps.account.urls', namespace='account')),
     path('db/', include(database_patterns, namespace='db')),
+    path('map/', include(map_patterns, namespace='map')),
     path('events/', include('apps.event.urls', namespace='events')),
     path('partner/', include('apps.partnership.urls', namespace='partner')),
     path('payment/', include('apps.payment.urls', namespace='payment')),
