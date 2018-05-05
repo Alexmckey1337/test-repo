@@ -99,7 +99,6 @@ class TestPartnershipViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert getattr(Partnership.objects.get(pk=partner.id), field) == values[-1]
 
-    @pytest.mark.hh
     def test_move_old_unclosed_deal_after_update_responsible(
             self, api_login_supervisor_client, user_factory, partner_factory, deal_factory):
         responsible = user_factory()

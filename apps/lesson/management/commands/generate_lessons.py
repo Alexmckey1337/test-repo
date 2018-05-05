@@ -43,7 +43,7 @@ class Command(BaseCommand):
         self.stdout.write('Start...')
 
         creators = list(CustomUser.objects.filter(hierarchy__level__gt=2).values_list('pk', flat=True)[:10*size])
-        authors = [None] + creators
+        authors = creators
         viewers = list(CustomUser.objects.filter(hierarchy__level__gte=1).values_list('pk', flat=True))
         now = timezone.now()
 
@@ -57,7 +57,6 @@ class Command(BaseCommand):
         for i in range(100 * size):
             texts.append(TextLesson(
                 title=f'Текстовый урок #{i}',
-                author_id=choice(authors),
                 creator_id=choice(creators),
                 published_date=datetime.fromtimestamp(
                     randint(*published_date_range),
@@ -69,7 +68,6 @@ class Command(BaseCommand):
             ))
             videos.append(VideoLesson(
                 title=f'Видео урок #{i}',
-                author_id=choice(authors),
                 creator_id=choice(creators),
                 published_date=datetime.fromtimestamp(
                     randint(*published_date_range),
@@ -80,6 +78,14 @@ class Command(BaseCommand):
                 url='https://www.youtube.com/embed/' + choice(YOUTUBE_URLS),
                 access_level=choice([s[0] for s in TextLesson.ACCESS_LEVELS]),
             ))
+        for l in TextLesson.objects.all():
+            lesson_authors = choices(authors, k=randint(0, 4))
+            if lesson_authors:
+                l.authors.set(list(lesson_authors))
+        for l in VideoLesson.objects.all():
+            lesson_authors = choices(authors, k=randint(0, 4))
+            if lesson_authors:
+                l.authors.set(list(lesson_authors))
 
         text_lessons = [l.pk for l in TextLesson.objects.bulk_create(texts)]
         video_lessons = [l.pk for l in VideoLesson.objects.bulk_create(videos)]

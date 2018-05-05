@@ -32,7 +32,7 @@ from apps.group.api.permissions import (
     CanSeeChurch, CanCreateChurch, CanEditChurch, CanExportChurch,
     CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup)
 from apps.group.api.serializers import (
-    ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
+    ChurchSerializer, ChurchTableSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
     ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
@@ -52,7 +52,7 @@ class ChurchTableView(TableViewMixin):
     table_name = 'church'
 
     queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title')
-    serializer_class = ChurchListSerializer
+    serializer_class = ChurchTableSerializer
     permission_classes = (CanSeeChurch,)
 
     filter_backends = (

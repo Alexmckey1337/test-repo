@@ -149,7 +149,7 @@ class BaseChurchListSerializer(ChurchSerializer):
                   'phone_number', 'report_currency', 'region', 'locality', 'latitude', 'longitude',)
 
 
-class ChurchListSerializer(BaseChurchListSerializer):
+class ChurchTableSerializer(BaseChurchListSerializer):
     class Meta:
         model = Church
         required_fields = ['id', 'link']

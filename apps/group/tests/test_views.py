@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from apps.group.api.serializers import (
-    ChurchListSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupListSerializer, HomeGroupReadSerializer)
+    ChurchTableSerializer, ChurchSerializer, HomeGroupSerializer, HomeGroupReadSerializer)
 from apps.group.api.views import ChurchViewSet, HomeGroupViewSet
 
 
@@ -354,7 +354,7 @@ class TestChurchViewSet:
 
     @pytest.mark.xfail
     @pytest.mark.parametrize('method,action,serializer_class', (
-            ('get', 'list', ChurchListSerializer),
+            ('get', 'list', ChurchTableSerializer),
             ('post', 'create', ChurchSerializer),
             ('get', 'retrieve', ChurchSerializer),
             ('put', 'update', ChurchSerializer),
