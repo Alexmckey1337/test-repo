@@ -18,7 +18,7 @@ class LessonQuerySet(models.query.QuerySet):
             return self
         if not user.hierarchy:
             return self.none()
-        return self.filter(access_level__gte=user.hierarchy.level)
+        return self.filter(access_level__lte=user.hierarchy.level)
 
     def annotate_count_views_of_user(self, user, alias="count_view"):
         db_table = self.model._meta.db_table
