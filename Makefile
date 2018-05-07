@@ -13,7 +13,8 @@ install_local:
 
 docs:
 	rm -rf ./docs/build/html/
-	cd docs && sphinx-build -b html -d build/doctrees source build/html
+	cp CHANGELOG.rst docs/source/
+	cd docs && sphinx-build -b html -d build/doctrees source build/docs
 	@xdg-open docs/build/html/index.html >& /dev/null || open docs/build/html/index.html >& /dev/null || true
 
 static:
