@@ -138,6 +138,12 @@ class MeetingDetailSerializer(MeetingSerializer):
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
             instance, validated_data, self.not_editable_fields)
+        if instance.type.code == 'home' and (
+                validated_data.get('total_sum', None) == 0 or
+                ('total_sum' not in validated_data.keys() and instance.total_sum == 0)):
+            raise serializers.ValidationError({
+                'detail': _('Невозможно подать отчет домашней группы без пожертвований.')
+            })
 
         return super(MeetingDetailSerializer, self).update(instance, validated_data)
 
