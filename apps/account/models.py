@@ -353,6 +353,18 @@ class CustomUser(MP_Node, LogModel, User,
         """
         return can_see_deal_block(self, user)
 
+    def can_see_docs(self):
+        """
+        Checking that the ``self`` user has the right to see documentation
+        """
+        return self.is_superuser
+
+    def can_see_changelog(self):
+        """
+        Checking that the ``self`` user has the right to see CHANGELOG
+        """
+        return self.can_see_docs()
+
 
 class Token(models.Model):
     """

@@ -1,3 +1,5 @@
+from typing import Union, Type
+
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import mixins
 from rest_framework.generics import GenericAPIView
@@ -6,21 +8,22 @@ from rest_framework.response import Response
 
 from apps.lesson.api.filters import FilterLessonsByMonth, FilterLessonsByViews, FilterLessonsByLikes
 from apps.lesson.api.permissions import CanSeeLessonMonths, CanSeeLessons, CanLikeLessons
+from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike, AbstractLesson
 from common import filters
 
 
 class MonthListMixin(GenericAPIView):
     permission_classes = (IsAuthenticated, CanSeeLessonMonths)
     pagination_class = None
-    model = None
+    model: Union[Type[TextLesson], Type[VideoLesson]]
 
     def get(self, request, *args, **kwargs):
         return Response(data=self.model.objects.count_by_months(request.user))
 
 
 class LessonObjectMixin(GenericAPIView):
-    model = None
-    lesson = None
+    model: Union[Type[TextLesson], Type[VideoLesson]]
+    lesson: AbstractLesson
 
     def get_queryset(self):
         qs = self.model.published.for_user(self.request.user)
@@ -53,7 +56,7 @@ class LessonLikeMixin(LessonObjectMixin):
 
     permission_classes = (IsAuthenticated, CanLikeLessons)
 
-    like_model = None
+    like_model: Union[Type[TextLessonLike], Type[VideoLessonLike]]
 
     def post(self, request, *args, **kwargs):
         """
@@ -70,7 +73,7 @@ class LessonLikeMixin(LessonObjectMixin):
 
 
 class LessonListMixin(mixins.ListModelMixin, GenericAPIView):
-    model = None
+    model: Union[Type[TextLesson], Type[VideoLesson]]
 
     permission_classes = (IsAuthenticated, CanSeeLessons)
 
