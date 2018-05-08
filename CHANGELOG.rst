@@ -3,6 +3,23 @@ Changelog
 =========
 
 
+1.9.0 - 2018-05-08
+------------------
+
+Изменения:
+
+* Не подавать отчеты домашних групп типа "Домашняя" если сумма пожертвований
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/18>`_
+* Добавлено вывод на карту церквей
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/3>`_
+* Добавлено вывод на карту домашних групп
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/4>`_
+* Добавить печать карты с церквями
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/5>`_
+* Добавить печать карты с домашними группами
+  `issue <https://gitlab.sobsam.com/web/vocrm/issues/6>`_
+
+
 1.8.23 - 2018-05-05
 -------------------
 
