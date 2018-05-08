@@ -16,7 +16,6 @@ export default function exportTableData(el, additionalFilter = {}, search = 'sea
         $('.preloader').css('display', 'none');
         url = ($(el).attr('data-export-url')) ? $(el).attr('data-export-url') : urlExp;
         filter = Object.assign(getFilterParam(), getSearch(search), additionalFilter);
-        console.log('Filter -->', filter);
         filterKeys = Object.keys(filter);
         if (filterKeys && filterKeys.length) {
             url += '?';
