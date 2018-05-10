@@ -1,4 +1,5 @@
 import edem
+from apps.payment.models import Currency
 
 
 def true_false_options(request):
@@ -10,4 +11,12 @@ def crm_version(request):
         'crm': {
             'version': edem.__version__,
         }
+    }
+
+
+def currency(request):
+    currencies = Currency.objects.all()
+    return {
+        'currencies': currencies,
+        'currency_options': [{'id': c.pk, 'title': c.name} for c in currencies]
     }
