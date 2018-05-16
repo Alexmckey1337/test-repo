@@ -28,7 +28,7 @@ def load_docs_files(path):
         for filename in filenames:
             file_path = f'{dirname}{filename}'
             mime = filetype.guess_mime(file_path) or get_content_type(file_path)
-            print(f'{mime: <30}{file_path}')
+            # print(f'{mime: <30}{file_path}')
             with open(file_path, 'rb') as f:
                 files[file_path] = (mime, f.read())
     return files
