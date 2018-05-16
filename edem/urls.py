@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path, re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -57,7 +58,13 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+
+def ping(request):
+    return HttpResponse('pong')
+
+
 urlpatterns = [
+    path('ping', ping),
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
     path('rest-auth/', include('rest_auth.urls')),
