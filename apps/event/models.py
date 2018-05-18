@@ -91,6 +91,8 @@ class Meeting(AbstractStatusModel):
 
     image = models.ImageField(_('Event Image'), upload_to=get_event_week, blank=True, null=True)
 
+    guest_count = models.PositiveSmallIntegerField(_('Guest count'), default=0)
+
     objects = MeetingManager()
 
     class Meta:
