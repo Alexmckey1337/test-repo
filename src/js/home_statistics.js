@@ -5,12 +5,13 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import * as moment from 'moment';
 import 'moment/locale/ru';
-import URLS from './modules/Urls/index';
-import getData from './modules/Ajax/index';
-import {getPastorsByDepartment, getHGLeaders} from "./modules/GetList/index";
-import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import URLS from './modules/Urls';
+import getData from './modules/Ajax';
+import {getPastorsByDepartment, getHGLeaders} from "./modules/GetList";
+import {applyFilter, refreshFilter} from "./modules/Filter";
 import {homeStatistics} from "./modules/Statistics/home_group";
-import parseUrlQuery from './modules/ParseUrl/index';
+import parseUrlQuery from './modules/ParseUrl';
+import {regLegendPlagin} from './modules/Chart/config';
 
 $('document').ready(function () {
 	const USER_ID = $('body').data('user'),
@@ -334,5 +335,7 @@ $('document').ready(function () {
 		console.log(filterParam);
 		filterInit(filterParam);
 	}
+
+	regLegendPlagin();
 
 });

@@ -30,7 +30,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     )
     readonly_fields = ('master',)
     autocomplete_fields = ('locality',)
-    search_fields = ('locality',)
+    search_fields = ('first_name', 'last_name', 'middle_name')
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
 

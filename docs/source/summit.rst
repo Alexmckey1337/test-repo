@@ -5,5 +5,5 @@ Summit models
 Models
 ------
 
-.. automodule:: summit.models
+.. automodule:: apps.summit.models
    :members:

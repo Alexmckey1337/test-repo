@@ -64,7 +64,7 @@ export function createNewUser(callback) {
         sex = $('#sex').val() || null,
         locality = $('#chooseCity').attr('data-id') || null,
         send_image = $('#file').prop("files").length || false,
-        url = URLS.user.list(),
+        url = URLS.user.create(),
         arrPhones = [],
         config = {
             url: url,

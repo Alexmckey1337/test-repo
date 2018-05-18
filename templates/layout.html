@@ -5,138 +5,16 @@
 {% block layout %}
     <div class="page-width">
         {% block sidebar %}
-            <div id="sidebar">
-                    <div class="logo">
-                        <a href="/">vo <span>crm</span></a>
-                    </div>
-                    <ul id="nav-sidebar" class="summits">
-                        <li>
-                            <a data-title="База данных" href="#" id="databases__item" class="menu__item"></a>
-                            <ul class="sidebar-submenu">
-                                <li class="menu__item_title">База данных</li>
-                                {% if user.can_see_churches %}
-                                    <li><a href="{% url 'db:main' %}">Церкви</a></li>
-                                {% endif %}
-                                {% if user.can_see_home_groups %}
-                                    <li><a href="{% url 'db:home_groups' %}">Домашние группы</a></li>
-                                {% endif %}
-                                {% if user.can_see_user_list %}
-                                    <li><a href="{% url 'db:people' %}">Люди</a></li>
-                                {% endif %}
-                            </ul>
-                        </li>
-                        <li>
-                            <a data-title="Отчеты" href="{% url 'events:main' %}" id="events__reports"
-                               class="menu__item"></a>
-                            <ul class="sidebar-submenu">
-                                <li class="menu__item_title">Отчеты</li>
-                                <li><a href="{% url 'events:church_report_list' %}">Отчёты церквей</a></li>
-                                <li><a href="{% url 'events:church_report_statistics' %}">Статистика церквей</a></li>
-                                <li><a href="{% url 'events:report_payments' %}">Таблица платежей</a></li>
-                                <li><a href="{% url 'events:meeting_report_list' %}">Отчёты домашних групп</a></li>
-                                <li><a href="{% url 'events:meeting_report_statistics' %}">Статистика домашних групп</a></li>
-                            </ul>
-                        </li>
-                        {% if user.can_see_any_partner_block %}
-                            <li><a data-title="Партнёрство" href="#" id="partners__item"
-                                   class="menu__item"></a>
-                                <ul class="sidebar-submenu">
-                                    <li class="menu__item_title">Партнёрство</li>
-                                    {% if user.can_see_deals %}
-                                        <li><a href="{% url 'partner:deals' %}">Сделки</a></li>
-                                    {% endif %}
-                                    {% if user.can_see_partners %}
-                                        <li><a href="{% url 'partner:list' %}">Список партнёров</a></li>
-                                    {% endif %}
-                                    {% if user.can_see_deal_payments %}
-                                        <li><a href="{% url 'partner:payments' %}">{% trans "Платежи" %}</a></li>
-                                    {% endif %}
-                                    {% if user.can_see_managers_summary %}
-                                        <li><a href="{% url 'partner:partnership_summary-list' %}">План по менеджерам</a></li>
-                                    {% endif %}
-                                    {% if user.can_see_partner_stats %}
-                                        <li><a href="{% url 'partner:partnership_summary-detail' manager_id="all" %}">Статистика</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        {% endif %}
-                        <li><a data-title="Саммиты" href="#" id="summits__item" class="menu__item"></a>
-                            <ul class="sidebar-submenu">
-                                <li class="menu__item_title">Саммиты</li>
-                                <li><a href="{% url "summit:open" %}">{% trans "Open" %}</a></li>
-                                <li><a href="{% url "summit:closed" %}">{% trans "Closed" %}</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    {% if user.is_staff %}
-                    <div class="bottom-sidebar">
-                        <ul>
-                            <li class="menu__item">
-                                <i class="material-icons">&#xE5C3;</i>
-                                <ul class="sidebar-submenu">
-                                    <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
-                                    <li><a href="{% url "controls:main" %}">{% trans "Права доступа к базе данных" %}</a></li>
-                                    <li><a href="{% url "controls:summit_panel" %}">{% trans "Саммиты" %}</a></li>
-{#                                    <li><a href="{% url "reference" %}">{% trans "Справки" %}</a></li>#}
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    {% endif %}
-            </div>
+            {% include "partials/layout/sidebar.html" %}
         {% endblock sidebar %}
         <div id="container">
             {% block main %}
                 <div id="header">
                 <div{% block main.attr %} {% endblock %}>
-                    {% if request.hard_user %}
-                        <div class="user-wrap">
-                            <h1 style="padding-left: 1em;"><strong>Пользователь:</strong>
-                                <a href="{{ request.real_user.get_absolute_url }}">
-                                    {{ request.real_user }}
-                                </a>
-                            </h1>
-                            <p>вошел как</p>
-                            <h1><strong></strong>
-                                <a href="{{ request.hard_user.get_absolute_url }}">
-                                    {{ request.hard_user }}
-                                </a>
-                                -
-                                <a class="reset_hard_user" href="" style="color:#64d2ff;">Сбросить</a>
-                            </h1>
-                        </div>
-                    {% elif request.user.is_superuser or request.user.skins.all or request.real_user.skins.all %}
-                        <div class="user-wrap">
-                            <h1 style="padding-left: 1em;"><strong>Пользователь:</strong>
-                                <a href="{{ request.user.get_absolute_url }}">
-                                    {{ request.user }}
-                                </a>
-                            </h1>
-                            <p>войти как</p>
-                            {% if request.real_user %}
-                                {% if request.real_user.skins.exists %}
-                                    <select name="skin_id" id="skin_id">
-                                        {% for skin in request.real_user.skins.all %}
-                                            <option value="{{ skin.id }}">{{ skin.fullname }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <input type="button" id="entry_as" value="Войти">
-                                {% endif %}
-                            {% else %}
-                                {% if request.user.skins.exists %}
-                                    <select name="skin_id" id="skin_id">
-                                        {% for skin in request.user.skins.all %}
-                                            <option value="{{ skin.id }}">{{ skin.fullname }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <input type="button" id="entry_as" value="Войти">
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                    {% include "partials/layout/staff_line.html" %}
                     {% block header %}
+                        {% include "partials/layout/header.html" %}
                         <div class="header">
-
                             {% block header.top %}
                                 <ul class="top">
                                     {% block header.top.left %}
@@ -209,16 +87,16 @@
                                             <p>У Вас <span></span> незавершённых сделок</p>
                                         </div>
                                         <div class="bottom-box">
-{#                                            {% if notifications.birthdays.exists %}#}
-{#                                                <p>Сегодня день рождения у:</p>#}
-{#                                                <ul id="birthday_notifications">#}
-{#                                                    {% for birthday in notifications.birthdays %}#}
-{#                                                        <li>#}
-{#                                                            <a href="{% url "account:detail" birthday.uid %}">{{ birthday.fullname }}</a>#}
-{#                                                        </li>#}
-{#                                                    {% endfor %}#}
-{#                                                </ul>#}
-{#                                            {% endif %}#}
+                                            {#                                            {% if notifications.birthdays.exists %}#}
+                                            {#                                                <p>Сегодня день рождения у:</p>#}
+                                            {#                                                <ul id="birthday_notifications">#}
+                                            {#                                                    {% for birthday in notifications.birthdays %}#}
+                                            {#                                                        <li>#}
+                                            {#                                                            <a href="{% url "account:detail" birthday.uid %}">{{ birthday.fullname }}</a>#}
+                                            {#                                                        </li>#}
+                                            {#                                                    {% endfor %}#}
+                                            {#                                                </ul>#}
+                                            {#                                            {% endif %}#}
                                             {% if notifications.summit_tickets.exists %}
                                                 <p><a href="{% url "summit:tickets" %}">Сгенерированы новые билеты:</a>
                                                 </p>
@@ -245,14 +123,14 @@
                                                 <p id="without_notifications">На сегодня нет уведомлений</p>
                                             {% endif %}
                                         </div>
-                                    {% if notifications.exports_count %}
-                                        <div id="export_notifications"
-                                             class="notification_row notification_row__export"
-                                             data-type="export">
-                                            <p>Доступный экспорт: <span>{{ notifications.exports_count }}</span>
-                                            </p>
-                                        </div>
-                                    {% endif %}
+                                        {% if notifications.exports_count %}
+                                            <div id="export_notifications"
+                                                 class="notification_row notification_row__export"
+                                                 data-type="export">
+                                                <p>Доступный экспорт: <span>{{ notifications.exports_count }}</span>
+                                                </p>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endblock %}

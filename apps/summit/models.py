@@ -315,7 +315,7 @@ class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
         self.divisions_title = ', '.join(self.user.divisions.values_list('title', flat=True))
         self.department = ', '.join(self.user.departments.values_list('title', flat=True))
 
-    update_archive_fields.alter_data = True
+    update_archive_fields.alters_data = True
 
     @property
     def fullname(self):

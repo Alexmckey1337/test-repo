@@ -9,7 +9,7 @@ export default class BishopReport {
         this.summitId = id;
         this.data = {
             results: [],
-            user_table: {
+            table_columns: {
                 user_name: {
                     ordering_title: 'user_name',
                     title: 'ФИО',

@@ -41,6 +41,9 @@ class HomeGroupQuerySet(models.query.QuerySet):
             return self
         return self.filter(leader__in=user.__class__.get_tree(user))
 
+    def has_location(self):
+        return self.filter(latitude__isnull=False, longitude__isnull=False)
+
 
 class HomeGroupManager(models.Manager):
     def get_queryset(self):
@@ -51,3 +54,6 @@ class HomeGroupManager(models.Manager):
 
     def for_user(self, user, extra_perms=True):
         return self.get_queryset().for_user(user=user, extra_perms=extra_perms)
+
+    def has_location(self):
+        return self.get_queryset().has_location()

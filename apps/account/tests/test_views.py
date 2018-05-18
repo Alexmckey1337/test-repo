@@ -167,7 +167,7 @@ class TestUserViewSet:
         user_factory.create_batch(10, hierarchy=hierarchy)
         user_factory.create_batch(20, hierarchy=other_hierarchy)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?hierarchy={}'.format(url, hierarchy.id), format='json')
@@ -185,7 +185,7 @@ class TestUserViewSet:
         for u in users:
             u.departments.set([other_department])
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?department={}'.format(url, department.id), format='json')
@@ -200,7 +200,7 @@ class TestUserViewSet:
             master.add_child(username='user{}'.format(i), master=master)
         user_factory.create_batch(20)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get('{}?master={}'.format(url, master.id), format='json')
@@ -219,7 +219,7 @@ class TestUserViewSet:
             other_master.add_child(username='other_master{}'.format(i), master=other_master)
         user_factory.create_batch(20)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -247,7 +247,7 @@ class TestUserViewSet:
         for i in range(32):
             other_user.add_child(username='other_user{}'.format(i), master=other_user)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(url, data={'master_tree': user.id}, format='json')
@@ -259,7 +259,7 @@ class TestUserViewSet:
         user_factory.create_batch(10)
         user_factory(last_name='searchlast', first_name='searchfirst')
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -274,7 +274,7 @@ class TestUserViewSet:
         user_factory(email='mysupermail@test.com')
         user_factory(email='test@mysupermail.com')
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -289,7 +289,7 @@ class TestUserViewSet:
         user_factory(phone_number='+380990002246')
         user_factory(phone_number='+380992299000')
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -303,7 +303,7 @@ class TestUserViewSet:
         user_factory.create_batch(10)
         user_factory.create_batch(8, country='Ukraine')
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -317,7 +317,7 @@ class TestUserViewSet:
         user_factory.create_batch(10)
         user_factory.create_batch(8, city='Tokio')
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.get(
@@ -343,7 +343,7 @@ class TestUserViewSet:
         user_factory.create_batch(10)
         current_user = user_factory(is_staff=True)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=current_user)
         response = api_login_client.get(url, format='json')
@@ -355,7 +355,7 @@ class TestUserViewSet:
         user_factory.create_batch(10)
         current_user = user_factory(hierarchy=None)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=current_user)
         response = api_login_client.get(url, format='json')
@@ -380,7 +380,7 @@ class TestUserViewSet:
             second_level.add_child(hierarchy=hierarchy, username='second_level{}'.format(i), master=second_level)
         user_factory.create_batch(55)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_client.force_login(user=current_user)
         response = api_client.get(url, format='json')
@@ -398,7 +398,7 @@ class TestUserViewSet:
         user_factory.create_batch(10, hierarchy=high_hierarchy)
         current_user = user_factory(hierarchy=medium_hierarchy)
 
-        url = reverse('users_v1_1-list')
+        url = reverse('tables-user')
 
         api_login_client.force_login(user=current_user)
         response = api_login_client.get(url, format='json')

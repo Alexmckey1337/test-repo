@@ -14,16 +14,14 @@
                 </li>
             {% endif %}
             <li>
-                <button id="filter_button"
-                        class="header__button"
-                        data-count="0"
-                >
-                    Фильтр
-                </button>
+                <button id="filter_button" class="header__button" data-count="0">Фильтр</button>
+            </li>
+            <li>
+                <button id="map_button" class="header__button">На карте</button>
             </li>
             {% if user.can_export_churches %}
                 <li>
-                    <button id="export_table" data-export-url="{% url "church-export" %}" class="download header__button">Export</button>
+                    <button id="export_table" data-export-url="{% url "exports-church" %}" class="download header__button">Export</button>
                 </li>
             {% endif %}
             <li>

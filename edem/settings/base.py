@@ -48,7 +48,7 @@ THIRD_PARTY_APPS = (
     'corsheaders',
     'tinymce',
     # 'rest_auth.registration',
-    # 'django_extensions',
+    'django_extensions',
     'channels',
     'drf_yasg',
 )
@@ -117,7 +117,7 @@ ROOT_URLCONF = 'edem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(BASE_DIR.path('templates')), ],
+        'DIRS': [str(BASE_DIR.path('templates')), str(BASE_DIR.path('docs/build')), ],
         # 'DIRS': [BASE_DIR + '/templates', ],
         'OPTIONS': {
             'debug': DEBUG,
@@ -136,6 +136,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.notification.context_processor.notifications',
                 'common.context_processor.true_false_options',
+                'common.context_processor.crm_version',
+                'common.context_processor.currency',
                 'apps.account.context_processor.spiritual_levels',
                 'apps.partnership.context_processor.partner_levels'
             ],

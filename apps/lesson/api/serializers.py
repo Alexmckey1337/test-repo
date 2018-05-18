@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
 from apps.account.models import CustomUser
-from apps.lesson.models import TextLesson, VideoLesson
-
+from apps.lesson.models import TextLesson, VideoLesson, AbstractLesson
+from common.fields import ReadOnlyChoiceWithKeyField
 
 LESSON_LIST_FIELDS = (
-    'id', 'slug', 'title', 'published_date', 'author',
+    'id', 'slug', 'title', 'published_date', 'authors', 'access_level',
     'count_view', 'is_liked',
     'total_views', 'total_likes',
     'unique_views', 'unique_likes',
@@ -28,7 +28,8 @@ class BaseLessonListSerializer(serializers.ModelSerializer):
     unique_views = serializers.IntegerField()
     unique_likes = serializers.IntegerField()
     is_liked = serializers.BooleanField()
-    author = UserSerializer()
+    authors = UserSerializer(many=True)
+    access_level = ReadOnlyChoiceWithKeyField(choices=AbstractLesson.ACCESS_LEVELS, read_only=True)
 
 
 class TextLessonListSerializer(BaseLessonListSerializer):
@@ -50,7 +51,8 @@ class BaseLessonDetailSerializer(serializers.ModelSerializer):
     unique_views = serializers.IntegerField()
     unique_likes = serializers.IntegerField()
     is_liked = serializers.BooleanField()
-    author = UserSerializer()
+    authors = UserSerializer(many=True)
+    access_level = ReadOnlyChoiceWithKeyField(choices=AbstractLesson.ACCESS_LEVELS, read_only=True)
 
 
 class TextLessonDetailSerializer(BaseLessonDetailSerializer):
@@ -62,4 +64,4 @@ class TextLessonDetailSerializer(BaseLessonDetailSerializer):
 class VideoLessonDetailSerializer(BaseLessonDetailSerializer):
     class Meta:
         model = VideoLesson
-        fields = LESSON_LIST_FIELDS + ('url', 'description')
+        fields = LESSON_LIST_FIELDS + ('url', 'description', 'youtube_id')

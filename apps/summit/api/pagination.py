@@ -23,7 +23,7 @@ class SummitPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': get_table('summit', self.request.user),
+            'table_columns': get_table('summit', self.request.user),
             'summit_currency': CurrencySerializer(self.summit.currency).data,
             'can_create_payment': PaymentPermission().has_object_permission(
                 type('Request', (), {'user': self.request.user, 'method': 'POST'}),
@@ -52,7 +52,7 @@ class SummitStatisticsPagination(PageNumberPagination):
                 'previous': self.get_previous_link()
             },
             'count': self.page.paginator.count,
-            'user_table': get_table('summit_stats', self.request.user),
+            'table_columns': get_table('summit_stats', self.request.user),
             'common_table': OrderedDict(),
             'results': data
         })

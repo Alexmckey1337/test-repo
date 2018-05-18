@@ -11,9 +11,8 @@ from apps.lesson.validators import YoutubeURLField
 class AbstractLesson(models.Model):
     title = models.CharField(_('Title'), max_length=30)
     slug = models.SlugField(_('URL'), max_length=255, editable=False)
-    author = models.ForeignKey(
-        'account.CustomUser', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='author_%(class)ss',
+    authors = models.ManyToManyField(
+        'account.CustomUser', related_name='authors_%(class)ss',
     )
     creator = models.ForeignKey(
         'account.CustomUser', on_delete=models.CASCADE, editable=False,
@@ -30,6 +29,13 @@ class AbstractLesson(models.Model):
         (PUBLISHED, _('Published')),
     )
     status = models.CharField(_('Status'), max_length=9, choices=STATUS, default=DRAFT)
+
+    LEADER, PASTOR = 1, 2
+    ACCESS_LEVELS = (
+        (LEADER, _('Leader+')),
+        (PASTOR, _('Pastor+')),
+    )
+    access_level = models.IntegerField(_('Access level'), choices=ACCESS_LEVELS, default=LEADER)
 
     objects = LessonManager()
     published = PublishedLessonManager()
@@ -107,6 +113,10 @@ class VideoLesson(AbstractLesson):
         ordering = ['-published_date']
         verbose_name = 'Video lesson'
         verbose_name_plural = 'Video lessons'
+
+    @property
+    def youtube_id(self):
+        return self.url.split("/")[-1].split("?", 1)[0]
 
 
 class AbstractTextLessonUserRelation(models.Model):

@@ -13,9 +13,8 @@ Contents:
 
     summit
     permissions/index
-    api/index
-    app/api
     templatetags/index
+    CHANGELOG
 
 
 Indices and tables

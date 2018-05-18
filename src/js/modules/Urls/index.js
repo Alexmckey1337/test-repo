@@ -2,7 +2,8 @@
 
 const USER = {
 	detail: (userId) => `/api/users/${userId}/`,
-	list: () => `/api/users/`,
+	create: () => `/api/users/`,
+	table: () => `/api/tables/user/`,
 	short: () => `/api/short_users/`,
 	set_church: (userId) => `/api/users/${userId}/set_church/`,
 	set_home_group: (userId) => `/api/users/${userId}/set_home_group/`,
@@ -28,7 +29,6 @@ const CONTROLS = {
 
 const SUMMIT = {
 	users: (summitId) => `/api/summits/${summitId}/users/`,
-	authors: (summitId) => `/api/summits/${summitId}/authors/`,
 	stats: (summitId) => `/api/summits/${summitId}/stats/`,
 	report_by_bishop: (summitId) => `/api/summit/${summitId}/report_by_bishops/`,
 	master: (summitId) => `/api/summit/${summitId}/master/`,
@@ -39,7 +39,8 @@ const SUMMIT = {
 	send_codes: (summitId) => `/api/summit/${summitId}/send_unsent_codes/`,
 	send_schedules: (summitId) => `/api/summit/${summitId}/send_unsent_schedules/`,
 	send_code: (anketId) => `/api/summit/profile/${anketId}/send_code/?method=email`,
-	author_registration: (id) => `/api/summits/${id}/authors/`,
+	authors: (summitId) => `/api/summits/${summitId}/authors/`,
+	author_registration: (summitId) => `/api/summits/${summitId}/authors/`,
 };
 
 const SUMMIT_PROFILE = {
@@ -138,7 +139,8 @@ const CHURCH_DEAL = {
 
 const CHURCH = {
 	detail: (churchId) => `/api/churches/${churchId}/`,
-	list: () => `/api/churches/`,
+	table: () => `/api/tables/church/`,
+	create: () => `/api/churches/`,
 	users: (churchId) => `/api/churches/${churchId}/users/`,
 	stats: (churchId) => `/api/churches/${churchId}/statistics/`,
 	del_user: (churchId) => `/api/churches/${churchId}/del_user/`,
@@ -148,12 +150,14 @@ const CHURCH = {
 	potential_users_church: () => `/api/churches/potential_users_church/`,
 	potential_users_group: (churchId) => `/api/churches/${churchId}/potential_users_group/`,
 	dashboard_count: () => `/api/churches/dashboard_counts/`,
-	create_report: (id) => `/api/churches/${id}/create_report/`
+	create_report: (id) => `/api/churches/${id}/create_report/`,
+	on_map: () => `/api/locations/church/`,
 };
 
 const HOME_GROUP = {
 	detail: (groupId) => `/api/home_groups/${groupId}/`,
-	list: () => `/api/home_groups/`,
+	table: () => `/api/tables/home_group/`,
+	create: () => `/api/home_groups/`,
 	users: (groupId) => `/api/home_groups/${groupId}/users/`,
 	stats: (groupId) => `/api/home_groups/${groupId}/statistics/`,
 	del_user: (groupId) => `/api/home_groups/${groupId}/del_user/`,
@@ -161,7 +165,8 @@ const HOME_GROUP = {
 	for_select: () => `/api/home_groups/for_select/`,
 	leaders: () => `/api/home_groups/leaders/`,
 	potential_leaders: () => `/api/home_groups/potential_leaders/`,
-	create_report: (id) => `/api/home_groups/${id}/create_report/`
+	create_report: (id) => `/api/home_groups/${id}/create_report/`,
+	on_map: () => `/api/locations/home_group/`,
 };
 
 const PAYMENT = {

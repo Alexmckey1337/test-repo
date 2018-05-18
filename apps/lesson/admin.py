@@ -1,16 +1,17 @@
 from django.contrib import admin
 
 from apps.lesson.models import TextLesson, VideoLesson
+from common.test_helpers.utils import get_real_user
 
 
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ('title', 'status', 'published_date', 'author', 'creator')
+    list_display = ('title', 'status', 'published_date', 'creator', 'access_level')
     list_display_links = ('title',)
 
-    readonly_fields = ('author',)
+    autocomplete_fields = ('authors',)
 
     def save_model(self, request, obj, form, change):
-        obj.creator = request.user
+        obj.creator = get_real_user(request)
         obj.save()
 
 
