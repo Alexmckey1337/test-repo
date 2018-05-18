@@ -19,7 +19,7 @@ $(document).ready(function () {
         let url = URLS.summit_ticket.users(ticketID);
         let code = getParameterByName('code');
         if (code) {
-            url += `?code=${code}`
+            url += `?code=${code}`;
         }
         fetch(url, {'credentials': 'include'})
             .then(function (response) {
@@ -30,7 +30,6 @@ $(document).ready(function () {
                 self.closest("tr").addClass('active_ticket');
                 let tmpl = $('#users_tml').html();
                 let rendered = _.template(tmpl)({"ankets": ankets});
-
                 $('#ticket_users').html(rendered);
             });
     });
@@ -45,7 +44,7 @@ $(document).ready(function () {
                 self.html('Printed');
                 self.removeClass('mark_printed').addClass('is_printed');
                 showAlert(data.detail);
-            })
+            });
     });
 
     $('#find_by_code').keydown(function(e) {
