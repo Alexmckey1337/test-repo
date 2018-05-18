@@ -2,7 +2,9 @@ from collections import OrderedDict
 
 from django.db import connection
 from django.db import models
+from django.db.models import OuterRef, Exists
 from django.utils import timezone
+from video_encoding.models import Format
 
 from common.utils import encode_month, decode_month
 
@@ -147,3 +149,14 @@ class PublishedLessonManager(LessonManager):
     def get_queryset(self):
         from apps.lesson.models import AbstractLesson
         return super().get_queryset().filter(status=AbstractLesson.PUBLISHED, published_date__lte=timezone.now())
+
+
+class PublishedVideoLessonManager(PublishedLessonManager):
+    def get_queryset(self):
+        from django.contrib.contenttypes.models import ContentType
+        from apps.lesson.models import VideoFile
+
+        content_type = ContentType.objects.get_for_model(VideoFile)
+        formats = Format.objects.filter(content_type=content_type, object_id=OuterRef('file_id')).exclude(file='')
+        qs = super().get_queryset().annotate(has_formats=Exists(formats)).filter(has_formats=True)
+        return qs

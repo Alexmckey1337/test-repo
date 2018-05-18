@@ -33,7 +33,8 @@ ENV PYTHONUNBUFFERED 1
 ENV DATABASE_URL postgres:///crm_db
 ENV DJANGO_SECRET_KEY n1#kwh!wi0+130zd050+$drvmx6q7qxg70)1i4e9ey(zpx0qki
 
-RUN apt-get update && apt-get install gettext ttf-freefont -y
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
+RUN apt-get update && apt-get install build-essential gettext ttf-freefont mediainfo ffmpeg -y
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements /requirements
 COPY ./docs/requirements.txt /docs-requirements.txt
