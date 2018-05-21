@@ -18,5 +18,6 @@ urlpatterns = [
 
     path('', include('apps.status.api.urls')),
     path('', include('apps.summit.api.urls')),
+    path('', include('apps.help.api.urls')),
     path('controls/', include('apps.controls.api.urls')),
 ]

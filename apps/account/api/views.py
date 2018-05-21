@@ -621,7 +621,8 @@ class LogoutView(RestAuthLogoutView):
     def logout(self, request):
         try:
             key = request._request.COOKIES.get('key', '')
-            request.user.auth_tokens.filter(key=key).delete()
+            user = get_real_user(request)
+            user.auth_tokens.filter(key=key).delete()
         except (AttributeError, ObjectDoesNotExist):
             pass
 

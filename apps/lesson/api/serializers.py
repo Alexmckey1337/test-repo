@@ -62,6 +62,8 @@ class TextLessonDetailSerializer(BaseLessonDetailSerializer):
 
 
 class VideoLessonDetailSerializer(BaseLessonDetailSerializer):
+    video_urls = serializers.JSONField(source='file.formats', read_only=True)
+
     class Meta:
         model = VideoLesson
-        fields = LESSON_LIST_FIELDS + ('url', 'description', 'youtube_id')
+        fields = LESSON_LIST_FIELDS + ('url', 'description', 'youtube_id', 'video_urls')
