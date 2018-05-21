@@ -137,7 +137,7 @@ TEMPLATES = [
                 'apps.notification.context_processor.notifications',
                 'common.context_processor.true_false_options',
                 'apps.account.context_processor.spiritual_levels',
-                'apps.partnership.context_processor.partner_levels'
+                'apps.partnership.context_processor.partner_levels',
             ],
         },
     },
