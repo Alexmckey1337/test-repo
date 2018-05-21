@@ -40,7 +40,7 @@ export function createSummitUsersTable(data = {}) {
         makeSammitsDataTable(data, "summitUsersList");
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(data.user_table);
+        makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createSummitUsersTable, ".table-wrap th");
     }).catch(err => {
@@ -59,10 +59,11 @@ function makeSammitsDataTable(data, selector) {
     let tmpl = document.getElementById('databaseUsers').innerHTML,
         rendered = _.template(tmpl)(data);
     document.getElementById(selector).innerHTML = rendered;
-    $('.quick-edit').on('click', function () {
+    $('table').on('click', '.quick-edit', function () {
         makeQuickEditSammitCart(this);
     });
-    btnDeals();
+    btnDeals(true);
+
     $('#summitUsersList').on('click', '.show_payments', function () {
         let id = $(this).data('id');
         showSummitPayments(id);
@@ -90,7 +91,7 @@ function showSummitPayments(id) {
         });
         $('#popup-payments table').html(payments_table);
         $('#popup-payments').css('display', 'block');
-    })
+    }).catch(err => errHandling(err));
 }
 
 function makeQuickEditSammitCart(el) {

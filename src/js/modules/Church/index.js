@@ -24,7 +24,7 @@ export function createChurchesTable(config = {}) {
     Object.assign(config, getFilterParam());
     Object.assign(config, getOrderingData());
     updateHistoryUrl(config);
-    getData(URLS.church.list(), config).then(function (data) {
+    getData(URLS.church.table(), config).then(function (data) {
         let count = data.count;
         let page = config['page'] || 1;
         let pages = Math.ceil(count / CONFIG.pagination_count);
@@ -32,7 +32,7 @@ export function createChurchesTable(config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableChurches').html(rendered);
@@ -60,7 +60,7 @@ export function createChurchesTable(config = {}) {
             });
         });
 
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -194,7 +194,7 @@ function saveChurchData(data, id) {
 export function addChurch(e, el, callback) {
     e.preventDefault();
     let data = getAddChurchData();
-    postData(URLS.church.list(), data).then(function (data) {
+    postData(URLS.church.create(), data).then(function (data) {
         hidePopup(el);
         clearAddChurchData();
         callback();
@@ -219,7 +219,7 @@ function getAddChurchData() {
 function addChurchTODataBase(config) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.church.list(),
+            url: URLS.church.create(),
             data: config,
             method: 'POST',
             headers: {
@@ -258,7 +258,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered).on('click', '.delete_btn', function () {
@@ -268,7 +268,7 @@ export function createChurchesDetailsTable(config = {}, id, link) {
             DelUser.popup();
 
         });
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,
@@ -465,11 +465,11 @@ function createChurchesUsersTable(id, config = {}) {
         let text = `Показано ${showCount} из ${count}`;
         let tmpl = $('#databaseUsers').html();
         let filterData = {};
-        filterData.user_table = data.table_columns;
+        filterData.table_columns = data.table_columns;
         filterData.results = data.results;
         let rendered = _.template(tmpl)(filterData);
         $('#tableUserINChurches').html(rendered);
-        makeSortForm(filterData.user_table);
+        makeSortForm(filterData.table_columns);
         let paginationConfig = {
             container: ".users__pagination",
             currentPage: page,

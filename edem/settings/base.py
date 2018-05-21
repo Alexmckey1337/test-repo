@@ -48,9 +48,10 @@ THIRD_PARTY_APPS = (
     'corsheaders',
     'tinymce',
     # 'rest_auth.registration',
-    # 'django_extensions',
+    'django_extensions',
     'channels',
     'drf_yasg',
+    'video_encoding',
 )
 LOCAL_APPS = (
     'main',
@@ -117,7 +118,7 @@ ROOT_URLCONF = 'edem.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(BASE_DIR.path('templates')), ],
+        'DIRS': [str(BASE_DIR.path('templates')), str(BASE_DIR.path('docs/build')), ],
         # 'DIRS': [BASE_DIR + '/templates', ],
         'OPTIONS': {
             'debug': DEBUG,
@@ -136,6 +137,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.notification.context_processor.notifications',
                 'common.context_processor.true_false_options',
+                'common.context_processor.crm_version',
+                'common.context_processor.currency',
                 'apps.account.context_processor.spiritual_levels',
                 'apps.partnership.context_processor.partner_levels',
             ],
@@ -479,3 +482,28 @@ DEFAULT_SITE_SETTINGS = {
 # Notifications
 
 NOTIFICATION_REDIS_HOST = 'redis'
+
+VIDEO_ENCODING_FORMATS = {
+    'FFmpeg': [
+        {
+            'name': 'mp4_sd',
+            'extension': 'mp4',
+            'params': [
+                '-codec:v', 'libx264', '-crf', '20', '-preset', 'medium',
+                '-b:v', '1000k', '-maxrate', '1000k', '-bufsize', '2000k',
+                '-vf', 'scale=-2:480',  # http://superuser.com/a/776254
+                '-codec:a', 'aac', '-b:a', '128k', '-strict', '-2',
+            ],
+        },
+        # {
+        #     'name': 'mp4_hd',
+        #     'extension': 'mp4',
+        #     'params': [
+        #         '-codec:v', 'libx264', '-crf', '20', '-preset', 'medium',
+        #         '-b:v', '3000k', '-maxrate', '3000k', '-bufsize', '6000k',
+        #         '-vf', 'scale=-2:720',
+        #         '-codec:a', 'aac', '-b:a', '128k', '-strict', '-2',
+        #     ],
+        # },
+    ]
+}

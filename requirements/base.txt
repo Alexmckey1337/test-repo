@@ -15,10 +15,12 @@ django-rest-auth
 django-rest-swagger==2.1.2
 django-tinymce
 django-treebeard==4.2.0
+-e git+https://github.com/amirrpp/django-video-encoding.git@master#egg=django-video-encoding
 djangorestframework<4.0
 djangorestframework-filters==0.10.2
 elasticsearch>=6.0.0,<7.0.0
 elasticsearch-dsl>=6.0.0,<7.0.0
+filetype
 flower
 html2text
 Pillow==4.3.0

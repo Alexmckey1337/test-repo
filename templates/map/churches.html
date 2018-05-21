@@ -1,0 +1,47 @@
+{% load static %}
+{% load raven %}
+<!DOCTYPE html>
+<!--[if IE]>
+<html class="ie" lang="ru">
+<p>Ваш браузер устарел. <a href="https://www.google.ru/chrome/browser/desktop/index.html">Скачать</a></p>
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--<![endif]-->
+<html lang="ru">
+<meta http-equiv="Cache-control" content="no-cache">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}CRM{% endblock %}</title>
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href='{% static "img/favicon.png" %}' type="image/x-icon">
+    <link rel="stylesheet" href='{% static "libs/reset-css/reset.css" %}'>
+    <link rel="stylesheet" href='{% static "libs/normalize-css/normalize.css" %}'>
+    <link href="{% static "libs/font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
+    <link rel="stylesheet" href='{% static "css/main.css" %}'>
+</head>
+
+<body style="display: block" data-user="{{ request.user.id }}">
+<div id="google_map"></div>
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+<script>
+	var map,
+        imgClasterPath = '{% static "img/m/" %}',
+		markers = [];
+
+	function initMap() {
+		var ukraine = {lat: 50.27, lng: 30.31};
+		map = new google.maps.Map(document.getElementById('google_map'), {
+			zoom: 5,
+			center: ukraine
+		});
+	}
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?v=3.30&key=AIzaSyC0_BZliFSuRPmNEkYdAixxHBtP_86tAjE&callback=initMap"></script>
+<script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
+<script>Raven.config('{% sentry_public_dsn %}').install()</script>
+<script src="{% static "js/vendor.bundle.js" %}"></script>
+<script src="{% static "js/map_churches.bundle.js" %}"></script>
+</body>
+</html>

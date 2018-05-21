@@ -31,7 +31,7 @@ export function createUsersTable(config = {}) {
         makeDataTable(data, id);
         makePagination(paginationConfig);
         $('.table__count').text(text);
-        makeSortForm(data.user_table);
+        makeSortForm(data.table_columns);
         $('.preloader').css('display', 'none');
         new OrderTable().sort(createUsersTable, ".table-wrap th");
     }).catch(function (err) {
@@ -42,7 +42,7 @@ export function createUsersTable(config = {}) {
 function getUsers(config = {}) {
     return new Promise(function (resolve, reject) {
         let data = {
-            url: URLS.user.list(),
+            url: URLS.user.table(),
             data: config,
             method: 'GET',
             headers: {

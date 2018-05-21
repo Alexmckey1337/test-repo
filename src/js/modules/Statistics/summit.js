@@ -58,7 +58,7 @@ export default class SummitStat {
             .then(data => {
                 this.makePage(data.count, data.results.length, config.page);
                 makeSammitsDataTable(data, 'summitUsersList');
-                makeSortForm(data.user_table);
+                makeSortForm(data.table_columns);
                 this.sortTable.sort(this.makeDataTable.bind(this), ".table-wrap th");
                 $('.preloader').css('display', 'none');
                 changeSummitStatusCode();

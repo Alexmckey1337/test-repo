@@ -167,6 +167,7 @@ function reportData() {
         $items = $('#tableUsers').find('input'),
         attends = [];
     data.append('date', reverseDate($('#reportDate').val(), '-'));
+    data.append('guest_count', $('#guestCount').val());
     if ($('#reportDonations').attr('type') != 'hidden') {
         data.append('total_sum', convertNum($('#reportDonations').val(), '.'));
     }
@@ -216,6 +217,7 @@ function completeFields(data) {
     $('#reportHomeGroup').text(data.home_group.title);
     $("#reportLeader").text(data.owner.fullname);
     $('#reportDate').val((data.status === 2) ? data.date : '');
+    $('#guestCount').val((data.status === 2) ? data.guest_count : '');
     $('#hg_attds').attr('src', data.image ? data.image : '');
     $('#clear_img').attr('data-clean', data.image ? 'yes' : 'no');
     $('#send_report').text((data.status === 2) ? 'Сохранить' : 'Подать');

@@ -20,6 +20,9 @@ custom_urls = [
 ]
 
 custom_v1_1_urls = [
+    path('tables/user/', views.UserTableView.as_view(), name="tables-user"),
+    path('exports/user/', views.UserExportView.as_view(), name="exports-user"),
+
     path('users/for_select/', views.UserForSelectView.as_view(), name="users-select"),
     path('users/partner_managers/', views.PartnerManagersView.as_view(), name="users-select"),
     path('calls_to_user/', calls_views.calls_to_user, name='calls_to_user'),

@@ -13,6 +13,18 @@ def redirect_to_churches(request):
     return redirect(reverse('db:churches'))
 
 
+def redirect_to_map_churches(request):
+    return redirect(reverse('map:churches'))
+
+
+def redirect_root_docs_to_index(request):
+    return redirect(reverse('docs:index', kwargs={'path': 'index.html'}))
+
+
+def redirect_changelog_docs_to_index(request):
+    return redirect(reverse('docs:index', kwargs={'path': 'CHANGELOG.html'}))
+
+
 database_patterns = (
     [
         path('', login_required(redirect_to_churches, login_url='entry'), name='main'),
@@ -21,14 +33,30 @@ database_patterns = (
         path('home_groups/', views.HomeGroupListView.as_view(), name='home_groups'),
     ], 'db')
 
+map_patterns = (
+    [
+        path('', login_required(redirect_to_map_churches, login_url='entry'), name='main'),
+        path('churches/', views.ChurchMapView.as_view(), name='churches'),
+        path('home_groups/', views.HomeGroupMapView.as_view(), name='home_groups'),
+    ], 'map')
+
+docs_patterns = (
+    [
+        path('', redirect_root_docs_to_index, name='root'),
+        path('changelog/', redirect_changelog_docs_to_index, name='changelog'),
+        path('<path:path>', views.DocsView.as_view(), name='index'),
+    ], 'docs')
+
 urlpatterns = [
     path('', views.index, name='index'),
+    path('docs/', include(docs_patterns, namespace='docs')),
     path('entry/', views.entry, name='entry'),
     path('entry/restore/', views.restore, name='restore'),
     path('password_view/<str:activation_key>/', views.edit_pass, name='password_view'),
 
     path('account/', include('apps.account.urls', namespace='account')),
     path('db/', include(database_patterns, namespace='db')),
+    path('map/', include(map_patterns, namespace='map')),
     path('events/', include('apps.event.urls', namespace='events')),
     path('partner/', include('apps.partnership.urls', namespace='partner')),
     path('payment/', include('apps.payment.urls', namespace='payment')),

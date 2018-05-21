@@ -20,7 +20,7 @@
             </li>
             {% if user.can_export_user_list %}
                 <li>
-                    <button id="export_table" data-export-url="{% url "users_v1_1-export" %}" class="download header__button">Export</button>
+                    <button id="export_table" data-export-url="{% url "exports-user" %}" class="download header__button">Export</button>
                 </li>
             {% endif %}
             <li>

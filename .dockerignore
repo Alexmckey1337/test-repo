@@ -1,5 +1,8 @@
 *
 !apps/
+!docs/source/
+!docs/requirements.txt
+!CHANGELOG.rst
 !common/
 !edem/
 !locale/

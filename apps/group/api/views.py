@@ -16,7 +16,6 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 from apps.account.api.serializers import AddExistUserSerializer
 from apps.account.models import CustomUser
@@ -28,98 +27,100 @@ from apps.group.api.filters import (
     FilterHGLeadersByDepartment, FilterPotentialHGLeadersByMasterTree,
     FilterPotentialHGLeadersByChurch, FilterPotentialHGLeadersByDepartment)
 from apps.group.api.pagination import (
-    ChurchPagination, HomeGroupPagination, ForSelectPagination, PotentialUsersPagination)
+    ForSelectPagination, PotentialUsersPagination)
 from apps.group.api.permissions import (
     CanSeeChurch, CanCreateChurch, CanEditChurch, CanExportChurch,
     CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup)
 from apps.group.api.serializers import (
-    ChurchSerializer, ChurchListSerializer, HomeGroupSerializer,
+    ChurchSerializer, ChurchTableSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
-    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer)
-from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin)
+    ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
+    HomeGroupLocationSerializer)
+from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
-from apps.navigation.table_columns import get_table
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
-from common.views_mixins import ExportViewSetMixin
+from common.views_mixins import ExportViewSetMixin, TableViewMixin, ModelWithoutListViewSet
 from common.week_range import week_range
 
 logger = logging.getLogger(__name__)
 
 
-class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMixin,
-                    ChurchHomeGroupMixin, ExportViewSetMixin):
-    queryset = Church.objects.select_related('pastor', 'department', 'locality')
+class ChurchTableView(TableViewMixin):
+    table_name = 'church'
 
-    serializer_class = ChurchSerializer
-    serializer_read_class = ChurchReadSerializer
-    serializer_list_class = ChurchListSerializer
+    queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title')
+    serializer_class = ChurchTableSerializer
+    permission_classes = (CanSeeChurch,)
 
-    permission_classes = (IsAuthenticated,)
-    permission_list_classes = (CanSeeChurch,)
-    permission_retrieve_classes = permission_list_classes
-    permission_create_classes = (CanCreateChurch,)
-    permission_update_classes = (CanEditChurch,)
-    permission_partial_update_classes = permission_update_classes
-
-    pagination_class = ChurchPagination
-
-    filter_backends = (rest_framework.DjangoFilterBackend,
-                       FieldSearchFilter,
-                       filters.OrderingFilter,
-                       FilterChurchMasterTree,
-                       )
-
-    ordering_fields = ('title', 'city', 'department__title', 'home_group',
-                       'is_open', 'opening_date', 'pastor__last_name', 'phone_number',
-                       'address', 'website', 'count_groups', 'count_users', 'country', 'region')
-
-    filter_class = ChurchFilter
-
+    filter_backends = (
+        rest_framework.DjangoFilterBackend,
+        FieldSearchFilter,
+        filters.OrderingFilter,
+        FilterChurchMasterTree,
+    )
+    ordering_fields = (
+        'title', 'city', 'department__title', 'home_group',
+        'is_open', 'opening_date', 'pastor__last_name', 'phone_number',
+        'address', 'website', 'count_groups', 'count_users', 'country', 'region'
+    )
     field_search_fields = {
         'search_title': ('title', 'pastor__last_name', 'pastor__first_name', 'pastor__middle_name', 'city'),
     }
+    filter_class = ChurchFilter
 
+    def get(self, request, *args, **kwargs):
+        """
+        Getting list of churches for table
+
+
+        By default ordering by ``title``.
+        Pagination by 30 churches per page.
+        """
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.for_user(self.request.user)
+
+
+class ChurchExportView(ChurchTableView, ExportViewSetMixin):
+    permission_classes = (IsAuthenticated, CanExportChurch)
     resource_class = ChurchResource
 
-    _columns = None
+    def post(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
 
-    def list(self, request, *args, **kwargs):
-        request.columns = self.columns
-        return super().list(request, *args, **kwargs)
 
-    @property
-    def columns(self):
-        if self._columns is None:
-            self._columns = get_table('church', self.request.user.id)
-        return self._columns
+class ChurchLocationListView(LocationMixin, ChurchTableView):
+    serializer_class = ChurchLocationSerializer
 
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        extra = {
-            'extra_fields': self.request.query_params.getlist('extra_fields'),
-            'columns': self.columns,
-        }
-        ctx.update(extra)
 
-        return ctx
+class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, ChurchUsersMixin,
+                    ChurchHomeGroupMixin):
+    queryset = Church.objects.all()
+    ordering_fields = ()
+
+    serializer_class = ChurchSerializer
+    serializer_read_class = ChurchReadSerializer
+
+    permission_classes = (IsAuthenticated,)
+    permission_retrieve_classes = (IsAuthenticated, CanSeeChurch)
+    permission_create_classes = (IsAuthenticated, CanCreateChurch)
+    permission_update_classes = (IsAuthenticated, CanEditChurch)
+    permission_partial_update_classes = permission_update_classes
 
     def get_permissions(self):
         permission_classes = getattr(self, 'permission_{}_classes'.format(self.action), self.permission_classes)
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action == 'list':
-            return self.serializer_list_class
         if self.action == 'retrieve':
             return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
-        if self.action == 'list':
-            return self.queryset.for_user(self.request.user)
         return self.queryset.for_user(self.request.user)
 
     def destroy(self, request, *args, **kwargs):
@@ -132,10 +133,6 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
                                                            'В составе данной церкви есть Домашняя Группа.')})
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=False, methods=['post'], permission_classes=(CanExportChurch,))
-    def export(self, request, *args, **kwargs):
-        return self._export(request, *args, **kwargs)
 
     @action(detail=False, methods=['GET'], serializer_class=UserNameSerializer)
     def available_pastors(self, request):
@@ -384,59 +381,76 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, ChurchUsersMix
         return Response({'message': _('Отчет успешно создан')}, status=status.HTTP_200_OK)
 
 
-class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUsersMixin, ExportViewSetMixin):
-    queryset = HomeGroup.objects.all().select_related('leader', 'church', 'locality')
+class HomeGroupTableView(TableViewMixin):
+    table_name = 'home_group'
 
-    serializer_class = HomeGroupSerializer
-    serializer_read_class = HomeGroupReadSerializer
-    serializer_list_class = HomeGroupListSerializer
-
-    permission_classes = (IsAuthenticated,)
-    permission_list_classes = (CanSeeHomeGroup,)
-    permission_retrieve_classes = permission_list_classes
-    permission_create_classes = (CanCreateHomeGroup,)
-    permission_update_classes = (CanEditHomeGroup,)
-    permission_partial_update_classes = permission_update_classes
-
-    pagination_class = HomeGroupPagination
+    queryset = HomeGroup.objects.select_related('leader', 'church', 'locality').order_by('title')
+    serializer_class = HomeGroupListSerializer
+    permission_classes = (IsAuthenticated, CanSeeHomeGroup)
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
                        filters.OrderingFilter,
                        FilterHomeGroupMasterTree,
                        HomeGroupsDepartmentFilter)
-
     ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader',
                        'address', 'opening_date', 'phone_number', 'website',
                        'department', 'count_users')
-
-    filter_class = HomeGroupFilter
-
     field_search_fields = {
         'search_title': ('title', 'leader__last_name', 'leader__first_name', 'leader__middle_name', 'city')
     }
+    filter_class = HomeGroupFilter
 
+    def get(self, request, *args, **kwargs):
+        """
+        Getting list of home groups for table
+
+
+        By default ordering by ``title``.
+        Pagination by 30 groups per page.
+        """
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.for_user(self.request.user).annotate(count_users=Count('uusers'))
+
+
+class HomeGroupExportView(HomeGroupTableView, ExportViewSetMixin):
+    permission_classes = (IsAuthenticated, CanExportHomeGroup)
     resource_class = HomeGroupResource
+
+    def post(self, request, *args, **kwargs):
+        return self._export(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.for_user(self.request.user)
+
+
+class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet,
+                       HomeGroupUsersMixin, ExportViewSetMixin):
+    queryset = HomeGroup.objects.all()
+
+    serializer_class = HomeGroupSerializer
+    serializer_read_class = HomeGroupReadSerializer
+
+    permission_classes = (IsAuthenticated,)
+    permission_retrieve_classes = (IsAuthenticated, CanSeeHomeGroup)
+    permission_create_classes = (IsAuthenticated, CanCreateHomeGroup,)
+    permission_update_classes = (IsAuthenticated, CanEditHomeGroup,)
+    permission_partial_update_classes = permission_update_classes
+    ordering_fields = ()
 
     def get_permissions(self):
         permission_classes = getattr(self, 'permission_{}_classes'.format(self.action), self.permission_classes)
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ['list']:
-            return self.serializer_list_class
         if self.action == 'retrieve':
             return self.serializer_read_class
         return self.serializer_class
 
     def get_queryset(self):
-        if self.action == 'list':
-            return self.queryset.for_user(self.request.user).annotate(count_users=Count('uusers'))
         return self.queryset.for_user(self.request.user)
-
-    @action(detail=False, methods=['post'], permission_classes=(CanExportHomeGroup,))
-    def export(self, request, *args, **kwargs):
-        return self._export(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -608,17 +622,8 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, HomeGroupUs
 
     @action(detail=False, methods=['GET'])
     def visits_stats(self, request):
-        pass
+        return Response(data={})
 
 
-class ChurchLocationListView(GenericAPIView):
-    serializer_class = ChurchLocationSerializer
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def get_queryset(self):
-        return Church.objects.has_location()
+class HomeGroupLocationListView(LocationMixin, HomeGroupTableView):
+    serializer_class = HomeGroupLocationSerializer

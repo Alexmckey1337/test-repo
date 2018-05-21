@@ -165,6 +165,7 @@ meeting_columns = Table('meeting', [
     Column('type', 'Тип отчета', 'type__code'),
     Column('visitors_attended', 'Присутствовали', 'visitors_attended'),
     Column('visitors_absent', 'Отсутствовали', 'visitors_absent'),
+    Column('guest_count', 'Гостей', 'guest_count'),
     Column('total_sum', 'Сумма пожертвований', 'total_sum'),
     Column('date', 'Дата создания', 'date'),
 ]).to_dict()

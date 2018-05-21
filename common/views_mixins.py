@@ -2,13 +2,25 @@ from django.utils import timezone
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import action
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 
+from apps.navigation.table_columns import get_table
 from apps.payment.tasks import generate_export
+from common.pagination import TablePageNumberPagination
 
 
 class ModelWithoutDeleteViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin,
                                 mixins.CreateModelMixin, viewsets.GenericViewSet):
+    pass
+
+
+class ModelWithoutListViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                              mixins.CreateModelMixin, viewsets.GenericViewSet):
+    pass
+
+
+class URCViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     pass
 
 
@@ -74,3 +86,30 @@ class ExportViewSetMixin(BaseExportViewSetMixin):
     @action(detail=False, methods=['post'])
     def export(self, request, *args, **kwargs):
         return self._export(request, *args, **kwargs)
+
+
+class TableViewMixin(ListAPIView):
+    table_name = ''
+    pagination_class = TablePageNumberPagination
+
+    _columns = None
+
+    def get(self, request, *args, **kwargs):
+        request.columns = self.columns
+        return self.list(request, *args, **kwargs)
+
+    @property
+    def columns(self):
+        if self._columns is None:
+            self._columns = get_table(self.table_name, self.request.user.id)
+        return self._columns
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        extra = {
+            'extra_fields': self.request.query_params.getlist('extra_fields'),
+            'columns': self.columns,
+        }
+        ctx.update(extra)
+
+        return ctx

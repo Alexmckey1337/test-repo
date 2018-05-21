@@ -15,8 +15,8 @@ from apps.event.models import MeetingType
 
 
 __all__ = [
-    'PeopleListView', 'ChurchListView', 'ChurchDetailView',
-    'HomeGroupListView', 'HomeGroupDetailView',
+    'PeopleListView', 'ChurchListView', 'ChurchDetailView', 'ChurchMapView',
+    'HomeGroupListView', 'HomeGroupDetailView', 'HomeGroupMapView',
 ]
 
 
@@ -108,6 +108,11 @@ class ChurchListView(LoginRequiredMixin, TabsMixin, CanSeeChurchesMixin, Templat
         return ctx
 
 
+class ChurchMapView(LoginRequiredMixin, CanSeeChurchesMixin, TemplateView):
+    template_name = 'map/churches.html'
+    login_url = 'entry'
+
+
 class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, TemplateView):
     template_name = 'database/home_groups.html'
     login_url = 'entry'
@@ -121,6 +126,11 @@ class HomeGroupListView(LoginRequiredMixin, TabsMixin, CanSeeHomeGroupsMixin, Te
             is_active=True, hierarchy__level__gte=1)]
 
         return ctx
+
+
+class HomeGroupMapView(LoginRequiredMixin, CanSeeChurchesMixin, TemplateView):
+    template_name = 'map/home_groups.html'
+    login_url = 'entry'
 
 
 class ChurchDetailView(LoginRequiredMixin, CanSeeChurchMixin, DetailView):
