@@ -48,7 +48,7 @@ THIRD_PARTY_APPS = (
     'corsheaders',
     'tinymce',
     # 'rest_auth.registration',
-    'django_extensions',
+    # 'django_extensions',
     'channels',
     'drf_yasg',
     'video_encoding',
