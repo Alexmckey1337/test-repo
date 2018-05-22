@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from slugify import slugify
 
 from apps.analytics.models import LogModel
 from apps.event.models import Meeting, MeetingType, ChurchReport
@@ -145,6 +146,34 @@ class Church(LogModel, CommonGroup):
         return self.home_group.count()
 
 
+class Direction(models.Model):
+    code = models.SlugField(_('Code'), max_length=60, blank=True, db_index=True, editable=False)
+    title = models.CharField(_('Title'), max_length=40)
+
+    def save(self, *args, **kwargs):
+        if self.code:
+            super().save(*args, **kwargs)
+        else:
+            self.code = self.generate_slug()
+            super().save(*args, **kwargs)
+            self.ensure_slug_uniqueness()
+
+    def generate_slug(self):
+        return slugify(self.title)
+
+    def ensure_slug_uniqueness(self):
+        unique_code = self.code
+        direction = self.__class__.objects.exclude(pk=self.pk)
+        next_num = 2
+        while direction.filter(code=unique_code).exists():
+            unique_code = '{code}_{end}'.format(code=self.code, end=next_num)
+            next_num += 1
+
+        if unique_code != self.code:
+            self.code = unique_code
+            self.save()
+
+
 class HomeGroup(LogModel, CommonGroup):
     locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='home_groups',
                                  null=True, blank=True, verbose_name=_('Locality'),
@@ -157,11 +186,23 @@ class HomeGroup(LogModel, CommonGroup):
 
     image = models.ImageField(_('Home Group Image'), upload_to='home_groups/', blank=True, null=True)
 
+    UA, RU, EN, DE = 'ua', 'ru', 'en', 'de'
+    LANGUAGES = (
+        (UA, _('Ukraine')),
+        (RU, _('Russian')),
+        (EN, _('English')),
+        (DE, _('Germany')),
+    )
+    language = models.CharField(_('Language'), choices=LANGUAGES, blank=True, max_length=10)
+
+    directions = models.ManyToManyField(Direction, related_name='home_groups')
+
     objects = HomeGroupManager()
 
     tracking_fields = (
         'title', 'opening_date', 'city', 'address', 'phone_number', 'website',
         'leader', 'church', 'active', 'image', 'locality', 'latitude', 'longitude',
+        'language',
     )
 
     def save(self, *args, **kwargs):
