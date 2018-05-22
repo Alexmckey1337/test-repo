@@ -3,10 +3,11 @@ from rest_framework import serializers
 
 from apps.account.api.serializers import DepartmentTitleSerializer
 from apps.account.models import CustomUser
-from apps.location.api.serializers import CityReadSerializer
-from common.fields import ReadOnlyChoiceField
 from apps.event.models import ChurchReport
-from apps.group.models import Church, HomeGroup
+from apps.group.models import Church, HomeGroup, Direction
+from apps.location.api.serializers import CityReadSerializer
+from apps.location.models import City
+from common.fields import ReadOnlyChoiceField
 
 BASE_GROUP_USER_FIELDS = ('fullname', 'phone_number', 'repentance_date', 'spiritual_level',
                           'born_date')
@@ -233,3 +234,43 @@ class ChurchDashboardSerializer(serializers.ModelSerializer):
         model = Church
         fields = ('churches_count', 'peoples_in_churches', 'home_groups_count', 'peoples_in_home_groups')
         read_only_fields = ['__all__']
+
+
+# tmp
+
+
+class VoCityReadSerializer(serializers.ModelSerializer):
+    city = serializers.CharField(source='name', read_only=True)
+    country = serializers.CharField(source='country_name', read_only=True)
+
+    class Meta:
+        model = City
+        fields = ('id', 'city', 'country')
+        read_only_fields = ('city', 'country')
+
+
+class VoUserNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'last_name', 'first_name', 'middle_name')
+
+
+class VoDirectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Direction
+        fields = ('code', 'title')
+
+
+class VoHGSerializer(serializers.ModelSerializer):
+    leader = VoUserNameSerializer()
+    locality = VoCityReadSerializer()
+    count_users = serializers.IntegerField(read_only=True)
+    directions = VoDirectionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = HomeGroup
+        fields = (
+            'id', 'title', 'leader', 'count_users', 'locality',
+            'language',
+            'directions',  # направленность
+        )
