@@ -14,6 +14,21 @@ from apps.lesson.validators import YoutubeURLField
 from common.video import video_directory_path
 
 
+class LessonImage(models.Model):
+    url = models.ImageField(_('Image'), upload_to='lessons')
+    display_order = models.PositiveSmallIntegerField(_('Display order'), default=0)
+
+    class Meta:
+        abstract = True
+
+
+class TextLessonImage(LessonImage):
+    lesson = models.ForeignKey('TextLesson', on_delete=models.CASCADE, related_name='images')
+
+    class Meta:
+        ordering = ('display_order', 'pk')
+
+
 class AbstractLesson(models.Model):
     title = models.CharField(_('Title'), max_length=30)
     slug = models.SlugField(_('URL'), max_length=255, editable=False)
