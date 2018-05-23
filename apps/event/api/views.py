@@ -78,8 +78,8 @@ class MeetingReport(NamedTuple):
     ids: List[int]
     year: int
     week: int
-    visitors: int
-    attended_visitors: int
+    code: str
+    total_guest_count: int
     total_sum: Decimal
 
 
@@ -1218,15 +1218,17 @@ class MeetingStatsView(WeekMixin, views.APIView):
           array_agg(report.id) ids,
           date_part('year', report.date) _year,
           date_part('week', report.date) week,
-          count(em.meeting_id) visitors,
-          count(em.meeting_id) FILTER (WHERE em.attended) attended_visitors,
+          coalesce(cur.code, church.report_currency::char),
+          sum(guest_count) total_guest_count,
           sum(total_sum) total_sum
         FROM event_meeting report
           JOIN account_customuser customuser ON report.owner_id = customuser.user_ptr_id
-          JOIN event_meetingattend em ON report.id = em.meeting_id
+          LEFT JOIN group_homegroup hg ON report.home_group_id = hg.id
+          LEFT JOIN group_church church ON hg.church_id = church.id
+          LEFT JOIN payment_currency cur ON church.report_currency = cur.id
         {filter}
-        GROUP BY date_part('year', report.date), date_part('week', report.date)
-        ORDER BY date_part('year', report.date), date_part('week', report.date);
+        GROUP BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char)
+        ORDER BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char);
     """
     WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
                       "date_part('year', report.date) = {year})")
@@ -1236,11 +1238,10 @@ class MeetingStatsView(WeekMixin, views.APIView):
         # ids = aggr_by_key('ids', lambda a: reduce(or_, a), default=set())
         return {
             # 'ids': ids,
-            'visitors': aggr_by_key('visitors'),
-            'attended_visitors': aggr_by_key('attended_visitors'),
             'year': y,
             'week': w,
             'month': m,
+            'total_guest_count': aggr_by_key('total_guest_count'),
             'total_sum': aggr_by_key('total_sum'),
         }
 
@@ -1255,6 +1256,18 @@ class MeetingStatsView(WeekMixin, views.APIView):
         if years:
             where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
         return ('(' + ' OR '.join(where_weeks) + ')') if weeks else '', []
+
+    def get_where_department(self):
+        department = self.request.query_params.get('department')
+        if not department:
+            return '', []
+        return " AND church.department_id = %s", [department]
+
+    def get_where_church(self):
+        church = self.request.query_params.get('church')
+        if not church:
+            return '', []
+        return " AND hg.church_id = %s", [church]
 
     def get_where_home_group(self):
         hg = self.request.query_params.get('hg')
@@ -1290,6 +1303,8 @@ class MeetingStatsView(WeekMixin, views.APIView):
         where = list()
         where.append(self.get_where_weeks(weeks))
         where.append(self.get_where_home_group())
+        where.append(self.get_where_church())
+        where.append(self.get_where_department())
         where.append(self.get_where_meeting_type())
         where.append(self.get_where_leader())
         where.append(self.get_where_leader_tree())
@@ -1308,7 +1323,7 @@ class MeetingStatsView(WeekMixin, views.APIView):
         query = self.SQL.format(filter=where)
         try:
             with connection.cursor() as connect:
-                connect.execute(query)
+                connect.execute(query, params)
                 reports = connect.fetchall()
                 result = [MeetingReport(*r) for r in reports]
         except DataError:
@@ -1317,13 +1332,12 @@ class MeetingStatsView(WeekMixin, views.APIView):
         # logger.info(result)
         d = defaultdict(list)
         for r in result:
-            d['uah'].append({
+            d[r.code].append({
                 'ids': set(r.ids),
                 'year': int(r.year),
                 'week': int(r.week),
                 'month': self.week_to_month(int(r.year), int(r.week)),
-                'visitors': r.visitors,
-                'attended_visitors': r.attended_visitors,
+                'total_guest_count': r.total_guest_count,
                 'total_sum': r.total_sum,
             })
         return d
