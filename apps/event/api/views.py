@@ -60,7 +60,6 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
-
 SEX_FIELDS = ('male', 'female', 'unknown')
 CONGREGATION_FIELDS = ('stable', 'unstable')
 CONVERT_FIELDS = CONGREGATION_FIELDS
@@ -1397,7 +1396,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
           join event_meeting report on e.meeting_id = report.id
           join group_homegroup hg on report.home_group_id = hg.id
           join group_church church on hg.church_id = church.id
-          {filter}
+          {filter} AND report.status = 2
         GROUP BY date_part('year', report.date), date_part('week', report.date)
         ORDER BY date_part('year', report.date), date_part('week', report.date);
     """
@@ -1409,6 +1408,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         def sum_lists(length):
             def f(a):
                 return [sum(b) for b in zip(*a)]
+
             return {
                 'func': f,
                 'default': [0] * length
@@ -1441,6 +1441,14 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         if not department:
             return '', []
         return " AND church.department_id = %s", [department]
+
+    def get_where_attended(self):
+        attended = self.request.query_params.get('attended', '')
+        if attended.lower() in ('true', 't', '1'):
+            return " AND e.attended", []
+        if attended.lower() in ('false', 'f', '0'):
+            return " AND not e.attended", []
+        return '', []
 
     def get_where_church(self):
         church = self.request.query_params.get('church')
@@ -1479,14 +1487,10 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         return " AND report.owner_id = %s", [leader]
 
     def get_where_filter(self, weeks):
-        where = list()
-        where.append(self.get_where_weeks(weeks))
-        where.append(self.get_where_home_group())
-        where.append(self.get_where_church())
-        where.append(self.get_where_department())
-        where.append(self.get_where_meeting_type())
-        where.append(self.get_where_leader())
-        where.append(self.get_where_leader_tree())
+        where = [self.get_where_weeks(weeks), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
+                 self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
+                 self.get_where_attended(), self.get_where_meeting_type(), self.get_where_leader(),
+                 self.get_where_leader_tree()]
         a = tuple(zip(*where))
         return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
 
@@ -1568,7 +1572,6 @@ attends_empty = {
     "convert": create_empty_dict_by_keys(CONVERT_FIELDS),
     "age": create_empty_dict_by_keys(AGE_FIELDS),
 }
-
 
 meeting_empty = {c.code: {'total_sum': Decimal('0.00'), 'total_guest_count': 0} for c in Currency.objects.all()}
 
