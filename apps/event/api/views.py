@@ -1,7 +1,8 @@
 import calendar
 import json
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from functools import reduce
@@ -19,7 +20,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, filters, exceptions, views
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -44,7 +45,7 @@ from apps.event.api.serializers import (
     MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from apps.payment.models import Payment
+from apps.payment.models import Payment, Currency
 from common.filters import FieldSearchFilter
 from common.parsers import MultiPartAndJsonParser
 from common.utils import encode_month, decode_month
@@ -58,6 +59,12 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
                                    'reports_expired', 'reports_in_progress')
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+
+
+SEX_FIELDS = ('male', 'female', 'unknown')
+CONGREGATION_FIELDS = ('stable', 'unstable')
+CONVERT_FIELDS = CONGREGATION_FIELDS
+AGE_FIELDS = ('12-', '13-25', '26-40', '41-60', '60+', 'unknown')
 
 
 class Report(NamedTuple):
@@ -1541,11 +1548,70 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
             {
                 'date': d['date'],
                 'result': {
-                    'sex': dict(zip(('male', 'female', 'unknown'), d['result']['res']['sex'])),
-                    'congregation': dict(zip(('stable', 'unstable'), d['result']['res']['congregation'])),
-                    'convert': dict(zip(('stable', 'unstable'), d['result']['res']['convert'])),
-                    'age': dict(zip(('12-', '13-25', '26-40', '41-60', '60+', 'unknown'), d['result']['res']['age'])),
+                    'sex': dict(zip(SEX_FIELDS, d['result']['res']['sex'])),
+                    'congregation': dict(zip(CONGREGATION_FIELDS, d['result']['res']['congregation'])),
+                    'convert': dict(zip(CONVERT_FIELDS, d['result']['res']['convert'])),
+                    'age': dict(zip(AGE_FIELDS, d['result']['res']['age'])),
                 }
             }
             for d in data
         ])
+
+
+def create_empty_dict_by_keys(keys):
+    return {k: 0 for k in keys}
+
+
+attends_empty = {
+    "sex": create_empty_dict_by_keys(SEX_FIELDS),
+    "congregation": create_empty_dict_by_keys(CONGREGATION_FIELDS),
+    "convert": create_empty_dict_by_keys(CONVERT_FIELDS),
+    "age": create_empty_dict_by_keys(AGE_FIELDS),
+}
+
+
+meeting_empty = {c.code: {'total_sum': Decimal('0.00'), 'total_guest_count': 0} for c in Currency.objects.all()}
+
+
+def merge_data(meetings_stats, attends_stats):
+    def dict_to_tuple(d):
+        return d['year'], d['month'], d['week']
+
+    meeting_dates = list()
+    attends_dates = list()
+    aa = OrderedDict()
+    mm = OrderedDict()
+
+    for a in attends_stats:
+        d = dict_to_tuple(a['date'])
+        attends_dates.append(d)
+        aa[d] = a['result']
+    for m in meetings_stats:
+        d = dict_to_tuple(m['date'])
+        meeting_dates.append(d)
+        mm[dict_to_tuple(m['date'])] = m['result']
+
+    dates = sorted(list(set(meeting_dates) | set(attends_dates)))
+
+    result = list()
+    for d in dates:
+        attends_result = aa.get(d, attends_empty)
+        meeting_result = mm.get(d, deepcopy(meeting_empty))
+        attends_result['guest_count'] = sum([g.pop('total_guest_count', 0) for g in meeting_result.values()])
+        attends_result['money'] = meeting_result
+        result.append({
+            'date': {'year': d[0], 'month': d[1], 'week': d[2]},
+            'result': attends_result,
+        })
+
+    return result
+
+
+@api_view(['GET'])
+def all_stats(request, *args, **kwargs):
+    r1 = MeetingStatsView.as_view()(request._request, *args, **kwargs)
+    r2 = MeetingAttendStatsView.as_view()(request._request, *args, **kwargs)
+
+    data = merge_data(r1.data, r2.data)
+
+    return Response(data=data)

@@ -11,7 +11,7 @@ export function homeStatistics(update = false) {
 	let config = Object.assign({}, getFilterParam(), getPreFilterParam());
 	updateHistoryUrl(config);
 	(config.last) && (config.group_by = 'month');
-	getData(`${URLS.event.home_meeting.statistics()}`, config).then(data => {
+	getData(`${URLS.event.home_meeting.meeting_all_stats()}`, config).then(data => {
 		$('.preloader').css('display', 'none');
 		makeStatsTable(data, config.last);
 		initCharts(data, update, config.last);

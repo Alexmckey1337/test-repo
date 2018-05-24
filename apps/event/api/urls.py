@@ -12,6 +12,7 @@ custom_urls = [
     path('church_reports/stats/', views.ChurchReportStatsView.as_view(), name="church_report-stats"),
     path('meetings/stats/', views.MeetingStatsView.as_view(), name="meeting-stats"),
     path('meeting_attends/stats/', views.MeetingAttendStatsView.as_view(), name="meeting_attends-stats"),
+    path('meetings/all_stats/', views.all_stats, name="meeting_attends-stats"),
 ]
 
 urlpatterns = [
