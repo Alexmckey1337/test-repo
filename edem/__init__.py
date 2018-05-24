@@ -1,6 +1,6 @@
 from .settings.celery import app as celery_app  # noqa
 
-VERSION = (1, 10, 0)
+VERSION = (1, 11, 0)
 
 
 def get_short_version():
