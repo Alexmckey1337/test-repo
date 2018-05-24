@@ -12,7 +12,7 @@ from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import status, exceptions, filters
+from rest_framework import status, exceptions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -42,7 +42,7 @@ from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, 
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
 from apps.location.models import City
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, TableViewMixin, ModelWithoutListViewSet
 from common.week_range import week_range
@@ -53,14 +53,14 @@ logger = logging.getLogger(__name__)
 class ChurchTableView(TableViewMixin):
     table_name = 'church'
 
-    queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title')
+    queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title', 'pk')
     serializer_class = ChurchTableSerializer
     permission_classes = (CanSeeChurch,)
 
     filter_backends = (
         rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
-        filters.OrderingFilter,
+        OrderingFilterWithPk,
         FilterChurchMasterTree,
     )
     ordering_fields = (
@@ -386,13 +386,13 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, Chu
 class HomeGroupTableView(TableViewMixin):
     table_name = 'home_group'
 
-    queryset = HomeGroup.objects.select_related('leader', 'church', 'locality').order_by('title')
+    queryset = HomeGroup.objects.select_related('leader', 'church', 'locality').order_by('title', 'pk')
     serializer_class = HomeGroupListSerializer
     permission_classes = (IsAuthenticated, CanSeeHomeGroup)
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        FilterHomeGroupMasterTree,
                        HomeGroupsDepartmentFilter)
     ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader',

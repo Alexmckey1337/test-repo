@@ -1,5 +1,4 @@
 from django.db.models import Count, Q
-from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ from apps.group.api.filters import ChurchAllUserFilter
 from apps.group.api.pagination import HomeGroupPagination, GroupUsersPagination
 from apps.group.api.serializers import HomeGroupListSerializer, GroupUserSerializer
 from apps.group.resources import GroupUserResource, HomeGroupResource
+from common.filters import OrderingFilterWithPk
 from common.views_mixins import BaseExportViewSetMixin
 
 GROUP_USER_ORDERING_FIELDS = ('id', 'last_name', 'spiritual_level', 'leader__last_name',
@@ -36,7 +36,7 @@ class HomeGroupListMixin:
     @action(detail=True, methods=['get'],
             pagination_class=HomeGroupPagination,
             ordering_fields=HOME_GROUP_ORDERING_FIELDS,
-            filter_backends=(filters.OrderingFilter,))
+            filter_backends=(OrderingFilterWithPk,))
     def home_groups(self, request, pk):
         instance = self.get_object()
         queryset = instance.home_group.annotate(count_users=Count('uusers'))
@@ -87,10 +87,10 @@ class UserListMixin(BaseUserListMixin):
     @action(detail=True, methods=['get'],
             pagination_class=GroupUsersPagination,
             ordering_fields=GROUP_USER_ORDERING_FIELDS,
-            filter_backends=(filters.OrderingFilter,))
+            filter_backends=(OrderingFilterWithPk,))
     def users(self, request, pk):
         instance = self.get_object()
-        queryset = getattr(instance, self.user_field).order_by('last_name', 'first_name', 'middle_name')
+        queryset = getattr(instance, self.user_field).order_by('last_name', 'first_name', 'middle_name', 'pk')
         queryset = self.filter_queryset(queryset)
 
         search = request.query_params.get('search', '').strip()
@@ -105,9 +105,9 @@ class UserListMixin(BaseUserListMixin):
 class AllUserListMixin(BaseUserListMixin):
     @action(detail=True, methods=['get'], pagination_class=GroupUsersPagination,
             ordering_fields=GROUP_USER_ORDERING_FIELDS,
-            filter_backends=(ChurchAllUserFilter, filters.OrderingFilter,))
+            filter_backends=(ChurchAllUserFilter, OrderingFilterWithPk,))
     def all_users(self, request, pk):
-        queryset = CustomUser.objects.order_by('last_name', 'first_name', 'middle_name')
+        queryset = CustomUser.objects.order_by('last_name', 'first_name', 'middle_name', 'pk')
         queryset = self.filter_queryset(queryset)
 
         search = request.query_params.get('search', '').strip()

@@ -52,7 +52,7 @@ from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerR
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
 from apps.payment.models import Payment
 from apps.summit.api.permissions import HasAPIAccess
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.views_mixins import ModelWithoutDeleteViewSet
 
 
@@ -64,7 +64,7 @@ class PartnershipViewSet(
     StatsSummaryMixin
 ):
     queryset = Partnership.objects.base_queryset().order_by(
-        'user__last_name', 'user__first_name', 'user__middle_name')
+        'user__last_name', 'user__first_name', 'user__middle_name', 'pk')
     serializer_class = PartnershipSerializer
     serializer_update_class = PartnershipUpdateSerializer
     serializer_create_class = PartnershipCreateSerializer
@@ -77,7 +77,7 @@ class PartnershipViewSet(
                        PartnerFilterByDateAge,
                        PartnerFilterByLevel,
                        PartnerFilterByVIP,
-                       filters.OrderingFilter,)
+                       OrderingFilterWithPk,)
     filter_fields = ('user', 'responsible')
     ordering_fields = ('user__first_name', 'user__last_name', 'user__master__last_name',
                        'user__middle_name', 'user__born_date', 'user__country',
@@ -130,7 +130,7 @@ class PartnershipViewSet(
              GROUP BY U0."partnership_id") = 3
              AND partnership_partnergroup.title = '1+1' THEN 1
              ELSE 0 END"""}).order_by('-is_stable_newbie', 'user__last_name',
-                                      'user__first_name', 'user__middle_name')
+                                      'user__first_name', 'user__middle_name', 'pk')
 
             return queryset
         return self.queryset.for_user(user=self.request.user)
@@ -273,7 +273,7 @@ class ChurchPartnerViewSet(
                        FieldSearchFilter,
                        PartnerFilterByDateAge,
                        FilterChurchPartnerMasterTree,
-                       filters.OrderingFilter,)
+                       OrderingFilterWithPk,)
     filter_class = ChurchPartnerFilter
     ordering_fields = ('church__title', 'church__city', 'church__department__title', 'church__home_group',
                        'church__is_open', 'church__opening_date', 'church__pastor__last_name', 'church__phone_number',
@@ -354,7 +354,7 @@ class LastChurchPartnerDealsView(GenericAPIView):
 
     def get_queryset(self):
         return self.partner.deals.select_related('responsible').annotate_responsible_name().annotate(
-            total_payments=Sum('payments__effective_sum')).order_by('-date_created')
+            total_payments=Sum('payments__effective_sum')).order_by('-date_created', 'pk')
 
 
 class LastChurchPartnerPaymentsView(GenericAPIView):
@@ -382,7 +382,7 @@ class LastChurchPartnerPaymentsView(GenericAPIView):
 
     def get_queryset(self):
         deals = self.get_deals()
-        return self.queryset.select_related('manager').order_by('-created_at').filter(
+        return self.queryset.select_related('manager').order_by('-created_at', 'pk').filter(
             (Q(content_type__model='churchdeal') & Q(object_id__in=Subquery(deals.values('pk'))))
         ).extra(
             select={
@@ -427,7 +427,7 @@ class LastPartnerDealsView(GenericAPIView):
 
     def get_queryset(self):
         return self.partner.deals.select_related('responsible').annotate_responsible_name().annotate(
-            total_payments=Sum('payments__effective_sum')).order_by('-date_created')
+            total_payments=Sum('payments__effective_sum')).order_by('-date_created', 'pk')
 
 
 class LastPartnerPaymentsView(GenericAPIView):
@@ -455,7 +455,7 @@ class LastPartnerPaymentsView(GenericAPIView):
 
     def get_queryset(self):
         deals = self.get_deals()
-        return self.queryset.select_related('manager').order_by('-created_at').filter(
+        return self.queryset.select_related('manager').order_by('-created_at', 'pk').filter(
             (Q(content_type__model='deal') & Q(object_id__in=Subquery(deals.values('pk'))))
         ).extra(
             select={
@@ -472,7 +472,7 @@ class LastPartnerPaymentsView(GenericAPIView):
 
 
 class PartnerGroupViewSet(ModelWithoutDeleteViewSet):
-    queryset = PartnerGroup.objects.order_by('title')
+    queryset = PartnerGroup.objects.order_by('title', 'pk')
     serializer_class = PartnerGroupSerializer
     filter_backends = (filters.SearchFilter, rest_framework.DjangoFilterBackend)
     search_fields = ('title',)
@@ -502,7 +502,7 @@ class DealViewSet(LogAndCreateUpdateDestroyMixin, ModelViewSet, DealCreatePaymen
     pagination_class = DealPagination
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        DealFilterByPaymentStatus,)
     ordering_fields = ('value',
                        'responsible__last_name',
@@ -667,7 +667,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
     pagination_class = ChurchDealPagination
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        DealFilterByPaymentStatus,)
     ordering_fields = ('value',
                        'responsible__last_name',
@@ -797,7 +797,7 @@ class ChurchDealViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutDeleteViewSe
         for ids, *z in data:
             deal_ids.extend(ids)
 
-        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id')
+        deals = self.queryset.filter(id__in=deal_ids).order_by('partnership_id', 'pk')
 
         page = self.paginate_queryset(deals)
         if page is not None:

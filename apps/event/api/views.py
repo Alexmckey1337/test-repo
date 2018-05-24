@@ -19,7 +19,7 @@ from django.http import QueryDict
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import status, filters, exceptions, views
+from rest_framework import status, exceptions, views
 from rest_framework.decorators import action, api_view
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -46,7 +46,7 @@ from apps.event.api.serializers import (
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.payment.models import Payment, Currency
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.parsers import MultiPartAndJsonParser
 from common.utils import encode_month, decode_month
 
@@ -244,7 +244,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     filter_backends = (rest_framework.DjangoFilterBackend,
                        MeetingCustomFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        MeetingFilterByMaster,
                        MeetingStatusFilter,
                        CommonGroupsLast5Filter,
@@ -409,7 +409,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
-        visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name')
+        visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name', 'pk')
 
         page = self.paginate_queryset(visitors)
         if page is not None:
@@ -507,7 +507,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         return Response(mobile_counts.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'], serializer_class=MeetingSummarySerializer,
-            filter_backends=(filters.OrderingFilter, EventSummaryFilter,
+            filter_backends=(OrderingFilterWithPk, EventSummaryFilter,
                              EventSummaryMasterFilter, FieldSearchFilter),
             ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
             field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
@@ -547,7 +547,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        ChurchReportFilterByMaster,
                        ChurchReportDepartmentFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        ChurchReportPaymentStatusFilter,
                        ChurchReportStatusFilter,
                        CommonGroupsLast5Filter,)
@@ -682,7 +682,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'], serializer_class=ChurchReportSummarySerializer,
-            filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
+            filter_backends=(OrderingFilterWithPk, EventSummaryMasterFilter,
                              EventSummaryFilter, FieldSearchFilter),
             ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
             field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,

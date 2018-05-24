@@ -43,7 +43,7 @@ from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
-from common.filters import FieldSearchFilter, OrderingFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
 from common.test_helpers.utils import get_real_user
@@ -84,7 +84,7 @@ class DuplicatesAvoidedPagination(PageNumberPagination):
 
 class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
     queryset = User.objects.select_related(
-        'hierarchy').order_by('last_name', 'first_name', 'middle_name')
+        'hierarchy').order_by('last_name', 'first_name', 'middle_name', 'pk')
 
     serializer_class = UserForSelectSerializer
     permission_classes = (IsAuthenticated,)
@@ -110,7 +110,7 @@ class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
 
 
 class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):
-    queryset = User.objects.order_by('last_name', 'first_name', 'middle_name')
+    queryset = User.objects.order_by('last_name', 'first_name', 'middle_name', 'pk')
 
     serializer_class = UserForSelectSerializer
     permission_classes = (IsAuthenticated,)
@@ -140,14 +140,14 @@ class UserTableView(TableViewMixin):
     queryset = User.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
-    ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name')
+    ).filter(is_active=True).order_by('last_name', 'first_name', 'middle_name', 'pk')
     serializer_class = UserTableSerializer
     permission_classes = (IsAuthenticated, CanSeeUserList)
 
     filter_backends = (
         rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
-        OrderingFilter,
+        OrderingFilterWithPk,
         FilterByUserBirthday,
         FilterMasterTreeWithSelf,
         UserIsPartnershipFilter,
@@ -180,7 +180,7 @@ class UserTableView(TableViewMixin):
 
     def get_queryset(self):
         return SeeUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
-            'last_name', 'first_name', 'middle_name')
+            'last_name', 'first_name', 'middle_name', 'pk')
 
 
 class UserExportView(UserTableView, ExportViewSetMixin):
@@ -192,7 +192,7 @@ class UserExportView(UserTableView, ExportViewSetMixin):
 
     def get_queryset(self):
         return ExportUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
-            'last_name', 'first_name', 'middle_name')
+            'last_name', 'first_name', 'middle_name', 'pk')
 
 
 class UserViewSet(LogAndCreateUpdateDestroyMixin, URCViewSet):
@@ -399,10 +399,10 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, URCViewSet):
     def get_queryset(self):
         if self.action in ('update', 'partial_update'):
             return EditUserPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
-                'last_name', 'first_name', 'middle_name')
+                'last_name', 'first_name', 'middle_name', 'pk')
         else:
             return SeeUserListPermission(self.request.user, queryset=self.queryset).get_queryset().order_by(
-                'last_name', 'first_name', 'middle_name')
+                'last_name', 'first_name', 'middle_name', 'pk')
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -557,7 +557,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     filter_backends = (rest_framework.DjangoFilterBackend,
                        filters.SearchFilter,
                        FilterMasterTreeWithSelf,
-                       filters.OrderingFilter,)
+                       OrderingFilterWithPk,)
     # filter_fields = ('first_name', 'last_name', 'hierarchy')
     filter_class = ShortUserFilter
     search_fields = ('first_name', 'last_name', 'middle_name')
@@ -579,7 +579,7 @@ class UserShortViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
 
 class DashboardMasterTreeFilterViewSet(ModelWithoutDeleteViewSet):
     queryset = User.objects.exclude(hierarchy__level=0).exclude(is_active=False).select_related(
-        'hierarchy').order_by('last_name')
+        'hierarchy').order_by('last_name', 'first_name', 'middle_name', 'pk')
     serializer_class = UserShortSerializer
     pagination_class = DashboardPagination
     permission_classes = (IsAuthenticated,)

@@ -143,7 +143,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
         profiles = SummitAnket.objects.filter(
             status__reg_code_requested_date__date__range=[from_date, to_date]).order_by(
-            'status__reg_code_requested_date')
+            'status__reg_code_requested_date', 'pk')
         profiles = self.serializer_class(profiles, many=True)
         return Response(profiles.data, status=status.HTTP_200_OK)
 
@@ -152,7 +152,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
     def get_tickets(self, request):
         user_id = request.query_params.get('user_id')
         user = get_object_or_404(CustomUser, pk=user_id)
-        # anket = SummitAnket.objects.filter(user=user).order_by('-summit__start_date').first()
+        # anket = SummitAnket.objects.filter(user=user).order_by('-summit__start_date', 'pk').first()
         # anket = self.serializer_class(anket)
         ankets = SummitAnket.objects.filter(user=user).filter(summit__status=Summit.OPEN)
         ankets = self.serializer_class(ankets, many=True)
@@ -208,7 +208,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         return qs.select_related('status').base_queryset().annotate_full_name().annotate(
             numchild=ExpressionWrapper(F('user__numchild'), output_field=IntegerField()),
         ).order_by(
-            '-hierarchy__level', 'last_name', 'first_name', 'middle_name')
+            '-hierarchy__level', 'last_name', 'first_name', 'middle_name', 'pk')
 
     def get_queryset(self):
         is_consultant_or_high = self.request.user.is_summit_consultant_or_high(self.summit)
@@ -333,7 +333,7 @@ class SummitVisitorLocationViewSet(viewsets.ModelViewSet):
         anket_id = request.query_params.get('visitor_id')
         date_time = request.query_params.get('date_time')
         visitor_location = self.queryset.filter(visitor_id=anket_id, date_time__gte=date_time).order_by(
-            'date_time').first()
+            'date_time', 'pk').first()
         visitor_location = self.serializer_class(visitor_location)
 
         return Response(visitor_location.data, status=status.HTTP_200_OK)
