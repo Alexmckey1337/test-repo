@@ -1598,7 +1598,9 @@ def merge_data(meetings_stats, attends_stats):
         attends_result = aa.get(d, attends_empty)
         meeting_result = mm.get(d, deepcopy(meeting_empty))
         attends_result['guest_count'] = sum([g.pop('total_guest_count', 0) for g in meeting_result.values()])
-        attends_result['money'] = meeting_result
+        money = {k: {'total_sum': v['total_sum']} for k, v in meeting_empty.items()}
+        money.update(meeting_result)
+        attends_result['money'] = money
         result.append({
             'date': {'year': d[0], 'month': d[1], 'week': d[2]},
             'result': attends_result,
