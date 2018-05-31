@@ -135,5 +135,4 @@ class MeetingsTypeMultipleFilter(filters.BaseFilterBackend):
         if types:
             types = [int(t) for t in types if t.isdigit()]
             queryset = queryset.filter(type__id__in=types)
-
         return queryset
