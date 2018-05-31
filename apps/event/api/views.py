@@ -86,6 +86,8 @@ class MeetingReport(NamedTuple):
     week: int
     code: str
     total_guest_count: int
+    total_new_count: int
+    total_repentance_count: int
     total_sum: Decimal
 
 
@@ -1226,6 +1228,8 @@ class MeetingStatsView(WeekMixin, views.APIView):
           date_part('week', report.date) week,
           coalesce(cur.code, church.report_currency::char),
           sum(guest_count) total_guest_count,
+          sum(new_count) total_new_count,
+          sum(repentance_count) total_repentance_count,
           sum(total_sum) total_sum
         FROM event_meeting report
           JOIN account_customuser customuser ON report.owner_id = customuser.user_ptr_id
@@ -1248,6 +1252,8 @@ class MeetingStatsView(WeekMixin, views.APIView):
             'week': w,
             'month': m,
             'total_guest_count': aggr_by_key('total_guest_count'),
+            'total_new_count': aggr_by_key('total_new_count'),
+            'total_repentance_count': aggr_by_key('total_repentance_count'),
             'total_sum': aggr_by_key('total_sum'),
         }
 
@@ -1344,6 +1350,8 @@ class MeetingStatsView(WeekMixin, views.APIView):
                 'week': int(r.week),
                 'month': self.week_to_month(int(r.year), int(r.week)),
                 'total_guest_count': r.total_guest_count,
+                'total_new_count': r.total_new_count,
+                'total_repentance_count': r.total_repentance_count,
                 'total_sum': r.total_sum,
             })
         return d
@@ -1573,7 +1581,12 @@ attends_empty = {
     "age": create_empty_dict_by_keys(AGE_FIELDS),
 }
 
-meeting_empty = {c.code: {'total_sum': Decimal('0.00'), 'total_guest_count': 0} for c in Currency.objects.all()}
+meeting_empty = {c.code: {
+    'total_sum': Decimal('0.00'),
+    'total_guest_count': 0,
+    'total_new_count': 0,
+    'total_repentance_count': 0,
+} for c in Currency.objects.all()}
 
 
 def merge_data(meetings_stats, attends_stats):
@@ -1601,6 +1614,8 @@ def merge_data(meetings_stats, attends_stats):
         attends_result = aa.get(d, attends_empty)
         meeting_result = mm.get(d, deepcopy(meeting_empty))
         attends_result['guest_count'] = sum([g.pop('total_guest_count', 0) for g in meeting_result.values()])
+        attends_result['new_count'] = sum([g.pop('total_new_count', 0) for g in meeting_result.values()])
+        attends_result['repentance_count'] = sum([g.pop('total_repentance_count', 0) for g in meeting_result.values()])
         money = {k: {'total_sum': v['total_sum']} for k, v in meeting_empty.items()}
         money.update(meeting_result)
         attends_result['money'] = money
