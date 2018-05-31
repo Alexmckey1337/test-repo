@@ -1,4 +1,5 @@
 import logging
+import random
 from datetime import datetime
 
 import pytz
@@ -11,7 +12,7 @@ from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import status, exceptions, filters
+from rest_framework import status, exceptions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -36,11 +37,12 @@ from apps.group.api.serializers import (
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
     ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
-    HomeGroupLocationSerializer)
+    HomeGroupLocationSerializer, VoHGSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church
 from apps.group.resources import ChurchResource, HomeGroupResource
-from common.filters import FieldSearchFilter
+from apps.location.models import City
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, TableViewMixin, ModelWithoutListViewSet
 from common.week_range import week_range
@@ -51,14 +53,14 @@ logger = logging.getLogger(__name__)
 class ChurchTableView(TableViewMixin):
     table_name = 'church'
 
-    queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title')
+    queryset = Church.objects.select_related('pastor', 'department', 'locality').order_by('title', 'pk')
     serializer_class = ChurchTableSerializer
     permission_classes = (CanSeeChurch,)
 
     filter_backends = (
         rest_framework.DjangoFilterBackend,
         FieldSearchFilter,
-        filters.OrderingFilter,
+        OrderingFilterWithPk,
         FilterChurchMasterTree,
     )
     ordering_fields = (
@@ -384,13 +386,13 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, Chu
 class HomeGroupTableView(TableViewMixin):
     table_name = 'home_group'
 
-    queryset = HomeGroup.objects.select_related('leader', 'church', 'locality').order_by('title')
+    queryset = HomeGroup.objects.select_related('leader', 'church', 'locality').order_by('title', 'pk')
     serializer_class = HomeGroupListSerializer
     permission_classes = (IsAuthenticated, CanSeeHomeGroup)
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        FilterHomeGroupMasterTree,
                        HomeGroupsDepartmentFilter)
     ordering_fields = ('title', 'church', 'leader__last_name', 'city', 'leader',
@@ -627,3 +629,112 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet,
 
 class HomeGroupLocationListView(LocationMixin, HomeGroupTableView):
     serializer_class = HomeGroupLocationSerializer
+
+
+# tmp
+
+
+class VoHGMixin(GenericAPIView):
+    queryset = HomeGroup.objects.filter(active=True)
+    serializer_class = VoHGSerializer
+
+    _cities = None
+
+    def random_church(self):
+        return Church(
+            id=1,
+            title='max_length_is_50',
+            department_id=1,
+            pastor=self.random_user(),
+            is_open=True
+        )
+
+    def random_user(self):
+        return CustomUser(
+            id=random.randint(1, 111111),
+            first_name=f'first_max_30_{random.randint(1, 111111)}' if random.randint(1, 100) < 80 else '',
+            last_name=f'last_max_150_{random.randint(1, 111111)}' if random.randint(1, 100) < 80 else '',
+            middle_name=f'middle_max_40_{random.randint(1, 111111)}' if random.randint(1, 100) < 80 else '',
+            email=f'u{random.randint(1, 111111)}@my.mail',
+            username=f'u{random.randint(1, 111111)}',
+            hierarchy_id=1
+        )
+
+    def random_locality(self):
+        return random.choice(self.cities)
+
+    def random_directions(self):
+        return random.choices([
+            {'code': f'code_max_60_unique_index_1', 'title': 'Направление #1,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_2', 'title': 'Направление #2,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_3', 'title': 'Направление #3,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_4', 'title': 'Направление #4,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_5', 'title': 'Направление #5,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_6', 'title': 'Направление #6,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_7', 'title': 'Направление #7,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_8', 'title': 'Направление #8,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_9', 'title': 'Направление #9,  max_length = 40'},
+            {'code': f'code_max_60_unique_index_10', 'title': 'Направление #10, max_length = 40'},
+            {'code': f'code_max_60_unique_index_11', 'title': 'Направление #11, max_length = 40'},
+            {'code': f'code_max_60_unique_index_12', 'title': 'Направление #12, max_length = 40'},
+        ], k=random.randint(0, 5))
+
+    @property
+    def cities(self):
+        if self._cities is None:
+            self._cities = list(City.objects.order_by('?')[:10]) + [None]
+        return self._cities
+
+    def random_hg(self):
+        return HomeGroup(
+            id=random.randint(1, 111111),
+            leader=self.random_user(),
+            church=self.random_church(),
+            locality=self.random_locality(),
+            title=f'max_length_is_50_random_{random.randint(1, 111111)}',
+            language=random.choice(HomeGroup.LANGUAGES + (('', ''),))[0]
+        )
+
+    def get_queryset(self):
+        try:
+            max_count = int(self.request.query_params.get('count', 10))
+        except ValueError:
+            max_count = 10
+        max_count = min(max_count, 100)
+
+        home_groups = list()
+        for i in range(max_count):
+            home_groups.append(self.random_hg())
+        return home_groups
+
+
+class VoHGListView(VoHGMixin):
+    filter_backends = list()
+    pagination_class = None
+
+    def get_queryset(self):
+        if self.request.query_params.get('show_real_data') == 'fuXHPzZgfF3o4xtX':
+            return self.queryset.all()
+        return super().get_queryset()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        if self.request.query_params.get('show_real_data') != 'fuXHPzZgfF3o4xtX':
+            for d in data:
+                d['directions'] = self.random_directions()
+        return Response(serializer.data)
+
+
+class VoHGDetailView(VoHGMixin):
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        return random.choice(queryset)

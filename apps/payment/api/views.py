@@ -20,7 +20,7 @@ from apps.payment.api.serializers import (
     PaymentUpdateSerializer, PaymentShowSerializer, PaymentDealShowSerializer, PaymentChurchReportShowSerializer)
 from apps.payment.models import Payment
 from apps.payment.resources import PaymentResource
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.pagination import ForSelectPagination
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin
@@ -130,7 +130,7 @@ class PaymentDealListView(mixins.ListModelMixin, GenericAPIView, ExportViewSetMi
                        # FilterByDealType,
                        FilterByDeal,
 
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        FilterByPaymentCurrency,)
     ordering_fields = COMMON_PAYMENTS_ORDERING_FIELDS + (
         # 'deals__partnership__user__last_name',
@@ -166,7 +166,7 @@ class PaymentChurchReportListView(mixins.ListModelMixin, GenericAPIView):
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        FilterByChurchReportDate,
                        FilterByChurchReportPastor,
                        FilterByChurchReportChurchTitle,
@@ -207,7 +207,7 @@ class PaymentSupervisorListView(mixins.ListModelMixin, GenericAPIView):
             full_name=Concat('last_name', V(' '),
                              'first_name', V(' '),
                              'middle_name')
-        ).order_by('last_name').distinct("id", "last_name")
+        ).order_by('last_name', 'pk').distinct("id", "last_name")
 
     def paginate_queryset(self, queryset):
         if self.request.query_params.get('without_pagination', None) is not None:

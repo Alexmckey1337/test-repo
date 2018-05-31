@@ -11,7 +11,7 @@ export function homeStatistics(update = false) {
 	let config = Object.assign({}, getFilterParam(), getPreFilterParam());
 	updateHistoryUrl(config);
 	(config.last) && (config.group_by = 'month');
-	getData(`${URLS.event.home_meeting.statistics()}`, config).then(data => {
+	getData(`${URLS.event.home_meeting.meeting_all_stats()}`, config).then(data => {
 		$('.preloader').css('display', 'none');
 		makeStatsTable(data, config.last);
 		initCharts(data, update, config.last);
@@ -21,8 +21,10 @@ export function homeStatistics(update = false) {
 export function makeStatsTable(data, isGroup) {
 	let formatedData = getTransformData(data, isGroup),
 		tablePeoples = createTable(formatedData.headers, formatedData.dataPeoples, 'Люди'),
+		tableFinance = createTable(formatedData.headers, formatedData.dataFinance, 'Пожертвования'),
 		tableAges = createTable(formatedData.headers, formatedData.dataAges, 'Возраст');
 	$('#tableHomeStats').html('').append(tablePeoples);
+	$('#tableHomeStatsFinance').html('').append(tableFinance);
 	$('#tableHomeStatsAge').html('').append(tableAges);
 }
 
@@ -30,6 +32,9 @@ function getTransformData(data, isGroup = '1m') {
 	let dataPeoples = [
 			{
 				title: 'Всего людей',
+			},
+			{
+				title: 'Гостей',
 			},
 			{
 				title: 'Мужчин/Женщин',
@@ -41,6 +46,15 @@ function getTransformData(data, isGroup = '1m') {
 				title: 'Стабильные/Нестабильные новообращенные',
 			},
 		],
+		dataFinance = [{
+				title: 'Гривна',
+			},{
+				title: 'Рубль',
+			},{
+				title: 'Доллар',
+			},{
+				title: 'Евро',
+			}],
 		dataAges = [
 			{
 				title: '12-',
@@ -71,14 +85,20 @@ function getTransformData(data, isGroup = '1m') {
 
 	headers.map((item, index) => {
 		let elem = data[index].result,
+			money = elem.money,
 			sex = elem.sex,
 			congregation = elem.congregation,
 			convert = elem.convert,
 			age = elem.age;
-		dataPeoples[0][item] = +sex.male + +sex.female;
-		dataPeoples[1][item] = `${sex.male} / ${sex.female}`;
-		dataPeoples[2][item] = `${congregation.stable} / ${congregation.unstable}`;
-		dataPeoples[3][item] = `${convert.stable} / ${convert.unstable}`;
+		dataPeoples[0][item] = +sex.male + +sex.female + +sex.unknown;
+		dataPeoples[1][item] = elem.guest_count;
+		dataPeoples[2][item] = `${sex.male} / ${sex.female}`;
+		dataPeoples[3][item] = `${congregation.stable} / ${congregation.unstable}`;
+		dataPeoples[4][item] = `${convert.stable} / ${convert.unstable}`;
+		dataFinance[0][item] = money.uah.total_sum;
+		dataFinance[1][item] = money.rur.total_sum;
+		dataFinance[2][item] = money.usd.total_sum;
+		dataFinance[3][item] = money.eur.total_sum;
 		dataAges[0][item] = age['12-'];
 		dataAges[1][item] = age['13-25'];
 		dataAges[2][item] = age['26-40'];
@@ -89,7 +109,8 @@ function getTransformData(data, isGroup = '1m') {
 	return {
 		headers,
 		dataAges,
-		dataPeoples
+		dataPeoples,
+		dataFinance
 	}
 }
 

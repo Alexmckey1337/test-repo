@@ -234,3 +234,12 @@ class OrderingFilter(filters.OrderingFilter):
                 )
             )
         ]
+
+
+class OrderingFilterWithPk(OrderingFilter):
+    def get_ordering(self, request, queryset, view):
+        ordering = super().get_ordering(request, queryset, view)
+
+        if ordering and isinstance(ordering, (list, tuple)):
+            return ordering + {tuple: ('pk',), list: ['pk']}[type(ordering)]
+        return ordering

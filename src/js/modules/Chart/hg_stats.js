@@ -14,15 +14,25 @@ export function initCharts(data, update, isGroup) {
 		configPeopleChart,
 		optionPeopleChart,
 		selectPeopleChart,
+		configGuestsChart,
+		optionGuestsChart,
+		selectGuestsChart,
+		configFinChart,
+		optionFinChart,
+		selectFinChart,
 	} = makeChartConfig(data, isGroup);
 	if (update) {
 		updateSexChart(optionSexChart);
 		updatePeopleChart(optionPeopleChart);
+		updateGuestsChart(optionGuestsChart);
 		updateAgeChart(optionAgeChart);
+		updatePeopleChart(optionFinChart);
 	} else {
 		renderChart(selectSexChart, configSexChart);
 		renderChart(selectPeopleChart, configPeopleChart);
+		renderChart(selectGuestsChart, configGuestsChart);
 		renderChart(selectAgeChart, configAgeChart);
+		renderChart(selectFinChart, configFinChart);
 	}
 }
 
@@ -30,6 +40,7 @@ function makeChartConfig(data, isGroup = '1m') {
 	let labels,
 		male = [],
 		female = [],
+		guests = [],
 		stableCongr = [],
 		unstableCongr = [],
 		stableConvert = [],
@@ -39,7 +50,11 @@ function makeChartConfig(data, isGroup = '1m') {
 		age3 = [],
 		age4 = [],
 		age5 = [],
-		ageUnknown = [];
+		ageUnknown = [],
+		uah = [],
+		rur = [],
+		usd = [],
+		eur = [];
 
 	(isGroup === '1m') ?
 		labels = data.map(item => `${item.date.week} нед. ${item.date.year}-${(item.date.month < 10) ? '0' + item.date.month : item.date.month}`)
@@ -49,11 +64,13 @@ function makeChartConfig(data, isGroup = '1m') {
 	labels.map((item, index) => {
 		let elem = data[index].result,
 			sex = elem.sex,
+			money = elem.money,
 			congregation = elem.congregation,
 			convert = elem.convert,
 			age = elem.age;
 		male.push(sex.male);
 		female.push(sex.female);
+		guests.push(elem.guest_count);
 		stableCongr.push(congregation.stable);
 		unstableCongr.push(congregation.unstable);
 		stableConvert.push(convert.stable);
@@ -64,6 +81,10 @@ function makeChartConfig(data, isGroup = '1m') {
 		age4.push(age['41-60']);
 		age5.push(age['60+']);
 		ageUnknown.push(age['unknown']);
+		uah.push(money.uah.total_sum);
+		rur.push(money.rur.total_sum);
+		usd.push(money.usd.total_sum);
+		eur.push(money.eur.total_sum);
 	});
 
 	let datasetsSexChart = [{
@@ -103,6 +124,14 @@ function makeChartConfig(data, isGroup = '1m') {
 				stack: 'Stack 1',
 				data: unstableConvert,
 			}],
+		datasetsGuestsChart = [{
+			label: "Гости",
+			borderColor: CHARTCOLORS.green,
+			backgroundColor: CHARTCOLORS.green,
+			data: guests,
+			lineTension: 0,
+			fill: false,
+		}],
 		datasetsAgeChart = [{
 			label: "12-",
 			borderColor: CHARTCOLORS.red,
@@ -140,15 +169,55 @@ function makeChartConfig(data, isGroup = '1m') {
 				data: ageUnknown,
 			},
 		],
+		datasetsFinChart = [{
+			label: "грн",
+			borderColor: CHARTCOLORS.red,
+			backgroundColor: CHARTCOLORS.red,
+			data: uah,
+		},
+			{
+				label: "руб.",
+				borderColor: CHARTCOLORS.orange,
+				backgroundColor: CHARTCOLORS.orange,
+				data: rur,
+			},
+			{
+				label: "дол.",
+				borderColor: CHARTCOLORS.blue,
+				backgroundColor: CHARTCOLORS.blue,
+				data: usd,
+			},
+			{
+				label: "евро.",
+				borderColor: CHARTCOLORS.green,
+				backgroundColor: CHARTCOLORS.green,
+				data: eur,
+			}],
 		xAxesBar = [{
 			stacked: true,
 		}],
 		yAxesBar = [{
 			stacked: true,
 		}],
+		xAxes = [{
+			display: true,
+			scaleLabel: {
+				show: true,
+				labelString: 'Day'
+			}
+		}],
+		yAxes = [{
+			display: true,
+			scaleLabel: {
+				show: true,
+				labelString: 'Value'
+			}
+		}],
 		titleSexChart = "Статистика по полу",
 		titlePeopleChart = "Статистика по людям",
 		titleAgeChart = "Статистика по возрасту",
+		titleGuestsChart = "Cтатистика по гостям",
+		titleFinChart = "Cтатистика по пожертвованиям",
 		callbackSexChart = {
 			footer: (tooltipItems, data) => {
 				let female = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
@@ -159,7 +228,9 @@ function makeChartConfig(data, isGroup = '1m') {
 		},
 		configSexChart = setConfig('bar', labels, datasetsSexChart, titleSexChart, xAxesBar, yAxesBar, callbackSexChart),
 		configPeopleChart = setConfig('bar', labels, datasetsPeopleChart, titlePeopleChart),
+		configGuestsChart = setConfig('line', labels, datasetsGuestsChart, titleGuestsChart, xAxes, yAxes),
 		configAgeChart = setConfig('bar', labels, datasetsAgeChart, titleAgeChart),
+		configFinChart = setConfig('bar', labels, datasetsFinChart, titleFinChart),
 		optionSexChart = {
 			chart: window.ChartSex,
 			labels: labels,
@@ -174,6 +245,11 @@ function makeChartConfig(data, isGroup = '1m') {
 			l3: stableConvert,
 			l4: unstableConvert,
 		},
+		optionGuestsChart = {
+			chart: window.ChartGuests,
+			labels: labels,
+			l1: guests,
+		},
 		optionAgeChart = {
 			chart: window.ChartAge,
 			labels: labels,
@@ -184,9 +260,19 @@ function makeChartConfig(data, isGroup = '1m') {
 			l5: age5,
 			l6: ageUnknown,
 		},
+		optionFinChart = {
+			chart: window.ChartFin,
+			labels: labels,
+			l1: uah,
+			l2: rur,
+			l3: usd,
+			l4: eur,
+		},
 		selectSexChart = 'chart_sex',
 		selectPeopleChart = 'chart_people',
-		selectAgeChart = 'chart_age';
+		selectGuestsChart = 'chart_guests',
+		selectAgeChart = 'chart_age',
+		selectFinChart = 'chart_finance';
 
 	return {
 		configSexChart,
@@ -198,6 +284,12 @@ function makeChartConfig(data, isGroup = '1m') {
 		configPeopleChart,
 		optionPeopleChart,
 		selectPeopleChart,
+		configGuestsChart,
+		optionGuestsChart,
+		selectGuestsChart,
+		configFinChart,
+		optionFinChart,
+		selectFinChart
 	}
 }
 
@@ -214,6 +306,12 @@ function updatePeopleChart({chart, labels, l1, l2, l3, l4}) {
 	chart.data.datasets[1].data = l2;
 	chart.data.datasets[2].data = l3;
 	chart.data.datasets[3].data = l4;
+	chart.update();
+}
+
+function updateGuestsChart({chart, labels, l1}) {
+	chart.data.labels = labels;
+	chart.data.datasets[0].data = l1;
 	chart.update();
 }
 
@@ -234,6 +332,10 @@ function renderChart(select, config) {
 		window.ChartSex = new Chart(ctx, config);
 	} else if (select === 'chart_age') {
 		window.ChartAge = new Chart(ctx, config);
+	} else if (select === 'chart_guests') {
+		window.ChartGuests = new Chart(ctx, config);
+	} else if (select === 'chart_finance') {
+		window.ChartFin = new Chart(ctx, config);
 	} else {
 		window.ChartPeople = new Chart(ctx, config);
 	}

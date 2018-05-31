@@ -21,8 +21,9 @@ build-stage:
 build-prod:
   stage: build
   script:
-    - docker build -t reg.sobsam.com/vocrm:$CI_COMMIT_TAG .
+    - docker build -t reg.sobsam.com/vocrm:$CI_COMMIT_TAG -t reg.sobsam.com/vocrm:stable .
     - docker push reg.sobsam.com/vocrm:$CI_COMMIT_TAG
+    - docker push reg.sobsam.com/vocrm:stable
   only:
     - tags
 
@@ -84,6 +85,7 @@ deploy-prod:
     - mkdir -p ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
+    - ssh $DB_USER@$DB_HOST "/home/db/backup.sh"
     - ssh $PROD_USER@$PROD_HOST "VOCRM_TAG=$CI_COMMIT_TAG /home/vocrm/sites/vocrm/update.sh"
   only:
     - tags

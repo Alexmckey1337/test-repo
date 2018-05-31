@@ -13,6 +13,9 @@ urlpatterns = [
     path('tables/church/', views.ChurchTableView.as_view(), name="tables-church"),
     path('tables/home_group/', views.HomeGroupTableView.as_view(), name="tables-home_group"),
 
+    path('random/home_groups/', views.VoHGListView.as_view(), name="vo-home_group"),
+    path('random/home_groups/<int:pk>/', views.VoHGDetailView.as_view(), name="vo-d-home_group"),
+
     path('exports/church/', views.ChurchExportView.as_view(), name="exports-church"),
     path('exports/home_group/', views.HomeGroupExportView.as_view(), name="exports-home_group"),
 

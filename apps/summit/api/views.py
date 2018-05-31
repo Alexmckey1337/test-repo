@@ -1,16 +1,16 @@
+import collections
 import logging
 from collections import defaultdict
 from datetime import datetime, time, date
 from typing import NamedTuple, List
 
-import collections
 import pytz
 from celery.result import AsyncResult
 from django.conf import settings
 from django.db import transaction, IntegrityError, connection
 from django.db.models import (
     Case, When, BooleanField, F, Subquery, OuterRef, CharField,
-    Func, Q, Exists, Sum, IntegerField)
+    Func, Q, Exists, IntegerField)
 from django.db.models import Value as V
 from django.db.models.functions import Concat, Coalesce
 from django.http import HttpResponse
@@ -28,7 +28,6 @@ from rest_framework.viewsets import GenericViewSet
 from apps.account.models import CustomUser
 from apps.account.signals import obj_add, obj_delete
 from apps.analytics.utils import model_to_dict
-from apps.navigation.table_columns import get_table
 from apps.notification.backend import RedisBackend
 from apps.payment.api.serializers import PaymentShowWithUrlSerializer
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
@@ -56,7 +55,7 @@ from apps.summit.resources import SummitAnketResource, SummitStatisticsResource
 from apps.summit.tasks import generate_tickets, send_email_with_code, send_email_with_schedule
 from apps.summit.utils import generate_ticket, get_report_by_bishop_or_high, \
     FullSummitParticipantReport
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin, TableViewMixin
 
@@ -137,14 +136,14 @@ class SummitAuthorListView(GenericAPIView):
         First 100 bishops+ of summit
         """
         self.summit = get_object_or_404(Summit, pk=kwargs.get('pk'))
-        authors = self.filter_queryset(self.get_queryset().order_by('last_name', 'first_name', 'middle_name'))
+        authors = self.filter_queryset(self.get_queryset().order_by('last_name', 'first_name', 'middle_name', 'pk'))
         authors = [{'id': p[0], 'title': p[1]} for p in authors.values_list('user_id', 'full_name')[:100]]
         return Response(data=authors)
 
     def get_queryset(self):
         return self.summit.ankets.filter(
             hierarchy__level__gte=4  # bishop+
-        ).order_by('last_name', 'first_name', 'middle_name').annotate_full_name()
+        ).order_by('last_name', 'first_name', 'middle_name', 'pk').annotate_full_name()
 
 
 class SummitProfileListMixin(mixins.ListModelMixin, GenericAPIView):
@@ -184,7 +183,7 @@ class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
     )
     filter_backends = (
         rest_framework.DjangoFilterBackend,
-        filters.OrderingFilter,
+        OrderingFilterWithPk,
         FieldSearchFilter,
         FilterProfileAuthorTree,
         FilterByClub,
@@ -219,7 +218,7 @@ class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
     def get_queryset(self):
         select_related = {'user'}
         qs = self.summit.ankets.order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+            'user__last_name', 'user__first_name', 'user__middle_name', 'pk')
         other_summits = SummitAnket.objects.filter(
             user_id=OuterRef('user_id'),
             summit__type_id=self.summit.type_id,
@@ -294,7 +293,7 @@ class SummitStatisticsView(SummitProfileListView):
 
     filter_backends = (
         rest_framework.DjangoFilterBackend,
-        filters.OrderingFilter,
+        OrderingFilterWithPk,
         FieldSearchFilter,
         FilterProfileAuthorTree,
         HasPhoto,
@@ -331,7 +330,7 @@ class SummitStatisticsView(SummitProfileListView):
                 output_field=CharField()))
         qs = qs.select_related('user', 'status').annotate(
             attended=Subquery(subqs.values('first_time')[:1], output_field=CharField())).annotate_full_name().order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+            'user__last_name', 'user__first_name', 'user__middle_name', 'pk')
         return qs
 
     def get_queryset(self):
@@ -368,7 +367,7 @@ class SummitProfileViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mix
         qs = self.queryset.annotate(
             has_email=Exists(emails), has_achievement=Exists(other_summits)).select_related('status') \
             .order_by(
-            'user__last_name', 'user__first_name', 'user__middle_name')
+            'user__last_name', 'user__first_name', 'user__middle_name', 'pk')
         return qs.for_user(self.request.user)
 
     def get_serializer_class(self):
@@ -562,7 +561,7 @@ class SummitTicketMakePrintedView(GenericAPIView):
 
 
 class SummitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date')
+    queryset = Summit.objects.prefetch_related('lessons').order_by('-start_date', 'pk')
     serializer_class = SummitSerializer
     filter_backends = (rest_framework.DjangoFilterBackend,)
     filter_fields = ('type',)
@@ -1104,7 +1103,7 @@ class HistorySummitStatByMasterDisciplesView(GenericAPIView):
 
     Returns counts of the disciples of master.disciples.
     """
-    queryset = SummitAnket.objects.order_by('last_name', 'first_name', 'middle_name')
+    queryset = SummitAnket.objects.order_by('last_name', 'first_name', 'middle_name', 'pk')
 
     permission_classes = (IsAuthenticated,)
     pagination_class = None

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from video_encoding.admin import FormatInline as BaseFormatInline
 
-from apps.lesson.models import TextLesson, VideoLesson, VideoFile
+from apps.lesson.models import TextLesson, VideoLesson, VideoFile, TextLessonImage
 from common.test_helpers.utils import get_real_user
 
 
@@ -11,6 +11,13 @@ class FormatInline(BaseFormatInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+
+class ImageInline(admin.StackedInline):
+    model = TextLessonImage
+    fields = ('display_order', 'url')
+    extra = 1
+    max_num = 5
 
 
 class LessonAdmin(admin.ModelAdmin):
@@ -26,7 +33,9 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(TextLesson)
 class TextLessonAdmin(LessonAdmin):
-    pass
+    list_display = ('title', 'status', 'published_date', 'creator', 'access_level', 'image')
+    readonly_fields = ('image',)
+    inlines = (ImageInline,)
 
 
 @admin.register(VideoLesson)

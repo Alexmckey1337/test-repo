@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.account.models import CustomUser
-from apps.lesson.models import TextLesson, VideoLesson, AbstractLesson
+from apps.lesson.models import TextLesson, VideoLesson, AbstractLesson, TextLessonImage
 from common.fields import ReadOnlyChoiceWithKeyField
 
 LESSON_LIST_FIELDS = (
@@ -19,6 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('pk', 'title')
+
+
+class TextLessonImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TextLessonImage
+        fields = ('display_order', 'url')
 
 
 class BaseLessonListSerializer(serializers.ModelSerializer):
@@ -56,9 +62,11 @@ class BaseLessonDetailSerializer(serializers.ModelSerializer):
 
 
 class TextLessonDetailSerializer(BaseLessonDetailSerializer):
+    images = TextLessonImageSerializer(many=True)
+
     class Meta:
         model = TextLesson
-        fields = LESSON_LIST_FIELDS + ('content', 'image')
+        fields = LESSON_LIST_FIELDS + ('content', 'image', 'images')
 
 
 class VideoLessonDetailSerializer(BaseLessonDetailSerializer):

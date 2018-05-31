@@ -83,11 +83,20 @@
             <div class="chart">
                 <canvas id="chart_people"></canvas>
             </div>
+            <div class="chart">
+                <canvas id="chart_guests"></canvas>
+            </div>
         </div>
 
         {% block table %}
             <div class="table-wrap table-wrap_margin clearfix">
                 <div class="table scrollbar-inner" id="tableHomeStats"></div>
+            </div>
+            <div class="charts">
+                <canvas id="chart_finance"></canvas>
+            </div>
+            <div class="table-wrap table-wrap_margin clearfix">
+                <div class="table scrollbar-inner" id="tableHomeStatsFinance"></div>
             </div>
             <div class="charts">
                 <canvas id="chart_age"></canvas>
@@ -104,6 +113,7 @@
 
 {% block popup.filter.content %}
     {% include "partials/filter/select.html" with label="Отдел" options=departments name="department" %}
+    {% include "partials/filter/select.html" with label="Присутствовали" options=true_false_options name="attended" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Ветка" options=owner_options name="leader_tree" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Церковь" options=church_options name="church" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Лидер домашней группы" options=owner_options name="leader" empty_value="ВСЕ" %}

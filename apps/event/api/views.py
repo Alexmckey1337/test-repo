@@ -1,7 +1,8 @@
 import calendar
 import json
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from functools import reduce
@@ -18,8 +19,8 @@ from django.http import QueryDict
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import status, filters, exceptions, views
-from rest_framework.decorators import action
+from rest_framework import status, exceptions, views
+from rest_framework.decorators import action, api_view
 from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -44,8 +45,8 @@ from apps.event.api.serializers import (
     MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
-from apps.payment.models import Payment
-from common.filters import FieldSearchFilter
+from apps.payment.models import Payment, Currency
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.parsers import MultiPartAndJsonParser
 from common.utils import encode_month, decode_month
 
@@ -58,6 +59,11 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
                                    'reports_expired', 'reports_in_progress')
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
+
+SEX_FIELDS = ('male', 'female', 'unknown')
+CONGREGATION_FIELDS = ('stable', 'unstable')
+CONVERT_FIELDS = CONGREGATION_FIELDS
+AGE_FIELDS = ('12-', '13-25', '26-40', '41-60', '60+', 'unknown')
 
 
 class Report(NamedTuple):
@@ -78,8 +84,8 @@ class MeetingReport(NamedTuple):
     ids: List[int]
     year: int
     week: int
-    visitors: int
-    attended_visitors: int
+    code: str
+    total_guest_count: int
     total_sum: Decimal
 
 
@@ -238,7 +244,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     filter_backends = (rest_framework.DjangoFilterBackend,
                        MeetingCustomFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        MeetingFilterByMaster,
                        MeetingStatusFilter,
                        CommonGroupsLast5Filter,
@@ -403,7 +409,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             pagination_class=MeetingVisitorsPagination)
     def visitors(self, request, pk):
         meeting = self.get_object()
-        visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name')
+        visitors = meeting.home_group.uusers.order_by('last_name', 'first_name', 'middle_name', 'pk')
 
         page = self.paginate_queryset(visitors)
         if page is not None:
@@ -501,7 +507,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         return Response(mobile_counts.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'], serializer_class=MeetingSummarySerializer,
-            filter_backends=(filters.OrderingFilter, EventSummaryFilter,
+            filter_backends=(OrderingFilterWithPk, EventSummaryFilter,
                              EventSummaryMasterFilter, FieldSearchFilter),
             ordering_fields=MEETINGS_SUMMARY_ORDERING_FIELDS,
             field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
@@ -541,7 +547,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                        ChurchReportFilterByMaster,
                        ChurchReportDepartmentFilter,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        ChurchReportPaymentStatusFilter,
                        ChurchReportStatusFilter,
                        CommonGroupsLast5Filter,)
@@ -676,7 +682,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
         return Response(dashboards_counts.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'], serializer_class=ChurchReportSummarySerializer,
-            filter_backends=(filters.OrderingFilter, EventSummaryMasterFilter,
+            filter_backends=(OrderingFilterWithPk, EventSummaryMasterFilter,
                              EventSummaryFilter, FieldSearchFilter),
             ordering_fields=REPORTS_SUMMARY_ORDERING_FIELDS,
             field_search_fields=EVENT_SUMMARY_SEARCH_FIELDS,
@@ -1218,15 +1224,17 @@ class MeetingStatsView(WeekMixin, views.APIView):
           array_agg(report.id) ids,
           date_part('year', report.date) _year,
           date_part('week', report.date) week,
-          count(em.meeting_id) visitors,
-          count(em.meeting_id) FILTER (WHERE em.attended) attended_visitors,
+          coalesce(cur.code, church.report_currency::char),
+          sum(guest_count) total_guest_count,
           sum(total_sum) total_sum
         FROM event_meeting report
           JOIN account_customuser customuser ON report.owner_id = customuser.user_ptr_id
-          JOIN event_meetingattend em ON report.id = em.meeting_id
+          LEFT JOIN group_homegroup hg ON report.home_group_id = hg.id
+          LEFT JOIN group_church church ON hg.church_id = church.id
+          LEFT JOIN payment_currency cur ON church.report_currency = cur.id
         {filter}
-        GROUP BY date_part('year', report.date), date_part('week', report.date)
-        ORDER BY date_part('year', report.date), date_part('week', report.date);
+        GROUP BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char)
+        ORDER BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char);
     """
     WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
                       "date_part('year', report.date) = {year})")
@@ -1236,11 +1244,10 @@ class MeetingStatsView(WeekMixin, views.APIView):
         # ids = aggr_by_key('ids', lambda a: reduce(or_, a), default=set())
         return {
             # 'ids': ids,
-            'visitors': aggr_by_key('visitors'),
-            'attended_visitors': aggr_by_key('attended_visitors'),
             'year': y,
             'week': w,
             'month': m,
+            'total_guest_count': aggr_by_key('total_guest_count'),
             'total_sum': aggr_by_key('total_sum'),
         }
 
@@ -1255,6 +1262,18 @@ class MeetingStatsView(WeekMixin, views.APIView):
         if years:
             where_weeks += [self.YEARS_TEMPLATE.format(years=years)]
         return ('(' + ' OR '.join(where_weeks) + ')') if weeks else '', []
+
+    def get_where_department(self):
+        department = self.request.query_params.get('department')
+        if not department:
+            return '', []
+        return " AND church.department_id = %s", [department]
+
+    def get_where_church(self):
+        church = self.request.query_params.get('church')
+        if not church:
+            return '', []
+        return " AND hg.church_id = %s", [church]
 
     def get_where_home_group(self):
         hg = self.request.query_params.get('hg')
@@ -1290,6 +1309,8 @@ class MeetingStatsView(WeekMixin, views.APIView):
         where = list()
         where.append(self.get_where_weeks(weeks))
         where.append(self.get_where_home_group())
+        where.append(self.get_where_church())
+        where.append(self.get_where_department())
         where.append(self.get_where_meeting_type())
         where.append(self.get_where_leader())
         where.append(self.get_where_leader_tree())
@@ -1308,7 +1329,7 @@ class MeetingStatsView(WeekMixin, views.APIView):
         query = self.SQL.format(filter=where)
         try:
             with connection.cursor() as connect:
-                connect.execute(query)
+                connect.execute(query, params)
                 reports = connect.fetchall()
                 result = [MeetingReport(*r) for r in reports]
         except DataError:
@@ -1317,13 +1338,12 @@ class MeetingStatsView(WeekMixin, views.APIView):
         # logger.info(result)
         d = defaultdict(list)
         for r in result:
-            d['uah'].append({
+            d[r.code].append({
                 'ids': set(r.ids),
                 'year': int(r.year),
                 'week': int(r.week),
                 'month': self.week_to_month(int(r.year), int(r.week)),
-                'visitors': r.visitors,
-                'attended_visitors': r.attended_visitors,
+                'total_guest_count': r.total_guest_count,
                 'total_sum': r.total_sum,
             })
         return d
@@ -1376,7 +1396,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
           join event_meeting report on e.meeting_id = report.id
           join group_homegroup hg on report.home_group_id = hg.id
           join group_church church on hg.church_id = church.id
-          {filter}
+          {filter} AND report.status = 2
         GROUP BY date_part('year', report.date), date_part('week', report.date)
         ORDER BY date_part('year', report.date), date_part('week', report.date);
     """
@@ -1388,6 +1408,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         def sum_lists(length):
             def f(a):
                 return [sum(b) for b in zip(*a)]
+
             return {
                 'func': f,
                 'default': [0] * length
@@ -1420,6 +1441,14 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         if not department:
             return '', []
         return " AND church.department_id = %s", [department]
+
+    def get_where_attended(self):
+        attended = self.request.query_params.get('attended', '')
+        if attended.lower() in ('true', 't', '1'):
+            return " AND e.attended", []
+        if attended.lower() in ('false', 'f', '0'):
+            return " AND not e.attended", []
+        return '', []
 
     def get_where_church(self):
         church = self.request.query_params.get('church')
@@ -1458,14 +1487,10 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         return " AND report.owner_id = %s", [leader]
 
     def get_where_filter(self, weeks):
-        where = list()
-        where.append(self.get_where_weeks(weeks))
-        where.append(self.get_where_home_group())
-        where.append(self.get_where_church())
-        where.append(self.get_where_department())
-        where.append(self.get_where_meeting_type())
-        where.append(self.get_where_leader())
-        where.append(self.get_where_leader_tree())
+        where = [self.get_where_weeks(weeks), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
+                 self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
+                 self.get_where_attended(), self.get_where_meeting_type(), self.get_where_leader(),
+                 self.get_where_leader_tree()]
         a = tuple(zip(*where))
         return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
 
@@ -1527,11 +1552,71 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
             {
                 'date': d['date'],
                 'result': {
-                    'sex': dict(zip(('male', 'female', 'unknown'), d['result']['res']['sex'])),
-                    'congregation': dict(zip(('stable', 'unstable'), d['result']['res']['congregation'])),
-                    'convert': dict(zip(('stable', 'unstable'), d['result']['res']['convert'])),
-                    'age': dict(zip(('12-', '13-25', '26-40', '41-60', '60+', 'unknown'), d['result']['res']['age'])),
+                    'sex': dict(zip(SEX_FIELDS, d['result']['res']['sex'])),
+                    'congregation': dict(zip(CONGREGATION_FIELDS, d['result']['res']['congregation'])),
+                    'convert': dict(zip(CONVERT_FIELDS, d['result']['res']['convert'])),
+                    'age': dict(zip(AGE_FIELDS, d['result']['res']['age'])),
                 }
             }
             for d in data
         ])
+
+
+def create_empty_dict_by_keys(keys):
+    return {k: 0 for k in keys}
+
+
+attends_empty = {
+    "sex": create_empty_dict_by_keys(SEX_FIELDS),
+    "congregation": create_empty_dict_by_keys(CONGREGATION_FIELDS),
+    "convert": create_empty_dict_by_keys(CONVERT_FIELDS),
+    "age": create_empty_dict_by_keys(AGE_FIELDS),
+}
+
+meeting_empty = {c.code: {'total_sum': Decimal('0.00'), 'total_guest_count': 0} for c in Currency.objects.all()}
+
+
+def merge_data(meetings_stats, attends_stats):
+    def dict_to_tuple(d):
+        return d['year'], d['month'], d['week']
+
+    meeting_dates = list()
+    attends_dates = list()
+    aa = OrderedDict()
+    mm = OrderedDict()
+
+    for a in attends_stats:
+        d = dict_to_tuple(a['date'])
+        attends_dates.append(d)
+        aa[d] = a['result']
+    for m in meetings_stats:
+        d = dict_to_tuple(m['date'])
+        meeting_dates.append(d)
+        mm[dict_to_tuple(m['date'])] = m['result']
+
+    dates = sorted(list(set(meeting_dates) | set(attends_dates)))
+
+    result = list()
+    for d in dates:
+        attends_result = aa.get(d, attends_empty)
+        meeting_result = mm.get(d, deepcopy(meeting_empty))
+        attends_result['guest_count'] = sum([g.pop('total_guest_count', 0) for g in meeting_result.values()])
+        money = {k: {'total_sum': v['total_sum']} for k, v in meeting_empty.items()}
+        money.update(meeting_result)
+        attends_result['money'] = money
+        result.append({
+            'date': {'year': d[0], 'month': d[1], 'week': d[2]},
+            'result': attends_result,
+        })
+
+    return result
+
+
+@api_view(['GET'])
+def all_stats(request, *args, **kwargs):
+    r1 = MeetingStatsView.as_view()(request._request, *args, **kwargs)
+    r2 = MeetingAttendStatsView.as_view()(request._request, *args, **kwargs)
+
+    data = merge_data(r1.data, r2.data)
+
+    return Response(data=data)

@@ -2,7 +2,7 @@ from django.db import transaction, IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import mixins, viewsets
-from rest_framework import status, filters, exceptions
+from rest_framework import status, exceptions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser
@@ -17,7 +17,7 @@ from apps.controls.api.serializers import (
     LogPanelSerializer,
 )
 from apps.summit.models import Summit, SummitType
-from common.filters import FieldSearchFilter
+from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.views_mixins import ModelWithoutDeleteViewSet
 from .filters import SummitPanelDateFilter, DbAccessFilterByDepartments, FilterMasterTree
 
@@ -27,7 +27,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     queryset = CustomUser.objects.select_related(
         'hierarchy', 'master__hierarchy').prefetch_related(
         'divisions', 'departments'
-    ).order_by('last_name', 'first_name', 'middle_name')
+    ).order_by('last_name', 'first_name', 'middle_name', 'pk')
 
     serializer_list_class = DatabaseAccessListSerializer
     serializer_retrieve_class = DatabaseAccessDetailSerializer
@@ -36,7 +36,7 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        DbAccessFilterByDepartments,
                        FilterMasterTree,
                        )
@@ -98,7 +98,7 @@ class SummitPanelViewSet(ModelViewSet):
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        FieldSearchFilter,
-                       filters.OrderingFilter,
+                       OrderingFilterWithPk,
                        )
 
     ordering_fields = ('type', 'status', 'start_date', 'end_date')

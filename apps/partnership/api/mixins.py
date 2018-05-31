@@ -915,7 +915,7 @@ class PartnerStatusReviewMixin(object):
     @staticmethod
     def partnership_status_review(partner):
         value = False
-        for deal in partner.deals.order_by('-date_created')[:3]:
+        for deal in partner.deals.order_by('-date_created', 'pk')[:3]:
             if not (deal.expired and not deal.done):
                 value = True
 
