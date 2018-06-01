@@ -37,6 +37,12 @@ function getTransformData(data, isGroup = '1m') {
 				title: 'Гостей',
 			},
 			{
+				title: 'Новых',
+			},
+			{
+				title: 'Покаяний',
+			},
+			{
 				title: 'Мужчин/Женщин',
 			},
 			{
@@ -47,14 +53,14 @@ function getTransformData(data, isGroup = '1m') {
 			},
 		],
 		dataFinance = [{
-				title: 'Гривна',
-			},{
-				title: 'Рубль',
-			},{
-				title: 'Доллар',
-			},{
-				title: 'Евро',
-			}],
+			title: 'Гривна',
+		}, {
+			title: 'Рубль',
+		}, {
+			title: 'Доллар',
+		}, {
+			title: 'Евро',
+		}],
 		dataAges = [
 			{
 				title: '12-',
@@ -92,9 +98,11 @@ function getTransformData(data, isGroup = '1m') {
 			age = elem.age;
 		dataPeoples[0][item] = +sex.male + +sex.female + +sex.unknown;
 		dataPeoples[1][item] = elem.guest_count;
-		dataPeoples[2][item] = `${sex.male} / ${sex.female}`;
-		dataPeoples[3][item] = `${congregation.stable} / ${congregation.unstable}`;
-		dataPeoples[4][item] = `${convert.stable} / ${convert.unstable}`;
+		dataPeoples[2][item] = elem.new_count;
+		dataPeoples[3][item] = elem.repentance_count;
+		dataPeoples[4][item] = `${sex.male} / ${sex.female}`;
+		dataPeoples[5][item] = `${congregation.stable} / ${congregation.unstable}`;
+		dataPeoples[6][item] = `${convert.stable} / ${convert.unstable}`;
 		dataFinance[0][item] = money.uah.total_sum;
 		dataFinance[1][item] = money.rur.total_sum;
 		dataFinance[2][item] = money.usd.total_sum;

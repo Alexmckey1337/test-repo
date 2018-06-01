@@ -41,6 +41,8 @@ function makeChartConfig(data, isGroup = '1m') {
 		male = [],
 		female = [],
 		guests = [],
+		newPeople = [],
+		repentance = [],
 		stableCongr = [],
 		unstableCongr = [],
 		stableConvert = [],
@@ -71,6 +73,8 @@ function makeChartConfig(data, isGroup = '1m') {
 		male.push(sex.male);
 		female.push(sex.female);
 		guests.push(elem.guest_count);
+		newPeople.push(elem.new_count);
+		repentance.push(elem.repentance_count);
 		stableCongr.push(congregation.stable);
 		unstableCongr.push(congregation.unstable);
 		stableConvert.push(convert.stable);
@@ -129,6 +133,20 @@ function makeChartConfig(data, isGroup = '1m') {
 			borderColor: CHARTCOLORS.green,
 			backgroundColor: CHARTCOLORS.green,
 			data: guests,
+			lineTension: 0,
+			fill: false,
+		}, {
+			label: "Новые",
+			borderColor: CHARTCOLORS.red,
+			backgroundColor: CHARTCOLORS.red,
+			data: newPeople,
+			lineTension: 0,
+			fill: false,
+		}, {
+			label: "Покаяния",
+			borderColor: CHARTCOLORS.orange,
+			backgroundColor: CHARTCOLORS.orange,
+			data: repentance,
 			lineTension: 0,
 			fill: false,
 		}],
@@ -214,9 +232,9 @@ function makeChartConfig(data, isGroup = '1m') {
 			}
 		}],
 		titleSexChart = "Статистика по полу",
-		titlePeopleChart = "Статистика по людям",
+		titlePeopleChart = "Статистика по стабильным",
 		titleAgeChart = "Статистика по возрасту",
-		titleGuestsChart = "Cтатистика по гостям",
+		titleGuestsChart = "Cтатистика по людям",
 		titleFinChart = "Cтатистика по пожертвованиям",
 		callbackSexChart = {
 			footer: (tooltipItems, data) => {
@@ -249,6 +267,8 @@ function makeChartConfig(data, isGroup = '1m') {
 			chart: window.ChartGuests,
 			labels: labels,
 			l1: guests,
+			l2: newPeople,
+			l3: repentance,
 		},
 		optionAgeChart = {
 			chart: window.ChartAge,
@@ -309,9 +329,11 @@ function updatePeopleChart({chart, labels, l1, l2, l3, l4}) {
 	chart.update();
 }
 
-function updateGuestsChart({chart, labels, l1}) {
+function updateGuestsChart({chart, labels, l1, l2, l3}) {
 	chart.data.labels = labels;
 	chart.data.datasets[0].data = l1;
+	chart.data.datasets[1].data = l2;
+	chart.data.datasets[2].data = l3;
 	chart.update();
 }
 
