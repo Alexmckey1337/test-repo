@@ -66,6 +66,7 @@ LOCAL_APPS = (
     'apps.notification.apps.NotificationConfig',
     'apps.partnership.apps.PartnershipConfig',
     'apps.payment.apps.PaymentConfig',
+    'apps.proposal.apps.ProposalConfig',
     'apps.report.apps.ReportConfig',
     'apps.status.apps.StatusConfig',
     'apps.summit.apps.SummitConfig',
@@ -507,3 +508,19 @@ VIDEO_ENCODING_FORMATS = {
         # },
     ]
 }
+
+# Proposal settings
+
+PROPOSAL_OPEN = 'open'
+PROPOSAL_IN_PROGRESS = 'in_progress'
+PROPOSAL_REOPEN = 'reopen'
+PROPOSAL_REJECTED = 'rejected'
+PROPOSAL_PROCESSED = 'processed'
+
+PROPOSAL_STATUSES = (
+    (PROPOSAL_OPEN, _('Open')),
+    (PROPOSAL_IN_PROGRESS, _('In progress')),
+    (PROPOSAL_REOPEN, _('Reopen')),
+    (PROPOSAL_REJECTED, _('Rejected')),
+    (PROPOSAL_PROCESSED, _('Processed')),
+)
