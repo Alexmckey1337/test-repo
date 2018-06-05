@@ -52,7 +52,7 @@ def request_to_asterisk(data, url):
     s = time.time()
     try:
         response = requests.get(settings.ASTERISK_SERVICE_ADDRESS + url,
-                                params=data, json=data,
+                                params=data, json=data, timeout=5,
                                 headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
@@ -204,7 +204,7 @@ def change_asterisk_user(request):
 
     try:
         response = requests.put(settings.ASTERISK_SERVICE_ADDRESS + '/change_user',
-                                data=json.dumps(data),
+                                data=json.dumps(data), timeout=5,
                                 headers={'Content-Type': 'application/json'})
     except Exception as e:
         print(e)
