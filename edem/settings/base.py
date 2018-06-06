@@ -48,7 +48,7 @@ THIRD_PARTY_APPS = (
     'corsheaders',
     'tinymce',
     # 'rest_auth.registration',
-    # 'django_extensions',
+    'django_extensions',
     'channels',
     'drf_yasg',
     'video_encoding',
@@ -524,3 +524,19 @@ PROPOSAL_STATUSES = (
     (PROPOSAL_REJECTED, _('Rejected')),
     (PROPOSAL_PROCESSED, _('Processed')),
 )
+
+PROPOSAL_STATUS_PIPELINE = {
+    # processed statuses
+    'open': ['in_progress'],
+    'in_progress': ['reopen', 'rejected', 'processed'],
+    'reopen': ['in_progress'],
+    # closed statuses
+    'rejected': ['in_progress'],
+    'processed': ['in_progress'],
+}
+
+# The time during which a status of proposal can be changed from `rejected` or `processed` to `in_progress`
+CANCEL_CLOSE_TIME = 60 * 60  # 1 hour
+
+VO_ORG_UA_TOKEN_NAME = 'HTTP_VO_ORG_UA_TOKEN'
+VO_ORG_UA_TOKEN = 'voorguatoken'

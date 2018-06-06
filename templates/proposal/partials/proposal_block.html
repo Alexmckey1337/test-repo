@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load static %}
+
+<div class="container">
+    <h1>{% trans "Status" %}: {{ proposal.get_status_display }}</h1>
+    {% if proposal.is_open %}
+        <div class="col-11">
+            <div>
+                <button>{% trans "Взять в работу" %}</button>
+            </div>
+        </div>
+        {% include "proposal/partials/proposal_card.html" %}
+        {% include "proposal/partials/similar_users.html" %}
+    {% elif proposal.in_progress %}
+        {% if request.user == proposal.manager %}
+            {% include "proposal/partials/proposal_card.html" %}
+            {% include "proposal/partials/similar_users.html" %}
+        {% else %}
+            access error
+        {% endif %}
+    {% elif proposal.is_complete %}
+        <div class="col-11">
+            <div>
+                <button>{% trans "Вернуть в работу" %}</button>
+            </div>
+        </div>
+        {% if request.user == proposal.manager %}
+            {% include "proposal/partials/proposal_card.html" %}
+        {% else %}
+            access error
+        {% endif %}
+    {% else %}
+       incorrect status
+    {% endif %}
+</div>

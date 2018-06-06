@@ -1,0 +1,32 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1>
+        <a href="{% url "proposal:list" %}">{% trans "Proposals" %}</a> | {{ proposal }}
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    {% if proposal.is_complete %}
+        {% if proposal.cancel_time_is_over %}
+            proposal is complete or reject and cancel time is over
+        {% else %}
+            {% include "proposal/partials/proposal_block.html" %}
+        {% endif %}
+    {% elif proposal.is_open or proposal.in_progress %}
+        {% include "proposal/partials/proposal_block.html" %}
+    {% else %}
+        incorrect status
+    {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}

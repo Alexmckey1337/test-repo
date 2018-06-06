@@ -60,6 +60,7 @@ urlpatterns = [
     path('events/', include('apps.event.urls', namespace='events')),
     path('partner/', include('apps.partnership.urls', namespace='partner')),
     path('payment/', include('apps.payment.urls', namespace='payment')),
+    path('proposals/', include('apps.proposal.urls', namespace='proposal')),
     path('summits/', include('apps.summit.urls', namespace='summit')),
     path('tasks/', include('apps.task.urls', namespace='tasks')),
 

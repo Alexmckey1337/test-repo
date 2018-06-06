@@ -12,6 +12,7 @@ urlpatterns = [
     path('', include('apps.notification.api.urls')),
     path('', include('apps.partnership.api.urls')),
     path('', include('apps.payment.api.urls')),
+    path('', include('apps.proposal.api.urls')),
     path('', include('apps.report.api.urls')),
 
     path('', include('apps.group.api.urls')),

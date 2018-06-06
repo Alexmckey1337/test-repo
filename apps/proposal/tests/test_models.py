@@ -4,7 +4,6 @@ from apps.proposal.models import History
 
 
 @pytest.mark.django_db
-@pytest.mark.hh
 class TestProposal:
     @pytest.mark.parametrize('first,last,result', [
         ('first', 'last', 'last first'),
@@ -19,7 +18,6 @@ class TestProposal:
 
 
 @pytest.mark.django_db
-@pytest.mark.hh
 def test_create_history_record_when_created_proposal(proposal_factory):
     proposal = proposal_factory()
 

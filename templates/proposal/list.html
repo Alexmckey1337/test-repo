@@ -1,0 +1,44 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1>
+        {% trans "Proposals" %}
+    </h1>
+{% endblock %}
+
+{% block header.buttons.filter %}
+{% endblock %}
+
+{% block header.buttons %}
+{% endblock %}
+
+{% block main.content %}
+    <table>
+        <tr>
+            <th>{% trans "User" %}</th>
+            <th>{% trans "Gender" %}</th>
+            <th>{% trans "Phone number" %}</th>
+            <th>{% trans "Email" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "User profile" %}</th>
+        </tr>
+        {% for p in proposals %}
+            <tr>
+                <td><a href="{% url "proposal:detail" p.id %}">{{ p }}</a></td>
+                <td>{{ p.get_sex_display }}</td>
+                <td>{{ p.phone_number }}</td>
+                <td>{{ p.email }}</td>
+                <td>{{ p.get_status_display }}</td>
+                <td>{% if p.user %}
+                    <a href="{{ p.user.get_absolute_url }}" target="_blank">{{ p.user.fullname }}</a>
+                {% endif %}</td>
+            </tr>
+        {% endfor %}
+        <tr></tr>
+    </table>
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}
