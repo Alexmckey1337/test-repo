@@ -1,6 +1,10 @@
+from importlib import import_module
+
+from django.apps import apps
 from django.core.files.storage import default_storage
 import io
 from django.utils import timezone
+from import_export.formats.base_formats import CSV
 
 from edem.settings.celery import app
 from django.conf import settings
@@ -12,8 +16,16 @@ from apps.notification.backend import RedisBackend
 from apps.summit.models import SummitAnket
 
 
-@app.task(ignore_result=True, max_retries=3, default_retra=2 * 60)
-def generate_export(user, model, ids, fields, resource_class, file_format, file_name):
+formats = {
+    'text/csv': CSV
+}
+
+
+@app.task(max_retries=3, default_retry_delay=2 * 60)
+def generate_export(user_id, app_label, model_name, ids, fields, resource_module, resource_class_name, content_type, file_name):
+    file_format = formats.get(content_type, CSV)()
+    resource_class = getattr(import_module(resource_module), resource_class_name)
+    model = apps.get_model(app_label=app_label, model_name=model_name)
     qs = model.objects.filter(id__in=ids)
     if model == SummitAnket:
         qs = qs.annotate_full_name()
@@ -32,12 +44,12 @@ def generate_export(user, model, ids, fields, resource_class, file_format, file_
 
     try:
         r = RedisBackend()
-        r.sadd('export:{}'.format(user), url)
-        r.expire('export:{}'.format(user), 24 * 60 * 60)
+        r.sadd('export:{}'.format(user_id), url)
+        r.expire('export:{}'.format(user_id), 24 * 60 * 60)
     except Exception as err:
         print(err)
 
-    Group('export_{}'.format(user)).send({
+    Group('export_{}'.format(user_id)).send({
         'text': dumps({'link': url, 'type': 'EXPORT', 'name': file_name})
     })
 

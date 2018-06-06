@@ -161,15 +161,9 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 LANGUAGES = (
@@ -223,7 +217,7 @@ REST_FRAMEWORK = {
         'apps.account.auth_backends.CustomUserTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30,
@@ -254,18 +248,17 @@ if BROKER_URL == 'django://':
     CELERY_RESULT_BACKEND = 'redis://'
 else:
     CELERY_RESULT_BACKEND = BROKER_URL
-# BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
-# CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_RESULT_SERIALIZER = 'pickle'
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_RESULT_EXPIRES = 30 * 86400  # 30 days
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+
+CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Kiev'
 CELERY_ENABLE_UTC = True
-CELERY_TASK_RESULT_EXPIRES = 7 * 86400  # 7 days
-CELERY_SEND_EVENTS = True
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_ACKS_LATE = True
+CELERYD_SEND_EVENTS = False
 CELERYD_PREFETCH_MULTIPLIER = 1
 
 from celery.schedules import crontab
