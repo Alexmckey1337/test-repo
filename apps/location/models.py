@@ -107,7 +107,7 @@ class City(models.Model):
         (STANITSA, _('Станица')),
         (HUTOR, _('Хутор')),
     )
-    vid = models.SmallIntegerField(_('Level'), choices=UNKNOWN_VID)
+    vid = models.SmallIntegerField(_('Level'), choices=VID, default=UNKNOWN_VID)
     post = models.CharField(_('Post'), max_length=64, blank=True, db_index=True)
     geonameid = models.PositiveIntegerField(_('Geo name id'), blank=True, null=True, db_index=True)
 
