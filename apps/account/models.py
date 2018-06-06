@@ -149,6 +149,11 @@ class CustomUser(MP_Node, LogModel, User,
     def get_descendant_leaders(self):
         return self.get_descendants().filter(hierarchy__level=1)
 
+    # TODO recreate to field
+    @property
+    def is_proposal_manager(self):
+        return True
+
     @property
     def has_usable_password(self):
         if self.password:
