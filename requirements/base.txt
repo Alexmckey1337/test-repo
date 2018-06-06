@@ -1,5 +1,5 @@
 asgi_redis
-celery==3.1.25
+celery>=4,<4.2
 channels<2.0.0
 drf-yasg
 django>=1.10,<2.1
@@ -23,6 +23,7 @@ elasticsearch-dsl>=6.0.0,<7.0.0
 filetype
 flower
 html2text
+objgraph
 Pillow==4.3.0
 premailer
 psycopg2-binary
