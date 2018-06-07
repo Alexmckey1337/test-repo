@@ -28,5 +28,11 @@
     {% endif %}
 {% endblock %}
 
+{% block create_user %}
+    {% include 'partials/create_user.html' %}
+{% endblock %}
+
 {% block extra_scripts %}
+    <script src="{% static "js/add_user.bundle.js" %}"></script>
+    <script src="{% static "js/proposal.bundle.js" %}"></script>
 {% endblock %}

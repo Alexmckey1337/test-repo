@@ -3,14 +3,42 @@
 
 <div class="container">
     <h1>{% trans "Status" %}: {{ proposal.get_status_display }}</h1>
-    {% if proposal.is_open %}
-        <div class="col-11">
-            <div>
-                <button>{% trans "Взять в работу" %}</button>
-            </div>
+    {% if proposal.is_complete %}
+        {{ proposal.note|default_if_none:" " }}
+    {% endif %}
+    <div class="col-11">
+        <div>
+            {% if proposal.is_open %}
+                <button id="proposalStatus"
+                        data-type="receive"
+                        data-id="{{ proposal.id }}">
+                    {% trans "Взять в работу" %}
+                </button>
+                {% elif proposal.in_progress %}
+                {% if request.user == proposal.manager %}
+                    <button id="proposalStatus"
+                            data-type="reopen"
+                            data-id="{{ proposal.id }}">
+                        {% trans "Переоткрыть" %}
+                    </button>
+                    <button id="proposalReject"
+                            data-id="{{ proposal.id }}">
+                        {% trans "Отклонить" %}
+                    </button>
+                {% endif %}
+            {% elif proposal.is_complete %}
+                <button id="proposalStatus"
+                        data-type="receive"
+                        data-id="{{ proposal.id }}">
+                    {% trans "Вернуть в работу" %}
+                </button>
+            {% endif %}
         </div>
+    </div>
+
+    {% if proposal.is_open %}
         {% include "proposal/partials/proposal_card.html" %}
-        {% include "proposal/partials/similar_users.html" %}
+        {#        {% include "proposal/partials/similar_users.html" %}#}
     {% elif proposal.in_progress %}
         {% if request.user == proposal.manager %}
             {% include "proposal/partials/proposal_card.html" %}
@@ -19,17 +47,12 @@
             access error
         {% endif %}
     {% elif proposal.is_complete %}
-        <div class="col-11">
-            <div>
-                <button>{% trans "Вернуть в работу" %}</button>
-            </div>
-        </div>
         {% if request.user == proposal.manager %}
             {% include "proposal/partials/proposal_card.html" %}
         {% else %}
             access error
         {% endif %}
     {% else %}
-       incorrect status
+        incorrect status
     {% endif %}
 </div>

@@ -8,9 +8,13 @@
                 <a href="{{ user.get_absolute_url }}">{{ user }}</a>
                 <p>{{ user.phone_number }}</p>
                 <p>{{ user.email }}</p>
-                <button type="button" id="set_user">{% trans "Привязать пользователя" %}</button>
+                <button id="set_user"
+                        data-user-id="{{ user.id }}"
+                        data-proposal-id="{{ proposal.id }}">
+                    {% trans "Привязать пользователя" %}
+                </button>
             </div>
-        {% empty %}
+            {% empty %}
         {% endfor %}
         <div style="border: 1px dotted green">
             {% if similar_users %}
@@ -18,7 +22,10 @@
             {% else %}
                 <p>{% trans "Нет пользователей, которые подходят под данную заявку. Создайте нового пользователя." %}</p>
             {% endif %}
-            <button>{% trans "Создать" %}</button>
+            <button id="add"
+                    data-proposal="{{ proposal.id }}">
+                {% trans "Создать" %}
+            </button>
         </div>
     </div>
 </div>

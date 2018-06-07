@@ -64,8 +64,8 @@ class ProposalDetailView(LoginRequiredMixin, CanSeeProposalDetailMixin, DetailVi
 
         similar_users = CustomUser.objects.filter(is_active=True)
         similar_users = similar_users.filter(
-            Q(phone_number=self.object.phone_number) |
-            Q(email__iexact=self.object.email)
+            (~Q(phone_number='') & Q(phone_number=self.object.phone_number)) |
+            (~Q(email='') & Q(email__iexact=self.object.email))
         )
         ctx['similar_users'] = similar_users
 

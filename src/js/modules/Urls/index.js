@@ -184,7 +184,6 @@ const EXPORT = {
 };
 
 const PHONE = {
-
 	list: () => `/api/all_calls/`,
 	user: () => `/api/asterisk_users/`,
 	changeUser: () => `/api/change_asterisk_user/`,
@@ -192,6 +191,13 @@ const PHONE = {
 	filterMonth: (id, date) => `/api/calls_to_user/?user_id=${id}&range=month&month_date=${date}`,
 	// detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
 	play: (file) => `https://vocrm.net/file/?file_name=${file}`,
+};
+
+const PROPOSAL = {
+	receive: (id) => `/api/proposal/${id}/receive/`,
+	reopen: (id) => `/api/proposal/${id}/reopen/`,
+	reject: (id) => `/api/proposal/${id}/reject/`,
+	process: (id) => `/api/proposal/${id}/process/`,
 };
 
 const URLS = {
@@ -230,6 +236,7 @@ const URLS = {
 	home_group: HOME_GROUP,
 	phone: PHONE,
 	export: EXPORT,
+	proposal: PROPOSAL,
 };
 
 export default URLS;
