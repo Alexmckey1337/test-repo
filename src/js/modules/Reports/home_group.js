@@ -168,9 +168,13 @@ function reportData() {
         attends = [];
     data.append('date', reverseDate($('#reportDate').val(), '-'));
     data.append('guest_count', $('#guestCount').val());
+	data.append('new_count', $('#newCount').val());
     if ($('#reportDonations').attr('type') != 'hidden') {
         data.append('total_sum', convertNum($('#reportDonations').val(), '.'));
     }
+	if ($('#repentanceCount').attr('type') != 'hidden') {
+		data.append('repentance_count', $('#repentanceCount').val());
+	}
     if ($('#reportImage').closest('label').is(":visible") && ($('#reportImage')[0].files.length > 0)) {
         data.append('image', $('#reportImage')[0].files[0]);
     }
@@ -217,7 +221,8 @@ function completeFields(data) {
     $('#reportHomeGroup').text(data.home_group.title);
     $("#reportLeader").text(data.owner.fullname);
     $('#reportDate').val((data.status === 2) ? data.date : '');
-    $('#guestCount').val((data.status === 2) ? data.guest_count : '');
+    $('#guestCount').val((data.status === 2) ? data.guest_count : '0');
+	$('#newCount').val((data.status === 2) ? data.new_count : '0');
     $('#hg_attds').attr('src', data.image ? data.image : '');
     $('#clear_img').attr('data-clean', data.image ? 'yes' : 'no');
     $('#send_report').text((data.status === 2) ? 'Сохранить' : 'Подать');
@@ -250,6 +255,18 @@ function completeFields(data) {
         $('#reportImage').closest('label').css('display', 'none');
         $('#hg_attds').closest('label').css('display', 'none');
     }
+	if (data.type.id === 1) {
+		$('#repentanceCount')
+			.attr('type', 'text')
+			.val((data.status === 2) ? data.repentance_count : '0')
+			.closest('label')
+			.css('display', 'block');
+	} else {
+		$('#repentanceCount')
+			.attr('type', 'hidden')
+			.closest('label')
+			.css('display', 'none');
+	}
     if (!data.can_submit) {
         showAlert(data.cant_submit_cause);
         $('#send_report').attr({disabled: true});
