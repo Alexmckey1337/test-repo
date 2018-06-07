@@ -56,7 +56,7 @@ custom_app = [
     path('summits/<int:summit_id>/users/', views_app.SummitProfileTreeForAppListView.as_view(),
          name='summit-app-profile-list'),
     path('summits/<int:summit_id>/request_count/', views_app.app_request_count,
-         name='summit-app-profile-list'),
+         name='summit-app-profile-request-count'),
     path('summits/<int:summit_id>/users/<int:master_id>/', views_app.SummitProfileTreeForAppListView.as_view(),
          name='summit-app-profile-list-master'),
 ]
