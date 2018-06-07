@@ -13,6 +13,7 @@ import OrderTable, {getOrderingData} from '../Ordering/index';
 import {showAlert, showConfirm} from "../ShowNotifications/index";
 import {showPayments} from "../Payment/index";
 import {convertNum} from "../ConvertNum/index";
+import pageCursor from '../pageCursor';
 
 export function btnDeals(canChooseCurr = false) {
 	$('table').on('click', '.pay', function () {
@@ -167,6 +168,7 @@ function makeDealsTable(data, config = {}) {
 	$('.quick-edit').on('click', function () {
 		makeQuickEditDeal(this, type);
 	});
+	pageCursor();
 }
 
 export function dealsTable(config = {}) {
