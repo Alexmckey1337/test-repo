@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission
 
+from apps.proposal.api.permissions import can_vo_org_ua_key
+
 
 class CanCreateChurch(BasePermission):
     def has_permission(self, request, view):
@@ -75,6 +77,14 @@ class CanEditHomeGroup(BasePermission):
         Checking that the ``request.user`` has the right to edit ``home_group``
         """
         return can_edit_home_group(request.user, home_group)
+
+
+class VoCanSeeHomeGroup(BasePermission):
+    def has_permission(self, request, view):
+        """
+        For vo.org.ua developers. Checking that  can see home groups
+        """
+        return can_vo_org_ua_key(request)
 
 
 def can_see_churches(user):
