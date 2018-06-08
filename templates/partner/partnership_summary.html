@@ -56,6 +56,7 @@
                     <div class="cal-icon"></div>
                 </div>
             </div>
+            <div style="margin-top: 20px;">Last update: <span id="last_update"></span></div>
         </div>
             <div class="top-pag">
 {#                <div class="table__count"></div>#}
@@ -135,7 +136,7 @@
                                 <button class="cancel_plan">Отмена</button>
                             </div>
                         </form>
-                            <button class="edit_btn"></button>
+                            <button class="edit_btn">E</button>
                         <% } %>
                     {% else %}
                         <%= String(results[index][key]).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>

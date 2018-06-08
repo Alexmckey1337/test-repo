@@ -273,6 +273,14 @@ CELERYBEAT_SCHEDULE = {
         'task': 'deals_to_expired',
         'schedule': 3600
     },
+    'update_managers_summary': {
+        'task': 'apps.partnership.all_managers_summary',
+        'schedule': crontab(hour=3, minute=0)
+    },
+    'update_managers_summary_by_current_month': {
+        'task': 'apps.partnership.managers_summary',
+        'schedule': 60 * 60
+    },
     # Executes every monday evening at 00:00 A.M
     'processing_home_meetings': {
         'task': 'processing_home_meetings',
