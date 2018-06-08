@@ -1,31 +1,30 @@
 {% load i18n %}
 {% load static %}
-
-<div class="col-5">
-    <div>
-        {% for user in similar_users %}
-            <div style="border: 1px dotted green">
-                <a href="{{ user.get_absolute_url }}">{{ user }}</a>
-                <p>{{ user.phone_number }}</p>
-                <p>{{ user.email }}</p>
-                <button id="set_user"
-                        data-user-id="{{ user.id }}"
-                        data-proposal-id="{{ proposal.id }}">
-                    {% trans "Привязать пользователя" %}
-                </button>
-            </div>
-            {% empty %}
-        {% endfor %}
-        <div style="border: 1px dotted green">
-            {% if similar_users %}
-                <p>{% trans "Если в списке нет подходящего варианта создайте нового пользователя." %}</p>
-            {% else %}
-                <p>{% trans "Нет пользователей, которые подходят под данную заявку. Создайте нового пользователя." %}</p>
-            {% endif %}
-            <button id="add"
-                    data-proposal="{{ proposal.id }}">
-                {% trans "Создать" %}
-            </button>
-        </div>
+{% for user in similar_users %}
+    <div class="proposal-similar__block">
+        <a href="{{ user.get_absolute_url }}">{{ user }}</a>
+        <p>{{ user.phone_number }}</p>
+        {% if user.email %}
+        <p>{{ user.email }}</p>
+        {% endif %}
+        <button id="set_user" class="add"
+                data-user-id="{{ user.id }}"
+                data-proposal-id="{{ proposal.id }}">
+            {% trans "Привязать пользователя" %}
+        </button>
+{#        {% empty %}#}
     </div>
+{% endfor %}
+
+<div class="proposal-similar__block">
+    {% if similar_users %}
+        <p>{% trans "Если в списке нет подходящего варианта создайте нового пользователя." %}</p>
+    {% else %}
+        <p>{% trans "Нет пользователей, которые подходят под данную заявку. Создайте нового пользователя." %}</p>
+    {% endif %}
+    <button id="add"
+            data-proposal="{{ proposal.id }}">
+        {% trans "Создать" %}
+    </button>
 </div>
+  </div>
