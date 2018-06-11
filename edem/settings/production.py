@@ -212,3 +212,6 @@ RAVEN_CONFIG = {
 }
 if not os.environ.get('USE_DOCKER') == 'yes':
     RAVEN_CONFIG['RELEASE'] = raven.fetch_git_sha(os.path.dirname(os.pardir))
+
+
+VO_ORG_UA_TOKEN = env('VO_ORG_UA_TOKEN', 'empty')
