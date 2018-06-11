@@ -75,13 +75,21 @@
             <tbody>
                 {% for log in proposal.histories.all %}
                     <tr>
-                        <td>{{ log.created_at }}</td>
-                        <td>{{ log.owner }}</td>
-                        <td>{{ log.manager }}</td>
-                        <td>{{ log.user }}</td>
-                        <td>{{ log.status }}</td>
-                        <td>{{ log.note }}</td>
-                        <td>{{ log.closed_at }}</td>
+                        <td>{% if log.created_at %}{{ log.created_at }}{% endif %}</td>
+                        <td>{% if log.owner %}{{ log.owner }}{% endif %}</td>
+                        <td>{% if log.manager %}{{ log.manager }}{% endif %}</td>
+                        <td>{% if log.user %}{{ log.user }}{% endif %}</td>
+                        <td>{% if log.status  %}
+                                {% if log.status == 'in_progress' %}В работе
+                                {% elif log.status == 'reopen' %}Открыта повторно
+                                {% elif log.status == 'rejected' %}Отклонена
+                                {% elif log.status == 'processed' %}Выполнена
+                                {% elif log.status == 'open' %}Открыта
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>{% if log.note %}{{ log.note }}{% endif %}</td>
+                        <td>{% if log.closed_at %}{{ log.closed_at }}{% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>

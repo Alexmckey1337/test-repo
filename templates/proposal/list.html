@@ -27,7 +27,12 @@
         </tr>
         {% for p in proposals %}
             <tr>
-                <td>{{ p.get_status_display }}</td>
+                <td>{% if p.get_status_display == 'В процессе' %}В работе
+                    {% elif p.get_status_display == 'Reopen' %}Открыта повторно
+                    {% elif p.get_status_display == 'Rejected' %}Отклонена
+                    {% elif p.get_status_display == 'Processed' %}Выполнена
+                    {% elif p.get_status_display == 'Open' %}Открыта
+                    {% endif %}</td>
                 <td><a href="{% url "proposal:detail" p.id %}">{{ p }}</a></td>
                 <td>{{ p.get_sex_display }}</td>
                 <td>{{ p.phone_number }}</td>
