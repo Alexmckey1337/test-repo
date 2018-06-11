@@ -1,0 +1,2662 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-06-08 12:26+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/account/admin.py:20
+msgid "Personal info"
+msgstr ""
+
+#: apps/account/admin.py:27
+msgid "Permissions"
+msgstr ""
+
+#: apps/account/admin.py:28
+msgid "Important dates"
+msgstr ""
+
+#: apps/account/admin.py:29
+msgid "Groups"
+msgstr ""
+
+#: apps/account/api/filters.py:37 apps/account/models.py:75
+#: apps/summit/models.py:181
+msgid "Hierarchy"
+msgstr ""
+
+#: apps/account/api/filters.py:39 apps/account/models.py:76
+#: apps/summit/models.py:183
+msgid "Master"
+msgstr ""
+
+#: apps/account/api/filters.py:41 apps/group/models.py:51
+#: templates/summit/profile.html:33
+msgid "Department"
+msgstr ""
+
+#: apps/account/api/old_views.py:62 apps/account/api/old_views.py:97
+#: apps/account/api/serializers.py:512
+msgid "Вы не имеете право для входа на сайт."
+msgstr ""
+
+#: apps/account/api/old_views.py:91
+msgid "Поле email обязательно"
+msgstr ""
+
+#: apps/account/api/old_views.py:99
+msgid "Пользователя с таким email не существует"
+msgstr ""
+
+#: apps/account/api/old_views.py:102
+msgid "Есть несколько пользователей с таким email"
+msgstr ""
+
+#: apps/account/api/old_views.py:107
+msgid ""
+"Вам на почту было отправлено письмо с дальнейшими инструкциями по "
+"восстановлению пароля"
+msgstr ""
+
+#: apps/account/api/old_views.py:117
+msgid "Ключ активации несуществует или устарел"
+msgstr ""
+
+#: apps/account/api/old_views.py:124
+msgid "Пароль успешно изменен"
+msgstr ""
+
+#: apps/account/api/old_views.py:125
+msgid "Пароли не совпадают"
+msgstr ""
+
+#: apps/account/api/serializers.py:197 apps/account/api/serializers.py:205
+msgid "The length of the phone number must be at least 10 digits"
+msgstr ""
+
+#: apps/account/api/serializers.py:212 apps/account/api/serializers.py:214
+msgid "Master is required field."
+msgstr ""
+
+#: apps/account/api/serializers.py:219
+msgid "\"repentance_date\" is required field."
+msgstr ""
+
+#: apps/account/api/serializers.py:276
+msgid "Can't move user to a descendant."
+msgstr ""
+
+#: apps/account/api/serializers.py:281 apps/group/api/views.py:280
+#: apps/group/api/views.py:605
+#, python-format
+msgid "User with id = %s does not exist."
+msgstr ""
+
+#: apps/account/api/serializers.py:292
+msgid "Пользователь с такими ФИО и телефоном уже существует."
+msgstr ""
+
+#: apps/account/api/serializers.py:476
+msgid "Must include \"email\" and \"password\"."
+msgstr ""
+
+#: apps/account/api/serializers.py:514
+msgid "Пользователя с таким email не существует."
+msgstr ""
+
+#: apps/account/api/serializers.py:517
+msgid "Есть несколько пользователей с таким email."
+msgstr ""
+
+#: apps/account/api/serializers.py:526
+msgid "User account is disabled."
+msgstr ""
+
+#: apps/account/api/serializers.py:529
+msgid "Unable to log in with provided credentials."
+msgstr ""
+
+#: apps/account/api/serializers.py:538
+msgid "E-mail is not verified."
+msgstr ""
+
+#: apps/account/api/views.py:238
+msgid "Церковь установлена."
+msgstr ""
+
+#: apps/account/api/views.py:249
+msgid "\"managers\" must be list of ints."
+msgstr ""
+
+#: apps/account/api/views.py:253 apps/account/api/views.py:281
+msgid "Менеджер добавлен."
+msgstr ""
+
+#: apps/account/api/views.py:264
+msgid "\"skins\" must be list of ints."
+msgstr ""
+
+#: apps/account/api/views.py:268 apps/account/api/views.py:294
+msgid "Добавлено."
+msgstr ""
+
+#: apps/account/api/views.py:307
+msgid "Менеджер удален."
+msgstr ""
+
+#: apps/account/api/views.py:320 apps/account/api/views.py:344
+msgid "Удалено."
+msgstr ""
+
+#: apps/account/api/views.py:332
+msgid "Менеджеры удалены."
+msgstr ""
+
+#: apps/account/api/views.py:382
+#, python-format
+msgid "\"%s\" is required."
+msgstr ""
+
+#: apps/account/api/views.py:386
+#, python-format
+msgid "Object with pk = %s does not exist."
+msgstr ""
+
+#: apps/account/api/views.py:449
+msgid "Please, move disciples before reduce hierarchy."
+msgstr ""
+
+#: apps/account/api/views.py:457 apps/account/api/views.py:477
+#: apps/event/api/views.py:332 apps/partnership/api/views.py:245
+#: apps/summit/api/views.py:554
+msgid "При сохранении возникла ошибка. Попробуйте еще раз."
+msgstr ""
+
+#: apps/account/api/views.py:611
+#, python-format
+msgid "Min length of %s == 4"
+msgstr ""
+
+#: apps/account/api/views.py:615
+#, python-format
+msgid "One of [%s] parameters is required"
+msgstr ""
+
+#: apps/account/api/views.py:631
+msgid "Successfully logged out."
+msgstr ""
+
+#: apps/account/auth_backends.py:66
+msgid "Invalid token."
+msgstr ""
+
+#: apps/account/auth_backends.py:69
+msgid "User inactive or deleted."
+msgstr ""
+
+#: apps/account/models.py:32 apps/summit/models.py:133
+msgid "Field for search by name"
+msgstr ""
+
+#: apps/account/models.py:33 apps/summit/models.py:136
+msgid "Middle name"
+msgstr ""
+
+#: apps/account/models.py:35 apps/group/models.py:20 apps/summit/models.py:138
+#: templates/summit/profile.html:34
+msgid "City"
+msgstr ""
+
+#: apps/account/models.py:36 apps/group/models.py:54
+#: apps/location/models.py:71 apps/location/models.py:88
+#: apps/location/models.py:141 apps/summit/models.py:139
+#: templates/summit/profile.html:35
+msgid "Country"
+msgstr ""
+
+#: apps/account/models.py:40 apps/summit/models.py:143
+msgid "Renegade"
+msgstr ""
+
+#: apps/account/models.py:41 apps/summit/models.py:144
+msgid "Baby"
+msgstr ""
+
+#: apps/account/models.py:42 apps/summit/models.py:145
+msgid "Junior"
+msgstr ""
+
+#: apps/account/models.py:43 apps/summit/models.py:146
+msgid "Father"
+msgstr ""
+
+#: apps/account/models.py:46 apps/summit/models.py:149
+msgid "Spiritual Level"
+msgstr ""
+
+#: apps/account/models.py:49 apps/group/models.py:48 apps/group/models.py:179
+#: apps/proposal/models.py:21 apps/summit/models.py:205
+#: templates/proposal/partials/proposal_card.html:29
+msgid "Locality"
+msgstr ""
+
+#: apps/account/models.py:50 apps/group/models.py:49 apps/group/models.py:180
+#: apps/proposal/models.py:22 apps/summit/models.py:206
+msgid "City/village/etc"
+msgstr ""
+
+#: apps/account/models.py:52 apps/group/models.py:60
+#: templates/summit/profile.html:36
+msgid "Region"
+msgstr ""
+
+#: apps/account/models.py:53
+msgid "District"
+msgstr ""
+
+#: apps/account/models.py:54 apps/group/models.py:22
+msgid "Address"
+msgstr ""
+
+#: apps/account/models.py:56 apps/proposal/models.py:25
+#: templates/proposal/list.html:23
+#: templates/proposal/partials/proposal_card.html:46
+#: templates/summit/profile.html:37
+msgid "Phone number"
+msgstr "Номер телефона"
+
+#: apps/account/models.py:57
+msgid "Skype"
+msgstr ""
+
+#: apps/account/models.py:58
+msgid "Facebook URL"
+msgstr ""
+
+#: apps/account/models.py:59
+msgid "Vkontakte URL"
+msgstr ""
+
+#: apps/account/models.py:60
+msgid "Odnoklassniki URL"
+msgstr ""
+
+#: apps/account/models.py:62 apps/event/models.py:20 apps/lesson/models.py:18
+#: apps/lesson/models.py:95
+msgid "Image"
+msgstr ""
+
+#: apps/account/models.py:63
+msgid "Source of image"
+msgstr ""
+
+#: apps/account/models.py:64 apps/account/models.py:416
+#: apps/lesson/models.py:118 apps/lesson/models.py:159
+#: apps/payment/models.py:139 apps/task/models.py:34
+#: templates/summit/profile.html:41
+msgid "Description"
+msgstr ""
+
+#: apps/account/models.py:66 apps/proposal/models.py:18
+#: templates/proposal/partials/proposal_card.html:23
+msgid "Born date"
+msgstr ""
+
+#: apps/account/models.py:68
+msgid "Repentance date"
+msgstr ""
+
+#: apps/account/models.py:70
+msgid "Coming date"
+msgstr ""
+
+#: apps/account/models.py:71
+msgid "Activation key"
+msgstr ""
+
+#: apps/account/models.py:73 apps/summit/models.py:177
+msgid "Departments"
+msgstr ""
+
+#: apps/account/models.py:78 apps/partnership/models.py:29
+#: apps/payment/models.py:146 apps/proposal/models.py:53
+#: apps/proposal/models.py:107
+#: templates/partner/partials/stat_payments.html:10
+#: templates/payment/partials/payment_table.html:8
+#: templates/summit/profile.html:59
+msgid "Manager"
+msgstr ""
+
+#: apps/account/models.py:82
+msgid "Number"
+msgstr ""
+
+#: apps/account/models.py:83
+msgid "Extra Phone Numbers"
+msgstr ""
+
+#: apps/account/models.py:87
+msgid "Can login to site"
+msgstr ""
+
+#: apps/account/models.py:90 apps/event/models.py:153
+#: apps/group/abstract_models.py:176 apps/group/abstract_models.py:182
+#: apps/group/abstract_models.py:198 apps/group/abstract_models.py:204
+#: apps/group/abstract_models.py:220 apps/group/abstract_models.py:226
+#: apps/group/models.py:84 apps/group/models.py:184
+#: apps/partnership/models.py:76
+msgid "Church"
+msgstr ""
+
+#: apps/account/models.py:94 apps/group/abstract_models.py:175
+#: apps/group/abstract_models.py:181 apps/group/abstract_models.py:197
+#: apps/group/abstract_models.py:203 apps/group/abstract_models.py:219
+#: apps/group/abstract_models.py:225
+msgid "Home group"
+msgstr ""
+
+#: apps/account/models.py:98 apps/account/models.py:419
+msgid "User Marker"
+msgstr ""
+
+#: apps/account/models.py:100 apps/summit/models.py:192
+msgid "Is Dead"
+msgstr ""
+
+#: apps/account/models.py:101 apps/summit/models.py:193
+msgid "Is Stable"
+msgstr ""
+
+#: apps/account/models.py:105
+msgid "Unknown"
+msgstr ""
+
+#: apps/account/models.py:106
+msgid "Male"
+msgstr ""
+
+#: apps/account/models.py:107
+msgid "Female"
+msgstr ""
+
+#: apps/account/models.py:109 apps/proposal/models.py:17
+msgid "Sex"
+msgstr ""
+
+#: apps/account/models.py:378
+msgid "Key"
+msgstr ""
+
+#: apps/account/models.py:381 apps/event/models.py:32
+#: apps/partnership/models.py:75 apps/proposal/models.py:48
+#: apps/proposal/models.py:112 apps/summit/models.py:413
+#: apps/summit/models.py:496 templates/proposal/list.html:21
+#: templates/summit/profile.html:25
+#: templates/summit/summit_email_tasks.html:22
+#: templates/summit/summit_schedule_tasks.html:22
+msgid "User"
+msgstr ""
+
+#: apps/account/models.py:383 apps/zmail/models.py:56
+msgid "Created"
+msgstr ""
+
+#: apps/account/models.py:386
+msgid "Token"
+msgstr ""
+
+#: apps/account/models.py:387
+msgid "Tokens"
+msgstr ""
+
+#: apps/account/models.py:414 apps/group/models.py:18 apps/group/models.py:151
+#: apps/lesson/models.py:33 apps/lesson/models.py:117
+#: apps/summit/models.py:408 apps/task/models.py:6
+#: templates/summit/ticket/detail.html:33 templates/summit/ticket/list.html:60
+msgid "Title"
+msgstr ""
+
+#: apps/account/models.py:415
+msgid "Color"
+msgstr ""
+
+#: apps/account/models.py:420
+msgid "User Markers"
+msgstr ""
+
+#: apps/analytics/decorators.py:29
+msgid "Update after change payment"
+msgstr ""
+
+#: apps/analytics/models.py:38
+msgid "action time"
+msgstr ""
+
+#: apps/analytics/models.py:46
+msgid "user"
+msgstr ""
+
+#: apps/analytics/models.py:52
+msgid "content type"
+msgstr ""
+
+#: apps/analytics/models.py:55
+msgid "object id"
+msgstr ""
+
+#: apps/analytics/models.py:56
+msgid "object repr"
+msgstr ""
+
+#: apps/analytics/models.py:60
+msgid "Добавление"
+msgstr ""
+
+#: apps/analytics/models.py:61
+msgid "Изминение"
+msgstr ""
+
+#: apps/analytics/models.py:62
+msgid "Удаление"
+msgstr ""
+
+#: apps/analytics/models.py:64
+msgid "action flag"
+msgstr ""
+
+#: apps/analytics/models.py:66
+msgid "change data"
+msgstr ""
+
+#: apps/analytics/models.py:67
+msgid "raw data"
+msgstr ""
+
+#: apps/analytics/models.py:70
+msgid "log record"
+msgstr ""
+
+#: apps/analytics/models.py:71
+msgid "log records"
+msgstr ""
+
+#: apps/analytics/models.py:82
+#, python-format
+msgid "Added \"%(object)s\"."
+msgstr ""
+
+#: apps/analytics/models.py:84
+#, python-format
+msgid "Changed \"%(object)s\" - %(changes)s"
+msgstr ""
+
+#: apps/analytics/models.py:89
+#, python-format
+msgid "Deleted \"%(object)s.\""
+msgstr ""
+
+#: apps/analytics/models.py:91
+msgid "LogRecord Object"
+msgstr ""
+
+#: apps/analytics/models.py:113
+#, python-format
+msgid "%s: с %s на %s"
+msgstr ""
+
+#: apps/analytics/models.py:122
+#, python-format
+msgid "%s: %s"
+msgstr ""
+
+#: apps/analytics/models.py:138
+msgid "Without changes"
+msgstr ""
+
+#: apps/analytics/receivers.py:11
+msgid "Edit object"
+msgstr ""
+
+#: apps/analytics/receivers.py:36
+msgid "Create object"
+msgstr ""
+
+#: apps/analytics/receivers.py:60
+msgid "Delete object"
+msgstr ""
+
+#: apps/controls/api/views.py:63
+#, python-brace-format
+msgid "Parameter {data} is required"
+msgstr ""
+
+#: apps/controls/api/views.py:69
+#, python-brace-format
+msgid "Parameter {user_id} must be passed for each object in {data}"
+msgstr ""
+
+#: apps/controls/api/views.py:78
+msgid "Field names must be one of [is_staff, is_active, can_login]"
+msgstr ""
+
+#: apps/controls/api/views.py:84
+msgid "При сохранение возникла ошибка. Попробуйте еще раз"
+msgstr ""
+
+#: apps/controls/api/views.py:87
+msgid "Успешно сохранено"
+msgstr ""
+
+#: apps/event/api/serializers.py:22
+#, python-format
+msgid "Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан."
+msgstr ""
+
+#: apps/event/api/serializers.py:28
+#, python-format
+msgid ""
+"Невозможно подать отчет, переданная дата - %s. Отчет должен подаваться за ту "
+"неделю на которой был создан."
+msgstr ""
+
+#: apps/event/api/serializers.py:91
+msgid "Переданный лидер не являетя лидером данной Домашней Группы"
+msgstr ""
+
+#: apps/event/api/serializers.py:146
+msgid "Невозможно подать отчет домашней группы без пожертвований."
+msgstr ""
+
+#: apps/event/api/views.py:305
+msgid "No image form this meeting. Nothing to clean."
+msgstr ""
+
+#: apps/event/api/views.py:336
+msgid "Отчет Домашней Группы успешно подан."
+msgstr ""
+
+#: apps/event/api/views.py:351
+#, python-format
+msgid ""
+"Невозможно подать отчет. Отчет типа - {%s} не должен содержать денежную "
+"сумму."
+msgstr ""
+
+#: apps/event/api/views.py:357
+msgid "Невозможно подать отчет. Список присутствующих не передан."
+msgstr ""
+
+#: apps/event/api/views.py:362
+#, python-format
+msgid ""
+"Невозможно повторно подать отчет. Данный отчет - {%s}, уже был подан ранее."
+msgstr ""
+
+#: apps/event/api/views.py:372
+msgid "Переданный список присутствующих некорректен."
+msgstr ""
+
+#: apps/event/api/views.py:402
+msgid "При обновлении возникла ошибка. Попробуйте еще раз."
+msgstr ""
+
+#: apps/event/api/views.py:407
+msgid "Отчет Домашней Группы успешно изменен."
+msgstr ""
+
+#: apps/event/api/views.py:594
+msgid "Невозможно подать отчет. Данный отчет уже был подан ранее."
+msgstr ""
+
+#: apps/event/api/views.py:601 apps/event/models.py:217
+msgid "Невозможно подать отчет. Данный пастор имеет просроченные отчеты."
+msgstr ""
+
+#: apps/event/api/views.py:612
+msgid "Отчет Церкви успешно подан."
+msgstr ""
+
+#: apps/event/api/views.py:619
+msgid "Невозможно удалить отчет. По данному отчету есть поданные платежи"
+msgstr ""
+
+#: apps/event/api/views.py:635
+msgid "Отчет Церкви успешно обновлен"
+msgstr ""
+
+#: apps/event/api/views.py:1162 apps/event/api/views.py:1342
+#: apps/event/api/views.py:1523
+msgid "Invalid filter params"
+msgstr ""
+
+#: apps/event/api/views.py:1205 apps/event/api/views.py:1363
+#: apps/event/api/views.py:1542
+msgid "Invalid \"interval\" format"
+msgstr ""
+
+#: apps/event/api/views.py:1207 apps/event/api/views.py:1365
+#: apps/event/api/views.py:1544
+msgid "Invalid \"interval\" order"
+msgstr ""
+
+#: apps/event/api/views.py:1209 apps/event/api/views.py:1367
+#: apps/event/api/views.py:1546
+msgid "Invalid \"last\" format"
+msgstr ""
+
+#: apps/event/models.py:18 apps/location/models.py:45
+#: apps/location/models.py:54 apps/location/models.py:64
+#: apps/location/models.py:81 apps/location/models.py:138
+#: apps/payment/models.py:49 apps/summit/models.py:479 apps/zmail/models.py:87
+#: templates/event/meeting_create_report.html:27
+#: templates/event/meeting_create_report.html:54
+#: templates/summit/ticket/detail.html:51
+#: templates/summit/ticket/list.html:120
+msgid "Name"
+msgstr ""
+
+#: apps/event/models.py:19 apps/group/models.py:150 apps/payment/models.py:51
+#: apps/summit/models.py:34 apps/summit/models.py:63
+#: templates/summit/summit_email_tasks.html:24
+#: templates/summit/summit_schedule_tasks.html:24
+#: templates/summit/ticket/detail.html:52
+#: templates/summit/ticket/list.html:121
+msgid "Code"
+msgstr ""
+
+#: apps/event/models.py:23 apps/event/models.py:77
+msgid "Meeting type"
+msgstr ""
+
+#: apps/event/models.py:24
+msgid "Meeting types"
+msgstr ""
+
+#: apps/event/models.py:35 apps/event/models.py:102
+msgid "Meeting"
+msgstr ""
+
+#: apps/event/models.py:37
+msgid "Attended"
+msgstr ""
+
+#: apps/event/models.py:38 apps/proposal/models.py:55
+#: apps/proposal/models.py:116 apps/summit/models.py:521
+#: templates/event/meeting_create_report.html:31
+#: templates/event/meeting_create_report.html:58
+msgid "Note"
+msgstr ""
+
+#: apps/event/models.py:42
+msgid "Meeting attend"
+msgstr ""
+
+#: apps/event/models.py:43
+msgid "Meeting attendees"
+msgstr ""
+
+#: apps/event/models.py:60
+msgid "in_progress"
+msgstr ""
+
+#: apps/event/models.py:61
+msgid "submitted"
+msgstr ""
+
+#: apps/event/models.py:62
+msgid "expired"
+msgstr ""
+
+#: apps/event/models.py:64 apps/lesson/models.py:52 apps/proposal/models.py:38
+#: apps/proposal/models.py:115 apps/summit/models.py:83
+#: apps/summit/models.py:422 apps/summit/models.py:593 apps/task/models.py:32
+#: templates/proposal/list.html:20 templates/summit/ticket/detail.html:40
+#: templates/summit/ticket/list.html:62
+msgid "Status"
+msgstr "Статус"
+
+#: apps/event/models.py:76 apps/event/models.py:154 apps/lesson/models.py:198
+#: apps/lesson/models.py:208 apps/summit/models.py:591
+#: templates/payment/all.html:77
+#: templates/payment/partials/payment_table.html:6
+msgid "Date"
+msgstr ""
+
+#: apps/event/models.py:83 apps/group/models.py:225
+msgid "Home Group"
+msgstr ""
+
+#: apps/event/models.py:85
+msgid "Visitors"
+msgstr ""
+
+#: apps/event/models.py:89
+msgid "Total sum"
+msgstr ""
+
+#: apps/event/models.py:92
+msgid "Event Image"
+msgstr ""
+
+#: apps/event/models.py:94
+msgid "Guest count"
+msgstr ""
+
+#: apps/event/models.py:95
+msgid "New count"
+msgstr ""
+
+#: apps/event/models.py:96
+msgid "Repentance count"
+msgstr ""
+
+#: apps/event/models.py:103
+msgid "Meetings"
+msgstr ""
+
+#: apps/event/models.py:145
+msgid "Невозможно подать отчет. Данный лидер имеет просроченные отчеты."
+msgstr ""
+
+#: apps/event/models.py:155
+msgid "Count People"
+msgstr ""
+
+#: apps/event/models.py:156
+msgid "New People"
+msgstr ""
+
+#: apps/event/models.py:157
+msgid "Number of Repentance"
+msgstr ""
+
+#: apps/event/models.py:158 apps/partnership/models.py:269
+msgid "Tithe"
+msgstr ""
+
+#: apps/event/models.py:159
+msgid "Donations"
+msgstr ""
+
+#: apps/event/models.py:161
+msgid "Donations in Currency"
+msgstr ""
+
+#: apps/event/models.py:163
+msgid "Comment"
+msgstr ""
+
+#: apps/event/models.py:165
+msgid "Transfer Payments"
+msgstr ""
+
+#: apps/event/models.py:167
+msgid "Pastor Tithe"
+msgstr ""
+
+#: apps/event/models.py:172 apps/partnership/models.py:87
+#: apps/partnership/models.py:255 apps/payment/models.py:65
+#: apps/summit/models.py:72 templates/partner/partials/stat_deals.html:9
+#: templates/payment/all.html:79
+msgid "Currency"
+msgstr ""
+
+#: apps/event/models.py:180
+msgid "Church Report"
+msgstr ""
+
+#: apps/event/models.py:181
+msgid "Church Reports"
+msgstr ""
+
+#: apps/group/abstract_models.py:191
+msgid "Change home group"
+msgstr ""
+
+#: apps/group/abstract_models.py:213
+msgid "Change church"
+msgstr ""
+
+#: apps/group/abstract_models.py:235
+msgid "Delete home group"
+msgstr ""
+
+#: apps/group/api/filters.py:118 apps/group/api/views.py:269
+#: apps/group/api/views.py:594
+msgid "master_tree_id is incorrect."
+msgstr ""
+
+#: apps/group/api/filters.py:121 apps/group/api/views.py:271
+#: apps/group/api/views.py:596
+msgid "You are don't have permissions for filter by this master."
+msgstr ""
+
+#: apps/group/api/serializers.py:45 apps/group/api/serializers.py:104
+msgid "This field is required."
+msgstr ""
+
+#: apps/group/api/serializers.py:46
+#, python-brace-format
+msgid ""
+"Данный пользователь \"{pk_value}\" - не может быть назначен лидером Домашней "
+"Группы."
+msgstr ""
+
+#: apps/group/api/serializers.py:48 apps/group/api/serializers.py:107
+#, python-brace-format
+msgid "Incorrect type. Expected pk value, received {data_type}."
+msgstr ""
+
+#: apps/group/api/serializers.py:105
+#, python-brace-format
+msgid ""
+"Данный пользователь \"{pk_value}\" - не может быть назначен пастором Церкви."
+msgstr ""
+
+#: apps/group/api/views.py:131
+msgid "Невозможно удалить церковь. На данную церковь есть созданные отчеты."
+msgstr ""
+
+#: apps/group/api/views.py:134
+msgid ""
+"Невозможно удалить церковь. В составе данной церкви есть Домашняя Группа."
+msgstr ""
+
+#: apps/group/api/views.py:176
+msgid "Пользователь успешно добавлен."
+msgstr ""
+
+#: apps/group/api/views.py:191
+msgid "Пожалуйста, удалите сначала пользователя из домашней группы."
+msgstr ""
+
+#: apps/group/api/views.py:194
+msgid ""
+"Невозможно удалить пользователя.Пользователь не принадлежит к данной Церкви."
+msgstr ""
+
+#: apps/group/api/views.py:199
+msgid "Пользователь успешно удален из Церкви"
+msgstr ""
+
+#: apps/group/api/views.py:276 apps/group/api/views.py:601
+msgid "\"user_id\" is required."
+msgstr ""
+
+#: apps/group/api/views.py:308 apps/location/api/views.py:92
+msgid "Length of search query must be > 2"
+msgstr ""
+
+#: apps/group/api/views.py:336
+msgid ""
+"Невозможно добавить пользователя, данный пользователь уже состоит в Церкви."
+msgstr ""
+
+#: apps/group/api/views.py:340 apps/group/api/views.py:612
+msgid ""
+"Невозможно добавить пользователя, данный пользователь уже состоит в Домашней "
+"Группе."
+msgstr ""
+
+#: apps/group/api/views.py:375
+msgid ""
+"Невозможно создать отчет. Для данной церкви на данную неделю есть созданный "
+"отчет."
+msgstr ""
+
+#: apps/group/api/views.py:383 apps/group/api/views.py:583
+msgid "Отчет успешно создан"
+msgstr ""
+
+#: apps/group/api/views.py:460
+msgid ""
+"Невозможно удалить Домашнюю Группу. В составе данной Домашней Группы есть "
+"люди."
+msgstr ""
+
+#: apps/group/api/views.py:465
+msgid ""
+"Удаление данной Домашней Группы повлечет за собой. удаление всех созданных "
+"отчетов."
+msgstr ""
+
+#: apps/group/api/views.py:575
+#, python-format
+msgid "Невозможно создать отчет. На данной неделе отчет типа {%s} уже создан."
+msgstr ""
+
+#: apps/group/api/views.py:616
+msgid ""
+"Невозможно добавить пользователя, пользователь является членом другой Церкви"
+msgstr ""
+
+#: apps/group/api/views.py:622
+msgid ""
+"Невозможно удалить пользователя.Пользователь не принадлежит к данной "
+"Домашней Группе."
+msgstr ""
+
+#: apps/group/models.py:19
+msgid "Opening Date"
+msgstr ""
+
+#: apps/group/models.py:23 apps/location/models.py:115
+#: apps/summit/models.py:547
+msgid "Latitude"
+msgstr ""
+
+#: apps/group/models.py:24 apps/location/models.py:116
+#: apps/summit/models.py:546
+msgid "Longitude"
+msgstr ""
+
+#: apps/group/models.py:26
+msgid "Phone Number"
+msgstr ""
+
+#: apps/group/models.py:27
+msgid "Web Site"
+msgstr ""
+
+#: apps/group/models.py:53 apps/summit/models.py:157
+#: templates/summit/profile.html:30
+msgid "Pastor"
+msgstr ""
+
+#: apps/group/models.py:56
+msgid "Report Currency"
+msgstr ""
+
+#: apps/group/models.py:58
+msgid "Church Image"
+msgstr ""
+
+#: apps/group/models.py:85 templates/layout_database.html:15
+msgid "Churches"
+msgstr ""
+
+#: apps/group/models.py:182
+msgid "Leader"
+msgstr ""
+
+#: apps/group/models.py:187
+msgid "Home Group Image"
+msgstr ""
+
+#: apps/group/models.py:191
+msgid "Ukraine"
+msgstr ""
+
+#: apps/group/models.py:192 edem/settings/base.py:177
+msgid "Russian"
+msgstr ""
+
+#: apps/group/models.py:193
+msgid "English"
+msgstr ""
+
+#: apps/group/models.py:194
+msgid "Germany"
+msgstr ""
+
+#: apps/group/models.py:196
+msgid "Language"
+msgstr ""
+
+#: apps/group/models.py:226
+msgid "Home Groups"
+msgstr ""
+
+#: apps/group/resources.py:77 apps/summit/admin_filters.py:15
+#: apps/summit/admin_filters.py:33 apps/summit/admin_filters.py:53
+msgid "Yes"
+msgstr ""
+
+#: apps/group/resources.py:77 apps/summit/admin_filters.py:16
+#: apps/summit/admin_filters.py:34 apps/summit/admin_filters.py:54
+msgid "No"
+msgstr ""
+
+#: apps/help/models.py:9 apps/help/models.py:24
+msgid "Position"
+msgstr ""
+
+#: apps/help/models.py:12
+msgid "Category"
+msgstr ""
+
+#: apps/help/models.py:13
+msgid "Categories"
+msgstr ""
+
+#: apps/help/models.py:23
+msgid "Manual Category"
+msgstr ""
+
+#: apps/help/models.py:25 apps/lesson/models.py:94
+msgid "Content"
+msgstr ""
+
+#: apps/help/models.py:28
+msgid "Manual"
+msgstr ""
+
+#: apps/help/models.py:29
+msgid "Manuals"
+msgstr ""
+
+#: apps/lesson/api/mixins.py:68
+msgid "Successful"
+msgstr ""
+
+#: apps/lesson/models.py:19
+msgid "Display order"
+msgstr ""
+
+#: apps/lesson/models.py:34
+msgid "URL"
+msgstr ""
+
+#: apps/lesson/models.py:43
+msgid "Created Date"
+msgstr ""
+
+#: apps/lesson/models.py:44
+msgid "Updated Date"
+msgstr ""
+
+#: apps/lesson/models.py:45
+msgid "Published Date"
+msgstr ""
+
+#: apps/lesson/models.py:49
+msgid "Draft"
+msgstr ""
+
+#: apps/lesson/models.py:50
+msgid "Published"
+msgstr ""
+
+#: apps/lesson/models.py:56
+msgid "Leader+"
+msgstr ""
+
+#: apps/lesson/models.py:57
+msgid "Pastor+"
+msgstr ""
+
+#: apps/lesson/models.py:59
+msgid "Access level"
+msgstr ""
+
+#: apps/lesson/models.py:100 apps/lesson/models.py:105
+#: apps/lesson/models.py:167 apps/lesson/models.py:172
+msgid "Views"
+msgstr ""
+
+#: apps/lesson/models.py:160
+msgid "youtube url"
+msgstr ""
+
+#: apps/lesson/models.py:162
+msgid "Video file"
+msgstr ""
+
+#: apps/lesson/validators.py:14
+msgid "Введите ссылку на youtube.com видео."
+msgstr ""
+
+#: apps/location/models.py:44
+msgid "Id"
+msgstr ""
+
+#: apps/location/models.py:46
+msgid "Full name"
+msgstr ""
+
+#: apps/location/models.py:47 apps/location/models.py:68
+#: apps/location/models.py:85 apps/location/models.py:143
+msgid "English name"
+msgstr ""
+
+#: apps/location/models.py:48
+msgid "Country code 3"
+msgstr ""
+
+#: apps/location/models.py:49 apps/location/models.py:69
+#: apps/location/models.py:98
+msgid "ISO"
+msgstr ""
+
+#: apps/location/models.py:50 apps/location/models.py:84
+msgid "Tel code"
+msgstr ""
+
+#: apps/location/models.py:51
+msgid "Location"
+msgstr ""
+
+#: apps/location/models.py:52 apps/location/models.py:67
+#: apps/location/models.py:142
+msgid "Capital"
+msgstr ""
+
+#: apps/location/models.py:53
+msgid "Код страны телефонных операторов"
+msgstr ""
+
+#: apps/location/models.py:65
+msgid "Okrug"
+msgstr ""
+
+#: apps/location/models.py:66
+msgid "Auto code"
+msgstr ""
+
+#: apps/location/models.py:83 apps/location/models.py:139
+msgid "Area"
+msgstr ""
+
+#: apps/location/models.py:86
+msgid "Rajon"
+msgstr ""
+
+#: apps/location/models.py:89
+msgid "Sound"
+msgstr ""
+
+#: apps/location/models.py:92 apps/location/models.py:102
+msgid "---------"
+msgstr ""
+
+#: apps/location/models.py:93
+msgid "Столица Округа"
+msgstr ""
+
+#: apps/location/models.py:94
+msgid "Крупный город"
+msgstr ""
+
+#: apps/location/models.py:95
+msgid "Небольшой населенный пункт"
+msgstr ""
+
+#: apps/location/models.py:97 apps/location/models.py:110
+#: apps/partnership/models.py:31 apps/partnership/models.py:42
+msgid "Level"
+msgstr ""
+
+#: apps/location/models.py:103
+msgid "Город"
+msgstr ""
+
+#: apps/location/models.py:104
+msgid "Поселок"
+msgstr ""
+
+#: apps/location/models.py:105
+msgid "Село"
+msgstr ""
+
+#: apps/location/models.py:106
+msgid "Деревня"
+msgstr ""
+
+#: apps/location/models.py:107
+msgid "Станица"
+msgstr ""
+
+#: apps/location/models.py:108
+msgid "Хутор"
+msgstr ""
+
+#: apps/location/models.py:111
+msgid "Post"
+msgstr ""
+
+#: apps/location/models.py:112
+msgid "Geo name id"
+msgstr ""
+
+#: apps/location/models.py:114
+msgid "Timezone"
+msgstr ""
+
+#: apps/navigation/api/serializers.py:61
+msgid "Table does not exist."
+msgstr ""
+
+#: apps/navigation/api/serializers.py:66
+msgid "Name of columns must be unique."
+msgstr ""
+
+#: apps/partnership/admin.py:36
+msgid "Close selected deals"
+msgstr ""
+
+#: apps/partnership/admin.py:41
+msgid "Open selected deals"
+msgstr ""
+
+#: apps/partnership/admin_filters.py:7
+msgid "Paid status"
+msgstr ""
+
+#: apps/partnership/admin_filters.py:13
+msgid "Paid"
+msgstr ""
+
+#: apps/partnership/admin_filters.py:14
+msgid "Partial paid"
+msgstr ""
+
+#: apps/partnership/admin_filters.py:15
+msgid "Unpaid"
+msgstr ""
+
+#: apps/partnership/api/mixins.py:107
+msgid "Статистику можно просматривать только менеджерам."
+msgstr ""
+
+#: apps/partnership/api/views.py:179
+msgid "You do not have permission to update need of this partner."
+msgstr ""
+
+#: apps/partnership/api/views.py:182
+msgid "'need_text' is required field."
+msgstr ""
+
+#: apps/partnership/api/views.py:195
+#, python-brace-format
+msgid "Parameter {plan_sum} not passed"
+msgstr ""
+
+#: apps/partnership/api/views.py:200
+#, python-brace-format
+msgid "Parameter {plan_sum} must be Integer"
+msgstr ""
+
+#: apps/partnership/api/views.py:203
+msgid "User is not a manager"
+msgstr ""
+
+#: apps/partnership/api/views.py:231
+msgid "TelegramGroup object must be created."
+msgstr ""
+
+#: apps/partnership/api/views.py:556 apps/partnership/api/views.py:719
+msgid "Partner does not exist."
+msgstr ""
+
+#: apps/partnership/api/views.py:559 apps/partnership/api/views.py:722
+msgid "You do not have permission to create deal for this partner."
+msgstr ""
+
+#: apps/partnership/api/views.py:637
+#, python-brace-format
+msgid "Parameter {page} out of array range"
+msgstr ""
+
+#: apps/partnership/api/views.py:737
+msgid ""
+"Данная сделка содержит платежи. Удаление сделки повлечет за собой удаление "
+"всех связанных с ней платежей."
+msgstr ""
+
+#: apps/partnership/api/views.py:816
+msgid "Вы не можете назначать пользователям уровень выше вашего."
+msgstr ""
+
+#: apps/partnership/api/views.py:861
+msgid "Пользователь является ответственным по партнерам"
+msgstr ""
+
+#: apps/partnership/models.py:27
+msgid "Director"
+msgstr ""
+
+#: apps/partnership/models.py:28 apps/summit/models.py:222
+msgid "Supervisor"
+msgstr ""
+
+#: apps/partnership/models.py:45
+msgid "Deleted?"
+msgstr ""
+
+#: apps/partnership/models.py:46 apps/partnership/models.py:376
+#: apps/partnership/models.py:445
+msgid "Log date"
+msgstr ""
+
+#: apps/partnership/models.py:49
+msgid "Partner role Log"
+msgstr ""
+
+#: apps/partnership/models.py:50
+msgid "Partner role Logs"
+msgstr ""
+
+#: apps/partnership/models.py:72
+msgid "Partner group"
+msgstr ""
+
+#: apps/partnership/models.py:78 apps/proposal/models.py:33
+#: apps/summit/models.py:548
+msgid "Type"
+msgstr ""
+
+#: apps/partnership/models.py:90
+msgid "Need text"
+msgstr ""
+
+#: apps/partnership/models.py:92
+msgid "Is active?"
+msgstr ""
+
+#: apps/partnership/models.py:94 apps/partnership/models.py:404
+#: templates/summit/profile.html:38
+msgid "Responsible"
+msgstr ""
+
+#: apps/partnership/models.py:96 apps/partnership/models.py:406
+msgid "Group"
+msgstr ""
+
+#: apps/partnership/models.py:103
+msgid "Partner title"
+msgstr ""
+
+#: apps/partnership/models.py:260
+msgid "Deal is done?"
+msgstr ""
+
+#: apps/partnership/models.py:268
+msgid "Donation"
+msgstr ""
+
+#: apps/partnership/models.py:272
+msgid "Deal type"
+msgstr ""
+
+#: apps/partnership/models.py:322 apps/partnership/models.py:421
+msgid "Responsible of partner"
+msgstr ""
+
+#: apps/partnership/models.py:370 apps/partnership/models.py:439
+#: templates/partner/partials/stat_deals.html:6 templates/payment/deal.html:7
+#: templates/payment/deal.html:25
+msgid "Partner"
+msgstr ""
+
+#: apps/partnership/models.py:379
+msgid "Partnership Log"
+msgstr ""
+
+#: apps/partnership/models.py:380
+msgid "Partnership Logs"
+msgstr ""
+
+#: apps/partnership/models.py:448
+msgid "Church Partner Log"
+msgstr ""
+
+#: apps/partnership/models.py:449
+msgid "Church Partner Logs"
+msgstr ""
+
+#: apps/partnership/models.py:471
+msgid "Group Title"
+msgstr ""
+
+#: apps/partnership/models.py:472
+msgid "Join url"
+msgstr ""
+
+#: apps/partnership/models.py:473
+msgid "Chat ID"
+msgstr ""
+
+#: apps/partnership/models.py:474
+msgid "Bot address"
+msgstr ""
+
+#: apps/partnership/models.py:487
+msgid "Telegram User"
+msgstr ""
+
+#: apps/partnership/models.py:489
+msgid "Telegram ID"
+msgstr ""
+
+#: apps/partnership/models.py:491
+msgid "Telegram Group"
+msgstr ""
+
+#: apps/partnership/models.py:492
+msgid "Is Active"
+msgstr ""
+
+#: apps/partnership/models.py:493
+msgid "Is synced?"
+msgstr ""
+
+#: apps/payment/api/views_mixins.py:35
+msgid "This object don't have payments."
+msgstr ""
+
+#: apps/payment/api/views_mixins.py:88
+msgid "Rate must be not 1.00"
+msgstr ""
+
+#: apps/payment/api/views_mixins.py:128
+msgid "UAH does not exist"
+msgstr ""
+
+#: apps/payment/models.py:53
+msgid "Short name"
+msgstr ""
+
+#: apps/payment/models.py:55
+msgid "Symbol"
+msgstr ""
+
+#: apps/payment/models.py:57
+msgid "Output format"
+msgstr ""
+
+#: apps/payment/models.py:58
+#, python-brace-format
+msgid ""
+"Possible values: <br /><br />{value} — sum, <br />{symbol} — currency "
+"symbol, <br />{short_name} — short name of currency, <br />{name} — full "
+"name of currency"
+msgstr ""
+
+#: apps/payment/models.py:66
+msgid "Currencies"
+msgstr ""
+
+#: apps/payment/models.py:76
+#, python-format
+msgid "Invalid output format: %(err)s"
+msgstr ""
+
+#: apps/payment/models.py:118 templates/partner/partials/stat_payments.html:7
+#: templates/payment/all.html:78
+#: templates/payment/partials/payment_table.html:7
+#: templates/summit/profile.html:57
+msgid "Sum"
+msgstr ""
+
+#: apps/payment/models.py:121
+msgid "Currency of sum"
+msgstr ""
+
+#: apps/payment/models.py:128
+msgid "Rate currency"
+msgstr ""
+
+#: apps/payment/models.py:131 templates/partner/partials/stat_payments.html:9
+#: templates/payment/all.html:80
+msgid "Rate"
+msgstr ""
+
+#: apps/payment/models.py:133
+msgid "Operation"
+msgstr ""
+
+#: apps/payment/models.py:134
+msgid "Multiplication"
+msgstr ""
+
+#: apps/payment/models.py:134 apps/task/models.py:22
+msgid "Division"
+msgstr ""
+
+#: apps/payment/models.py:136 templates/partner/partials/stat_payments.html:8
+#: templates/summit/profile.html:58
+msgid "Effective sum"
+msgstr ""
+
+#: apps/payment/models.py:141 apps/summit/models.py:166
+#: apps/summit/models.py:414 apps/summit/models.py:457
+#: templates/partner/partials/stat_deals.html:5
+#: templates/partner/partials/stat_payments.html:11
+#: templates/summit/emails/detail.html:42 templates/summit/emails/list.html:24
+#: templates/summit/profile.html:56 templates/summit/profile.html:80
+msgid "Date created"
+msgstr ""
+
+#: apps/payment/models.py:143 templates/partner/partials/stat_payments.html:5
+msgid "Sent date"
+msgstr ""
+
+#: apps/payment/models.py:161
+msgid "Payment"
+msgstr ""
+
+#: apps/payment/models.py:162 templates/partner/partials/stat_payments.html:2
+#: templates/payment/all.html:10
+msgid "Payments"
+msgstr ""
+
+#: apps/payment/resources.py:28
+msgid "партнерские"
+msgstr ""
+
+#: apps/payment/resources.py:28
+msgid "десятина"
+msgstr ""
+
+#: apps/proposal/api/serializers.py:39
+#, python-format
+msgid "You cannot change status from %s to %s"
+msgstr ""
+
+#: apps/proposal/api/serializers.py:47
+msgid "Время на возобновление отклоненной заявки прошло."
+msgstr ""
+
+#: apps/proposal/models.py:14 templates/proposal/partials/proposal_card.html:4
+msgid "First name"
+msgstr ""
+
+#: apps/proposal/models.py:15 apps/summit/models.py:135
+#: templates/proposal/partials/proposal_card.html:10
+msgid "Last name"
+msgstr ""
+
+#: apps/proposal/models.py:24
+msgid "email address"
+msgstr ""
+
+#: apps/proposal/models.py:29
+msgid "Short"
+msgstr ""
+
+#: apps/proposal/models.py:30
+msgid "Full"
+msgstr ""
+
+#: apps/proposal/models.py:31
+msgid "Other"
+msgstr ""
+
+#: apps/proposal/models.py:41 apps/proposal/models.py:126
+#: apps/summit/models.py:594
+msgid "Created at"
+msgstr ""
+
+#: apps/proposal/models.py:42
+msgid "Updated at"
+msgstr ""
+
+#: apps/proposal/models.py:43 apps/proposal/models.py:117
+msgid "Closed at"
+msgstr ""
+
+#: apps/proposal/models.py:97
+msgid "Proposal"
+msgstr ""
+
+#: apps/proposal/models.py:102
+msgid "Owner"
+msgstr ""
+
+#: apps/proposal/models.py:121
+msgid "Create"
+msgstr ""
+
+#: apps/proposal/models.py:122
+msgid "Update"
+msgstr ""
+
+#: apps/proposal/models.py:124
+msgid "Reason"
+msgstr ""
+
+#: apps/summit/admin_filters.py:9
+msgid "Has ticket?"
+msgstr ""
+
+#: apps/summit/admin_filters.py:27
+msgid "Has email?"
+msgstr ""
+
+#: apps/summit/admin_filters.py:47
+msgid "Paid?"
+msgstr ""
+
+#: apps/summit/admin_filters.py:55
+msgid "Partial"
+msgstr ""
+
+#: apps/summit/api/serializers.py:141
+msgid "Нельзя добавлять пользователей в закрытый саммит."
+msgstr ""
+
+#: apps/summit/api/serializers.py:149
+msgid "Автор регистрации обязательное поле"
+msgstr ""
+
+#: apps/summit/api/serializers.py:153
+msgid "Автор регистрации должен быть зарегестрирован на саммит"
+msgstr ""
+
+#: apps/summit/api/views.py:321 apps/summit/utils.py:165
+#: apps/summit/utils.py:310
+msgid "Invalid date."
+msgstr ""
+
+#: apps/summit/api/views.py:393
+msgid "Added to the summit"
+msgstr ""
+
+#: apps/summit/api/views.py:402
+msgid ""
+"Summit profile has payments. Please, remove them before deleting profile."
+msgstr ""
+
+#: apps/summit/api/views.py:412
+msgid "Deleted from the summit"
+msgstr ""
+
+#: apps/summit/api/views.py:476
+msgid "Incorrect status code."
+msgstr ""
+
+#: apps/summit/api/views.py:557
+msgid "Билеты отмечены напечатаными."
+msgstr ""
+
+#: apps/summit/api/views.py:681
+msgid "You do not have permission to download report. "
+msgstr ""
+
+#: apps/summit/api/views.py:701
+msgid "You do not have permission to see report by bishops. "
+msgstr ""
+
+#: apps/summit/api/views.py:723
+msgid "All tickets is already generated."
+msgstr ""
+
+#: apps/summit/api/views.py:957 apps/summit/api/views.py:1171
+msgid "You do not have permission to see statistics."
+msgstr ""
+
+#: apps/summit/api/views_app.py:75
+msgid "Невозможно получить объект. Передан некорректный регистрационный код"
+msgstr ""
+
+#: apps/summit/api/views_app.py:98
+msgid "Этот регистрационный код уже был использован на другом устройстве."
+msgstr ""
+
+#: apps/summit/api/views_app.py:313 apps/summit/api/views_app.py:315
+#, python-brace-format
+msgid "Невозможно создать запись, поле {data} не переданно"
+msgstr ""
+
+#: apps/summit/api/views_app.py:397
+msgid "Запись о присутствии этой анкеты за сегоднящней день уже существует"
+msgstr ""
+
+#: apps/summit/api/views_app.py:434
+#, python-format
+msgid "Статус анкеты пользователя {%s} успешно изменен."
+msgstr ""
+
+#: apps/summit/models.py:29
+msgid "Club name"
+msgstr ""
+
+#: apps/summit/models.py:37
+msgid "Summit Type"
+msgstr ""
+
+#: apps/summit/models.py:38
+msgid "Summits Types"
+msgstr ""
+
+#: apps/summit/models.py:65
+msgid "Full cost"
+msgstr ""
+
+#: apps/summit/models.py:69
+msgid "Special cost"
+msgstr ""
+
+#: apps/summit/models.py:76 apps/summit/models.py:454 apps/zmail/models.py:80
+msgid "Mail template"
+msgstr ""
+
+#: apps/summit/models.py:80 edem/settings/base.py:521
+#: templates/partials/layout/sidebar.html:62
+msgid "Open"
+msgstr ""
+
+#: apps/summit/models.py:81
+msgid "Close"
+msgstr ""
+
+#: apps/summit/models.py:89 apps/summit/models.py:409
+#: apps/summit/models.py:474 apps/summit/models.py:498
+#: templates/summit/history/stats.html:7 templates/summit/profile.html:44
+#: templates/summit/ticket/detail.html:43
+msgid "Summit"
+msgstr ""
+
+#: apps/summit/models.py:90
+msgid "Summits"
+msgstr ""
+
+#: apps/summit/models.py:105
+msgid "Special cost must be less then full cost"
+msgstr ""
+
+#: apps/summit/models.py:126
+msgid "Enter only digits separated by dots."
+msgstr ""
+
+#: apps/summit/models.py:134
+msgid "Fisrt name"
+msgstr ""
+
+#: apps/summit/models.py:151
+msgid "Name of pastor"
+msgstr ""
+
+#: apps/summit/models.py:152
+msgid "Name of bishop"
+msgstr ""
+
+#: apps/summit/models.py:153
+msgid "Name of sotnik"
+msgstr ""
+
+#: apps/summit/models.py:160 templates/summit/profile.html:31
+msgid "Bishop"
+msgstr ""
+
+#: apps/summit/models.py:163 templates/summit/profile.html:32
+msgid "Sotnik"
+msgstr ""
+
+#: apps/summit/models.py:169 templates/summit/ticket/detail.html:34
+#: templates/summit/ticket/list.html:61
+msgid "Creator"
+msgstr ""
+
+#: apps/summit/models.py:171
+msgid "Author"
+msgstr ""
+
+#: apps/summit/models.py:173
+msgid "Divisions"
+msgstr ""
+
+#: apps/summit/models.py:174
+msgid "Divisions title"
+msgstr ""
+
+#: apps/summit/models.py:178
+msgid "Titles of departments"
+msgstr ""
+
+#: apps/summit/models.py:182
+msgid "Title of hierarchy"
+msgstr ""
+
+#: apps/summit/models.py:186
+msgid "User id"
+msgstr ""
+
+#: apps/summit/models.py:187
+msgid "Master path"
+msgstr ""
+
+#: apps/summit/models.py:190
+msgid "Name of master"
+msgstr ""
+
+#: apps/summit/models.py:209
+msgid "Paid amount"
+msgstr ""
+
+#: apps/summit/models.py:213 apps/summit/models.py:410
+#: templates/summit/ticket/detail.html:17
+msgid "Ticket"
+msgstr ""
+
+#: apps/summit/models.py:220
+msgid "Visitor"
+msgstr ""
+
+#: apps/summit/models.py:221 apps/summit/models.py:494
+msgid "Consultant"
+msgstr ""
+
+#: apps/summit/models.py:224
+msgid "Summit Role"
+msgstr ""
+
+#: apps/summit/models.py:240
+msgid "Без билета."
+msgstr ""
+
+#: apps/summit/models.py:241
+msgid "Билет загружен."
+msgstr ""
+
+#: apps/summit/models.py:242
+msgid "Билет напечатан."
+msgstr ""
+
+#: apps/summit/models.py:243
+msgid "Билет выдан."
+msgstr ""
+
+#: apps/summit/models.py:245
+msgid "Ticket status"
+msgstr ""
+
+#: apps/summit/models.py:418 edem/settings/base.py:522
+msgid "In progress"
+msgstr ""
+
+#: apps/summit/models.py:419
+msgid "Complete"
+msgstr ""
+
+#: apps/summit/models.py:420 templates/summit/emails/detail.html:38
+msgid "Error"
+msgstr ""
+
+#: apps/summit/models.py:425
+msgid "Users"
+msgstr ""
+
+#: apps/summit/models.py:426
+msgid "Is printed"
+msgstr ""
+
+#: apps/summit/models.py:430
+msgid "Summit ticket"
+msgstr ""
+
+#: apps/summit/models.py:431
+msgid "List of summit tickets"
+msgstr ""
+
+#: apps/summit/models.py:442 apps/summit/models.py:590
+#: apps/summit/models.py:608 apps/summit/models.py:624
+msgid "Anket"
+msgstr ""
+
+#: apps/summit/models.py:444 templates/proposal/list.html:24
+#: templates/proposal/partials/proposal_card.html:42
+#: templates/summit/emails/detail.html:9
+#: templates/summit/summit_email_tasks.html:23
+#: templates/summit/summit_schedule_tasks.html:23
+msgid "Email"
+msgstr ""
+
+#: apps/summit/models.py:446 apps/zmail/models.py:46
+#: templates/summit/emails/detail.html:31 templates/summit/emails/list.html:26
+#: templates/summit/profile.html:82
+msgid "Subject"
+msgstr ""
+
+#: apps/summit/models.py:447 templates/summit/emails/detail.html:32
+#: templates/summit/emails/detail.html:33
+msgid "Text"
+msgstr ""
+
+#: apps/summit/models.py:448
+msgid "HTML text"
+msgstr ""
+
+#: apps/summit/models.py:449
+msgid "Error message"
+msgstr ""
+
+#: apps/summit/models.py:450 templates/summit/emails/detail.html:40
+#: templates/summit/emails/list.html:27 templates/summit/profile.html:83
+msgid "Is success"
+msgstr ""
+
+#: apps/summit/models.py:451 templates/summit/emails/detail.html:41
+msgid "Attach"
+msgstr ""
+
+#: apps/summit/models.py:467
+msgid "Anket email"
+msgstr ""
+
+#: apps/summit/models.py:468
+msgid "Anket emails"
+msgstr ""
+
+#: apps/summit/models.py:477
+msgid "Viewers"
+msgstr ""
+
+#: apps/summit/models.py:486
+msgid "Summit lesson"
+msgstr ""
+
+#: apps/summit/models.py:487
+msgid "Summit lessons"
+msgstr ""
+
+#: apps/summit/models.py:504
+msgid "Summit consultant"
+msgstr ""
+
+#: apps/summit/models.py:505
+msgid "Summit consultants"
+msgstr ""
+
+#: apps/summit/models.py:510
+msgid "Этот пользователь не участвует в данном саммите."
+msgstr ""
+
+#: apps/summit/models.py:512
+msgid "Этот пользователь не является консультантом на данном саммите."
+msgstr ""
+
+#: apps/summit/models.py:517
+msgid "Summit anket"
+msgstr ""
+
+#: apps/summit/models.py:519
+msgid "Owner of note"
+msgstr ""
+
+#: apps/summit/models.py:523
+msgid "Datetime created"
+msgstr ""
+
+#: apps/summit/models.py:537
+msgid "Summit Anket Note"
+msgstr ""
+
+#: apps/summit/models.py:538
+msgid "Summit Anket Notes"
+msgstr ""
+
+#: apps/summit/models.py:543
+msgid "Summit Visitor"
+msgstr ""
+
+#: apps/summit/models.py:551
+msgid "Summit Users Location"
+msgstr ""
+
+#: apps/summit/models.py:552
+msgid "Summit User Location"
+msgstr ""
+
+#: apps/summit/models.py:561
+msgid "Саммит"
+msgstr ""
+
+#: apps/summit/models.py:562
+msgid "Не отображать время"
+msgstr ""
+
+#: apps/summit/models.py:563
+msgid "Дата и Время"
+msgstr ""
+
+#: apps/summit/models.py:564
+msgid "Название на Русском"
+msgstr ""
+
+#: apps/summit/models.py:565
+msgid "Имя автора на Русском"
+msgstr ""
+
+#: apps/summit/models.py:566
+msgid "Название на Английском"
+msgstr ""
+
+#: apps/summit/models.py:567
+msgid "Имя автора на Английском"
+msgstr ""
+
+#: apps/summit/models.py:568
+msgid "Название на Немецком"
+msgstr ""
+
+#: apps/summit/models.py:569
+msgid "Имя автора на Немецком"
+msgstr ""
+
+#: apps/summit/models.py:572 apps/summit/models.py:573
+msgid "Расписание Саммита"
+msgstr ""
+
+#: apps/summit/models.py:592
+msgid "Time"
+msgstr ""
+
+#: apps/summit/models.py:597
+msgid "Summit Attend"
+msgstr ""
+
+#: apps/summit/models.py:598
+msgid "Summit Attends"
+msgstr ""
+
+#: apps/summit/models.py:609
+msgid "Запрос регистрационного кода"
+msgstr ""
+
+#: apps/summit/models.py:610
+msgid "Дата ввода регистрационного кода"
+msgstr ""
+
+#: apps/summit/models.py:612
+msgid "Активна"
+msgstr ""
+
+#: apps/summit/models.py:615
+msgid "Статус Анкеты"
+msgstr ""
+
+#: apps/summit/models.py:616
+msgid "Статусы Анкет"
+msgstr ""
+
+#: apps/summit/models.py:652
+msgid "Регистрация через Telegram Bot"
+msgstr ""
+
+#: apps/summit/models.py:653
+msgid "Регистрации через Telegram Bot"
+msgstr ""
+
+#: apps/summit/views.py:74
+msgid "Не создан"
+msgstr ""
+
+#: apps/summit/views.py:75
+msgid "Создан"
+msgstr ""
+
+#: apps/summit/views.py:76
+msgid "Напечатано"
+msgstr ""
+
+#: apps/summit/views.py:77
+msgid "Выдано"
+msgstr ""
+
+#: apps/summit/views.py:80
+msgid "Присутствовали"
+msgstr ""
+
+#: apps/summit/views.py:81
+msgid "Отсутствовали"
+msgstr ""
+
+#: apps/task/api/serializers.py:37
+msgid "Невозможно создать задачу. Указанный исполнитель не в Вашем подчинение"
+msgstr ""
+
+#: apps/task/models.py:15
+msgid "in_work"
+msgstr ""
+
+#: apps/task/models.py:16
+msgid "done"
+msgstr ""
+
+#: apps/task/models.py:20
+msgid "TaskType"
+msgstr ""
+
+#: apps/task/models.py:26
+msgid "Task Executor"
+msgstr ""
+
+#: apps/task/models.py:28
+msgid "Task Creator"
+msgstr ""
+
+#: apps/task/models.py:31
+msgid "Task Target"
+msgstr ""
+
+#: apps/task/models.py:33
+msgid "Date Published"
+msgstr ""
+
+#: apps/task/models.py:35
+msgid "Date Finish"
+msgstr ""
+
+#: apps/task/models.py:36
+msgid "Finish Report"
+msgstr ""
+
+#: apps/task/models.py:39
+msgid "User Task"
+msgstr ""
+
+#: apps/task/models.py:40
+msgid "User Tasks"
+msgstr ""
+
+#: apps/zmail/models.py:29
+msgid "Host"
+msgstr ""
+
+#: apps/zmail/models.py:30
+msgid "Port"
+msgstr ""
+
+#: apps/zmail/models.py:31
+msgid "Username"
+msgstr ""
+
+#: apps/zmail/models.py:32
+msgid "Password"
+msgstr ""
+
+#: apps/zmail/models.py:33
+msgid "Use TLS"
+msgstr ""
+
+#: apps/zmail/models.py:34
+msgid "Fail silently"
+msgstr ""
+
+#: apps/zmail/models.py:40 apps/zmail/models.py:41
+msgid "Mail auth settings"
+msgstr ""
+
+#: apps/zmail/models.py:45
+msgid "Template name"
+msgstr ""
+
+#: apps/zmail/models.py:47
+msgid "Message from"
+msgstr ""
+
+#: apps/zmail/models.py:49
+msgid "Auth credentials"
+msgstr ""
+
+#: apps/zmail/models.py:51
+msgid "Body"
+msgstr ""
+
+#: apps/zmail/models.py:53
+msgid "Slug"
+msgstr ""
+
+#: apps/zmail/models.py:54
+msgid "Unique slug to use in code."
+msgstr ""
+
+#: apps/zmail/models.py:55
+msgid "Is active"
+msgstr ""
+
+#: apps/zmail/models.py:57
+msgid "Updated"
+msgstr ""
+
+#: apps/zmail/models.py:58
+msgid "Send interval"
+msgstr ""
+
+#: apps/zmail/models.py:81
+msgid "Mail templates"
+msgstr ""
+
+#: apps/zmail/models.py:86
+msgid "Template"
+msgstr ""
+
+#: apps/zmail/models.py:88
+msgid "File"
+msgstr ""
+
+#: apps/zmail/models.py:94
+msgid "Mail file"
+msgstr ""
+
+#: apps/zmail/models.py:95
+msgid "Mail files"
+msgstr ""
+
+#: common/filters.py:151
+msgid "Некоректный временной интервал."
+msgstr ""
+
+#: edem/settings/base.py:523
+msgid "Reopen"
+msgstr ""
+
+#: edem/settings/base.py:524
+msgid "Rejected"
+msgstr ""
+
+#: edem/settings/base.py:525
+msgid "Processed"
+msgstr ""
+
+#: templates/403.html:5 templates/403.html:9
+msgid "Permission denied!"
+msgstr ""
+
+#: templates/403.html:13
+msgid "We're sorry but you are not permitted to access this page."
+msgstr ""
+
+#: templates/404.html:5
+msgid "Page not found"
+msgstr ""
+
+#: templates/404.html:9
+msgid "Page not found!"
+msgstr ""
+
+#: templates/404.html:13
+msgid "We're sorry but the page you are looking for can't be found."
+msgstr ""
+
+#: templates/account/anketa.html:35 templates/account/anketa.html:1073
+msgid "Change password"
+msgstr ""
+
+#: templates/account/anketa.html:793 templates/account/anketa.html:980
+#: templates/account/logs/user.html:18 templates/group/church_detail.html:484
+#: templates/group/home_group_detail.html:310
+msgid "Редактор"
+msgstr ""
+
+#: templates/account/anketa.html:794 templates/account/anketa.html:818
+#: templates/account/anketa.html:981 templates/account/anketa.html:1005
+#: templates/account/logs/user.html:19 templates/group/church_detail.html:485
+#: templates/group/home_group_detail.html:311
+msgid "Тип"
+msgstr ""
+
+#: templates/account/anketa.html:795 templates/account/anketa.html:819
+#: templates/account/anketa.html:982 templates/account/anketa.html:1006
+#: templates/account/logs/user.html:20 templates/group/church_detail.html:486
+#: templates/group/home_group_detail.html:312
+msgid "Лог"
+msgstr ""
+
+#: templates/account/anketa.html:796 templates/account/anketa.html:820
+#: templates/account/anketa.html:983 templates/account/anketa.html:1007
+#: templates/account/logs/user.html:21 templates/group/church_detail.html:487
+#: templates/group/home_group_detail.html:313
+msgid "Время изменения"
+msgstr ""
+
+#: templates/account/anketa.html:817 templates/account/anketa.html:1004
+msgid "Кого"
+msgstr ""
+
+#: templates/account/anketa.html:1048
+msgid "Old password"
+msgstr ""
+
+#: templates/account/anketa.html:1055
+msgid "New password"
+msgstr ""
+
+#: templates/account/anketa.html:1062
+msgid "New password confirmation"
+msgstr ""
+
+#: templates/account/anketa.html:1071 templates/payment/all.html:91
+#: templates/payment/deal.html:44
+msgid "Cancel"
+msgstr ""
+
+#: templates/account/logs/detail.html:8 templates/account/logs/user.html:7
+msgid "User logs"
+msgstr ""
+
+#: templates/account/logs/owner.html:7
+msgid "Owner logs"
+msgstr ""
+
+#: templates/account/logs/owner.html:12
+msgid "Редактируемый"
+msgstr ""
+
+#: templates/account/logs/partials/addition.html:4
+#: templates/account/logs/partials/changed.html:4
+msgid "Поле"
+msgstr ""
+
+#: templates/account/logs/partials/addition.html:5
+msgid "Значение"
+msgstr ""
+
+#: templates/account/logs/partials/changed.html:5
+msgid "Было"
+msgstr ""
+
+#: templates/account/logs/partials/changed.html:6
+msgid "Стало"
+msgstr ""
+
+#: templates/admin/_import_export/base.html:10
+msgid "Home"
+msgstr ""
+
+#: templates/admin/_import_export/export.html:8
+msgid "Export"
+msgstr ""
+
+#: templates/admin/_import_export/export.html:21
+msgid "Please correct the error below."
+msgstr ""
+
+#: templates/admin/_import_export/export.html:41
+#: templates/summit/ticket/detail.html:42 templates/summit/ticket/list.html:93
+msgid "Download"
+msgstr ""
+
+#: templates/error.html:10
+msgid "Sorry!"
+msgstr ""
+
+#: templates/error.html:13
+msgid "На предыдущую страницу"
+msgstr ""
+
+#: templates/error.html:14
+msgid "На домашнюю страницу"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:18
+msgid "Create report"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:22
+#: templates/event/meeting_create_report.html:49
+msgid "Current leader"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:26
+#: templates/event/meeting_create_report.html:53
+msgid "+/-"
+msgstr ""
+
+#: templates/event/meeting_create_report.html:29
+#: templates/event/meeting_create_report.html:56
+msgid "Phone"
+msgstr ""
+
+#: templates/event/meeting_type_detail.html:19
+msgid "Detail of"
+msgstr ""
+
+#: templates/layout.html:72
+msgid "Summit tickets"
+msgstr ""
+
+#: templates/layout_database.html:21
+msgid "Home groups"
+msgstr ""
+
+#: templates/partials/layout/sidebar.html:48
+msgid "Платежи"
+msgstr ""
+
+#: templates/partials/layout/sidebar.html:63
+msgid "Closed"
+msgstr ""
+
+#: templates/partials/layout/sidebar.html:73
+msgid "Звонки"
+msgstr ""
+
+#: templates/partials/layout/sidebar.html:74
+msgid "Права доступа к базе данных"
+msgstr ""
+
+#: templates/partials/layout/sidebar.html:75
+msgid "Саммиты"
+msgstr ""
+
+#: templates/partner/partials/stat_deals.html:2
+msgid "Deals"
+msgstr ""
+
+#: templates/partner/partials/stat_deals.html:7
+msgid "Paid sum"
+msgstr ""
+
+#: templates/partner/partials/stat_deals.html:8
+msgid "Planed sum"
+msgstr ""
+
+#: templates/partner/partials/stat_payments.html:6
+msgid "Payer"
+msgstr ""
+
+#: templates/partner/stats.html:57
+msgid "All"
+msgstr ""
+
+#: templates/partner/stats.html:145 templates/summit/ticket/list.html:96
+msgid "Detail"
+msgstr ""
+
+#: templates/payment/all.html:73 templates/payment/deal.html:21
+msgid "Edit payment"
+msgstr ""
+
+#: templates/payment/all.html:92
+#: templates/payment/partials/payment_table.html:36
+msgid "Edit"
+msgstr ""
+
+#: templates/payment/deal.html:6
+msgid "Payments by deals"
+msgstr ""
+
+#: templates/payment/deal.html:26
+msgid "Deal"
+msgstr ""
+
+#: templates/payment/deal.html:45
+#: templates/payment/partials/payment_table.html:41
+msgid "Move"
+msgstr ""
+
+#: templates/payment/partials/payment_table.html:14
+msgid "Purpose"
+msgstr ""
+
+#: templates/payment/partials/payment_table.html:46
+msgid "Delete"
+msgstr ""
+
+#: templates/proposal/detail.html:7 templates/proposal/list.html:7
+msgid "Proposals"
+msgstr "Заявки"
+
+#: templates/proposal/list.html:22
+#: templates/proposal/partials/proposal_card.html:15
+msgid "Gender"
+msgstr "Пол"
+
+#: templates/proposal/list.html:26
+msgid "User profile"
+msgstr "Пользователь"
+
+#: templates/proposal/partials/proposal_block.html:8
+msgid "Статус"
+msgstr ""
+
+#: templates/proposal/partials/proposal_block.html:21
+msgid "Взять в работу"
+msgstr ""
+
+#: templates/proposal/partials/proposal_block.html:31
+msgid "Переоткрыть"
+msgstr ""
+
+#: templates/proposal/partials/proposal_block.html:35
+msgid "Отклонить"
+msgstr ""
+
+#: templates/proposal/partials/proposal_block.html:52
+msgid "Вернуть в работу"
+msgstr ""
+
+#: templates/proposal/partials/similar_users.html:13
+msgid "Привязать пользователя"
+msgstr ""
+
+#: templates/proposal/partials/similar_users.html:21
+msgid "Если в списке нет подходящего варианта создайте нового пользователя."
+msgstr ""
+
+#: templates/proposal/partials/similar_users.html:23
+msgid ""
+"Нет пользователей, которые подходят под данную заявку. Создайте нового "
+"пользователя."
+msgstr ""
+
+#: templates/proposal/partials/similar_users.html:27
+msgid "Создать"
+msgstr ""
+
+#: templates/summit/bishop_report.html:12
+#: templates/summit/history/stats.html:10 templates/summit/open/list.html:21
+#: templates/summit/open/list.html:23 templates/summit/stats.html:16
+msgid "Statistics"
+msgstr ""
+
+#: templates/summit/closed/list.html:4
+msgid "List of closed summits"
+msgstr ""
+
+#: templates/summit/detail.html:214
+msgid "Печатный билет"
+msgstr ""
+
+#: templates/summit/detail.html:216
+msgid "Электронный билет"
+msgstr ""
+
+#: templates/summit/detail.html:218
+msgid "Присутствие"
+msgstr ""
+
+#: templates/summit/detail.html:220
+msgid "Диапазон дат присутствия"
+msgstr ""
+
+#: templates/summit/detail.html:222
+msgid "Облако свидетелей"
+msgstr ""
+
+#: templates/summit/detail.html:224
+msgid "Партнеры"
+msgstr ""
+
+#: templates/summit/emails/detail.html:23
+msgid "Email info"
+msgstr ""
+
+#: templates/summit/emails/detail.html:25 templates/summit/profile.html:9
+msgid "Profile"
+msgstr ""
+
+#: templates/summit/emails/detail.html:30 templates/summit/emails/list.html:25
+#: templates/summit/profile.html:81
+msgid "Recipient"
+msgstr ""
+
+#: templates/summit/emails/list.html:9
+#: templates/summit/summit_email_tasks.html:25
+msgid "Emails"
+msgstr ""
+
+#: templates/summit/open/list.html:4
+msgid "List of open summits"
+msgstr ""
+
+#: templates/summit/open/list.html:10
+msgid "Summit name"
+msgstr ""
+
+#: templates/summit/open/list.html:11
+msgid "Summit type"
+msgstr ""
+
+#: templates/summit/open/list.html:31
+msgid "Нет доступных саммитов."
+msgstr ""
+
+#: templates/summit/profile.html:23
+msgid "Profile info"
+msgstr ""
+
+#: templates/summit/profile.html:40
+msgid "Value"
+msgstr ""
+
+#: templates/summit/profile.html:42
+msgid "Role"
+msgstr ""
+
+#: templates/summit/summit_email_tasks.html:9
+#: templates/summit/summit_email_tasks.html:26
+#: templates/summit/summit_schedule_tasks.html:9
+#: templates/summit/summit_schedule_tasks.html:25
+msgid "Statuses"
+msgstr ""
+
+#: templates/summit/ticket/detail.html:31
+msgid "Main info"
+msgstr ""
+
+#: templates/summit/ticket/detail.html:42 templates/summit/ticket/list.html:63
+msgid "Attachment"
+msgstr ""
+
+#: templates/summit/ticket/list.html:38
+msgid "Tickets"
+msgstr ""
+
+#: templates/summit/ticket/list.html:65
+msgid "Is printed?"
+msgstr ""
+
+#: templates/summit/ticket/list.html:99
+msgid "Printed"
+msgstr ""
+
+#: templates/summit/ticket/list.html:101
+msgid "Пометить напечатаным"
+msgstr ""

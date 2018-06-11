@@ -5,8 +5,8 @@
     <div class="proposal">
         <div class="proposal__wrap">
             <div class="proposal__info">
-                <h1>{% trans "Статус" %}:
-                    {% if proposal.get_status_display == 'In progress' %}В работе
+                <h1>{% trans "Status" %}:
+                    {% if proposal.get_status_display == 'В процессе' %}В работе
                     {% elif proposal.get_status_display == 'Reopen' %}Открыта повторно
                     {% elif proposal.get_status_display == 'Rejected' %}Отклонена
                     {% elif proposal.get_status_display == 'Processed' %}Выполнена
@@ -43,7 +43,7 @@
                         access error
                     {% endif %}
                 {% elif proposal.is_complete %}
-                    {{ proposal.note|default_if_none:" " }}
+                    <p class="comment">{{ proposal.note|default_if_none:" " }}</p>
                     {% if request.user == proposal.manager %}
                         {% include "proposal/partials/proposal_card.html" %}
                         <button id="proposalStatus" class="reply"
@@ -68,7 +68,7 @@
                 <th>Менеджер</th>
                 <th>Пользователь</th>
                 <th>Статус</th>
-                <th>Нотатки</th>
+                <th>Комментарии</th>
                 <th>Дата закрытия</th>
             </tr>
             </thead>

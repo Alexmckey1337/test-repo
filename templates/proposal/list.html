@@ -17,20 +17,22 @@
 {% block main.content %}
     <table>
         <tr>
+            <th>{% trans "Status" %}</th>
             <th>{% trans "User" %}</th>
             <th>{% trans "Gender" %}</th>
             <th>{% trans "Phone number" %}</th>
             <th>{% trans "Email" %}</th>
-            <th>{% trans "Status" %}</th>
+
             <th>{% trans "User profile" %}</th>
         </tr>
         {% for p in proposals %}
             <tr>
+                <td>{{ p.get_status_display }}</td>
                 <td><a href="{% url "proposal:detail" p.id %}">{{ p }}</a></td>
                 <td>{{ p.get_sex_display }}</td>
                 <td>{{ p.phone_number }}</td>
                 <td>{{ p.email }}</td>
-                <td>{{ p.get_status_display }}</td>
+
                 <td>{% if p.user %}
                     <a href="{{ p.user.get_absolute_url }}" target="_blank">{{ p.user.fullname }}</a>
                 {% endif %}</td>

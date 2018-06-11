@@ -67,6 +67,9 @@
     {% if user.is_staff %}
         <div class="bottom-sidebar">
             <ul>
+                <li class="menu__item menu__item_proposal">
+                    <a href="{% url "proposal:list" %}"><i class="fa fa-list-alt"></i></a>
+                </li>
                 <li class="menu__item">
                     <i class="material-icons">&#xE5C3;</i>
                     <ul class="sidebar-submenu">
