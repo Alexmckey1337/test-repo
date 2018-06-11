@@ -57,6 +57,7 @@ COPY ./CHANGELOG.rst /app/docs/source/
 RUN cd /app/docs && sphinx-build -b html -d build/doctrees source build/docs
 
 COPY ./docker/gunicorn.sh /gunicorn.sh
+COPY ./docker/gunicorn/conf.py /app/gunicorn/conf.py
 COPY ./docker/daphne.sh /daphne.sh
 COPY ./docker/asgi_worker.sh /asgi_worker.sh
 COPY ./docker/entrypoint.sh /entrypoint.sh

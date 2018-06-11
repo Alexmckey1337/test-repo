@@ -753,7 +753,7 @@ def test_app_request_count(api_client, summit_factory, profile_status_factory):
     profile_status_factory.create_batch(4, anket__summit=summit, reg_code_requested=False)
     profile_status_factory.create_batch(8, anket__summit=summit, reg_code_requested=True)
 
-    url = reverse('summit-app-profile-list', kwargs={'summit_id': summit.id})
+    url = reverse('summit-app-profile-request-count', kwargs={'summit_id': summit.id})
 
     response = api_client.get(url, format='json')
 

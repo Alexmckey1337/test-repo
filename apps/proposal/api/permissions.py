@@ -1,5 +1,6 @@
-from django.conf import settings
 from rest_framework.permissions import BasePermission
+
+from common.permissions import can_vo_org_ua_key
 
 
 class CanCreateProposal(BasePermission):
@@ -40,10 +41,6 @@ class CanProcessProposal(BasePermission):
         Checking that the user can process proposal
         """
         return can_process_proposal(request.user, proposal)
-
-
-def can_vo_org_ua_key(request):
-    return settings.VO_ORG_UA_TOKEN == request.META.get(settings.VO_ORG_UA_TOKEN_NAME, '')
 
 
 def can_see_proposal(user, proposal):

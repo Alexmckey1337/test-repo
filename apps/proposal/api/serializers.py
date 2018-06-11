@@ -51,10 +51,10 @@ class UpdateProposalSerializer(serializers.ModelSerializer):
 class ReceiveProposalSerializer(UpdateProposalSerializer):
     class Meta:
         model = Proposal
-        fields = ('status', 'manager', 'note')
+        fields = ('status', 'user', 'manager', 'note', 'closed_at')
 
 
 class ReopenProposalSerializer(UpdateProposalSerializer):
     class Meta:
         model = Proposal
-        fields = ('status', 'manager', 'note')
+        fields = ('status', 'user', 'manager', 'note', 'closed_at')

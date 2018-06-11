@@ -99,6 +99,7 @@ class CustomUser(MP_Node, LogModel, User,
 
     is_dead = models.BooleanField(_('Is Dead'), default=False)
     is_stable = models.BooleanField(_('Is Stable'), default=True)
+    is_proposal_manager = models.BooleanField(_('Is proposal manager'), default=False)
 
     UNKNOWN, MALE, FEMALE = 'unknown', 'male', 'female'
     SEX = (

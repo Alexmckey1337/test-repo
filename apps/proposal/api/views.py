@@ -18,12 +18,13 @@ from apps.proposal.models import Proposal, History
 class CreateProposalView(generics.CreateAPIView):
     queryset = Proposal.objects.all()
     serializer_class = CreateProposalSerializer
-    permission_classes = (IsAuthenticated, CanCreateProposal)
+    permission_classes = (CanCreateProposal,)
 
 
 class UpdateProposalStatusMixin(generics.GenericAPIView):
     queryset = Proposal.objects.all()
     new_status = None
+    serializer_class = UpdateProposalSerializer
 
     def post(self, request, *args, **kwargs):
         proposal = self.get_object()
@@ -33,7 +34,7 @@ class UpdateProposalStatusMixin(generics.GenericAPIView):
         data.pop('status', None)
         data.update(self.get_data())
 
-        serializer = UpdateProposalSerializer(proposal, data=data, partial=True)
+        serializer = self.serializer_class(proposal, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         self.update_proposal(serializer)

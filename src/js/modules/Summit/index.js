@@ -15,6 +15,7 @@ import {btnDeals} from "../Deals/index";
 import {showAlert} from "../ShowNotifications/index";
 import shortenText from '../shortenText';
 import errHandling from '../Error';
+import pageCursor from '../pageCursor';
 
 export function createSummitUsersTable(data = {}) {
     let page = data.page || $('.pagination__input').val() || 1,
@@ -76,6 +77,7 @@ function makeSammitsDataTable(data, selector) {
         }).catch(err => errHandling(err));
     });
     fixedTableHead();
+    pageCursor();
 }
 
 function showSummitPayments(id) {

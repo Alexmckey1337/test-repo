@@ -8,7 +8,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.account.models import CustomUser as User
@@ -34,6 +35,7 @@ def send_email_for_renewal_password(user):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def login_view(request):
     """
     Login user via email and password.
@@ -84,6 +86,7 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def password_forgot(request):
     data = request.data
     email = data.get('email')
@@ -108,6 +111,7 @@ def password_forgot(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def password_view(request):
     data = request.data
     key = data['activation_key']

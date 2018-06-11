@@ -257,7 +257,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
     ordering_fields = ('id', 'date', 'owner__last_name', 'home_group__title', 'type__code',
                        'status', 'home_group__phone_number', 'visitors_attended', 'visitors_absent',
-                       'total_sum',)
+                       'total_sum', 'new_count', 'guest_count', 'repentance_count')
 
     filter_class = MeetingFilter
 

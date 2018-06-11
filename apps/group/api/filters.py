@@ -34,12 +34,27 @@ class HomeGroupFilter(django_filters.FilterSet):
 
 
 class HomeGroupsDepartmentFilter(BaseFilterBackend):
+    query_name = 'department_id'
+
     def filter_queryset(self, request, queryset, view):
-        department_id = request.query_params.get('department_id')
+        department_id = request.query_params.get(self.query_name)
         if department_id:
             queryset = queryset.filter(church__department_id=department_id)
 
         return queryset
+
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name=self.query_name,
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title="Department",
+                    description="Filter by department of the church of the home group"
+                )
+            )
+        ]
 
 
 class ChurchFilter(django_filters.FilterSet):
@@ -232,3 +247,7 @@ class FilterPotentialHGLeadersByDepartment(FilterHGLeadersByDepartment):
 #             users = users.filter(
 #                 Q(first_name__istartswith=s) | Q(last_name__istartswith=s) |
 #                 Q(middle_name__istartswith=s) | Q(search_name__icontains=s))
+
+
+class VoHomeGroupsDepartmentFilter(HomeGroupsDepartmentFilter):
+    pass

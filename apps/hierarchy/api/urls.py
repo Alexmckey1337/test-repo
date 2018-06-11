@@ -11,6 +11,7 @@ custom_urls = [
 ]
 
 urlpatterns = [
+    path('vo/departments/', views.VoDepartmentListView.as_view(), name="vo-department"),
     path('', include(router_v1_0.urls)),
     path('', include(custom_urls)),
 ]

@@ -274,3 +274,10 @@ class VoHGSerializer(serializers.ModelSerializer):
             'language',
             'directions',  # направленность
         )
+
+    def get_field_names(self, declared_fields, info):
+        fields = getattr(self.Meta, 'fields', None)
+        only_fields = self.context.get('only_fields', [])
+        if only_fields:
+            return tuple(set(only_fields) & set(fields))
+        return fields

@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import mixins, viewsets, exceptions, status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404, GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -161,6 +161,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
 
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def app_request_count(request, summit_id):
     profiles = SummitAnket.objects.filter(summit_id=summit_id).values_list(
         'status__reg_code_requested', flat=True)
