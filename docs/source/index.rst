@@ -12,6 +12,7 @@ Contents:
     :maxdepth: 2
 
     summit
+    vo
     permissions/index
     templatetags/index
     CHANGELOG
