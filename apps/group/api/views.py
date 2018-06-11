@@ -31,15 +31,15 @@ from apps.group.api.pagination import (
     ForSelectPagination, PotentialUsersPagination)
 from apps.group.api.permissions import (
     CanSeeChurch, CanCreateChurch, CanEditChurch, CanExportChurch,
-    CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup, VoCanSeeHomeGroup)
+    CanSeeHomeGroup, CanCreateHomeGroup, CanEditHomeGroup, CanExportHomeGroup, VoCanSeeHomeGroup, VoCanSeeDirection)
 from apps.group.api.serializers import (
     ChurchSerializer, ChurchTableSerializer, HomeGroupSerializer,
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
     ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
-    HomeGroupLocationSerializer, VoHGSerializer)
+    HomeGroupLocationSerializer, VoHGSerializer, VoDirectionSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
-from apps.group.models import HomeGroup, Church
+from apps.group.models import HomeGroup, Church, Direction
 from apps.group.resources import ChurchResource, HomeGroupResource
 from apps.location.models import City
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
@@ -632,14 +632,14 @@ class HomeGroupLocationListView(LocationMixin, HomeGroupTableView):
 
 
 class VoHGListView(GenericAPIView):
-    queryset = HomeGroup.objects.filter(active=True)
+    queryset = HomeGroup.objects.all()
     serializer_class = VoHGSerializer
     permission_classes = (VoCanSeeHomeGroup,)
     filter_backends = (VoHomeGroupsDepartmentFilter,)
     pagination_class = None
 
     def get_queryset(self):
-        return super().get_queryset()
+        return super().get_queryset().filter(active=True)
 
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -659,3 +659,16 @@ class VoHGListView(GenericAPIView):
         ctx.update(extra)
 
         return ctx
+
+
+class VoDirectionListView(GenericAPIView):
+    queryset = Direction.objects.all()
+    serializer_class = VoDirectionSerializer
+    permission_classes = (VoCanSeeDirection,)
+    pagination_class = None
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

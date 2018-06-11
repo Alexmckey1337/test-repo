@@ -87,6 +87,14 @@ class VoCanSeeHomeGroup(BasePermission):
         return can_vo_org_ua_key(request)
 
 
+class VoCanSeeDirection(BasePermission):
+    def has_permission(self, request, view):
+        """
+        For vo.org.ua developers. Checking that  can see home groups
+        """
+        return can_vo_org_ua_key(request)
+
+
 def can_see_churches(user):
     """
     Checking that the ``user`` has the right to see list of churches
