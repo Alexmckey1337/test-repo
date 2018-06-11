@@ -200,6 +200,11 @@ LOGGING['loggers']['partners.sql'] = {
     'handlers': ['console', 'sentry'],
     'propagate': False,
 }
+LOGGING['loggers']['vo_org_ua'] = {
+    'level': 'INFO',
+    'handlers': ['console', 'sentry'],
+    'propagate': False,
+}
 SENTRY_CELERY_LOGLEVEL = env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO)
 RAVEN_CONFIG = {
     'CELERY_LOGLEVEL': env.int('DJANGO_SENTRY_LOG_LEVEL', logging.INFO),

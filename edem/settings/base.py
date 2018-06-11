@@ -390,6 +390,11 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
+        'vo_org_ua': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console'],

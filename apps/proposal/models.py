@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -31,6 +32,14 @@ class Proposal(models.Model):
         (OTHER, _('Other')),
     )
     type = models.CharField(_('Type'), default=OTHER, max_length=25)
+
+    # second step
+    leader_name = models.CharField(_('Leader fio'), max_length=255, blank=True)
+    age_group = models.CharField(_('Age group'), max_length=255, blank=True)
+    gender_group = models.CharField(_('Gender group'), max_length=255, blank=True)
+    geo_location = models.CharField(_('GEO location'), max_length=255, blank=True)
+
+    directions = ArrayField(models.CharField(max_length=60), blank=True, null=True)
 
     # Internal fields (editable)
     STATUSES = settings.PROPOSAL_STATUSES
