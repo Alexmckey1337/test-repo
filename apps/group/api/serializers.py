@@ -279,5 +279,5 @@ class VoHGSerializer(serializers.ModelSerializer):
         fields = getattr(self.Meta, 'fields', None)
         only_fields = self.context.get('only_fields', [])
         if only_fields:
-            return list(set(only_fields) & set(fields))
+            return tuple(set(only_fields) & set(fields))
         return fields

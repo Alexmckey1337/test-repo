@@ -1,6 +1,6 @@
 import logging
-import random
 from datetime import datetime
+from itertools import chain
 
 import pytz
 from django.core.exceptions import ObjectDoesNotExist
@@ -649,12 +649,12 @@ class VoHGListView(GenericAPIView):
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
-        fields = self.request.query_params.getlist('only_fields')
-        only_fields = list()
-        for f in fields:
-            only_fields.extend(f.split(','))
+        only_fields = self.request.query_params.getlist('only_fields')
+
+        # ['field1,field2', 'field3'] -> ['field1', 'field2', 'field3']
+        only_fields = list(chain(*[f.split(',') for f in only_fields]))
         extra = {
-            'only_fields': only_fields,
+            'only_fields': only_fields
         }
         ctx.update(extra)
 
