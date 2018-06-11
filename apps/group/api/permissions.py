@@ -90,7 +90,7 @@ class VoCanSeeHomeGroup(BasePermission):
 class VoCanSeeDirection(BasePermission):
     def has_permission(self, request, view):
         """
-        For vo.org.ua developers. Checking that  can see home groups
+        For vo.org.ua developers. Checking that  can see directions
         """
         return can_vo_org_ua_key(request)
 
