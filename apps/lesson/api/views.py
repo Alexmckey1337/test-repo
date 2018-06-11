@@ -1,7 +1,7 @@
 from apps.lesson.api.mixins import MonthListMixin, LessonDetailMixin, LessonLikeMixin, LessonListMixin
 from apps.lesson.api.serializers import (
     TextLessonListSerializer, TextLessonDetailSerializer,
-    VideoLessonListSerializer, VideoLessonDetailSerializer)
+    VideoLessonListSerializer, VideoLessonDetailSerializer, EmptyTextLessonSerializer, EmptyVideoLessonSerializer)
 from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike
 
 
@@ -45,6 +45,7 @@ class TextLessonDetailView(LessonDetailMixin):
 class TextLessonLikeView(LessonLikeMixin):
     model = TextLesson
     like_model = TextLessonLike
+    serializer_class = EmptyTextLessonSerializer
 
     def post(self, request, *args, **kwargs):
         """
@@ -93,6 +94,7 @@ class VideoLessonDetailView(LessonDetailMixin):
 class VideoLessonLikeView(LessonLikeMixin):
     model = VideoLesson
     like_model = VideoLessonLike
+    serializer_class = EmptyVideoLessonSerializer
 
     def post(self, request, *args, **kwargs):
         """
