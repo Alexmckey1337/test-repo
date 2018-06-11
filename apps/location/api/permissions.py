@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from apps.proposal.api.permissions import can_vo_org_ua_key
+from common.permissions import can_vo_org_ua_key
 
 
 class VoCanSeeCities(BasePermission):
