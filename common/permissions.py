@@ -26,4 +26,7 @@ class BaseUserPermission(object):
 
 
 def can_vo_org_ua_key(request):
-    return settings.VO_ORG_UA_TOKEN == request.META.get(settings.VO_ORG_UA_TOKEN_NAME, '')
+    return (
+            settings.VO_ORG_UA_TOKEN != 'empty' and
+            settings.VO_ORG_UA_TOKEN == request.META.get(settings.VO_ORG_UA_TOKEN_NAME, '')
+    )
