@@ -639,7 +639,13 @@ class VoHGListView(GenericAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return super().get_queryset().filter(active=True)
+        qs = super().get_queryset()
+        qs = qs.select_related('locality__country', 'leader')
+        qs = qs.prefetch_related('uusers', 'directions')
+        qs = qs.filter(active=True)
+        qs = qs.annotate(count_users=Count('uusers'))
+
+        return qs
 
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
