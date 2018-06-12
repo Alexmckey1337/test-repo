@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-08 12:26+0000\n"
+"POT-Creation-Date: 2018-06-12 09:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,38 +49,38 @@ msgstr ""
 msgid "Department"
 msgstr ""
 
-#: apps/account/api/old_views.py:62 apps/account/api/old_views.py:97
+#: apps/account/api/old_views.py:64 apps/account/api/old_views.py:100
 #: apps/account/api/serializers.py:512
 msgid "Вы не имеете право для входа на сайт."
 msgstr ""
 
-#: apps/account/api/old_views.py:91
+#: apps/account/api/old_views.py:94
 msgid "Поле email обязательно"
 msgstr ""
 
-#: apps/account/api/old_views.py:99
+#: apps/account/api/old_views.py:102
 msgid "Пользователя с таким email не существует"
 msgstr ""
 
-#: apps/account/api/old_views.py:102
+#: apps/account/api/old_views.py:105
 msgid "Есть несколько пользователей с таким email"
 msgstr ""
 
-#: apps/account/api/old_views.py:107
+#: apps/account/api/old_views.py:110
 msgid ""
 "Вам на почту было отправлено письмо с дальнейшими инструкциями по "
 "восстановлению пароля"
 msgstr ""
 
-#: apps/account/api/old_views.py:117
+#: apps/account/api/old_views.py:121
 msgid "Ключ активации несуществует или устарел"
 msgstr ""
 
-#: apps/account/api/old_views.py:124
+#: apps/account/api/old_views.py:128
 msgid "Пароль успешно изменен"
 msgstr ""
 
-#: apps/account/api/old_views.py:125
+#: apps/account/api/old_views.py:129
 msgid "Пароли не совпадают"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Source of image"
 msgstr ""
 
-#: apps/account/models.py:64 apps/account/models.py:416
+#: apps/account/models.py:64 apps/account/models.py:417
 #: apps/lesson/models.py:118 apps/lesson/models.py:159
 #: apps/payment/models.py:139 apps/task/models.py:34
 #: templates/summit/profile.html:41
@@ -369,7 +369,7 @@ msgstr ""
 msgid "Home group"
 msgstr ""
 
-#: apps/account/models.py:98 apps/account/models.py:419
+#: apps/account/models.py:98 apps/account/models.py:420
 msgid "User Marker"
 msgstr ""
 
@@ -381,27 +381,31 @@ msgstr ""
 msgid "Is Stable"
 msgstr ""
 
-#: apps/account/models.py:105
-msgid "Unknown"
+#: apps/account/models.py:102
+msgid "Is proposal manager"
 msgstr ""
 
 #: apps/account/models.py:106
-msgid "Male"
+msgid "Unknown"
 msgstr ""
 
 #: apps/account/models.py:107
+msgid "Male"
+msgstr ""
+
+#: apps/account/models.py:108
 msgid "Female"
 msgstr ""
 
-#: apps/account/models.py:109 apps/proposal/models.py:17
+#: apps/account/models.py:110 apps/proposal/models.py:17
 msgid "Sex"
 msgstr ""
 
-#: apps/account/models.py:378
+#: apps/account/models.py:379
 msgid "Key"
 msgstr ""
 
-#: apps/account/models.py:381 apps/event/models.py:32
+#: apps/account/models.py:382 apps/event/models.py:32
 #: apps/partnership/models.py:75 apps/proposal/models.py:48
 #: apps/proposal/models.py:112 apps/summit/models.py:413
 #: apps/summit/models.py:496 templates/proposal/list.html:21
@@ -411,30 +415,30 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: apps/account/models.py:383 apps/zmail/models.py:56
+#: apps/account/models.py:384 apps/zmail/models.py:56
 msgid "Created"
 msgstr ""
 
-#: apps/account/models.py:386
+#: apps/account/models.py:387
 msgid "Token"
 msgstr ""
 
-#: apps/account/models.py:387
+#: apps/account/models.py:388
 msgid "Tokens"
 msgstr ""
 
-#: apps/account/models.py:414 apps/group/models.py:18 apps/group/models.py:151
+#: apps/account/models.py:415 apps/group/models.py:18 apps/group/models.py:151
 #: apps/lesson/models.py:33 apps/lesson/models.py:117
 #: apps/summit/models.py:408 apps/task/models.py:6
 #: templates/summit/ticket/detail.html:33 templates/summit/ticket/list.html:60
 msgid "Title"
 msgstr ""
 
-#: apps/account/models.py:415
+#: apps/account/models.py:416
 msgid "Color"
 msgstr ""
 
-#: apps/account/models.py:420
+#: apps/account/models.py:421
 msgid "User Markers"
 msgstr ""
 
@@ -724,8 +728,9 @@ msgstr ""
 #: apps/event/models.py:64 apps/lesson/models.py:52 apps/proposal/models.py:38
 #: apps/proposal/models.py:115 apps/summit/models.py:83
 #: apps/summit/models.py:422 apps/summit/models.py:593 apps/task/models.py:32
-#: templates/proposal/list.html:20 templates/summit/ticket/detail.html:40
-#: templates/summit/ticket/list.html:62
+#: templates/proposal/list.html:20
+#: templates/proposal/partials/proposal_block.html:8
+#: templates/summit/ticket/detail.html:40 templates/summit/ticket/list.html:62
 msgid "Status"
 msgstr "Статус"
 
@@ -835,12 +840,12 @@ msgstr ""
 msgid "Delete home group"
 msgstr ""
 
-#: apps/group/api/filters.py:118 apps/group/api/views.py:269
+#: apps/group/api/filters.py:133 apps/group/api/views.py:269
 #: apps/group/api/views.py:594
 msgid "master_tree_id is incorrect."
 msgstr ""
 
-#: apps/group/api/filters.py:121 apps/group/api/views.py:271
+#: apps/group/api/filters.py:136 apps/group/api/views.py:271
 #: apps/group/api/views.py:596
 msgid "You are don't have permissions for filter by this master."
 msgstr ""
@@ -897,7 +902,7 @@ msgstr ""
 msgid "\"user_id\" is required."
 msgstr ""
 
-#: apps/group/api/views.py:308 apps/location/api/views.py:92
+#: apps/group/api/views.py:308
 msgid "Length of search query must be > 2"
 msgstr ""
 
@@ -1001,7 +1006,7 @@ msgstr ""
 msgid "Ukraine"
 msgstr ""
 
-#: apps/group/models.py:192 edem/settings/base.py:177
+#: apps/group/models.py:192 edem/settings/base.py:171
 msgid "Russian"
 msgstr ""
 
@@ -1118,6 +1123,11 @@ msgstr ""
 
 #: apps/lesson/validators.py:14
 msgid "Введите ссылку на youtube.com видео."
+msgstr ""
+
+#: apps/location/api/views.py:97
+#, python-format
+msgid "Length of search query must be > %s"
 msgstr ""
 
 #: apps/location/models.py:44
@@ -1707,16 +1717,16 @@ msgstr ""
 msgid "Этот регистрационный код уже был использован на другом устройстве."
 msgstr ""
 
-#: apps/summit/api/views_app.py:313 apps/summit/api/views_app.py:315
+#: apps/summit/api/views_app.py:314 apps/summit/api/views_app.py:316
 #, python-brace-format
 msgid "Невозможно создать запись, поле {data} не переданно"
 msgstr ""
 
-#: apps/summit/api/views_app.py:397
+#: apps/summit/api/views_app.py:398
 msgid "Запись о присутствии этой анкеты за сегоднящней день уже существует"
 msgstr ""
 
-#: apps/summit/api/views_app.py:434
+#: apps/summit/api/views_app.py:435
 #, python-format
 msgid "Статус анкеты пользователя {%s} успешно изменен."
 msgstr ""
@@ -1745,7 +1755,7 @@ msgstr ""
 msgid "Mail template"
 msgstr ""
 
-#: apps/summit/models.py:80 edem/settings/base.py:521
+#: apps/summit/models.py:80 edem/settings/base.py:514
 #: templates/partials/layout/sidebar.html:62
 msgid "Open"
 msgstr ""
@@ -1875,7 +1885,7 @@ msgstr ""
 msgid "Ticket status"
 msgstr ""
 
-#: apps/summit/models.py:418 edem/settings/base.py:522
+#: apps/summit/models.py:418 edem/settings/base.py:515
 msgid "In progress"
 msgstr ""
 
@@ -2252,15 +2262,15 @@ msgstr ""
 msgid "Некоректный временной интервал."
 msgstr ""
 
-#: edem/settings/base.py:523
+#: edem/settings/base.py:516
 msgid "Reopen"
 msgstr ""
 
-#: edem/settings/base.py:524
+#: edem/settings/base.py:517
 msgid "Rejected"
 msgstr ""
 
-#: edem/settings/base.py:525
+#: edem/settings/base.py:518
 msgid "Processed"
 msgstr ""
 
@@ -2433,15 +2443,15 @@ msgstr ""
 msgid "Closed"
 msgstr ""
 
-#: templates/partials/layout/sidebar.html:73
+#: templates/partials/layout/sidebar.html:76
 msgid "Звонки"
 msgstr ""
 
-#: templates/partials/layout/sidebar.html:74
+#: templates/partials/layout/sidebar.html:77
 msgid "Права доступа к базе данных"
 msgstr ""
 
-#: templates/partials/layout/sidebar.html:75
+#: templates/partials/layout/sidebar.html:78
 msgid "Саммиты"
 msgstr ""
 
@@ -2511,10 +2521,6 @@ msgstr "Пол"
 #: templates/proposal/list.html:26
 msgid "User profile"
 msgstr "Пользователь"
-
-#: templates/proposal/partials/proposal_block.html:8
-msgid "Статус"
-msgstr ""
 
 #: templates/proposal/partials/proposal_block.html:21
 msgid "Взять в работу"

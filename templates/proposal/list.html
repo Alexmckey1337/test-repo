@@ -31,7 +31,8 @@
                     {% elif p.get_status_display == 'Reopen' %}Открыта повторно
                     {% elif p.get_status_display == 'Rejected' %}Отклонена
                     {% elif p.get_status_display == 'Processed' %}Выполнена
-                    {% elif p.get_status_display == 'Open' %}Открыта
+                    {% elif p.get_status_display == 'Открыто' %}Открыта
+                    {% else %}{{ p.get_status_display }}
                     {% endif %}</td>
                 <td><a href="{% url "proposal:detail" p.id %}">{{ p }}</a></td>
                 <td>{{ p.get_sex_display }}</td>
