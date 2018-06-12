@@ -11,7 +11,7 @@
                     {% elif proposal.get_status_display == 'Rejected' %}Отклонена
                     {% elif proposal.get_status_display == 'Processed' %}Выполнена
                     {% elif proposal.get_status_display == 'Открыто' %}Открыта
-                    {% else %}{{ proposal.get_status_display }}
+{#                    {% else %}{{ proposal.get_status_display }}#}
                     {% endif %}
                 </h1>
                 {% if proposal.is_open %}
