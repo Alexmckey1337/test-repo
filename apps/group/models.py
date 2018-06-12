@@ -150,6 +150,9 @@ class Direction(models.Model):
     code = models.SlugField(_('Code'), max_length=60, blank=True, db_index=True, editable=False)
     title = models.CharField(_('Title'), max_length=40, unique=True)
 
+    def __str__(self):
+        return f'{self.title} ({self.code})'
+
     def save(self, *args, **kwargs):
         if self.code:
             super().save(*args, **kwargs)
