@@ -426,7 +426,6 @@ class SummitAnketCodeSerializer(serializers.ModelSerializer):
 
 
 class SummitNameAnketCodeSerializer(SummitAnketCodeSerializer):
-    summit_id = serializers.IntegerField(source='summit_id',read_only=True)
     name = serializers.CharField(source='summit.__str__', read_only=True)
     title = serializers.CharField(source='summit.description', read_only=True)
 
