@@ -88,6 +88,7 @@ export function partnershipSummaryTable(config = {}) {
     config.month = month;
     getData(URLS.partner.managers_summary(), config).then(data => {
         let newData = makeData(data);
+        window.state = Object.assign(window.state, {result: data.results});
         (window.state.canEdit) ? newData.flag = true : newData.flag = false;
         makePartnershipSummaryTable(newData);
     })
