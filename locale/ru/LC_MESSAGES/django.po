@@ -397,15 +397,15 @@ msgstr ""
 
 #: apps/account/models.py:107
 msgid "Male"
-msgstr ""
+msgstr "Мущина"
 
 #: apps/account/models.py:108
 msgid "Female"
-msgstr ""
+msgstr "Женщина"
 
 #: apps/account/models.py:110 apps/proposal/models.py:18
 msgid "Sex"
-msgstr ""
+msgstr "Пол"
 
 #: apps/account/models.py:374
 msgid "Key"
