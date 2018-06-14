@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('location', '0010_district'),
         ('group', '0016_auto_20180112_1805'),
+        ('payment', '0003_currency'),
     ]
 
     operations = [
