@@ -46,10 +46,10 @@ function getTransformData(data, isGroup = '1m') {
 				title: 'Мужчин/Женщин',
 			},
 			{
-				title: 'Стабильные/Нестабильные прихожане',
+				title: 'Прихожане: стабильные/нестабильные/неизвестно',
 			},
 			{
-				title: 'Стабильные/Нестабильные новообращенные',
+				title: 'Новообращенные: стабильные/нестабильные/неизвестно',
 			},
 		],
 		dataFinance = [{
@@ -101,8 +101,8 @@ function getTransformData(data, isGroup = '1m') {
 		dataPeoples[2][item] = elem.new_count;
 		dataPeoples[3][item] = elem.repentance_count;
 		dataPeoples[4][item] = `${sex.male} / ${sex.female}`;
-		dataPeoples[5][item] = `${congregation.stable} / ${congregation.unstable}`;
-		dataPeoples[6][item] = `${convert.stable} / ${convert.unstable}`;
+		dataPeoples[5][item] = `${congregation.stable} / ${congregation.unstable} / ${congregation.unknown ? congregation.unknown : 0}`;
+		dataPeoples[6][item] = `${convert.stable} / ${convert.unstable} / ${convert.unknown ? convert.unknown : 0}`;
 		dataFinance[0][item] = money.uah.total_sum;
 		dataFinance[1][item] = money.rur.total_sum;
 		dataFinance[2][item] = money.usd.total_sum;

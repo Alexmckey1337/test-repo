@@ -11,9 +11,12 @@ export function initCharts(data, update, isGroup) {
 		configAgeChart,
 		optionAgeChart,
 		selectAgeChart,
-		configPeopleChart,
-		optionPeopleChart,
-		selectPeopleChart,
+		configCongregationChart,
+		optionCongregationChart,
+		selectCongregationChart,
+		configConvertChart,
+		optionConvertChart,
+		selectConvertChart,
 		configGuestsChart,
 		optionGuestsChart,
 		selectGuestsChart,
@@ -23,13 +26,15 @@ export function initCharts(data, update, isGroup) {
 	} = makeChartConfig(data, isGroup);
 	if (update) {
 		updateSexChart(optionSexChart);
-		updatePeopleChart(optionPeopleChart);
+		updateGuestsChart(optionCongregationChart);
+		updateGuestsChart(optionConvertChart);
 		updateGuestsChart(optionGuestsChart);
 		updateAgeChart(optionAgeChart);
 		updatePeopleChart(optionFinChart);
 	} else {
 		renderChart(selectSexChart, configSexChart);
-		renderChart(selectPeopleChart, configPeopleChart);
+		renderChart(selectCongregationChart, configCongregationChart);
+		renderChart(selectConvertChart, configConvertChart);
 		renderChart(selectGuestsChart, configGuestsChart);
 		renderChart(selectAgeChart, configAgeChart);
 		renderChart(selectFinChart, configFinChart);
@@ -45,8 +50,10 @@ function makeChartConfig(data, isGroup = '1m') {
 		repentance = [],
 		stableCongr = [],
 		unstableCongr = [],
+		unknwCongr = [],
 		stableConvert = [],
 		unstableConvert = [],
+		unkwnConvert = [],
 		age1 = [],
 		age2 = [],
 		age3 = [],
@@ -77,8 +84,10 @@ function makeChartConfig(data, isGroup = '1m') {
 		repentance.push(elem.repentance_count);
 		stableCongr.push(congregation.stable);
 		unstableCongr.push(congregation.unstable);
+		unknwCongr.push(congregation.unknown ? congregation.unknown : 0);
 		stableConvert.push(convert.stable);
 		unstableConvert.push(convert.unstable);
+		unkwnConvert.push(convert.unknown ? convert.unknown : 0);
 		age1.push(age['12-']);
 		age2.push(age['13-25']);
 		age3.push(age['26-40']);
@@ -102,32 +111,44 @@ function makeChartConfig(data, isGroup = '1m') {
 			backgroundColor: CHARTCOLORS.green,
 			data: male,
 		}],
-		datasetsPeopleChart = [{
-			label: "Стабильные прихожане",
+		datasetsCongregationChart = [{
+			label: "Стабильные",
 			borderColor: CHARTCOLORS.red,
 			backgroundColor: CHARTCOLORS.red,
 			stack: 'Stack 0',
 			data: stableCongr,
 		}, {
-			label: "Нестабильные прихожане",
+			label: "Нестабильные",
 			borderColor: CHARTCOLORS.green,
 			backgroundColor: CHARTCOLORS.green,
 			stack: 'Stack 0',
 			data: unstableCongr,
-		},
-			{
-				label: "Стабильные новообращенные",
-				borderColor: CHARTCOLORS.blue,
-				backgroundColor: CHARTCOLORS.blue,
-				stack: 'Stack 1',
-				data: stableConvert,
-			}, {
-				label: "Нестабильные новообращенные",
-				borderColor: CHARTCOLORS.orange,
-				backgroundColor: CHARTCOLORS.orange,
-				stack: 'Stack 1',
-				data: unstableConvert,
-			}],
+		}, {
+			label: "Неизвестно",
+			borderColor: CHARTCOLORS.blue,
+			backgroundColor: CHARTCOLORS.blue,
+			stack: 'Stack 0',
+			data: unknwCongr,
+		}],
+		datasetsConvertChart = [{
+			label: "Стабильные",
+			borderColor: CHARTCOLORS.red,
+			backgroundColor: CHARTCOLORS.red,
+			stack: 'Stack 0',
+			data: stableConvert,
+		}, {
+			label: "Нестабильные",
+			borderColor: CHARTCOLORS.green,
+			backgroundColor: CHARTCOLORS.green,
+			stack: 'Stack 0',
+			data: unkwnConvert,
+		}, {
+			label: "Неизвестно",
+			borderColor: CHARTCOLORS.blue,
+			backgroundColor: CHARTCOLORS.blue,
+			stack: 'Stack 0',
+			data: unkwnConvert,
+		}],
 		datasetsGuestsChart = [{
 			label: "Гости",
 			borderColor: CHARTCOLORS.green,
@@ -232,7 +253,8 @@ function makeChartConfig(data, isGroup = '1m') {
 			}
 		}],
 		titleSexChart = "Статистика по полу",
-		titlePeopleChart = "Статистика по стабильным",
+		titleCongregationChart = "Статистика по стабильным прихожанам",
+		titleConvertChart = "Статистика по стабильным новообращенным",
 		titleAgeChart = "Статистика по возрасту",
 		titleGuestsChart = "Cтатистика по людям",
 		titleFinChart = "Cтатистика по пожертвованиям",
@@ -244,8 +266,19 @@ function makeChartConfig(data, isGroup = '1m') {
 				return `Всего: ${beautifyNumber(total)}`;
 			},
 		},
+		callbackStableChart = {
+			footer: (tooltipItems, data) => {
+				let
+					stable = data.datasets[tooltipItems[0].datasetIndex].data[tooltipItems[0].index],
+					unstable = data.datasets[tooltipItems[1].datasetIndex].data[tooltipItems[1].index],
+					unknown = data.datasets[tooltipItems[2].datasetIndex].data[tooltipItems[2].index],
+					total = +stable + +unstable + +unknown;
+				return `Всего: ${beautifyNumber(total)}`;
+			},
+		},
 		configSexChart = setConfig('bar', labels, datasetsSexChart, titleSexChart, xAxesBar, yAxesBar, callbackSexChart),
-		configPeopleChart = setConfig('bar', labels, datasetsPeopleChart, titlePeopleChart),
+		configCongregationChart = setConfig('bar', labels, datasetsCongregationChart, titleCongregationChart, xAxesBar, yAxesBar, callbackStableChart),
+		configConvertChart = setConfig('bar', labels, datasetsConvertChart, titleConvertChart, xAxesBar, yAxesBar, callbackStableChart),
 		configGuestsChart = setConfig('line', labels, datasetsGuestsChart, titleGuestsChart, xAxes, yAxes),
 		configAgeChart = setConfig('bar', labels, datasetsAgeChart, titleAgeChart),
 		configFinChart = setConfig('bar', labels, datasetsFinChart, titleFinChart),
@@ -255,13 +288,19 @@ function makeChartConfig(data, isGroup = '1m') {
 			l1: female,
 			l2: male,
 		},
-		optionPeopleChart = {
-			chart: window.ChartPeople,
+		optionCongregationChart = {
+			chart: window.ChartCongr,
 			labels: labels,
 			l1: stableCongr,
 			l2: unstableCongr,
-			l3: stableConvert,
-			l4: unstableConvert,
+			l3: unknwCongr,
+		},
+		optionConvertChart = {
+			chart: window.ChartConvert,
+			labels: labels,
+			l1: stableConvert,
+			l2: unknwCongr,
+			l3: unkwnConvert,
 		},
 		optionGuestsChart = {
 			chart: window.ChartGuests,
@@ -289,7 +328,8 @@ function makeChartConfig(data, isGroup = '1m') {
 			l4: eur,
 		},
 		selectSexChart = 'chart_sex',
-		selectPeopleChart = 'chart_people',
+		selectCongregationChart = 'chart_congregation',
+		selectConvertChart = 'chart_convert',
 		selectGuestsChart = 'chart_guests',
 		selectAgeChart = 'chart_age',
 		selectFinChart = 'chart_finance';
@@ -301,9 +341,12 @@ function makeChartConfig(data, isGroup = '1m') {
 		configAgeChart,
 		optionAgeChart,
 		selectAgeChart,
-		configPeopleChart,
-		optionPeopleChart,
-		selectPeopleChart,
+		configCongregationChart,
+		optionCongregationChart,
+		selectCongregationChart,
+		configConvertChart,
+		optionConvertChart,
+		selectConvertChart,
 		configGuestsChart,
 		optionGuestsChart,
 		selectGuestsChart,
@@ -358,7 +401,9 @@ function renderChart(select, config) {
 		window.ChartGuests = new Chart(ctx, config);
 	} else if (select === 'chart_finance') {
 		window.ChartFin = new Chart(ctx, config);
-	} else {
-		window.ChartPeople = new Chart(ctx, config);
+	} else if (select === 'chart_congregation') {
+		window.ChartCongr = new Chart(ctx, config);
+	} else if (select === 'chart_convert') {
+		window.ChartConvert = new Chart(ctx, config);
 	}
 }
