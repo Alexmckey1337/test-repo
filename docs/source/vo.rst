@@ -100,7 +100,7 @@ List of directions
 
     .. sourcecode:: http
 
-        GET /api/vo/home_group/directions/ HTTP/1.1
+        GET /api/vo/home_groups/directions/ HTTP/1.1
         Host: vocrm.net
         Vo-Org-Ua-Token: voorguatoken
         Accept: application/json
@@ -116,24 +116,20 @@ List of directions
 
         [
             {
-                "code": "interes",
-                "title": "Интерес"
+                "code": "one",
+                "title_by_languages": {
+                    "ru": "ru title",
+                    "en": "en title",
+                    "de": "de title"
+                }
             },
             {
-                "code": "drugoi",
-                "title": "Другой"
-            },
-            {
-                "code": "meni",
-                "title": "Мени"
-            },
-            {
-                "code": "drugoi_2",
-                "title": "Другой интерес"
-            },
-            {
-                "code": "drugoi-interes-o",
-                "title": "Другой интерес о"
+                "code": "two",
+                "title_by_languages": {
+                    "ru": "ru other",
+                    "en": "en other",
+                    "de": "de other"
+                }
             }
         ]
 
