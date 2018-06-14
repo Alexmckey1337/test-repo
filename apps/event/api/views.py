@@ -311,28 +311,38 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     @action(detail=True, methods=['POST'], serializer_class=MeetingDetailSerializer,
             parser_classes=(MultiPartAndJsonParser, JSONParser, FormParser))
     def submit(self, request, pk):
-        home_meeting = self.get_object()
-        valid_attends = self.validate_to_submit(home_meeting, request.data)
+        meeting = self.get_object()
+        valid_attends = self.validate_to_submit(meeting, request.data)
 
-        home_meeting.status = Meeting.SUBMITTED
-        meeting = self.serializer_class(home_meeting, data=request.data, partial=True)
-        meeting.is_valid(raise_exception=True)
+        meeting.status = Meeting.SUBMITTED
+        meeting_serializer = self.serializer_class(meeting, data=request.data, partial=True)
+        meeting_serializer.is_valid(raise_exception=True)
 
         try:
             with transaction.atomic():
-                self.perform_update(meeting)
+                self.perform_update(meeting_serializer)
+                users = [a['user_id'] for a in valid_attends]  # user_id checking in method self.validate_to_submit
+                users_qs = CustomUser.objects.in_bulk(users)
+                new_attends = list()
                 for attend in valid_attends:
-                    MeetingAttend.objects.create(
-                        meeting_id=home_meeting.id,
-                        user_id=attend.get('user_id'),
+                    user = users_qs.get(attend['user_id'])
+                    new_attends.append(MeetingAttend(
+                        meeting=meeting,
+                        user=user,
                         attended=attend.get('attended', False),
-                        note=attend.get('note', '')
-                    )
+                        note=attend.get('note', ''),
+
+                        is_stable=user.is_stable,
+                        master=user.master,
+                        church=user.cchurch,
+                        home_group=user.hhome_group,
+                    ))
+                MeetingAttend.objects.bulk_create(new_attends)
         except IntegrityError:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        headers = self.get_success_headers(meeting.data)
+        headers = self.get_success_headers(meeting_serializer.data)
         return Response({'message': _('Отчет Домашней Группы успешно подан.')},
                         status=status.HTTP_200_OK, headers=headers)
 
@@ -394,7 +404,6 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                 self.perform_update(meeting)
                 for attend in attends:
                     MeetingAttend.objects.filter(id=attend.get('id')).update(
-                        user=attend.get('user_id', None),
                         attended=attend.get('attended', False),
                         note=attend.get('note', '')
                     )
@@ -451,13 +460,16 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         statistics.update(queryset.aggregate(total_donations=Sum('total_sum')))
 
         master_id = request.query_params.get('master_tree')
+        try:
+            master = CustomUser.objects.get(id=master_id)
+        except CustomUser.DoesNotExist:
+            raise exceptions.ValidationError(_('Master with id = %s does not exist') % master_id)
         if master_id:
-            query = CustomUser.objects.for_user(user=CustomUser.objects.get(id=master_id))
+            query = CustomUser.objects.for_user(user=master)
         else:
             query = CustomUser.objects.for_user(self.request.user)
 
-        statistics['new_repentance'] = query.filter(
-            repentance_date__range=[from_date, to_date]).count()
+        statistics['new_repentance'] = query.filter(repentance_date__range=[from_date, to_date]).count()
 
         statistics = self.serializer_class(statistics)
         return Response(statistics.data, status=status.HTTP_200_OK)
@@ -500,10 +512,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         )
 
         mobile_counts['church_reports'] = ChurchReport.objects.for_user(
-            user, extra_perms=False).filter(status__in=[1, 3]).count()
-
-        if not mobile_counts['church_reports']:
-            mobile_counts['church_reports'] = None
+            user, extra_perms=False).filter(status__in=[1, 3]).count() or None
 
         mobile_counts = self.serializer_class(mobile_counts)
         return Response(mobile_counts.data, status=status.HTTP_200_OK)
@@ -517,8 +526,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     def meetings_summary(self, request):
         user = self.master_for_summary(request)
 
-        queryset = self.filter_queryset(CustomUser.objects.for_user(user).filter(
-            home_group__leader__isnull=False).annotate(
+        hg_leaders = CustomUser.objects.for_user(user).filter(home_group__leader__isnull=False)
+        hg_leaders = hg_leaders.annotate(
             meetings_in_progress=Sum(Case(
                 When(home_group__meeting__status=1, then=1),
                 output_field=IntegerField(), default=0), distinct=True),
@@ -527,9 +536,10 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                 output_field=IntegerField(), default=0), distinct=True),
             meetings_expired=Sum(Case(
                 When(home_group__meeting__status=3, then=1),
-                output_field=IntegerField(), default=0), distinct=True)).distinct())
+                output_field=IntegerField(), default=0), distinct=True)).distinct()
+        hg_leaders = self.filter_queryset(hg_leaders)
 
-        page = self.paginate_queryset(queryset)
+        page = self.paginate_queryset(hg_leaders)
         leaders = self.serializer_class(page, many=True)
         return self.get_paginated_response(leaders.data)
 
