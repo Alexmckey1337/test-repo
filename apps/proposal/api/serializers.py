@@ -18,6 +18,7 @@ class CreateProposalSerializer(serializers.ModelSerializer):
         fields = (
             'first_name', 'last_name', 'sex', 'born_date', 'locality', 'email', 'phone_number', 'type',
             'leader_name', 'age_group', 'gender_group', 'geo_location', 'directions',
+            'city', 'country',
         )
 
     def validate_sex(self, sex):

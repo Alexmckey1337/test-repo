@@ -412,6 +412,8 @@ Create new proposal
             "sex": "female",
             "born_date": "2000-02-04",
             "locality": 22,
+            "city": "City name",
+            "country": "Country name",
             "type": "full",
             "email": "someaddress@gmail.com",
             "phone_number": "+380998887766",
@@ -438,6 +440,8 @@ Create new proposal
             "sex": "female",
             "born_date": "04.02.2000",
             "locality": 22,
+            "city": "City name",
+            "country": "Country name",
             "email": "someaddress@gmail.com",
             "phone_number": "+380998887766",
             "type": "full",
@@ -490,7 +494,9 @@ Create new proposal
     :form last_name: last name, max length == 150
     :form sex: sex of the user, one of (``male``, ``female``)
     :form born_date: born date of the user, format ``YYYY-MM-DD``
-    :form locality: id of the city
+    :form locality: id of the city, **deprecated**
+    :form city: string, max length == 120
+    :form country: string, max length == 120
     :form type: type of the proposal, one of (``short``, ``full``)
     :form email: email of the user, max length == 250
     :form phone_number: phone number of the user, max length == 23

@@ -22,6 +22,9 @@ class Proposal(models.Model):
         null=True, blank=True, verbose_name=_('Locality'),
         help_text=_('City/village/etc')
     )
+    city = models.CharField(_('City'), max_length=120, blank=True)
+    country = models.CharField(_('Country'), max_length=120, blank=True)
+
     email = models.CharField(_('email address'), max_length=254, blank=True)
     phone_number = models.CharField(_('Phone number'), max_length=23, blank=True)
 
