@@ -61,7 +61,7 @@ REPORTS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'reports_su
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
 SEX_FIELDS = ('male', 'female', 'unknown')
-CONGREGATION_FIELDS = ('stable', 'unstable')
+CONGREGATION_FIELDS = ('stable', 'unstable', 'unknown')
 CONVERT_FIELDS = CONGREGATION_FIELDS
 AGE_FIELDS = ('12-', '13-25', '26-40', '41-60', '60+', 'unknown')
 
@@ -1398,10 +1398,12 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
           array[count(distinct user_id) FILTER (WHERE a.sex = 'male'),
           count(distinct user_id) FILTER (WHERE a.sex = 'female'),
           count(distinct user_id) FILTER (WHERE a.sex != 'female' and a.sex != 'male')] sex,
-          array[count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and a.is_stable),
-          count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and not a.is_stable)] congregation,
-          array[count(distinct user_id) FILTER (WHERE h3.code = 'convert' and a.is_stable),
-          count(distinct user_id) FILTER (WHERE h3.code = 'convert' and not a.is_stable)] convert,
+          array[count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and e.is_stable),
+          count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and not e.is_stable and e.is_stable NOTNULL),
+          count(distinct user_id) FILTER (WHERE h3.code = 'congregation' and e.is_stable ISNULL)] congregation,
+          array[count(distinct user_id) FILTER (WHERE h3.code = 'convert' and e.is_stable),
+          count(distinct user_id) FILTER (WHERE h3.code = 'convert' and not e.is_stable and e.is_stable NOTNULL),
+          count(distinct user_id) FILTER (WHERE h3.code = 'convert' and e.is_stable ISNULL)] convert,
           array[count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) < '13 year'),
           count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) between '13 year' and '26 year'),
           count(distinct user_id) FILTER (WHERE age(report.date, a.born_date) between '26 year' and '41 year'),
@@ -1487,6 +1489,9 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         return " AND report.type_id = %s", [meeting_type]
 
     def get_where_leader_tree(self):
+        """
+        TODO Perhaps wrong, because tree of the leader can change with time, then the old reports will be incorrect
+        """
         leader_tree = self.request.query_params.get('leader_tree')
         if not leader_tree and self.request.user.is_staff:
             return '', []
