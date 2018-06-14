@@ -41,7 +41,6 @@ from apps.group.api.serializers import (
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church, Direction
 from apps.group.resources import ChurchResource, HomeGroupResource
-from apps.location.models import City
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, TableViewMixin, ModelWithoutListViewSet

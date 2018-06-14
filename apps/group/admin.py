@@ -26,7 +26,7 @@ class HomeGroupAdmin(admin.ModelAdmin):
 
 
 class DirectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'code')
+    list_display = ('title_ru', 'title_en', 'title_de', 'code')
 
     class Meta:
         model = Direction
