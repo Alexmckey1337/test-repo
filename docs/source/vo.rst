@@ -509,3 +509,125 @@ Create new proposal
     :statuscode 400: bad request
 
 
+
+List of proposals
+~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/proposal/
+
+    List of the proposals. Pagination by 30 items. Ordering by date_created.
+
+    ``raw_data`` — body of the request
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/proposal/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "count": 16,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "first_name": "first",
+                    "last_name": "last",
+                    "sex": "unknown",
+                    "born_date": "04.02.2040",
+                    "locality": 22,
+                    "city": "citycity",
+                    "country": "Country name",
+                    "email": "someaddress@gmail.com",
+                    "phone_number": "+380998887766",
+                    "type": "other",
+                    "leader_name": "Leader Name Ivanovich",
+                    "age_group": "80+",
+                    "gender_group": "some group",
+                    "geo_location": "some data",
+                    "directions": [
+                        "meni",
+                        "drugoi",
+                        "interes",
+                    ],
+                    "raw_data": {
+                        "sex": "girl",
+                        "city": "citycity",
+                        "type": "incorrect",
+                        "email": "someaddress@gmail.com",
+                        "country": "Country name",
+                        "locality": 22,
+                        "age_group": "80+",
+                        "born_date": "2040-02-04",
+                        "last_name": "last",
+                        "directions": [
+                            "meni",
+                            "drugoi",
+                            "interes",
+                        ],
+                        "first_name": "first",
+                        "leader_name": "Leader Name Ivanovich",
+                        "gender_group": "some group",
+                        "geo_location": "some data",
+                        "phone_number": "+380998887766"
+                    },
+                    "created_at": "2018-06-16T08:59:52.745889Z"
+                },
+                ...
+            ]
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/proposal/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :query int page: page number
+
+    :query string sex: filter by gender, one of (``male``, ``female``, ``unknown``)
+    :query string type: filter by type, one of (``full``, ``short``, ``other``)
+    :query string created_from: filter by datetime of created, UTC, format:
+        ``YYYY-MM-DD HH:mm:SS`` or ``YYYY-MM-DD HH:mm``
+    :query string created_to: filter by datetime of created, UTC, format:
+            ``YYYY-MM-DD HH:mm:SS`` or ``YYYY-MM-DD HH:mm``
+    :query string search_fio: search by ``first_name`` or ``last_name``
+    :query string search_email: search by ``email``
+    :query string search_phone_number: search by ``phone_number``
+    :query string search_city: search by ``city``
+    :query string search_country: search by ``country``
+    :query string search: search by ``leader_name``, ``age_group``,
+                                    ``gender_group``, ``geo_location``
+    :query string ordering: order by one of
+        (``first_name``, ``last_name``, ``born_date``, ``country``, ``city``,
+         ``phone_number``, ``email``, ``sex``, ``type``),
+         may be multible, e.g. ``?ordering=type,-sex``
+
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden

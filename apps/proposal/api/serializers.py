@@ -8,18 +8,30 @@ from apps.account.models import CustomUser
 from apps.group.models import Direction
 from apps.proposal.models import Proposal
 
-
 logger = logging.getLogger('vo_org_ua')
+
+BASE_PROPOSAL_FIELDS = (
+    'first_name', 'last_name', 'sex', 'born_date', 'locality',
+    'city', 'country',
+    'email', 'phone_number', 'type',
+    'leader_name', 'age_group', 'gender_group', 'geo_location', 'directions',
+)
+
+
+class ProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proposal
+        fields = BASE_PROPOSAL_FIELDS + ('raw_data', 'created_at')
 
 
 class CreateProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proposal
-        fields = (
-            'first_name', 'last_name', 'sex', 'born_date', 'locality', 'email', 'phone_number', 'type',
-            'leader_name', 'age_group', 'gender_group', 'geo_location', 'directions',
-            'city', 'country',
-        )
+        fields = BASE_PROPOSAL_FIELDS
+
+    def save(self, **kwargs):
+        kwargs.update({'raw_data': self.initial_data})
+        return super().save(**kwargs)
 
     def validate_sex(self, sex):
         if sex not in [s[0] for s in CustomUser.SEX]:
@@ -65,7 +77,7 @@ class UpdateProposalSerializer(serializers.ModelSerializer):
                 {
                     'detail': _("You cannot change status from %s to %s") % (current_status, new_status),
                     'available_statuses': settings.PROPOSAL_STATUS_PIPELINE.get(current_status, [])
-                 })
+                })
 
         proposal_is_reject = current_status in (settings.PROPOSAL_REJECTED, settings.PROPOSAL_PROCESSED)
         cancel_time_is_over = self.instance.cancel_time_is_over()
