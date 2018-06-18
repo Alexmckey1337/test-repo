@@ -156,6 +156,9 @@ function showPopupAddUser(data) {
 		e.preventDefault();
 		const ID = $(this).attr('data-id');
 		$('#addPopup').css('display', 'none').remove();
+		$('#addNewUserPopup').find('form').removeClass('active');
+		$('.bg').removeClass('active');
+		$('#createUser').find('select#chooseDepartment').select2('destroy').find('option').remove();
 		addUserToSummit(ID);
 	});
 }
