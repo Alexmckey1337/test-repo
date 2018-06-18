@@ -71,7 +71,7 @@ deploy-stage:
     - mkdir -p ~/.ssh
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - ssh $STAGE_USER@$STAGE_HOST "/home/vocrm/sites/vocrm/update.sh"
+    - ssh $STAGE_USER@$STAGE_HOST "VOCRM_TAG=latest /home/vocrm/sites/vocrm/update_dev.sh"
   only:
     - master
 
