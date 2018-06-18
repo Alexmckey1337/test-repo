@@ -15,7 +15,7 @@ class DatabaseAccessListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'link', 'fullname', 'hierarchy', 'is_staff', 'is_active',
+        fields = ('id', 'link', 'fullname', 'hierarchy', 'is_staff', 'is_active', 'is_proposal_manager',
                   'can_login', 'has_usable_password')
 
 
