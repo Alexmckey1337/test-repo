@@ -93,7 +93,7 @@ $(document).ready(function () {
 			let name = item.getAttribute('name');
 			(item.value.trim()) && $(`#${name}`).val(item.value).trigger('change');
 		});
-		insertLocality();
+		// insertLocality();
 		$('#first_name').focusout();
 	});
 

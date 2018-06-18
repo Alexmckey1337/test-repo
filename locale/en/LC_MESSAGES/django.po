@@ -261,7 +261,7 @@ msgstr ""
 #: apps/account/models.py:52 apps/group/models.py:60
 #: templates/summit/profile.html:36
 msgid "Region"
-msgstr ""
+msgstr "Регион"
 
 #: apps/account/models.py:53
 msgid "District"
@@ -1586,7 +1586,7 @@ msgstr ""
 
 #: apps/proposal/models.py:15 templates/proposal/partials/proposal_card.html:4
 msgid "First name"
-msgstr ""
+msgstr "Имя"
 
 #: apps/proposal/models.py:16 apps/summit/models.py:135
 #: templates/proposal/partials/proposal_card.html:10

@@ -1690,8 +1690,6 @@ msgid "Время на возобновление отклоненной зая�
 msgstr ""
 
 #: apps/proposal/models.py:15 templates/proposal/partials/proposal_card.html:4
-#, fuzzy
-#| msgid "Fisrt name"
 msgid "First name"
 msgstr "Имя"
 

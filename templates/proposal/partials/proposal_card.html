@@ -26,17 +26,12 @@
     </label>
 
     <label>
-        {% trans "Locality" %}
-        <p id="locInfo"
-           data-id="{{ proposal.locality_id|default_if_none:" " }}"
-           data-city="{{ proposal.locality.name }}"
-           data-country="{{ proposal.locality.country_name }}"
-           data-area="{{ proposal.locality.area_name }}"
-           data-locality="{{ proposal.locality.district_name }}"
-        >
-            {{ proposal.locality.name }} -- {{ proposal.locality.country_name }} -- {{ proposal.locality.area_name }}
-            -- {{ proposal.locality.district_name }}
-        </p>
+        {% trans "Country" %}
+        <p>{{ proposal.locality.country_name }}</p>
+    </label>
+    <label>
+        {% trans "City" %}
+        <p>{{ proposal.locality.district_name }}</p>
     </label>
 
     <label for="id_email">{% trans "Email" %}

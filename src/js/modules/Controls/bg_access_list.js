@@ -79,7 +79,8 @@ function createBdAccessTable(data,block) {
                                 <th data-order="last_name">ФИО</th>
                                 <th data-order="hierarchy__level">Иерархия</th>
                                 <th data-order="is_staff">Персонал</th>
-                                <th data-order="is_active">Активный</th>                                        
+                                <th data-order="is_active">Активный</th>
+                                <th data-order="is_active">Доступ к заявкам</th>
                                 <th data-order="can_login">Имеет право входа</th>
                                 <th data-order="no_ordering">Id и пароль</th>
                             </tr>
@@ -101,6 +102,12 @@ function createBdAccessTable(data,block) {
                             <td>
                                 <label>
                                     ${item.is_active === true ? `<input type="checkbox" name="is_active" checked>` : `<input type="checkbox" name="is_active" data-filter="person">`}
+                                    <div></div>
+                                </label>
+                            </td>
+                            <td>
+                                <label>
+                                    ${item.can_login === true ? `<input type="checkbox" name="can_login" checked>` : `<input type="checkbox" name="can_login" data-filter="person">`}
                                     <div></div>
                                 </label>
                             </td>
