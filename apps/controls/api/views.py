@@ -73,9 +73,10 @@ class DatabaseAccessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             try:
                 with transaction.atomic():
                     for k, v in obj.items():
-                        if k not in ['is_staff', 'is_active', 'can_login']:
+                        if k not in ['is_staff', 'is_active', 'can_login', 'is_proposal_manager']:
                             raise exceptions.ValidationError(
-                                {'message': _('Field names must be one of [is_staff, is_active, can_login]')}
+                                {'message': _('Field names must be one of [is_staff, ' +
+                                              'is_active, can_login, is_proposal_manager]')}
                             )
                         setattr(user, k, v)
                         user.save()
