@@ -37,6 +37,27 @@ class MeetingAttend(models.Model):
     attended = models.BooleanField(_('Attended'), default=False)
     note = models.TextField(_('Note'), blank=True)
 
+    is_stable = models.NullBooleanField(_('Is Stable'), null=True, blank=True, editable=False)
+    master = models.ForeignKey(
+        'account.CustomUser', on_delete=models.PROTECT,
+        related_name='+', verbose_name=_('Master'),
+        editable=False,
+        null=True, blank=True,
+    )
+    church = models.ForeignKey(
+        'group.Church', on_delete=models.SET_NULL,
+        related_name='+', verbose_name=_('Church'),
+        editable=False,
+        null=True, blank=True
+    )
+
+    home_group = models.ForeignKey(
+        'group.HomeGroup', on_delete=models.SET_NULL,
+        related_name='+', verbose_name=_('Home group'),
+        editable=False,
+        null=True, blank=True
+    )
+
     class Meta:
         ordering = ('meeting__owner', '-meeting__date')
         verbose_name = _('Meeting attend')
@@ -84,6 +105,7 @@ class Meeting(AbstractStatusModel):
 
     visitors = models.ManyToManyField('account.CustomUser', verbose_name=_('Visitors'),
                                       through='event.MeetingAttend',
+                                      through_fields=('meeting', 'user'),
                                       related_name='meeting_types')
 
     total_sum = models.DecimalField(_('Total sum'), max_digits=12,

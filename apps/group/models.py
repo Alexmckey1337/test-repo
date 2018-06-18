@@ -148,7 +148,12 @@ class Church(LogModel, CommonGroup):
 
 class Direction(models.Model):
     code = models.SlugField(_('Code'), max_length=60, blank=True, db_index=True, editable=False)
-    title = models.CharField(_('Title'), max_length=40, unique=True)
+    title_ru = models.CharField(_('Title ru'), max_length=40, unique=True)
+    title_en = models.CharField(_('Title en'), max_length=40, unique=True)
+    title_de = models.CharField(_('Title de'), max_length=40, unique=True)
+
+    def __str__(self):
+        return f'{self.title_ru} ({self.code})'
 
     def save(self, *args, **kwargs):
         if self.code:
@@ -159,7 +164,7 @@ class Direction(models.Model):
             self.ensure_slug_uniqueness()
 
     def generate_slug(self):
-        return slugify(self.title)
+        return slugify(self.title_en)
 
     def ensure_slug_uniqueness(self):
         unique_code = self.code
@@ -172,6 +177,13 @@ class Direction(models.Model):
         if unique_code != self.code:
             self.code = unique_code
             self.save()
+
+    def title_by_languages(self):
+        return {
+            'ru': self.title_ru,
+            'en': self.title_en,
+            'de': self.title_de,
+        }
 
 
 class HomeGroup(LogModel, CommonGroup):

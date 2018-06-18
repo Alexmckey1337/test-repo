@@ -1,14 +1,12 @@
 import logging
-from collections import Counter
 from datetime import datetime
-from time import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
 from django.db.models import (
     Sum, When, Case, F, IntegerField, Q, DecimalField, OuterRef, Subquery, Value as V)
-from django.db.models.functions import Coalesce, Concat
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.decorators import action
@@ -24,22 +22,15 @@ from apps.partnership.api.permissions import (
     CanSeePartnerStatistics, CanCreatePartnerPayment, CanSeeDealPayments,
     CanExportPartnerList, CanSeeManagerSummary, CanCreateChurchPartnerPayment, CanSeeChurchDealPayments,
     CanExportChurchPartnerList)
-from apps.partnership.models import Partnership, Deal, PartnershipLogs, ChurchDeal, ChurchPartner, ChurchPartnerLog
+from apps.partnership.api.reports import (
+    get_next_month, _get_managers_plan, get_logged_managers, get_logged_partners, get_managers_stats_cached)
+from apps.partnership.models import Partnership, Deal
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.payment.models import Payment, Currency
+from common.performance import func_time
 from common.views_mixins import ExportViewSetMixin
 
 sql_logger = logging.Logger('partner.sql')
-
-
-def func_time(func):
-    def wrap(*args, **kwargs):
-        t = time()
-        result = func(*args, **kwargs)
-        sql_logger.warning("[{1:.3f}] {0}".format(func.__name__, time() - t))
-        return result
-
-    return wrap
 
 
 class PartnerStatMixin:
@@ -201,83 +192,14 @@ class StatsByManagersMixin:
         year = int(request.query_params.get('year', timezone.now().year))
         month = int(request.query_params.get('month', timezone.now().month))
 
-        managers_query, plan = self._get_managers()
-        partners, church_partners = self._get_partners()
-
-        partners_data = self._get_partners_names(managers_query)
-        managers = [{
-            # Making queries from Partnership model
-            'sum_pay': x[0] or 0,
-            'sum_pay_tithe': x[1] or 0,
-            'sum_pay_church': x[2] or 0,
-            'sum_deals': x[3] or 0,
-            'sum_church_deals': x[4] or 0,
-            'manager': x[5],
-            'user_id': x[6],
-            # Making queries from PartnershipLoUntitled Diagram.xmlgs model if requested period not in this month
-            'total_partners': x[7] or 0,
-            'active_partners': x[8] or 0,
-            'potential_sum': x[9] or 0,
-            'total_church_partners': x[10] or 0,
-            'active_church_partners': x[11] or 0,
-            'church_potential_sum': x[12] or 0,
-            'plan': x[13] or 0,
-
-        } for x in zip(
-            self._get_sum_pay(year, month, deal_type=Deal.DONATION),
-            self._get_sum_pay(year, month, deal_type=Deal.TITHE),
-            self._get_sum_church_pay(year, month),
-            self._get_sum_deals(managers_query, year, month),
-            self._get_sum_church_deals(managers_query, year, month),
-            [p['full_name'] for p in partners_data],
-            [p['id'] for p in partners_data],
-            self._get_total_partners(partners, managers_query),
-            self._get_active_partners(partners, managers_query),
-            self._get_potential_sum(partners, managers_query),
-            self._get_total_church_partners(church_partners, managers_query),
-            self._get_active_church_partners(church_partners, managers_query),
-            self._get_church_potential_sum(church_partners, managers_query),
-            plan,
-        )]
-        managers = [manager for manager in managers if (
-                manager['potential_sum'] != 0 or
-                manager['sum_pay'] != 0 or
-                manager['sum_pay_church'] != 0 or
-                manager['sum_pay_tithe'] != 0)]
+        managers, last_update = get_managers_stats_cached(year, month)
         managers = self._order_managers(managers)
 
-        return Response({'results': managers, 'table_columns': get_table('partner_summary', self.request.user.id)})
-
-    @func_time
-    def _get_managers(self):
-        year = int(self.request.query_params.get('year', timezone.now().year))
-        month = int(self.request.query_params.get('month', timezone.now().month))
-
-        manager_ids = CustomUser.objects.filter(Q(partner_role__isnull=False) | Q(
-            disciples_deals__isnull=False) | Q(
-            partner_disciples_deals__isnull=False)).distinct().values_list('id', flat=True)
-
-        managers = CustomUser.objects.filter(id__in=manager_ids).order_by('pk')
-
-        plan = self._get_managers_plan(managers)
-
-        if year != timezone.now().year or month != datetime.now().month:
-            next_month = self.get_next_month(year, month)
-            managers, plan = self.get_logged_managers(next_month)
-        return managers, plan
-
-    @func_time
-    def _get_partners(self):
-        year = int(self.request.query_params.get('year', timezone.now().year))
-        month = int(self.request.query_params.get('month', timezone.now().month))
-        partners = Partnership.objects.all()
-        church_partners = ChurchPartner.objects.all()
-
-        if year != timezone.now().year or month != datetime.now().month:
-            next_month = self.get_next_month(year, month)
-            partners = self.get_logged_partners(next_month)
-            church_partners = self.get_logged_church_partners(next_month)
-        return partners, church_partners
+        return Response({
+            'results': managers,
+            'last_update': last_update,
+            'table_columns': get_table('partner_summary', self.request.user.id),
+        })
 
     @func_time
     def _order_managers(self, managers):
@@ -289,241 +211,13 @@ class StatsByManagersMixin:
             managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
         return managers
 
-    @staticmethod
-    @func_time
-    def _get_partners_names(queryset):
-        return list(queryset.annotate(full_name=Concat(
-            'last_name', V(' '), 'first_name', V(' '), 'middle_name')).values(
-            'full_name', 'id').order_by('pk'))
-
     """
     Making queries from Partnership model
     """
 
-    @func_time
-    def _get_sum_pay(self, year, month, deal_type):
-        raw = """
-          select u.user_ptr_id,
-          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 40 and
-          pay.object_id in (select d.id from partnership_deal d where d.responsible_id = u.user_ptr_id and
-          d.type = {type} and to_char(d.date_created, 'YYYY-MM') = '{year}-{month:02d}')) sum
-          from account_customuser u
-          WHERE u.user_ptr_id in (
-              SELECT uu.user_ptr_id from account_customuser uu
-              LEFT OUTER JOIN partnership_deal d ON (uu.user_ptr_id = d.responsible_id)
-              LEFT OUTER JOIN partnership_churchdeal cd ON (uu.user_ptr_id = cd.responsible_id)
-              LEFT OUTER JOIN partnership_partnerrolelog pr ON (uu.user_ptr_id = pr.user_id and pr.id IN (
-                SELECT DISTINCT ON (user_id) (
-                  SELECT pl.id
-                  FROM partnership_partnerrolelog pl
-                  WHERE p.user_id = pl.user_id and pl.log_date < '{next_month}-01'
-                  ORDER BY pl.log_date DESC LIMIT 1
-                ) FROM partnership_partnerrolelog p) and pr.deleted = false)
-              WHERE pr.id IS NOT NULL OR d.id IS NOT NULL OR cd.id IS NOT NULL)
-          ORDER BY u.user_ptr_id;
-          """.format(type=deal_type, year=year, month=month, next_month=self.get_next_month(year, month))
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        return [k[1] for k in result]
-
-    @func_time
-    def _get_sum_church_pay(self, year, month):
-        raw = """
-          select u.user_ptr_id,
-          (select sum(pay.sum) from payment_payment pay WHERE pay.content_type_id = 103 and
-          pay.object_id in (select d.id from partnership_churchdeal d where d.responsible_id = u.user_ptr_id and
-          to_char(d.date_created, 'YYYY-MM') = '{year}-{month:02d}')) sum
-          from account_customuser u
-          WHERE u.user_ptr_id in (
-              SELECT uu.user_ptr_id from account_customuser uu
-              LEFT OUTER JOIN partnership_deal d ON (uu.user_ptr_id = d.responsible_id)
-              LEFT OUTER JOIN partnership_churchdeal cd ON (uu.user_ptr_id = cd.responsible_id)
-              LEFT OUTER JOIN partnership_partnerrolelog pr ON (uu.user_ptr_id = pr.user_id and pr.id IN (
-                SELECT DISTINCT ON (user_id) (
-                  SELECT pl.id
-                  FROM partnership_partnerrolelog pl
-                  WHERE p.user_id = pl.user_id and pl.log_date < '{next_month}-01'
-                  ORDER BY pl.log_date DESC LIMIT 1
-                ) FROM partnership_partnerrolelog p) and pr.deleted = false)
-              WHERE pr.id IS NOT NULL OR d.id IS NOT NULL OR cd.id IS NOT NULL)
-          ORDER BY u.user_ptr_id;
-          """.format(year=year, month=month, next_month=self.get_next_month(year, month))
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        return [k[1] for k in result]
-
-    @staticmethod
-    @func_time
-    def _get_sum_deals(queryset, year, month):
-        subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
-            'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
-
-        return list(queryset.annotate(
-            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True))
-
-    @staticmethod
-    @func_time
-    def _get_sum_church_deals(queryset, year, month):
-        subqs_deals = ChurchDeal.objects.filter(
-            date_created__year=year, date_created__month=month, responsible=OuterRef('pk')
-        ).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
-
-        return list(queryset.annotate(
-            sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list(
-            'sum_deals', flat=True))
-
     """
     Making queries from PartnershipLogs model if requested period not in this month
     """
-
-    # @staticmethod
-    # def _get_sum_deals(queryset, year, month):
-    #     subqs_deals = Deal.objects.filter(date_created__year=year, date_created__month=month, responsible=OuterRef(
-    #         'pk')).order_by().values('responsible').annotate(deals_sum=Sum('value')).values('deals_sum')
-    #     subqs_church_deals = ChurchDeal.objects.filter(
-    #         date_created__year=year, date_created__month=month, responsible=OuterRef('pk')
-    #     ).order_by().values('responsible').annotate(church_deals_sum=Sum('value')).values('church_deals_sum')
-    #
-    #     z = zip(
-    #         queryset.annotate(
-    #             sum_deals=Subquery(subqs_deals, output_field=DecimalField())).values_list('sum_deals', flat=True),
-    #         queryset.annotate(
-    #             sums=Subquery(subqs_church_deals, output_field=DecimalField())).values_list('sums', flat=True),
-    #     )
-    #     return map(lambda d: sum([d[0] or 0, d[1] or 0]), z)
-
-    @staticmethod
-    @func_time
-    def get_logged_partners(next_month):
-        raw = """
-              SELECT (SELECT pl.id FROM partnership_partnershiplogs pl WHERE p.id = pl.partner_id AND
-              pl.log_date < '%s-01'
-              ORDER BY log_date DESC LIMIT 1
-              ) p_log_id
-              FROM partnership_partnership p ORDER BY p.id;
-              """ % next_month
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        logged_ids = [k[0] for k in result]  # from arrays with tuples of ids to array with integer ids
-
-        logged_queryset = PartnershipLogs.objects.filter(id__in=logged_ids)
-
-        return logged_queryset
-
-    @staticmethod
-    @func_time
-    def get_logged_church_partners(next_month):
-        raw = """
-              SELECT (SELECT pl.id FROM partnership_churchpartnerlog pl WHERE p.id = pl.partner_id AND
-              pl.log_date < '%s-01'
-              ORDER BY log_date DESC LIMIT 1
-              ) p_log_id
-              FROM partnership_churchpartner p ORDER BY p.id;
-              """ % next_month
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        logged_ids = [k[0] for k in result]  # from arrays with tuples of ids to array with integer ids
-
-        logged_queryset = ChurchPartnerLog.objects.filter(id__in=logged_ids)
-
-        return logged_queryset
-
-    @staticmethod
-    @func_time
-    def get_logged_managers(next_month):
-        raw = """
-                SELECT log.user_id, log.plan FROM partnership_partnerrolelog log WHERE id IN (
-                SELECT DISTINCT ON (user_id) (
-                  SELECT pl.id
-                  FROM partnership_partnerrolelog pl
-                  WHERE p.user_id = pl.user_id and pl.log_date < '%s-01'
-                  ORDER BY pl.log_date DESC LIMIT 1
-                ) FROM partnership_partnerrolelog p) and log.deleted = false ORDER BY log.user_id;
-              """ % next_month
-
-        with connection.cursor() as connect:
-            connect.execute(raw)
-            result = connect.fetchall()
-
-        managers_query = list(set(CustomUser.objects.filter(
-            Q(id__in=[k[0] for k in result]) |
-            Q(disciples_deals__isnull=False) |
-            Q(partner_disciples_deals__isnull=False)
-        ).order_by().only('pk').distinct('pk').values_list('id', flat=True)))
-        plan = []
-        for m in sorted(managers_query):
-            p = 0
-            for r in result:
-                if r[0] == m:
-                    p = r[1]
-                    break
-            plan.append(p)
-        managers_query = CustomUser.objects.filter(id__in=managers_query).order_by('pk')
-
-        return managers_query, plan
-
-    @staticmethod
-    def get_next_month(year, month):
-        """
-        Create year and month params for PartnershipLogs queries
-        """
-        if month == 12:
-            return '{year}-{month}'.format(year=year + 1, month=1)
-        return '{year}-{month}'.format(year=year, month=month + 1)
-
-    @staticmethod
-    @func_time
-    def _get_total_church_partners(partners, managers):
-        s = dict(Counter(list(partners.order_by().values_list('responsible', flat=True))))
-        return [s.get(m.pk, 0) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_active_church_partners(partners, managers):
-        s = dict(Counter(list(partners.filter(is_active=True).order_by().values_list('responsible', flat=True))))
-        return [s.get(m.pk, 0) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_church_potential_sum(partners, managers):
-        s = list(partners.order_by().values('responsible', 'value'))
-        return [sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)]) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_total_partners(partners, managers):
-        s = dict(Counter(list(partners.order_by().values_list('responsible', flat=True))))
-        return [s.get(m.pk, 0) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_active_partners(partners, managers):
-        s = dict(Counter(list(partners.filter(is_active=True).order_by().values_list('responsible', flat=True))))
-        return [s.get(m.pk, 0) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_potential_sum(partners, managers):
-        s = list(partners.order_by().values('responsible', 'value'))
-        return [sum([f['value'] for f in filter(lambda z: z['responsible'] == m.pk, s)]) for m in managers]
-
-    @staticmethod
-    @func_time
-    def _get_managers_plan(managers):
-        return list(managers.values_list('partner_role__plan', flat=True).order_by('pk'))
 
 
 class StatsByMonthsMixin:
@@ -769,13 +463,13 @@ class StatsByMonthsMixin:
 
         managers = CustomUser.objects.filter(id__in=manager_ids).order_by('pk')
 
-        plan = self._get_managers_plan(managers)
+        plan = _get_managers_plan(managers)
         partners = Partnership.objects.all()
 
         if year != timezone.now().year or month != datetime.now().month:
-            next_month = self.get_next_month(year, month)
-            partners = self.get_logged_partners(next_month)
-            managers, plan = self.get_logged_managers(next_month)
+            next_month = get_next_month(year, month)
+            partners = get_logged_partners(next_month)
+            managers, plan = get_logged_managers(next_month)
         return managers, partners, plan
 
     def _order_managers(self, managers):
@@ -786,12 +480,6 @@ class StatsByMonthsMixin:
         if ordering.strip('-') in ordering_fields:
             managers.sort(key=lambda obj: obj[ordering.strip('-')], reverse=ordering.startswith('-'))
         return managers
-
-    @staticmethod
-    def _get_partners(queryset):
-        return queryset.annotate(full_name=Concat(
-            'last_name', V(' '), 'first_name', V(' '), 'middle_name')).values(
-            'full_name', 'id').order_by('pk')
 
     """
     Making queries from Partnership model
@@ -816,7 +504,7 @@ class StatsByMonthsMixin:
                 ) FROM partnership_partnerrolelog p) and pr.deleted = false)
               WHERE pr.id IS NOT NULL OR d.id IS NOT NULL)
           ORDER BY u.user_ptr_id;
-          """.format(type=deal_type, year=year, month=month, next_month=self.get_next_month(year, month))
+          """.format(type=deal_type, year=year, month=month, next_month=get_next_month(year, month))
 
         with connection.cursor() as connect:
             connect.execute(raw)

@@ -256,9 +256,11 @@ class VoUserNameSerializer(serializers.ModelSerializer):
 
 
 class VoDirectionSerializer(serializers.ModelSerializer):
+    title_by_languages = serializers.DictField()
+
     class Meta:
         model = Direction
-        fields = ('code', 'title')
+        fields = ('code', 'title_by_languages')
 
 
 class VoHGSerializer(serializers.ModelSerializer):

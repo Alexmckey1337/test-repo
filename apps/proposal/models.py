@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -22,6 +22,9 @@ class Proposal(models.Model):
         null=True, blank=True, verbose_name=_('Locality'),
         help_text=_('City/village/etc')
     )
+    city = models.CharField(_('City'), max_length=120, blank=True)
+    country = models.CharField(_('Country'), max_length=120, blank=True)
+
     email = models.CharField(_('email address'), max_length=254, blank=True)
     phone_number = models.CharField(_('Phone number'), max_length=23, blank=True)
 
@@ -40,6 +43,9 @@ class Proposal(models.Model):
     geo_location = models.CharField(_('GEO location'), max_length=255, blank=True)
 
     directions = ArrayField(models.CharField(max_length=60), blank=True, null=True)
+
+    # request.data
+    raw_data = JSONField(_('raw data'), blank=True, default={})
 
     # Internal fields (editable)
     STATUSES = settings.PROPOSAL_STATUSES

@@ -50,6 +50,7 @@ from apps.partnership.api.serializers import (
 from apps.partnership.models import Partnership, Deal, PartnershipLogs, PartnerRoleLog, PartnerGroup, PartnerRole, \
     ChurchPartner, ChurchPartnerLog, ChurchDeal, TelegramUser, TelegramGroup
 from apps.partnership.resources import PartnerResource, ChurchPartnerResource
+from apps.partnership.tasks import managers_summary
 from apps.payment.models import Payment
 from apps.summit.api.permissions import HasAPIAccess
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
@@ -204,6 +205,7 @@ class PartnershipViewSet(
         manager.partner_role.plan = plan_sum
         manager.partner_role.save()
         PartnerRoleLog.log_partner_role(manager.partner_role)
+        managers_summary.apply_async()
 
         return Response({'message': 'План менеджера успешно установлен в %s' % manager.partner_role.plan})
 

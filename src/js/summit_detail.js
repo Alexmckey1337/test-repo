@@ -146,8 +146,11 @@ $(document).ready(function () {
 
 	$('#addNewUser').on('click', function () {
 		$(this).closest('.popup').css('display', 'none');
+		$('body').addClass('no_scroll');
 		$('#addNewUserPopup').addClass('active');
 		$('.bg').addClass('active');
+		$(".editprofile-screen").animate({right: '0'}, 300, 'linear');
+		initAddNewUser();
 	});
 
 	$('#changeSum').on('click', function () {

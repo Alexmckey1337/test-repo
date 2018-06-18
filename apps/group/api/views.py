@@ -41,7 +41,6 @@ from apps.group.api.serializers import (
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church, Direction
 from apps.group.resources import ChurchResource, HomeGroupResource
-from apps.location.models import City
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ExportViewSetMixin, TableViewMixin, ModelWithoutListViewSet
@@ -639,7 +638,13 @@ class VoHGListView(GenericAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return super().get_queryset().filter(active=True)
+        qs = super().get_queryset()
+        qs = qs.select_related('locality__country', 'leader')
+        qs = qs.prefetch_related('uusers', 'directions')
+        qs = qs.filter(active=True)
+        qs = qs.annotate(count_users=Count('uusers'))
+
+        return qs
 
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

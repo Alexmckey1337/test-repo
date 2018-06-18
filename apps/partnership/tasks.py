@@ -11,8 +11,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 
+from common.utils import decode_month, encode_month
 from edem.settings.celery import app
-from apps.account.models import CustomUser
 from apps.partnership.models import (
     Partnership, Deal, ChurchDeal, ChurchPartner, TelegramUser, TelegramGroup)
 from django.db import transaction, IntegrityError
@@ -53,44 +53,6 @@ def partnerships_deactivate_raw():
 
     partners_to_deactivate = set(make_partners_list(key='done')) & set(make_partners_list(key='expired'))
     Partnership.objects.filter(id__in=partners_to_deactivate).update(is_active=False)
-    # telegram_users_to_deactivate(partners_to_deactivate)
-
-
-# def telegram_users_to_deactivate(deactivate_partners):
-#     users = CustomUser.objects.filter(partners__in=deactivate_partners,
-#                                       telegram_users__isnull=False)
-#
-#     for user in users:
-#         if not user.partners.filter(is_active=True).exists():
-#             telegram_user = get_object_or_404(TelegramUser, user=user)
-#             if telegram_user.is_active:
-#                 telegram_user.is_active = False
-#                 telegram_user.synced = False
-#                 telegram_user.save()
-#
-#
-# @app.task(name='telegram_users_to_kick')
-# def telegram_users_to_kick():
-#     users_to_kick = TelegramUser.objects.filter(synced=False)
-#
-#     if users_to_kick:
-#         for telegram_user in users_to_kick:
-#             kick_from_telegram.apply_async(args=[telegram_user.id])
-#
-#
-# @app.task(name='kick_from_telegram')
-# def kick_from_telegram(telegram_user_id):
-#     telegram_user = TelegramUser.objects.get(id=telegram_user_id)
-#
-#     r = requests.delete('http://hola.nodeads.com:8888/bot/partner/',
-#                         params={'user_id': telegram_user.telegram_id,
-#                                 'chat_id': telegram_user.telegram_group.chat_id})
-#
-#     if r.status_code == 200:
-#         telegram_user.synced = True
-#         telegram_user.save()
-#     else:
-#         print(r.status_code)
 
 
 @app.task(name='create_new_deals')
@@ -157,18 +119,6 @@ def trainee_group_members_deactivate():
             except IntegrityError as e:
                 print(e)
 
-# @app.task(name='vip_partners_group_members_deactivate')
-# def vip_partners_group_members_deactivate():
-#     vip_partners_group = TelegramGroup.objects.get(title='VIP_Partners')
-#     vip_partners = TelegramUser.objects.filter(
-#         telegram_group=vip_partners_group).exclude(is_active=False)
-#
-#     for group_member in vip_partners:
-#         if not group_member.user.partners.filter(value__gte=12500, is_active=True).exists():
-#             group_member.is_active = False
-#             group_member.synced = False
-#             group_member.save()
-
 
 @app.task(name='kick_from_telegram_groups')
 def kick_from_telegram_groups():
@@ -198,3 +148,31 @@ def kick_group_member(telegram_group_id, telegram_user_id):
 
     return Response({'message': 'Kick %s from group has been failed. Try again later' % telegram_user},
                     status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+@app.task(name='apps.partnership.all_managers_summary')
+def all_managers_summary():
+    delay = 5 * 60  # 5 minutes
+    countdown = 0
+    now = timezone.now()
+    current_month = encode_month(now.year, now.month)
+    from_month = encode_month(2016, 9)
+    for m in range(from_month, current_month):
+        managers_summary.apply_async(args=(m,), countdown=countdown)
+        countdown += delay
+
+
+@app.task(name='apps.partnership.managers_summary')
+def managers_summary(m: int = None):
+    from apps.partnership.api.reports import get_managers_stats, ManagersSummaryCache
+
+    if m is None:
+        now = timezone.now()
+        m = encode_month(now.year, now.month)
+    year, month = decode_month(m)
+    data = get_managers_stats(year, month)
+    try:
+        ms = ManagersSummaryCache()
+        ms.set(m, data)
+    except Exception as err:
+        logger.warning(err)

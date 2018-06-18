@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from rest_framework.validators import UniqueTogetherValidator
 
 from apps.account.models import CustomUser
@@ -14,17 +14,17 @@ from common.fields import ReadOnlyChoiceField
 from common.week_range import week_range
 
 
-class ValidateDataBeforeUpdateMixin(object):
+class ValidateReportBeforeUpdateMixin(object):
     @staticmethod
     def validate_before_serializer_update(instance, validated_data, not_editable_fields):
         if instance.status != AbstractStatusModel.SUBMITTED:
-            raise serializers.ValidationError({
+            raise exceptions.ValidationError({
                 'detail': _('Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан.'
                             % instance)
             })
 
         if week_range(instance.date) != week_range(validated_data.get('date')):
-            raise serializers.ValidationError({
+            raise exceptions.ValidationError({
                 'detail': _('Невозможно подать отчет, переданная дата - %s. '
                             'Отчет должен подаваться за ту неделю на которой был создан.'
                             % validated_data.get('date'))
@@ -64,7 +64,7 @@ class MeetingVisitorsSerializer(serializers.ModelSerializer):
         fields = ('user_id', 'fullname', 'spiritual_level', 'phone_number',)
 
 
-class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMixin):
+class MeetingSerializer(serializers.ModelSerializer, ValidateReportBeforeUpdateMixin):
     owner = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.filter(
         home_group__leader__id__isnull=False).distinct())
     date = serializers.DateField(default=timezone.now().date())
@@ -87,7 +87,7 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateDataBeforeUpdateMix
         owner = validated_data.get('owner')
         home_group = validated_data.get('home_group')
         if home_group.leader != owner:
-            raise serializers.ValidationError({
+            raise exceptions.ValidationError({
                 'detail': _('Переданный лидер не являетя лидером данной Домашней Группы')
             })
 
@@ -142,32 +142,31 @@ class MeetingDetailSerializer(MeetingSerializer):
         if instance.type.code == 'home' and (
                 validated_data.get('total_sum', None) == 0 or
                 ('total_sum' not in validated_data.keys() and instance.total_sum == 0)):
-            raise serializers.ValidationError({
+            raise exceptions.ValidationError({
                 'detail': _('Невозможно подать отчет домашней группы без пожертвований.')
             })
 
         return super(MeetingDetailSerializer, self).update(instance, validated_data)
 
 
-class MeetingStatisticSerializer(serializers.ModelSerializer):
+class MeetingStatisticSerializer(serializers.Serializer):
     total_visitors = serializers.IntegerField()
     total_visits = serializers.IntegerField()
     total_absent = serializers.IntegerField()
-    new_repentance = serializers.IntegerField()
     total_donations = serializers.DecimalField(max_digits=13, decimal_places=2)
+    new_repentance = serializers.IntegerField()
     reports_in_progress = serializers.IntegerField()
     reports_submitted = serializers.IntegerField()
     reports_expired = serializers.IntegerField()
 
     class Meta:
-        model = Meeting
         fields = ('total_visitors', 'total_visits', 'total_absent', 'total_donations',
                   'new_repentance', 'reports_in_progress', 'reports_submitted',
                   'reports_expired',)
         read_only_fields = ['__all__']
 
 
-class MeetingDashboardSerializer(serializers.ModelSerializer):
+class MeetingDashboardSerializer(serializers.Serializer):
     meetings_submitted = serializers.IntegerField()
     meetings_in_progress = serializers.IntegerField()
     meetings_expired = serializers.IntegerField()
@@ -192,7 +191,7 @@ class MeetingSummarySerializer(serializers.ModelSerializer):
 
 
 class ChurchReportListSerializer(serializers.HyperlinkedModelSerializer,
-                                 ValidateDataBeforeUpdateMixin):
+                                 ValidateReportBeforeUpdateMixin):
     pastor = UserNameSerializer()
     church = ChurchNameSerializer()
     date = serializers.DateField(default=timezone.now().date())
@@ -255,7 +254,7 @@ class ChurchReportSerializer(ChurchReportListSerializer):
                 if instance.transfer_payments < validated_data['transfer_payments']:
                     instance.done = False
             except Exception:
-                raise serializers.ValidationError(
+                raise exceptions.ValidationError(
                     {'message': '{transfer_payments} must be Integer or Decimal'})
         return super(ChurchReportSerializer, self).update(instance, validated_data)
 
@@ -265,7 +264,7 @@ class ChurchReportDetailSerializer(ChurchReportSerializer):
     church = ChurchNameSerializer()
 
 
-class ChurchReportStatisticSerializer(serializers.ModelSerializer):
+class ChurchReportStatisticSerializer(serializers.Serializer):
     total_peoples = serializers.IntegerField()
     total_new_peoples = serializers.IntegerField()
     total_repentance = serializers.IntegerField()
@@ -286,7 +285,7 @@ class ChurchReportStatisticSerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
-class ChurchReportsDashboardSerializer(serializers.ModelSerializer):
+class ChurchReportsDashboardSerializer(serializers.Serializer):
     church_reports_submitted = serializers.IntegerField()
     church_reports_in_progress = serializers.IntegerField()
     church_reports_expired = serializers.IntegerField()
@@ -313,7 +312,7 @@ class ChurchReportSummarySerializer(serializers.ModelSerializer):
         read_only_fields = ['__all__']
 
 
-class MobileReportsDashboardSerializer(serializers.ModelSerializer):
+class MobileReportsDashboardSerializer(serializers.Serializer):
     service = serializers.IntegerField()
     home_meetings = serializers.IntegerField()
     night = serializers.IntegerField()

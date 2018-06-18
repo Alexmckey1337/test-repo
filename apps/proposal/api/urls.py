@@ -8,4 +8,5 @@ urlpatterns = [
     path('proposal/<int:pk>/reopen/', views.ReopenProposalView.as_view(), name='proposal-reopen'),
     path('proposal/<int:pk>/reject/', views.RejectProposalView.as_view(), name='proposal-reject'),
     path('proposal/<int:pk>/process/', views.ProcessProposalView.as_view(), name='proposal-process'),
+    path('proposal/', views.ProposalListView.as_view(), name='proposal-list'),
 ]

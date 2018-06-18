@@ -40,7 +40,7 @@ class TextLessonAdmin(LessonAdmin):
 
 @admin.register(VideoLesson)
 class VideoLessonAdmin(LessonAdmin):
-    list_display = ('title', 'status', 'published_date', 'creator', 'access_level', 'file')
+    list_display = ('title', 'status', 'published_date', 'creator', 'access_level')
 
 
 @admin.register(VideoFile)

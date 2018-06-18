@@ -3,7 +3,8 @@ from apps.group.models import Church, HomeGroup, Direction
 
 
 class ChurchAdmin(admin.ModelAdmin):
-    search_fields = ('locality', 'pastor')
+    search_fields = ('title',)
+    autocomplete_fields = ('locality', 'pastor')
     list_display = ('title', 'pastor', 'city', 'address', 'locality')
 
     class Meta:
@@ -12,14 +13,20 @@ class ChurchAdmin(admin.ModelAdmin):
 
 class HomeGroupAdmin(admin.ModelAdmin):
     search_fields = ('locality', 'leader')
+    autocomplete_fields = ('locality', 'leader', 'church')
     list_display = ('title', 'leader', 'city', 'address', 'locality')
+    readonly_fields = (
+        # 'leader',
+        # 'church',
+        # 'locality',
+    )
 
     class Meta:
         model = HomeGroup
 
 
 class DirectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'code')
+    list_display = ('title_ru', 'title_en', 'title_de', 'code')
 
     class Meta:
         model = Direction

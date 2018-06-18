@@ -1,24 +1,59 @@
 from datetime import timedelta
 
+import django_filters
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django_filters import rest_framework
 from rest_framework import generics, status, exceptions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.account.models import CustomUser
 from apps.proposal.api.permissions import CanCreateProposal, CanReceiveProposal, CanReopenProposal, CanRejectProposal, \
     CanProcessProposal
 from apps.proposal.api.serializers import CreateProposalSerializer, UpdateProposalSerializer, ReceiveProposalSerializer, \
-    ReopenProposalSerializer
+    ReopenProposalSerializer, ProposalSerializer
 from apps.proposal.models import Proposal, History
+from common.filters import OrderingFilterWithPk, FieldSearchFilter
 
 
 class CreateProposalView(generics.CreateAPIView):
     queryset = Proposal.objects.all()
     serializer_class = CreateProposalSerializer
     permission_classes = (CanCreateProposal,)
+
+
+class ProposalFilter(django_filters.FilterSet):
+    created_from = django_filters.DateTimeFilter(name='created_at', lookup_expr='gte')
+    created_to = django_filters.DateTimeFilter(name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model = Proposal
+        fields = ['created_from', 'created_to', 'sex', 'type']
+
+
+class ProposalListView(generics.ListAPIView):
+    queryset = Proposal.objects.order_by('-created_at')
+    serializer_class = ProposalSerializer
+    permission_classes = (CanCreateProposal,)
+    filter_backends = (
+        rest_framework.DjangoFilterBackend,
+        FieldSearchFilter,
+        OrderingFilterWithPk,
+    )
+    ordering_fields = (
+        'first_name', 'last_name', 'born_date', 'country', 'city',
+        'phone_number', 'email', 'sex', 'type',
+    )
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name'),
+        'search_email': ('email',),
+        'search_phone_number': ('phone_number',),
+        'search_city': ('city',),
+        'search_country': ('country',),
+        'search': ('leader_name', 'age_group', 'gender_group', 'geo_location'),
+    }
+    filter_class = ProposalFilter
 
 
 class UpdateProposalStatusMixin(generics.GenericAPIView):

@@ -24,6 +24,7 @@ export function PartnershipSummaryTable(config = {}) {
         (flag) ? newData.flag = true : newData.flag = false;
         window.state = Object.assign(window.state, {
             result: data.results,
+			last_update: data.last_update,
             table_columns: data.table_columns,
             firstDate: date ? date : moment(dateReports).toISOString(),
             canEdit: flag,
@@ -87,6 +88,7 @@ export function partnershipSummaryTable(config = {}) {
     config.month = month;
     getData(URLS.partner.managers_summary(), config).then(data => {
         let newData = makeData(data);
+        window.state = Object.assign(window.state, {result: data.results});
         (window.state.canEdit) ? newData.flag = true : newData.flag = false;
         makePartnershipSummaryTable(newData);
     })
@@ -94,12 +96,12 @@ export function partnershipSummaryTable(config = {}) {
 
 function makeData(data) {
     let results = data.results.map(elem => {
-            let total_sum = +elem.sum_pay + +elem.sum_pay_tithe + +elem.sum_pay_church,
-                percent = (100 / (elem.plan / total_sum)).toFixed(1),
+            let total_sum = parseFloat(elem.sum_pay) + parseFloat(elem.sum_pay_tithe) + parseFloat(elem.sum_pay_church),
+                percent = (100 / (parseFloat(elem.plan) / parseFloat(total_sum))).toFixed(1),
                 totalPartners = +elem.total_partners + +elem.total_church_partners,
                 activePartners = +elem.active_partners + +elem.active_church_partners,
-                potentialSum = +elem.potential_sum + +elem.church_potential_sum,
-                totalSumDeals = +elem.sum_deals + +elem.sum_church_deals;
+                potentialSum = parseFloat(elem.potential_sum) + parseFloat(elem.church_potential_sum),
+                totalSumDeals = parseFloat(elem.sum_deals) + parseFloat(elem.sum_church_deals);
             elem.total_partners = totalPartners;
             elem.active_partners = activePartners;
             elem.not_active_partners = totalPartners - activePartners;
@@ -109,25 +111,26 @@ function makeData(data) {
             elem.total_sum = total_sum;
             return elem;
         }),
-        allPlans = data.results.reduce((sum, current) => sum + current.plan, 0),
-        allSum = data.results.reduce((sum, current) => sum + current.total_sum, 0),
+        allPlans = data.results.reduce((sum, current) => sum + parseFloat(current.plan), 0),
+        allSum = data.results.reduce((sum, current) => sum + parseFloat(current.total_sum), 0),
         newRow = {
             manager: 'СУММАРНО:',
             plan: allPlans,
-            potential_sum: data.results.reduce((sum, current) => sum + current.potential_sum, 0),
-            sum_deals: data.results.reduce((sum, current) => sum + current.sum_deals, 0),
-            sum_pay: data.results.reduce((sum, current) => sum + current.sum_pay, 0),
-            sum_pay_tithe: data.results.reduce((sum, current) => sum + current.sum_pay_tithe, 0),
-            sum_pay_church: data.results.reduce((sum, current) => sum + current.sum_pay_church, 0),
+            potential_sum: data.results.reduce((sum, current) => sum + parseFloat(current.potential_sum), 0),
+            sum_deals: data.results.reduce((sum, current) => sum + parseFloat(current.sum_deals), 0),
+            sum_pay: data.results.reduce((sum, current) => sum + parseFloat(current.sum_pay), 0),
+            sum_pay_tithe: data.results.reduce((sum, current) => sum + parseFloat(current.sum_pay_tithe), 0),
+            sum_pay_church: data.results.reduce((sum, current) => sum + parseFloat(current.sum_pay_church), 0),
             total_sum: allSum,
             percent_of_plan: (100 / (allPlans / allSum)).toFixed(1),
-            total_partners: data.results.reduce((sum, current) => sum + current.total_partners, 0),
-            active_partners: data.results.reduce((sum, current) => sum + current.active_partners, 0),
-            not_active_partners: data.results.reduce((sum, current) => sum + current.not_active_partners, 0),
+            total_partners: data.results.reduce((sum, current) => sum + parseFloat(current.total_partners), 0),
+            active_partners: data.results.reduce((sum, current) => sum + parseFloat(current.active_partners), 0),
+            not_active_partners: data.results.reduce((sum, current) => sum + parseFloat(current.not_active_partners), 0),
         };
     results.push(newRow);
     return {
         table_columns: data.table_columns,
+		last_update: data.last_update,
         results: results
     };
 }
@@ -136,6 +139,11 @@ function makePartnershipSummaryTable(data, oldData = {}) {
     let tmpl = $('#databasePartnershipSummary').html(),
         rendered = _.template(tmpl)(data);
     $('#managersPlan').html(rendered);
+    if (data.last_update) {
+		$('#last_update').text(moment(data.last_update).format('YYYY-MM-DD HH:mm:ss'));
+    } else {
+		$('#last_update').text('');
+    }
     makeSortForm(data.table_columns);
     btnControls();
     fixedTableHead();
@@ -182,6 +190,7 @@ function btnControls() {
 }
 
 function makeCompareSummaryTable() {
+	$('#last_update').text('');
     let data = makeCompareDate();
     data.firstDate = moment(window.state.firstDate).locale('ru').format('MMM YYYY');
     data.secondDate = moment(window.state.secondDate).locale('ru').format('MMM YYYY');

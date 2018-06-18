@@ -10,15 +10,7 @@ from rest_framework import status, exceptions
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-
-def func_time(func):
-    def wrap(*args, **kwargs):
-        t = time.time()
-        result = func(*args, **kwargs)
-        print("[{1:.3f}] {0}".format(func.__name__, time.time() - t))
-        return result
-
-    return wrap
+from common.performance import func_time
 
 
 class ServiceUnavailable(exceptions.APIException):
