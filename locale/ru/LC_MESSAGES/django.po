@@ -1943,7 +1943,7 @@ msgstr "Почтовый шаблон"
 #: apps/summit/models.py:80 edem/settings/base.py:527
 #: templates/partials/layout/sidebar.html:62
 msgid "Open"
-msgstr "Открыто"
+msgstr "Открытые"
 
 #: apps/summit/models.py:81
 msgid "Close"
@@ -2661,10 +2661,9 @@ msgid "Платежи"
 msgstr ""
 
 #: templates/partials/layout/sidebar.html:63
-#, fuzzy
-#| msgid "Close"
+
 msgid "Closed"
-msgstr "Закрыто"
+msgstr "Закрытые"
 
 #: templates/partials/layout/sidebar.html:76
 msgid "Звонки"
@@ -2796,14 +2795,10 @@ msgstr ""
 #: templates/summit/bishop_report.html:12
 #: templates/summit/history/stats.html:10 templates/summit/open/list.html:21
 #: templates/summit/open/list.html:23 templates/summit/stats.html:16
-#, fuzzy
-#| msgid "Status"
 msgid "Statistics"
 msgstr "Статистика"
 
 #: templates/summit/closed/list.html:4
-#, fuzzy
-#| msgid "List of summit tickets"
 msgid "List of closed summits"
 msgstr "Список закрытых саммитов"
 
@@ -2832,8 +2827,6 @@ msgid "Партнеры"
 msgstr ""
 
 #: templates/summit/emails/detail.html:23
-#, fuzzy
-#| msgid "Main info"
 msgid "Email info"
 msgstr "Главная информация"
 
@@ -2852,20 +2845,15 @@ msgid "Emails"
 msgstr ""
 
 #: templates/summit/open/list.html:4
-#, fuzzy
-#| msgid "List of summit tickets"
 msgid "List of open summits"
 msgstr "Список открытых саммитов"
 
 #: templates/summit/open/list.html:10
-#, fuzzy
-#| msgid "Summit anket"
 msgid "Summit name"
 msgstr "Название саммита"
 
 #: templates/summit/open/list.html:11
-#, fuzzy
-#| msgid "Summit ticket"
+
 msgid "Summit type"
 msgstr "Тип саммита"
 

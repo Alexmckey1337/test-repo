@@ -1805,7 +1805,7 @@ msgstr ""
 #: apps/summit/models.py:80 edem/settings/base.py:527
 #: templates/partials/layout/sidebar.html:62
 msgid "Open"
-msgstr ""
+msgstr "Открытые"
 
 #: apps/summit/models.py:81
 msgid "Close"
@@ -2488,7 +2488,7 @@ msgstr ""
 
 #: templates/partials/layout/sidebar.html:63
 msgid "Closed"
-msgstr ""
+msgstr "Закрытые"
 
 #: templates/partials/layout/sidebar.html:76
 msgid "Звонки"
@@ -2615,11 +2615,11 @@ msgstr ""
 #: templates/summit/history/stats.html:10 templates/summit/open/list.html:21
 #: templates/summit/open/list.html:23 templates/summit/stats.html:16
 msgid "Statistics"
-msgstr ""
+msgstr "Статистика"
 
 #: templates/summit/closed/list.html:4
 msgid "List of closed summits"
-msgstr ""
+msgstr "Список закрытых саммитов"
 
 #: templates/summit/detail.html:214
 msgid "Печатный билет"
@@ -2651,7 +2651,7 @@ msgstr ""
 
 #: templates/summit/emails/detail.html:25 templates/summit/profile.html:9
 msgid "Profile"
-msgstr ""
+msgstr "Профиль"
 
 #: templates/summit/emails/detail.html:30 templates/summit/emails/list.html:25
 #: templates/summit/profile.html:81
@@ -2665,15 +2665,15 @@ msgstr ""
 
 #: templates/summit/open/list.html:4
 msgid "List of open summits"
-msgstr ""
+msgstr "Список открытых саммитов"
 
 #: templates/summit/open/list.html:10
 msgid "Summit name"
-msgstr ""
+msgstr "Название"
 
 #: templates/summit/open/list.html:11
 msgid "Summit type"
-msgstr ""
+msgstr "Тип"
 
 #: templates/summit/open/list.html:31
 msgid "Нет доступных саммитов."
@@ -2681,42 +2681,42 @@ msgstr ""
 
 #: templates/summit/profile.html:23
 msgid "Profile info"
-msgstr ""
+msgstr "Информация профиля"
 
 #: templates/summit/profile.html:40
 msgid "Value"
-msgstr ""
+msgstr "Значение"
 
 #: templates/summit/profile.html:42
 msgid "Role"
-msgstr ""
+msgstr "Роль"
 
 #: templates/summit/summit_email_tasks.html:9
 #: templates/summit/summit_email_tasks.html:26
 #: templates/summit/summit_schedule_tasks.html:9
 #: templates/summit/summit_schedule_tasks.html:25
 msgid "Statuses"
-msgstr ""
+msgstr "Статус"
 
 #: templates/summit/ticket/detail.html:31
 msgid "Main info"
-msgstr ""
+msgstr "Главная информация"
 
 #: templates/summit/ticket/detail.html:42 templates/summit/ticket/list.html:63
 msgid "Attachment"
-msgstr ""
+msgstr "Вложение"
 
 #: templates/summit/ticket/list.html:38
 msgid "Tickets"
-msgstr ""
+msgstr "билеты"
 
 #: templates/summit/ticket/list.html:65
 msgid "Is printed?"
-msgstr ""
+msgstr "Напечатан?"
 
 #: templates/summit/ticket/list.html:99
 msgid "Printed"
-msgstr ""
+msgstr "Напечатан"
 
 #: templates/summit/ticket/list.html:101
 msgid "Пометить напечатаным"
