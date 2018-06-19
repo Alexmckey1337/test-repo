@@ -5,62 +5,67 @@
         justify-content: flex-start;
         padding: 30px;
     }
-    &__info{
-        margin-right:100px;
-        h1{
-            padding: 0 !important;
-            margin-top:0;
+    &__info {
+        margin-right: 100px;
+        &:not(:last-child){
+            margin-bottom:50px;
         }
-        form{
+        h2 {
+            padding: 0 !important;
+            margin-top: 0;
+            font-size: 2.2em;
+            color: #333;
+        }
+        form {
             display: flex;
             flex-direction: column;
-            margin-bottom:20px;
-            label{
+            margin-bottom: 20px;
+            label {
                 display: flex;
                 align-items: center;
                 font-size: 1.1em;
-                p{
-                    &:last-child{
-                        margin-left:10px;
+                p {
+                    &:last-child {
+                        margin-left: 10px;
                         line-height: 25px;
                         height: 25px;
                     }
                 }
             }
-            input, textarea, select{
-                border:none;
-                outline:none;
+            input, textarea, select {
+                border: none;
+                outline: none;
                 background: transparent;
                 padding: 0;
                 line-height: 25px;
                 height: 25px;
-                margin-left:10px;
+                margin-left: 10px;
             }
         }
-        .comment{
+        .comment {
             padding: 20px;
             background-color: #f7f2a9;
-            border:1px dashed #e2e2e2;
+            border: 1px dashed #e2e2e2;
         }
     }
-    &__similar{
-        p,a{
+    &__similar {
+        p, a {
             height: 25px;
             line-height: 25px;
         }
-        button{
-            margin-top:20px;
+        button {
+            margin-top: 20px;
         }
     }
-    &-similar{
-        &__block{
+    &-similar {
+        &__block {
             padding: 10px;
-            border:1px solid #aab2bd;
-            &:last-child{
-                border:1px dashed #aab2bd;
+            border: 1px solid #aab2bd;
+            &:last-child {
+                border: 1px dashed #aab2bd;
             }
-            &:not(:last-child){
-                margin-bottom:25px;
+            &:not(:last-child) {
+                margin-bottom: 25px;
             }
         }
     }
