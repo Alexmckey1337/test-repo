@@ -1,49 +1,61 @@
 {% load i18n %}
 {% load static %}
 <form id="proposalForm">
-    <label for="id_first_name">{% trans "First name" %}
-        <input type="text" id="id_first_name" name="first_name" value='{{ proposal.first_name|default_if_none:" "}}'
-               disabled>
-    </label>
-
-
-    <label for="id_last_name">{% trans "Last name" %}
-        <input type="text" id="id_last_name" name="last_name" value="{{ proposal.last_name|default_if_none:" " }}"
-               disabled>
-    </label>
-
-    <label for="id_sex">{% trans "Gender" %}
-        <select name="sex" id="id_sex" disabled>
-            {% for s in sex_options %}
-                <option value="{{ s.0 }}"{% if s.0 == proposal.sex %} selected{% endif %}>{{ s.1 }}</option>
-            {% endfor %}
-        </select>
-    </label>
-
-    <label for="id_born_date">{% trans "Born date" %}
-        <input type="text" id="id_born_date" name="born_date" value="{{ proposal.born_date|default_if_none:" " }}"
-               disabled>
-    </label>
-
-    <label>
-        {% trans "Country" %}
-        <p>{{ proposal.locality.country_name }}</p>
-    </label>
-    <label>
-        {% trans "City" %}
-        <p>{{ proposal.locality.district_name }}</p>
-    </label>
-
-    <label for="id_email">{% trans "Email" %}
-    <input type="email" id="id_email" name="email" value="{{ proposal.email|default_if_none:" " }}" disabled>
-    </label>
-
-    <label for="id_phone_number">{% trans "Phone number" %}
-    <input type="text" id="id_phone_number" name="phone" value="{{ proposal.phone_number|default_if_none:" " }}"
-           disabled>
-    </label>
-
-
+    <div class="proposal__info">
+        <label for="id_first_name">{% trans "First name" %}
+            <input type="text" id="id_first_name" name="first_name" value='{{ proposal.first_name|default_if_none:" "}}'
+                   disabled>
+        </label>
+        <label for="id_last_name">{% trans "Last name" %}
+            <input type="text" id="id_last_name" name="last_name" value="{{ proposal.last_name|default_if_none:" " }}"
+                   disabled>
+        </label>
+        <label for="id_sex">{% trans "Gender" %}
+            <select name="sex" id="id_sex" disabled>
+                {% for s in sex_options %}
+                    <option value="{{ s.0 }}"{% if s.0 == proposal.sex %} selected{% endif %}>{{ s.1 }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label for="id_born_date">{% trans "Born date" %}
+            <input type="text" id="id_born_date" name="born_date" value="{{ proposal.born_date|default_if_none:" " }}"
+                   disabled>
+        </label>
+        <label>
+            {% trans "Country" %}
+            <p>{{ proposal.country }}</p>
+        </label>
+        <label>
+            {% trans "City" %}
+            <p>{{ proposal.city }}</p>
+        </label>
+        <label for="id_email">{% trans "Email" %}
+            <input type="email" id="id_email" name="email" value="{{ proposal.email|default_if_none:" " }}" disabled>
+        </label>
+        <label for="id_phone_number">{% trans "Phone number" %}
+            <input type="text" id="id_phone_number" name="phone" value="{{ proposal.phone_number|default_if_none:" " }}"
+                   disabled>
+        </label>
+    </div>
+    <div class="proposal__info">
+        <h2>{% trans 'Preference' %}</h2>
+        <label for="leader_name">{% trans "Leader" %}
+            <input type="text" id="leader_name" name="leader_name" value='{{ proposal.leader_name|default_if_none:" "}}'
+                   disabled>
+        </label>
+        <label for="age_group">{% trans "Average age" %}
+            <input type="text" id="age_group" name="age_group" value='{{ proposal.age_group|default_if_none:" "}}'
+                   disabled>
+        </label>
+        <label for="gender_group">{% trans "Gender group" %}
+            <input type="text" id="gender_group" name="gender_group" value='{{ proposal.gender_group|default_if_none:" "}}'
+                   disabled>
+        </label>
+        <label for="geo_location">{% trans "Location" %}
+            <input type="text" id="geo_location" name="geo_location" value='{{ proposal.geo_location|default_if_none:" "}}'
+                   disabled>
+        </label>
+    </div>
     {#            <label for="id_note">{% trans "Note" %}</label>#}
     {#            <textarea id="id_note"#}
     {#                    {% if proposal.is_open %}disabled{% endif %}>#}

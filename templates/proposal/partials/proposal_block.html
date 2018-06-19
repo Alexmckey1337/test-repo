@@ -5,7 +5,7 @@
     <div class="proposal">
         <div class="proposal__wrap">
             <div class="proposal__info">
-                <h1>{% trans "Status" %}:
+                <h2>{% trans "Status" %}:
                     {% if proposal.get_status_display == 'В процессе' %}В работе
                     {% elif proposal.get_status_display == 'Reopen' %}Открыта повторно
                     {% elif proposal.get_status_display == 'Rejected' %}Отклонена
@@ -13,7 +13,7 @@
                     {% elif proposal.get_status_display == 'Открыто' %}Открыта
                     {% else %}{{ proposal.get_status_display }}
                     {% endif %}
-                </h1>
+                </h2>
                 {% if proposal.is_open %}
                     {% include "proposal/partials/proposal_card.html" %}
                     <button id="proposalStatus" class="add"

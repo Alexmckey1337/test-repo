@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-12 13:46+0000\n"
+"POT-Creation-Date: 2018-06-19 09:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,7 +40,7 @@ msgid "Hierarchy"
 msgstr ""
 
 #: apps/account/api/filters.py:39 apps/account/models.py:76
-#: apps/summit/models.py:183
+#: apps/event/models.py:43 apps/summit/models.py:183
 msgid "Master"
 msgstr ""
 
@@ -100,8 +100,8 @@ msgstr ""
 msgid "Can't move user to a descendant."
 msgstr ""
 
-#: apps/account/api/serializers.py:281 apps/group/api/views.py:280
-#: apps/group/api/views.py:605
+#: apps/account/api/serializers.py:281 apps/group/api/views.py:279
+#: apps/group/api/views.py:604
 #, python-format
 msgid "User with id = %s does not exist."
 msgstr ""
@@ -181,7 +181,7 @@ msgid "Please, move disciples before reduce hierarchy."
 msgstr ""
 
 #: apps/account/api/views.py:457 apps/account/api/views.py:477
-#: apps/event/api/views.py:332 apps/partnership/api/views.py:245
+#: apps/event/api/views.py:342 apps/partnership/api/views.py:247
 #: apps/summit/api/views.py:554
 msgid "При сохранении возникла ошибка. Попробуйте еще раз."
 msgstr ""
@@ -216,14 +216,18 @@ msgstr ""
 msgid "Middle name"
 msgstr ""
 
-#: apps/account/models.py:35 apps/group/models.py:20 apps/summit/models.py:138
+#: apps/account/models.py:35 apps/group/models.py:20
+#: apps/proposal/models.py:25 apps/summit/models.py:138
+#: templates/proposal/partials/proposal_card.html:29
 #: templates/summit/profile.html:34
 msgid "City"
 msgstr ""
 
-#: apps/account/models.py:36 apps/group/models.py:54 apps/location/models.py:71
-#: apps/location/models.py:88 apps/location/models.py:141
-#: apps/summit/models.py:139 templates/summit/profile.html:35
+#: apps/account/models.py:36 apps/group/models.py:54
+#: apps/location/models.py:71 apps/location/models.py:88
+#: apps/location/models.py:141 apps/proposal/models.py:26
+#: apps/summit/models.py:139 templates/proposal/partials/proposal_card.html:25
+#: templates/summit/profile.html:35
 msgid "Country"
 msgstr ""
 
@@ -247,13 +251,12 @@ msgstr ""
 msgid "Spiritual Level"
 msgstr ""
 
-#: apps/account/models.py:49 apps/group/models.py:48 apps/group/models.py:179
+#: apps/account/models.py:49 apps/group/models.py:48 apps/group/models.py:191
 #: apps/proposal/models.py:22 apps/summit/models.py:205
-#: templates/proposal/partials/proposal_card.html:29
 msgid "Locality"
 msgstr ""
 
-#: apps/account/models.py:50 apps/group/models.py:49 apps/group/models.py:180
+#: apps/account/models.py:50 apps/group/models.py:49 apps/group/models.py:192
 #: apps/proposal/models.py:23 apps/summit/models.py:206
 msgid "City/village/etc"
 msgstr ""
@@ -271,9 +274,9 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: apps/account/models.py:56 apps/proposal/models.py:26
+#: apps/account/models.py:56 apps/proposal/models.py:29
 #: templates/proposal/list.html:23
-#: templates/proposal/partials/proposal_card.html:46
+#: templates/proposal/partials/proposal_card.html:35
 #: templates/summit/profile.html:37
 msgid "Phone number"
 msgstr "Номер телефона"
@@ -311,7 +314,7 @@ msgid "Description"
 msgstr ""
 
 #: apps/account/models.py:66 apps/proposal/models.py:19
-#: templates/proposal/partials/proposal_card.html:23
+#: templates/proposal/partials/proposal_card.html:20
 msgid "Born date"
 msgstr ""
 
@@ -332,8 +335,9 @@ msgid "Departments"
 msgstr ""
 
 #: apps/account/models.py:78 apps/partnership/models.py:29
-#: apps/payment/models.py:146 apps/proposal/models.py:62
-#: apps/proposal/models.py:116 templates/partner/partials/stat_payments.html:10
+#: apps/payment/models.py:146 apps/proposal/models.py:68
+#: apps/proposal/models.py:122
+#: templates/partner/partials/stat_payments.html:10
 #: templates/payment/partials/payment_table.html:8
 #: templates/summit/profile.html:59
 msgid "Manager"
@@ -351,19 +355,19 @@ msgstr ""
 msgid "Can login to site"
 msgstr ""
 
-#: apps/account/models.py:90 apps/event/models.py:153
+#: apps/account/models.py:90 apps/event/models.py:49 apps/event/models.py:175
 #: apps/group/abstract_models.py:176 apps/group/abstract_models.py:182
 #: apps/group/abstract_models.py:198 apps/group/abstract_models.py:204
 #: apps/group/abstract_models.py:220 apps/group/abstract_models.py:226
-#: apps/group/models.py:84 apps/group/models.py:184
+#: apps/group/models.py:84 apps/group/models.py:196
 #: apps/partnership/models.py:76
 msgid "Church"
 msgstr ""
 
-#: apps/account/models.py:94 apps/group/abstract_models.py:175
-#: apps/group/abstract_models.py:181 apps/group/abstract_models.py:197
-#: apps/group/abstract_models.py:203 apps/group/abstract_models.py:219
-#: apps/group/abstract_models.py:225
+#: apps/account/models.py:94 apps/event/models.py:56
+#: apps/group/abstract_models.py:175 apps/group/abstract_models.py:181
+#: apps/group/abstract_models.py:197 apps/group/abstract_models.py:203
+#: apps/group/abstract_models.py:219 apps/group/abstract_models.py:225
 msgid "Home group"
 msgstr ""
 
@@ -375,7 +379,8 @@ msgstr ""
 msgid "Is Dead"
 msgstr ""
 
-#: apps/account/models.py:101 apps/summit/models.py:193
+#: apps/account/models.py:101 apps/event/models.py:40
+#: apps/summit/models.py:193
 msgid "Is Stable"
 msgstr ""
 
@@ -404,10 +409,11 @@ msgid "Key"
 msgstr ""
 
 #: apps/account/models.py:377 apps/event/models.py:32
-#: apps/partnership/models.py:75 apps/proposal/models.py:57
-#: apps/proposal/models.py:121 apps/summit/models.py:413
+#: apps/partnership/models.py:75 apps/proposal/models.py:63
+#: apps/proposal/models.py:127 apps/summit/models.py:413
 #: apps/summit/models.py:496 templates/proposal/list.html:21
-#: templates/summit/profile.html:25 templates/summit/summit_email_tasks.html:22
+#: templates/summit/profile.html:25
+#: templates/summit/summit_email_tasks.html:22
 #: templates/summit/summit_schedule_tasks.html:22
 msgid "User"
 msgstr ""
@@ -424,10 +430,9 @@ msgstr ""
 msgid "Tokens"
 msgstr ""
 
-#: apps/account/models.py:410 apps/group/models.py:18 apps/group/models.py:151
-#: apps/lesson/models.py:33 apps/lesson/models.py:117 apps/summit/models.py:408
-#: apps/task/models.py:6 templates/summit/ticket/detail.html:33
-#: templates/summit/ticket/list.html:60
+#: apps/account/models.py:410 apps/group/models.py:18 apps/lesson/models.py:33
+#: apps/lesson/models.py:117 apps/summit/models.py:408 apps/task/models.py:6
+#: templates/summit/ticket/detail.html:33 templates/summit/ticket/list.html:60
 msgid "Title"
 msgstr ""
 
@@ -483,7 +488,7 @@ msgstr ""
 msgid "change data"
 msgstr ""
 
-#: apps/analytics/models.py:67
+#: apps/analytics/models.py:67 apps/proposal/models.py:48
 msgid "raw data"
 msgstr ""
 
@@ -551,14 +556,16 @@ msgid "Parameter {user_id} must be passed for each object in {data}"
 msgstr ""
 
 #: apps/controls/api/views.py:78
-msgid "Field names must be one of [is_staff, is_active, can_login]"
+msgid ""
+"Field names must be one of [is_staff, is_active, can_login, "
+"is_proposal_manager]"
 msgstr ""
 
-#: apps/controls/api/views.py:84
+#: apps/controls/api/views.py:85
 msgid "При сохранение возникла ошибка. Попробуйте еще раз"
 msgstr ""
 
-#: apps/controls/api/views.py:87
+#: apps/controls/api/views.py:88
 msgid "Успешно сохранено"
 msgstr ""
 
@@ -586,76 +593,81 @@ msgstr ""
 msgid "No image form this meeting. Nothing to clean."
 msgstr ""
 
-#: apps/event/api/views.py:336
+#: apps/event/api/views.py:346
 msgid "Отчет Домашней Группы успешно подан."
 msgstr ""
 
-#: apps/event/api/views.py:351
+#: apps/event/api/views.py:361
 #, python-format
 msgid ""
 "Невозможно подать отчет. Отчет типа - {%s} не должен содержать денежную "
 "сумму."
 msgstr ""
 
-#: apps/event/api/views.py:357
+#: apps/event/api/views.py:367
 msgid "Невозможно подать отчет. Список присутствующих не передан."
 msgstr ""
 
-#: apps/event/api/views.py:362
+#: apps/event/api/views.py:372
 #, python-format
 msgid ""
 "Невозможно повторно подать отчет. Данный отчет - {%s}, уже был подан ранее."
 msgstr ""
 
-#: apps/event/api/views.py:372
+#: apps/event/api/views.py:382
 msgid "Переданный список присутствующих некорректен."
 msgstr ""
 
-#: apps/event/api/views.py:402
+#: apps/event/api/views.py:411
 msgid "При обновлении возникла ошибка. Попробуйте еще раз."
 msgstr ""
 
-#: apps/event/api/views.py:407
+#: apps/event/api/views.py:416
 msgid "Отчет Домашней Группы успешно изменен."
 msgstr ""
 
-#: apps/event/api/views.py:594
+#: apps/event/api/views.py:466
+#, python-format
+msgid "Master with id = %s does not exist"
+msgstr ""
+
+#: apps/event/api/views.py:604
 msgid "Невозможно подать отчет. Данный отчет уже был подан ранее."
 msgstr ""
 
-#: apps/event/api/views.py:601 apps/event/models.py:217
+#: apps/event/api/views.py:611 apps/event/models.py:239
 msgid "Невозможно подать отчет. Данный пастор имеет просроченные отчеты."
 msgstr ""
 
-#: apps/event/api/views.py:612
+#: apps/event/api/views.py:622
 msgid "Отчет Церкви успешно подан."
 msgstr ""
 
-#: apps/event/api/views.py:619
+#: apps/event/api/views.py:629
 msgid "Невозможно удалить отчет. По данному отчету есть поданные платежи"
 msgstr ""
 
-#: apps/event/api/views.py:635
+#: apps/event/api/views.py:645
 msgid "Отчет Церкви успешно обновлен"
 msgstr ""
 
-#: apps/event/api/views.py:1162 apps/event/api/views.py:1342
-#: apps/event/api/views.py:1523
+#: apps/event/api/views.py:1172 apps/event/api/views.py:1352
+#: apps/event/api/views.py:1538
 msgid "Invalid filter params"
 msgstr ""
 
-#: apps/event/api/views.py:1205 apps/event/api/views.py:1363
-#: apps/event/api/views.py:1542
+#: apps/event/api/views.py:1215 apps/event/api/views.py:1373
+#: apps/event/api/views.py:1557
 msgid "Invalid \"interval\" format"
 msgstr ""
 
-#: apps/event/api/views.py:1207 apps/event/api/views.py:1365
-#: apps/event/api/views.py:1544
+#: apps/event/api/views.py:1217 apps/event/api/views.py:1375
+#: apps/event/api/views.py:1559
 msgid "Invalid \"interval\" order"
 msgstr ""
 
-#: apps/event/api/views.py:1209 apps/event/api/views.py:1367
-#: apps/event/api/views.py:1546
+#: apps/event/api/views.py:1219 apps/event/api/views.py:1377
+#: apps/event/api/views.py:1561
 msgid "Invalid \"last\" format"
 msgstr ""
 
@@ -665,7 +677,8 @@ msgstr ""
 #: apps/payment/models.py:49 apps/summit/models.py:479 apps/zmail/models.py:87
 #: templates/event/meeting_create_report.html:27
 #: templates/event/meeting_create_report.html:54
-#: templates/summit/ticket/detail.html:51 templates/summit/ticket/list.html:120
+#: templates/summit/ticket/detail.html:51
+#: templates/summit/ticket/list.html:120
 msgid "Name"
 msgstr ""
 
@@ -673,11 +686,12 @@ msgstr ""
 #: apps/summit/models.py:34 apps/summit/models.py:63
 #: templates/summit/summit_email_tasks.html:24
 #: templates/summit/summit_schedule_tasks.html:24
-#: templates/summit/ticket/detail.html:52 templates/summit/ticket/list.html:121
+#: templates/summit/ticket/detail.html:52
+#: templates/summit/ticket/list.html:121
 msgid "Code"
 msgstr ""
 
-#: apps/event/models.py:23 apps/event/models.py:77
+#: apps/event/models.py:23 apps/event/models.py:98
 msgid "Meeting type"
 msgstr ""
 
@@ -685,7 +699,7 @@ msgstr ""
 msgid "Meeting types"
 msgstr ""
 
-#: apps/event/models.py:35 apps/event/models.py:102
+#: apps/event/models.py:35 apps/event/models.py:124
 msgid "Meeting"
 msgstr ""
 
@@ -693,35 +707,35 @@ msgstr ""
 msgid "Attended"
 msgstr ""
 
-#: apps/event/models.py:38 apps/proposal/models.py:64
-#: apps/proposal/models.py:125 apps/summit/models.py:521
+#: apps/event/models.py:38 apps/proposal/models.py:70
+#: apps/proposal/models.py:131 apps/summit/models.py:521
 #: templates/event/meeting_create_report.html:31
 #: templates/event/meeting_create_report.html:58
 msgid "Note"
 msgstr ""
 
-#: apps/event/models.py:42
+#: apps/event/models.py:63
 msgid "Meeting attend"
 msgstr ""
 
-#: apps/event/models.py:43
+#: apps/event/models.py:64
 msgid "Meeting attendees"
 msgstr ""
 
-#: apps/event/models.py:60
+#: apps/event/models.py:81
 msgid "in_progress"
 msgstr ""
 
-#: apps/event/models.py:61
+#: apps/event/models.py:82
 msgid "submitted"
 msgstr ""
 
-#: apps/event/models.py:62
+#: apps/event/models.py:83
 msgid "expired"
 msgstr ""
 
-#: apps/event/models.py:64 apps/lesson/models.py:52 apps/proposal/models.py:47
-#: apps/proposal/models.py:124 apps/summit/models.py:83
+#: apps/event/models.py:85 apps/lesson/models.py:52 apps/proposal/models.py:53
+#: apps/proposal/models.py:130 apps/summit/models.py:83
 #: apps/summit/models.py:422 apps/summit/models.py:593 apps/task/models.py:32
 #: templates/proposal/list.html:20
 #: templates/proposal/partials/proposal_block.html:8
@@ -729,97 +743,97 @@ msgstr ""
 msgid "Status"
 msgstr "Статус"
 
-#: apps/event/models.py:76 apps/event/models.py:154 apps/lesson/models.py:198
+#: apps/event/models.py:97 apps/event/models.py:176 apps/lesson/models.py:198
 #: apps/lesson/models.py:208 apps/summit/models.py:591
 #: templates/payment/all.html:77
 #: templates/payment/partials/payment_table.html:6
 msgid "Date"
 msgstr ""
 
-#: apps/event/models.py:83 apps/group/models.py:225
+#: apps/event/models.py:104 apps/group/models.py:237
 msgid "Home Group"
 msgstr ""
 
-#: apps/event/models.py:85
+#: apps/event/models.py:106
 msgid "Visitors"
 msgstr ""
 
-#: apps/event/models.py:89
+#: apps/event/models.py:111
 msgid "Total sum"
 msgstr ""
 
-#: apps/event/models.py:92
+#: apps/event/models.py:114
 msgid "Event Image"
 msgstr ""
 
-#: apps/event/models.py:94
+#: apps/event/models.py:116
 msgid "Guest count"
 msgstr ""
 
-#: apps/event/models.py:95
+#: apps/event/models.py:117
 msgid "New count"
 msgstr ""
 
-#: apps/event/models.py:96
+#: apps/event/models.py:118
 msgid "Repentance count"
 msgstr ""
 
-#: apps/event/models.py:103
+#: apps/event/models.py:125
 msgid "Meetings"
 msgstr ""
 
-#: apps/event/models.py:145
+#: apps/event/models.py:167
 msgid "Невозможно подать отчет. Данный лидер имеет просроченные отчеты."
 msgstr ""
 
-#: apps/event/models.py:155
+#: apps/event/models.py:177
 msgid "Count People"
 msgstr ""
 
-#: apps/event/models.py:156
+#: apps/event/models.py:178
 msgid "New People"
 msgstr ""
 
-#: apps/event/models.py:157
+#: apps/event/models.py:179
 msgid "Number of Repentance"
 msgstr ""
 
-#: apps/event/models.py:158 apps/partnership/models.py:269
+#: apps/event/models.py:180 apps/partnership/models.py:269
 msgid "Tithe"
 msgstr ""
 
-#: apps/event/models.py:159
+#: apps/event/models.py:181
 msgid "Donations"
 msgstr ""
 
-#: apps/event/models.py:161
+#: apps/event/models.py:183
 msgid "Donations in Currency"
 msgstr ""
 
-#: apps/event/models.py:163
+#: apps/event/models.py:185
 msgid "Comment"
 msgstr ""
 
-#: apps/event/models.py:165
+#: apps/event/models.py:187
 msgid "Transfer Payments"
 msgstr ""
 
-#: apps/event/models.py:167
+#: apps/event/models.py:189
 msgid "Pastor Tithe"
 msgstr ""
 
-#: apps/event/models.py:172 apps/partnership/models.py:87
+#: apps/event/models.py:194 apps/partnership/models.py:87
 #: apps/partnership/models.py:255 apps/payment/models.py:65
 #: apps/summit/models.py:72 templates/partner/partials/stat_deals.html:9
 #: templates/payment/all.html:79
 msgid "Currency"
 msgstr ""
 
-#: apps/event/models.py:180
+#: apps/event/models.py:202
 msgid "Church Report"
 msgstr ""
 
-#: apps/event/models.py:181
+#: apps/event/models.py:203
 msgid "Church Reports"
 msgstr ""
 
@@ -835,13 +849,13 @@ msgstr ""
 msgid "Delete home group"
 msgstr ""
 
-#: apps/group/api/filters.py:133 apps/group/api/views.py:269
-#: apps/group/api/views.py:594
+#: apps/group/api/filters.py:133 apps/group/api/views.py:268
+#: apps/group/api/views.py:593
 msgid "master_tree_id is incorrect."
 msgstr ""
 
-#: apps/group/api/filters.py:136 apps/group/api/views.py:271
-#: apps/group/api/views.py:596
+#: apps/group/api/filters.py:136 apps/group/api/views.py:270
+#: apps/group/api/views.py:595
 msgid "You are don't have permissions for filter by this master."
 msgstr ""
 
@@ -867,84 +881,84 @@ msgid ""
 "Данный пользователь \"{pk_value}\" - не может быть назначен пастором Церкви."
 msgstr ""
 
-#: apps/group/api/views.py:131
+#: apps/group/api/views.py:130
 msgid "Невозможно удалить церковь. На данную церковь есть созданные отчеты."
 msgstr ""
 
-#: apps/group/api/views.py:134
+#: apps/group/api/views.py:133
 msgid ""
 "Невозможно удалить церковь. В составе данной церкви есть Домашняя Группа."
 msgstr ""
 
-#: apps/group/api/views.py:176
+#: apps/group/api/views.py:175
 msgid "Пользователь успешно добавлен."
 msgstr ""
 
-#: apps/group/api/views.py:191
+#: apps/group/api/views.py:190
 msgid "Пожалуйста, удалите сначала пользователя из домашней группы."
 msgstr ""
 
-#: apps/group/api/views.py:194
+#: apps/group/api/views.py:193
 msgid ""
 "Невозможно удалить пользователя.Пользователь не принадлежит к данной Церкви."
 msgstr ""
 
-#: apps/group/api/views.py:199
+#: apps/group/api/views.py:198
 msgid "Пользователь успешно удален из Церкви"
 msgstr ""
 
-#: apps/group/api/views.py:276 apps/group/api/views.py:601
+#: apps/group/api/views.py:275 apps/group/api/views.py:600
 msgid "\"user_id\" is required."
 msgstr ""
 
-#: apps/group/api/views.py:308
+#: apps/group/api/views.py:307
 msgid "Length of search query must be > 2"
 msgstr ""
 
-#: apps/group/api/views.py:336
+#: apps/group/api/views.py:335
 msgid ""
 "Невозможно добавить пользователя, данный пользователь уже состоит в Церкви."
 msgstr ""
 
-#: apps/group/api/views.py:340 apps/group/api/views.py:612
+#: apps/group/api/views.py:339 apps/group/api/views.py:611
 msgid ""
 "Невозможно добавить пользователя, данный пользователь уже состоит в Домашней "
 "Группе."
 msgstr ""
 
-#: apps/group/api/views.py:375
+#: apps/group/api/views.py:374
 msgid ""
 "Невозможно создать отчет. Для данной церкви на данную неделю есть созданный "
 "отчет."
 msgstr ""
 
-#: apps/group/api/views.py:383 apps/group/api/views.py:583
+#: apps/group/api/views.py:382 apps/group/api/views.py:582
 msgid "Отчет успешно создан"
 msgstr ""
 
-#: apps/group/api/views.py:460
+#: apps/group/api/views.py:459
 msgid ""
 "Невозможно удалить Домашнюю Группу. В составе данной Домашней Группы есть "
 "люди."
 msgstr ""
 
-#: apps/group/api/views.py:465
+#: apps/group/api/views.py:464
 msgid ""
 "Удаление данной Домашней Группы повлечет за собой. удаление всех созданных "
 "отчетов."
 msgstr ""
 
-#: apps/group/api/views.py:575
+#: apps/group/api/views.py:574
 #, python-format
 msgid "Невозможно создать отчет. На данной неделе отчет типа {%s} уже создан."
 msgstr ""
 
-#: apps/group/api/views.py:616
+#: apps/group/api/views.py:615
 msgid ""
 "Невозможно добавить пользователя, пользователь является членом другой Церкви"
 msgstr ""
 
-#: apps/group/api/views.py:622
+#: apps/group/api/views.py:621
 msgid ""
 "Невозможно удалить пользователя.Пользователь не принадлежит к данной "
 "Домашней Группе."
@@ -989,35 +1003,47 @@ msgstr ""
 msgid "Churches"
 msgstr ""
 
-#: apps/group/models.py:182
+#: apps/group/models.py:151
+msgid "Title ru"
+msgstr ""
+
+#: apps/group/models.py:152
+msgid "Title en"
+msgstr ""
+
+#: apps/group/models.py:153
+msgid "Title de"
+msgstr ""
+
+#: apps/group/models.py:194 templates/proposal/partials/proposal_card.html:42
 msgid "Leader"
 msgstr ""
 
-#: apps/group/models.py:187
+#: apps/group/models.py:199
 msgid "Home Group Image"
 msgstr ""
 
-#: apps/group/models.py:191
+#: apps/group/models.py:203
 msgid "Ukraine"
 msgstr ""
 
-#: apps/group/models.py:192 edem/settings/base.py:171
+#: apps/group/models.py:204 edem/settings/base.py:171
 msgid "Russian"
 msgstr ""
 
-#: apps/group/models.py:193
+#: apps/group/models.py:205
 msgid "English"
 msgstr ""
 
-#: apps/group/models.py:194
+#: apps/group/models.py:206
 msgid "Germany"
 msgstr ""
 
-#: apps/group/models.py:196
+#: apps/group/models.py:208
 msgid "Language"
 msgstr ""
 
-#: apps/group/models.py:226
+#: apps/group/models.py:238
 msgid "Home Groups"
 msgstr ""
 
@@ -1152,8 +1178,9 @@ msgid "Tel code"
 msgstr ""
 
 #: apps/location/models.py:51
+#: templates/proposal/partials/proposal_card.html:54
 msgid "Location"
-msgstr ""
+msgstr "Местоположение"
 
 #: apps/location/models.py:52 apps/location/models.py:67
 #: apps/location/models.py:142
@@ -1273,60 +1300,60 @@ msgstr ""
 msgid "Unpaid"
 msgstr ""
 
-#: apps/partnership/api/mixins.py:107
+#: apps/partnership/api/mixins.py:98
 msgid "Статистику можно просматривать только менеджерам."
 msgstr ""
 
-#: apps/partnership/api/views.py:179
+#: apps/partnership/api/views.py:180
 msgid "You do not have permission to update need of this partner."
 msgstr ""
 
-#: apps/partnership/api/views.py:182
+#: apps/partnership/api/views.py:183
 msgid "'need_text' is required field."
 msgstr ""
 
-#: apps/partnership/api/views.py:195
+#: apps/partnership/api/views.py:196
 #, python-brace-format
 msgid "Parameter {plan_sum} not passed"
 msgstr ""
 
-#: apps/partnership/api/views.py:200
+#: apps/partnership/api/views.py:201
 #, python-brace-format
 msgid "Parameter {plan_sum} must be Integer"
 msgstr ""
 
-#: apps/partnership/api/views.py:203
+#: apps/partnership/api/views.py:204
 msgid "User is not a manager"
 msgstr ""
 
-#: apps/partnership/api/views.py:231
+#: apps/partnership/api/views.py:233
 msgid "TelegramGroup object must be created."
 msgstr ""
 
-#: apps/partnership/api/views.py:556 apps/partnership/api/views.py:719
+#: apps/partnership/api/views.py:558 apps/partnership/api/views.py:721
 msgid "Partner does not exist."
 msgstr ""
 
-#: apps/partnership/api/views.py:559 apps/partnership/api/views.py:722
+#: apps/partnership/api/views.py:561 apps/partnership/api/views.py:724
 msgid "You do not have permission to create deal for this partner."
 msgstr ""
 
-#: apps/partnership/api/views.py:637
+#: apps/partnership/api/views.py:639
 #, python-brace-format
 msgid "Parameter {page} out of array range"
 msgstr ""
 
-#: apps/partnership/api/views.py:737
+#: apps/partnership/api/views.py:739
 msgid ""
 "Данная сделка содержит платежи. Удаление сделки повлечет за собой удаление "
 "всех связанных с ней платежей."
 msgstr ""
 
-#: apps/partnership/api/views.py:816
+#: apps/partnership/api/views.py:818
 msgid "Вы не можете назначать пользователям уровень выше вашего."
 msgstr ""
 
-#: apps/partnership/api/views.py:861
+#: apps/partnership/api/views.py:863
 msgid "Пользователь является ответственным по партнерам"
 msgstr ""
 
@@ -1359,7 +1386,7 @@ msgstr ""
 msgid "Partner group"
 msgstr ""
 
-#: apps/partnership/models.py:78 apps/proposal/models.py:34
+#: apps/partnership/models.py:78 apps/proposal/models.py:37
 #: apps/summit/models.py:548
 msgid "Type"
 msgstr ""
@@ -1567,90 +1594,95 @@ msgstr ""
 msgid "десятина"
 msgstr ""
 
-#: apps/proposal/api/serializers.py:26 apps/proposal/api/serializers.py:35
+#: apps/proposal/api/serializers.py:39 apps/proposal/api/serializers.py:48
 msgid "Invalid proposal type"
 msgstr ""
 
-#: apps/proposal/api/serializers.py:48
+#: apps/proposal/api/serializers.py:61
 msgid "Invalid codes of directions"
 msgstr ""
 
-#: apps/proposal/api/serializers.py:65
+#: apps/proposal/api/serializers.py:78
 #, python-format
 msgid "You cannot change status from %s to %s"
 msgstr ""
 
-#: apps/proposal/api/serializers.py:73
+#: apps/proposal/api/serializers.py:86
 msgid "Время на возобновление отклоненной заявки прошло."
 msgstr ""
 
-#: apps/proposal/models.py:15 templates/proposal/partials/proposal_card.html:4
+#: apps/proposal/models.py:15 templates/proposal/partials/proposal_card.html:5
 msgid "First name"
 msgstr "Имя"
 
 #: apps/proposal/models.py:16 apps/summit/models.py:135
-#: templates/proposal/partials/proposal_card.html:10
+#: templates/proposal/partials/proposal_card.html:9
 msgid "Last name"
 msgstr ""
 
-#: apps/proposal/models.py:25
+#: apps/proposal/models.py:28
 msgid "email address"
 msgstr ""
 
-#: apps/proposal/models.py:30
+#: apps/proposal/models.py:33
 msgid "Short"
 msgstr ""
 
-#: apps/proposal/models.py:31
+#: apps/proposal/models.py:34
 msgid "Full"
 msgstr ""
 
-#: apps/proposal/models.py:32
+#: apps/proposal/models.py:35
 msgid "Other"
 msgstr ""
 
-#: apps/proposal/models.py:37
+#: apps/proposal/models.py:40
 msgid "Leader fio"
 msgstr ""
 
-#: apps/proposal/models.py:38
+#: apps/proposal/models.py:41
 msgid "Age group"
 msgstr ""
 
-#: apps/proposal/models.py:40
+#: apps/proposal/models.py:42
+#: templates/proposal/partials/proposal_card.html:50
+msgid "Gender group"
+msgstr "Пол групы"
+
+#: apps/proposal/models.py:43
 msgid "GEO location"
 msgstr ""
 
-#: apps/proposal/models.py:50 apps/proposal/models.py:135
+#: apps/proposal/models.py:56 apps/proposal/models.py:141
 #: apps/summit/models.py:594
 msgid "Created at"
 msgstr ""
 
-#: apps/proposal/models.py:51
+#: apps/proposal/models.py:57
 msgid "Updated at"
 msgstr ""
 
-#: apps/proposal/models.py:52 apps/proposal/models.py:126
+#: apps/proposal/models.py:58 apps/proposal/models.py:132
 msgid "Closed at"
 msgstr ""
 
-#: apps/proposal/models.py:106
+#: apps/proposal/models.py:112
 msgid "Proposal"
 msgstr "Заявка"
 
-#: apps/proposal/models.py:111
+#: apps/proposal/models.py:117
 msgid "Owner"
 msgstr ""
 
-#: apps/proposal/models.py:130
+#: apps/proposal/models.py:136
 msgid "Create"
 msgstr ""
 
-#: apps/proposal/models.py:131
+#: apps/proposal/models.py:137
 msgid "Update"
 msgstr ""
 
-#: apps/proposal/models.py:133
+#: apps/proposal/models.py:139
 msgid "Reason"
 msgstr ""
 
@@ -1770,7 +1802,7 @@ msgstr ""
 msgid "Mail template"
 msgstr ""
 
-#: apps/summit/models.py:80 edem/settings/base.py:519
+#: apps/summit/models.py:80 edem/settings/base.py:527
 #: templates/partials/layout/sidebar.html:62
 msgid "Open"
 msgstr ""
@@ -1779,9 +1811,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: apps/summit/models.py:89 apps/summit/models.py:409 apps/summit/models.py:474
-#: apps/summit/models.py:498 templates/summit/history/stats.html:7
-#: templates/summit/profile.html:44 templates/summit/ticket/detail.html:43
+#: apps/summit/models.py:89 apps/summit/models.py:409
+#: apps/summit/models.py:474 apps/summit/models.py:498
+#: templates/summit/history/stats.html:7 templates/summit/profile.html:44
+#: templates/summit/ticket/detail.html:43
 msgid "Summit"
 msgstr ""
 
@@ -1899,7 +1932,7 @@ msgstr ""
 msgid "Ticket status"
 msgstr ""
 
-#: apps/summit/models.py:418 edem/settings/base.py:520
+#: apps/summit/models.py:418 edem/settings/base.py:528
 msgid "In progress"
 msgstr ""
 
@@ -1933,7 +1966,7 @@ msgid "Anket"
 msgstr ""
 
 #: apps/summit/models.py:444 templates/proposal/list.html:24
-#: templates/proposal/partials/proposal_card.html:42
+#: templates/proposal/partials/proposal_card.html:32
 #: templates/summit/emails/detail.html:9
 #: templates/summit/summit_email_tasks.html:23
 #: templates/summit/summit_schedule_tasks.html:23
@@ -2276,15 +2309,15 @@ msgstr ""
 msgid "Некоректный временной интервал."
 msgstr ""
 
-#: edem/settings/base.py:521
+#: edem/settings/base.py:529
 msgid "Reopen"
 msgstr ""
 
-#: edem/settings/base.py:522
+#: edem/settings/base.py:530
 msgid "Rejected"
 msgstr ""
 
-#: edem/settings/base.py:523
+#: edem/settings/base.py:531
 msgid "Processed"
 msgstr ""
 
@@ -2528,8 +2561,7 @@ msgid "Proposals"
 msgstr "Заявки"
 
 #: templates/proposal/list.html:22
-#: templates/proposal/partials/proposal_card.html:15
-#: apps/proposal/models.py:39
+#: templates/proposal/partials/proposal_card.html:13
 msgid "Gender"
 msgstr "Пол"
 
@@ -2552,6 +2584,14 @@ msgstr ""
 #: templates/proposal/partials/proposal_block.html:53
 msgid "Вернуть в работу"
 msgstr ""
+
+#: templates/proposal/partials/proposal_card.html:41
+msgid "Preference"
+msgstr "Предпочтение"
+
+#: templates/proposal/partials/proposal_card.html:46
+msgid "Average age"
+msgstr "Средний возраст"
 
 #: templates/proposal/partials/similar_users.html:13
 msgid "Привязать пользователя"
