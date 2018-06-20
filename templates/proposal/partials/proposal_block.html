@@ -41,10 +41,12 @@
                             {% include "proposal/partials/similar_users.html" %}
                         </div>
                     {% else %}
-                        access error
+                           <p>Ошибка доступа</p>
                     {% endif %}
                 {% elif proposal.is_complete %}
+                    {% if proposal.get_status_display == 'Rejected' %}
                     <p class="comment">{{ proposal.note|default_if_none:" " }}</p>
+                    {% endif %}
                     {% if request.user == proposal.manager %}
                         {% include "proposal/partials/proposal_card.html" %}
                         <button id="proposalStatus" class="reply"
@@ -53,10 +55,10 @@
                             {% trans "Вернуть в работу" %}
                         </button>
                     {% else %}
-                        access error
+                        <p>Ошибка доступа</p>
                     {% endif %}
                 {% else %}
-                    incorrect status
+                    <p>Неверный статус</p>
                 {% endif %}
     </div>
 </div>
@@ -96,5 +98,4 @@
             </tbody>
         </table>
     </div>
-</div>
 </div>
