@@ -1,4 +1,3 @@
-import factory
 import factory.fuzzy
 
 from . import models
@@ -9,7 +8,7 @@ class MaxCodeError(Exception):
 
 
 def country_codes(n):
-    if not (0 <= n < 27*26):
+    if not (0 <= n < 27 * 26):
         raise MaxCodeError('code must be between 0 and 26*27')
     first_symbol = '' if n < 26 else chr(n // 26 + 64)
     second_symbol = chr(n % 26 + 65)

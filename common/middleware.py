@@ -93,7 +93,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         try:
             self.content = self.get_content(request, response)
-            t = time()
+            # t = time()
             es = Elasticsearch(['es'])
             es.index(index='request', doc_type='doc', body=self.content)
             # logger.debug(f'{time() - t:.3f}')

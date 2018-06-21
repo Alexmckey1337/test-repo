@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         self.stdout.write('Start...')
 
-        creators = list(CustomUser.objects.filter(hierarchy__level__gt=2).values_list('pk', flat=True)[:10*size])
+        creators = list(CustomUser.objects.filter(hierarchy__level__gt=2).values_list('pk', flat=True)[:10 * size])
         authors = creators
         viewers = list(CustomUser.objects.filter(hierarchy__level__gte=1).values_list('pk', flat=True))
         now = timezone.now()
@@ -104,14 +104,14 @@ class Command(BaseCommand):
                 user_id=choice(viewers)
             ))
 
-        for l in choices(text_lessons, k=int(len(text_lessons)*0.8)):
+        for l in choices(text_lessons, k=int(len(text_lessons) * 0.8)):
             for u in choices(viewers, k=randint(1, 11)):
                 text_likes.append(TextLessonLike(
                     lesson_id=l,
                     user_id=u,
                 ))
 
-        for l in choices(video_lessons, k=int(len(video_lessons)*0.8)):
+        for l in choices(video_lessons, k=int(len(video_lessons) * 0.8)):
             for u in choices(viewers, k=randint(1, 11)):
                 video_likes.append(VideoLessonLike(
                     lesson_id=l,

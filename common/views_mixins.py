@@ -2,7 +2,7 @@ from django.utils import timezone
 from import_export.formats import base_formats
 from rest_framework import viewsets, mixins, exceptions
 from rest_framework.decorators import action
-from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from apps.navigation.table_columns import get_table
@@ -72,7 +72,8 @@ class BaseExportViewSetMixin(object):
         app_label, model_name = queryset.model._meta.app_label, queryset.model._meta.model_name
         generate_export.apply_async(args=[
             self.request.user.id, app_label, model_name, list(queryset.values_list('id', flat=True)),
-            list(fields), resource_class.__module__, resource_class.__name__, self.file_format.get_content_type(), file_name])
+            list(fields), resource_class.__module__, resource_class.__name__, self.file_format.get_content_type(),
+            file_name])
 
         return Response({'message': 'Successful task creating for generate export'})
 

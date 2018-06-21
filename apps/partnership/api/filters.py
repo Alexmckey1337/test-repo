@@ -76,9 +76,9 @@ class PartnerFilterByVIP(filters.BaseFilterBackend):
         if status == 'vip':
             orm_q = 'value__gte', lambda c: vip[c]
         elif status == 'ruby':
-            orm_q = 'value__range', lambda c: (ruby[c], vip[c]-0.001)
+            orm_q = 'value__range', lambda c: (ruby[c], vip[c] - 0.001)
         elif status == 'gold':
-            orm_q = 'value__range', lambda c: (gold[c], ruby[c]-0.001)
+            orm_q = 'value__range', lambda c: (gold[c], ruby[c] - 0.001)
         elif status == 'any':
             orm_q = 'value__gte', lambda c: gold[c]
         elif status == 'empty':
