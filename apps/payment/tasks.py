@@ -22,7 +22,8 @@ formats = {
 
 
 @app.task(max_retries=3, default_retry_delay=2 * 60)
-def generate_export(user_id, app_label, model_name, ids, fields, resource_module, resource_class_name, content_type, file_name):
+def generate_export(user_id, app_label, model_name, ids, fields,
+                    resource_module, resource_class_name, content_type, file_name):
     file_format = formats.get(content_type, CSV)()
     resource_class = getattr(import_module(resource_module), resource_class_name)
     model = apps.get_model(app_label=app_label, model_name=model_name)

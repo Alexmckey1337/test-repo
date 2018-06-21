@@ -119,7 +119,7 @@ def calls_to_user(request):
 
     try:
         phone_number = user.phone_number[-10:]
-    except Exception as e:
+    except Exception:
         raise exceptions.ValidationError(
                 {'message': 'This user not have a {phone_number}.'})
 

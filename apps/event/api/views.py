@@ -949,7 +949,7 @@ class WeekMixin:
         Getting interval of weeks in format.
         {from: {year: XXXX, week: YY}, to: {year: XXXX, week: YY}}
 
-        :param last: period in format (one of `\d+y`, `\d+m`, `\d+w`)
+        :param last: period in format (one of `\\d+y`, `\\d+m`, `\\d+w`)
         :return:  dict from-to
         """
         if not last:
@@ -983,9 +983,9 @@ class WeekMixin:
         Getting interval of weeks from query parameters.
 
         Available query parameters is:
-            - ?last=\d+[ymw]
-            - ?interval=[ymw]:\d+
-            - ?interval=[ymw]:\d+-\d+
+            - ?last=\\d+[ymw]
+            - ?interval=[ymw]:\\d+
+            - ?interval=[ymw]:\\d+-\\d+
 
         Default is weeks of last 3 month
 
@@ -1247,8 +1247,10 @@ class MeetingStatsView(WeekMixin, views.APIView):
           LEFT JOIN group_church church ON hg.church_id = church.id
           LEFT JOIN payment_currency cur ON church.report_currency = cur.id
         {filter}
-        GROUP BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char)
-        ORDER BY date_part('year', report.date), date_part('week', report.date), coalesce(cur.code, church.report_currency::char);
+        GROUP BY date_part('year', report.date), date_part('week', report.date),
+            coalesce(cur.code, church.report_currency::char)
+        ORDER BY date_part('year', report.date), date_part('week', report.date),
+            coalesce(cur.code, church.report_currency::char);
     """
     WEEKS_TEMPLATE = ("(date_part('week', report.date) BETWEEN {w1} AND {w2} AND " +
                       "date_part('year', report.date) = {year})")

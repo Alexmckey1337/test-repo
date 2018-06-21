@@ -1,18 +1,16 @@
-from datetime import timedelta
-
 import django_filters
 from django.conf import settings
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
-from rest_framework import generics, status, exceptions
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.proposal.api.permissions import CanCreateProposal, CanReceiveProposal, CanReopenProposal, CanRejectProposal, \
-    CanProcessProposal
-from apps.proposal.api.serializers import CreateProposalSerializer, UpdateProposalSerializer, ReceiveProposalSerializer, \
-    ReopenProposalSerializer, ProposalSerializer
+from apps.proposal.api.permissions import (
+    CanCreateProposal, CanReceiveProposal, CanReopenProposal, CanRejectProposal, CanProcessProposal)
+from apps.proposal.api.serializers import (
+    CreateProposalSerializer, UpdateProposalSerializer, ReceiveProposalSerializer,
+    ReopenProposalSerializer, ProposalSerializer)
 from apps.proposal.models import Proposal, History
 from common.filters import OrderingFilterWithPk, FieldSearchFilter
 

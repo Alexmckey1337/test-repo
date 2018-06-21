@@ -78,6 +78,10 @@ HIERARCHY_LEVELS_UP = list(itertools.combinations_with_replacement(ALL_HIERARCHI
 HIERARCHY_LEVELS_DOWN = list(itertools.combinations(reversed(ALL_HIERARCHIES), 2))
 
 
+def strptime(d):
+    return pytz.utc.localize(datetime.datetime.strptime(d, '%Y-%m-%d'))
+
+
 def get_hierarchies_down_correct():
     for h in HIERARCHY_LEVELS_DOWN:
         for l in settings.CHANGE_HIERARCHY_LEVELS[h[1]]:
@@ -573,7 +577,6 @@ class TestUserViewSet:
         divisions = create_user_data.pop('divisions')
         departments = create_user_data.pop('departments')
 
-        strptime = lambda d: pytz.utc.localize(datetime.datetime.strptime(d, '%Y-%m-%d'))
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
         create_user_data['born_date'] = strptime(create_user_data['born_date'])

@@ -1,6 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.urls import reverse, path
+from django.urls import path
 
 from apps.proposal import views
 

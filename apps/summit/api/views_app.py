@@ -1,7 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-import requests
-import json
 
 import pytz
 from django.conf import settings
@@ -248,7 +246,7 @@ class SummitProfileTreeForAppListView(mixins.ListModelMixin, GenericAPIView):
         interval = int(self.request.query_params.get('interval', 5))
         try:
             date_time = datetime.strptime(date_time.replace('T', ' '), '%Y-%m-%d %H:%M:%S%z')
-        except ValueError as err:
+        except ValueError:
             end_date = timezone.now()
             start_date = end_date - timedelta(minutes=2 * interval)
         else:

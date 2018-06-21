@@ -94,7 +94,8 @@ class CitySearchListView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         city = request.query_params.get('city', '')
         if len(city) < self.min_city_length:
-            raise exceptions.ValidationError({'search': _('Length of search query must be > %s') % max(self.min_city_length - 1, 0)})
+            raise exceptions.ValidationError(
+                {'search': _('Length of search query must be > %s') % max(self.min_city_length - 1, 0)})
         country = request.query_params.get('country')
         area = request.query_params.get('area')
         district = request.query_params.get('district')

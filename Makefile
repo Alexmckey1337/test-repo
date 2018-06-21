@@ -15,7 +15,7 @@ docs:
 	rm -rf ./docs/build/html/
 	cp CHANGELOG.rst docs/source/
 	cd docs && sphinx-build -b html -d build/doctrees source build/docs
-	@xdg-open docs/build/html/index.html >& /dev/null || open docs/build/html/index.html >& /dev/null || true
+	@xdg-open docs/build/docs/README.html >& /dev/null || open docs/docs/html/README.html >& /dev/null || true
 
 static:
 	rm -rf ./public/static/
