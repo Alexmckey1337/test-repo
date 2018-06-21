@@ -14,6 +14,8 @@ from apps.account.api.filters import FilterMasterTreeWithSelf
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Hierarchy, Department
 from apps.summit.models import Summit, SummitAnket, SummitAttend
+from apps.summit.regcode import decode_reg_code
+from common.exception import InvalidRegCode
 
 
 class FilterByClub(BaseFilterBackend):
@@ -222,6 +224,33 @@ class FilterProfileAuthorTree(BaseFilterBackend):
                 schema=coreschema.Integer(
                     title='Author tree',
                     description="Id of user (author) for filter by author tree"
+                )
+            )
+        ]
+
+
+class FilterByRegCode(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        reg_code = request.query_params.get('reg_code', '')
+        if not reg_code:
+            return queryset
+
+        try:
+            profile_id = decode_reg_code(reg_code)
+        except InvalidRegCode:
+            return queryset.none()
+
+        return queryset.filter(pk=profile_id)
+
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name="reg_code",
+                required=False,
+                location='query',
+                schema=coreschema.Integer(
+                    title='Filter by reg code',
+                    description="Code of the electron ticket"
                 )
             )
         ]

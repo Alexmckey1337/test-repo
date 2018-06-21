@@ -10,11 +10,14 @@ def encode_reg_code(profile_id: int) -> str:
 
 
 def is_valid_code(code: str) -> bool:
-    return code.endswith(REG_CODE_SALT)
+        return code.endswith(REG_CODE_SALT)
 
 
 def decode_reg_code(code: str) -> int:
-    code = int('0x' + code, 0)
+    try:
+        code = int('0x' + code, 0)
+    except ValueError:
+        raise InvalidRegCode
     if not is_valid_code(str(code)):
         raise InvalidRegCode
     return int(str(code)[:-4])

@@ -213,6 +213,7 @@
     {% include "partials/filter/select.html" with label="Фотография" options=true_false_options name="has_photo" custom_classes="select__custom" %}
     {% trans "Печатный билет" as ticket_label %}
     {% include "partials/filter/select.html" with label=ticket_label options=ticket_status_options name="ticket_status" custom_classes="select__custom" %}
+    {% include "partials/filter/input.html" with label="Номер билета" name="reg_code" custom_data_filter="reg_code" placeholder="Номер електронного билета" %}
     {% trans "Электронный билет" as eticket_label %}
     {% include "partials/filter/select.html" with label=eticket_label options=true_false_options name="e_ticket" custom_classes="select__custom" %}
     {% trans "Присутствие" as visited_label %}

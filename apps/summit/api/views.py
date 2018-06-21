@@ -36,7 +36,7 @@ from apps.summit.api.filters import (
     HasPhoto, FilterBySummitAttend,
     FilterBySummitAttendByDate, FilterByElecTicketStatus, FilterByTime, FilterByDepartment,
     FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement, FilterProfileAuthorTree, AuthorFilter,
-    FilterByTicketMultipleStatus, ProfileFilterByPaymentStatus)
+    FilterByTicketMultipleStatus, ProfileFilterByPaymentStatus, FilterByRegCode)
 from apps.summit.api.pagination import (
     SummitPagination, SummitTicketPagination, SummitStatisticsPagination, SummitSearchPagination)
 from apps.summit.api.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
@@ -188,6 +188,7 @@ class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
         FilterProfileAuthorTree,
         FilterByClub,
         HasPhoto,
+        FilterByRegCode,
         FilterByHasEmail,
         FilterIsPartner,
         FilterHasAchievement,
