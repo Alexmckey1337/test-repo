@@ -54,7 +54,7 @@ from apps.summit.models import (
 from apps.summit.resources import SummitAnketResource, SummitStatisticsResource
 from apps.summit.tasks import generate_tickets, send_email_with_code, send_email_with_schedule
 from apps.summit.utils import get_report_by_bishop_or_high, \
-    FullSummitParticipantReport, generate_ticket_by_summit
+    FullSummitParticipantReport, SummitTicketPDF
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.test_helpers.utils import get_real_user
 from common.views_mixins import ModelWithoutDeleteViewSet, ExportViewSetMixin, TableViewMixin
@@ -666,7 +666,7 @@ def generate_code(request, filename=''):
     code = request.query_params.get('code', '00000000')
 
     profile = get_object_or_404(SummitAnket, code=code)
-    pdf = generate_ticket_by_summit([profile.pk])
+    pdf = SummitTicketPDF([profile.pk]).generate_pdf()
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;'
@@ -717,7 +717,7 @@ def summit_report_by_bishops(request, summit_id):
 
 @api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    max_limit = 2000
+    max_limit = 20
     limit = min(int(request.query_params.get('limit', max_limit)), max_limit)
 
     profiles = list(SummitAnket.objects.order_by('id').filter(

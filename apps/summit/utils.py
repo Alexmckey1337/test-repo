@@ -1,5 +1,7 @@
 from datetime import datetime
-from typing import List, NamedTuple
+from functools import wraps
+from io import BytesIO
+from typing import List, NamedTuple, Tuple
 
 import pytz
 import requests
@@ -8,7 +10,6 @@ from django.core.files.storage import default_storage
 from django.db import connection
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from io import BytesIO
 from reportlab.graphics import renderPDF
 from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
@@ -45,6 +46,54 @@ class Profile(NamedTuple):
     level: int
     tree: List[int]
     user_id: int
+
+
+def page_style(font: Tuple = None, color: object = None):
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            prev_font, prev_color = dict(), dict()
+            if font is not None:
+                prev_font = {
+                    '_fontname': self.canvas._fontname,
+                    '_fontsize': self.canvas._fontsize,
+                    '_leading': self.canvas._leading,
+                    '_code': self.canvas._code[:],
+                }
+                self.canvas.setFont(*font)
+            if color is not None:
+                prev_color = {
+                    '_fillColorObj': self.canvas._fillColorObj,
+                    '_code': self.canvas._code[:],
+                }
+                self.canvas.setFillColor(color)
+
+            # print(prev_color, prev_font)
+            # prev_font = {
+            #     '_fontname': self.canvas._fontname,
+            #     '_fontsize': self.canvas._fontsize,
+            #     '_leading': self.canvas._leading,
+            #     '_code': self.canvas._code[:],
+            # }
+            # prev_color = {
+            #     '_fillColorObj': self.canvas._fillColorObj,
+            #     '_code': self.canvas._code[:],
+            # }
+            # print(prev_color, prev_font)
+            #
+            # print(method, args, kwargs)
+            method(self, *args, **kwargs)
+            #
+            # if font is not None:
+            #     for k, v in prev_font.items():
+            #         setattr(self.canvas, k, v)
+            # if color is not None:
+            #     for k, v in prev_color.items():
+            #         setattr(self.canvas, k, v)
+
+        return wrapper
+
+    return decorator
 
 
 def get_report_by_bishop_or_high(
@@ -586,3 +635,173 @@ def create_ticket_page(c, data):
     c.rotate(90)
     c.drawString(23 * mm, 7.2 * mm - c._pagesize[0], data['author_name'])
     c.showPage()
+
+
+class SummitTicketPDF:
+    def __init__(self, profile_ids, unit=None):
+        self.profile_ids = profile_ids
+
+        self._data = None
+
+        self.default_background_name = 'background.png'
+        self._default_background = None
+
+        self.unit = unit or mm
+        self._width = 64
+        self._height = 96
+
+        self._init_styles()
+        self.buffer = BytesIO()
+        self.canvas = canvas.Canvas(self.buffer, pagesize=(self.width, self.height))
+
+    def build(self):
+        self.canvas.save()
+        pdf = self.buffer.getvalue()
+        self.buffer.close()
+
+        return pdf
+
+    def generate_pdf(self):
+        for data in self.data.values():
+            self.create_ticket_page(data)
+
+        return self.build()
+
+    @property
+    def width(self):
+        return self._width * self.unit
+
+    @property
+    def height(self):
+        return self._height * self.unit
+
+    def _get_default_background(self):
+        try:
+            return default_storage.path(self.default_background_name)
+        except NotImplementedError:
+            return default_storage.url(self.default_background_name)
+
+    @property
+    def default_background(self):
+        if self._default_background is None:
+            self._default_background = self._get_default_background()
+        return self._default_background
+
+    @property
+    def data(self):
+        if self._data is None:
+            self.recalculate_data()
+        return self._data
+
+    def _init_styles(self):
+        pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
+
+    def recalculate_data(self):
+        raw = """
+            SELECT a.id, a.code, u1.image, concat(uu1.last_name, ' ', uu1.first_name) AS user_name,
+              concat(author.last_name, ' ', author.first_name) AS author_name
+            FROM summit_summitanket a
+              INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
+              INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
+              JOIN auth_user author ON a.author_id = author.id
+              WHERE a.id IN ({})
+              ORDER BY a.id;
+        """.format(','.join([str(p) for p in self.profile_ids]))
+        profiles = SummitAnket.objects.raw(raw)
+        self._data = dict()
+        for profile in profiles:
+            self.add_profile(profile)
+
+    def add_profile(self, profile):
+        if profile.id not in self._data:
+            name = profile.user_name.split(maxsplit=1)
+            author_name = profile.author_name.split(maxsplit=1)
+            self._data[profile.id] = {
+                'name': profile.user_name,
+                'first_name': name[1] if len(name) > 1 else '',
+                'last_name': name[0],
+                'author_name': profile.author_name,
+                'author_first_name': author_name[1] if len(author_name) > 1 else '',
+                'author_last_name': author_name[0],
+                'code': profile.code,
+                'image': profile.image,
+            }
+
+    def create_ticket_page(self, data):
+        self.set_bg_page(data.get('bg', self.default_background))
+        self.set_user_photo_page(data['image'])
+        self.set_summit_name_page()
+        self.set_user_full_name_page(data)
+        self.set_barcode_page(data['code'])
+        self.set_author_full_name_page(data['author_name'])
+
+        self.canvas.showPage()
+
+    def set_bg_page(self, bg):
+        try:
+            self.canvas.drawImage(bg, 3 * mm, 3 * mm, width=self.width, height=self.height, mask='auto')
+        except OSError:
+            pass
+
+    def set_user_photo_page(self, photo):
+        if not photo:
+            return
+        try:
+            src = self.get_user_photo(photo)
+            im = Image.open(src)
+            im = to_circle(im)
+            ir = ImageReader(im)
+            self.canvas.drawImage(ir, 15 * mm, 43 * mm, width=28 * mm, height=28 * mm, mask='auto')
+        except (ValueError, OSError):
+            pass
+
+    def get_user_photo(self, photo):
+        try:
+            src = default_storage.path(photo)
+        except NotImplementedError:
+            src = default_storage.url(photo)
+            try:
+                src = BytesIO(requests.get(src).content)
+            except Exception:
+                src = ''
+        return src
+
+    def set_barcode_page(self, code):
+        self.canvas.setFillColorRGB(1, 1, 1)
+        barcode_font_size = 4 * mm
+        barcode = createBarcodeDrawing('Code128', value=code, lquiet=0,
+                                       barWidth=1.35, barHeight=7 * mm,
+                                       humanReadable=True,
+                                       fontSize=barcode_font_size, fontName='FreeSans')
+        drawing_width = 56 * mm
+        barcode_scale = drawing_width / barcode.width
+        drawing_height = barcode.height * barcode_scale
+        drawing = Drawing(drawing_width, drawing_height)
+        drawing.scale(barcode_scale, barcode_scale)
+        drawing.add(barcode, name='barcode')
+        drawing_rotated = Drawing(drawing_height, drawing_width)
+        # drawing_rotated.rotate(90)
+        drawing_rotated.translate(0, -drawing_height)
+        drawing_rotated.add(drawing, name='drawing')
+        renderPDF.draw(drawing_rotated, self.canvas, 7 * mm, 18 * mm)
+
+    @page_style(font=('FreeSans', 3.4 * mm), color=HexColor('0x000000'))
+    def set_author_full_name_page(self, author):
+        self.canvas.rotate(90)
+        self.canvas.drawString(23 * mm, 7.2 * mm - self.width, author)
+        self.canvas.rotate(270)
+
+    @page_style(font=('FreeSansBold', 4 * mm), color=HexColor('0x000000'))
+    def set_user_full_name_page(self, data):
+        left_margin = 14 * mm
+        bottom_last_name_margin = 24 * mm
+        bottom_first_name_margin = bottom_last_name_margin + 5 * mm
+        self.canvas.drawString(left_margin, bottom_last_name_margin, data['last_name'])
+        self.canvas.drawString(left_margin, bottom_first_name_margin, data['first_name'])
+
+    @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
+    def set_summit_name_page(self):
+        self.canvas.drawString(14 * mm, 86 * mm, 'Лидерская')
+        self.canvas.drawString(10 * mm, 80 * mm, 'конференция')
