@@ -28,7 +28,7 @@ from apps.summit.api.serializers import (
 from apps.summit.models import (
     SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
     AnketPasses, TelegramPayment)
-from apps.summit.regcode import decode_reg_code
+from apps.summit.regcode import decode_reg_code, encode_reg_code
 from common.exception import InvalidRegCode
 from common.filters import FieldSearchFilter
 from common.test_helpers.utils import get_real_user
@@ -108,6 +108,18 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
         visitor = self.get_serializer(visitor)
         return Response(visitor.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def clean_code(self, request):
+        code = request.query_params.get('code', '').lower().strip()
+        if not code:
+            raise exceptions.ValidationError({'message': 'Parameter code not passed'})
+        reg_code = encode_reg_code(int(code[2:]))
+
+        r = RedisBackend()
+        r.delete(reg_code)
+
+        return Response({'message': 'Successful cleaned'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'])
     def clean_reg_code(self, request):
