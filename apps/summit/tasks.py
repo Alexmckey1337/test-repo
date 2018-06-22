@@ -12,19 +12,19 @@ from django.core.files import File
 
 from apps.notification.backend import RedisBackend
 from apps.summit.models import SummitAnket, SummitTicket
-from apps.summit.utils import generate_ticket, generate_ticket_by_summit
+from apps.summit.utils import generate_ticket_by_summit
 from apps.zmail.models import ZMailTemplate
 from apps.zmail.utils import send_zmail
 from edem.settings.celery import app
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
-def create_ticket(anket_id, code, fullname):
-    attach = generate_ticket(code)
-    anket = SummitAnket.objects.get(id=anket_id)
+def create_ticket(profile_id, code, fullname):
+    attach = generate_ticket_by_summit([profile_id])
+    profile = SummitAnket.objects.get(id=profile_id)
 
     pdf_name = '{} ({}).pdf'.format(fullname, code)
-    anket.ticket.save(pdf_name, File(BytesIO(attach)))
+    profile.ticket.save(pdf_name, File(BytesIO(attach)))
 
 
 @app.task(ignore_result=True, max_retries=0)
@@ -35,17 +35,17 @@ def create_tickets(ankets):
 
 @app.task(ignore_result=True, max_retries=0)
 def send_tickets(anket_ids):
-    ankets = SummitAnket.objects.in_bulk(anket_ids)
-    for anket in ankets.values():
-        if anket.summit.zmail_template and anket.user.email:
-            attach = generate_ticket(anket.code)
-            pdf_name = '{} ({}).pdf'.format(anket.user.fullname, anket.code)
+    profiles = SummitAnket.objects.in_bulk(anket_ids)
+    for profile in profiles.values():
+        if profile.summit.zmail_template and profile.user.email:
+            attach = generate_ticket_by_summit([profile.pk])
+            pdf_name = '{} ({}).pdf'.format(profile.user.fullname, profile.code)
             send_zmail(
-                anket.summit.zmail_template.slug,
-                anket.user.email,
-                template_context={'anket': anket},
+                profile.summit.zmail_template.slug,
+                profile.user.email,
+                template_context={'anket': profile},
                 attachments=[(pdf_name, attach, 'application/pdf')],
-                signals_kw={'anket': anket}
+                signals_kw={'anket': profile}
             )
 
 
@@ -76,7 +76,7 @@ def send_email_with_code(profile_id, sender_id, countdown=0):
     email = profile.user.email
     if template and email:
         try:
-            pdf = generate_ticket(profile.code)
+            pdf = generate_ticket_by_summit([profile.pk])
             task = send_zmail(
                 template.slug,
                 email,
@@ -151,10 +151,9 @@ def check_send_email_with_code_state(task_id, profile_id, sender_id):
 
 
 @app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
-def generate_tickets(summit_id, ankets, ticket_id):
-    pdf = generate_ticket_by_summit(ankets)
-    pdf_name = '{}_{}-{}.pdf'.format(
-        summit_id, min(ankets, key=lambda a: int(a[1]))[1], max(ankets, key=lambda a: int(a[1]))[1])
+def generate_tickets(summit_id, profile_ids, profile_codes, ticket_id):
+    pdf = generate_ticket_by_summit(profile_ids)
+    pdf_name = '{}_{}-{}.pdf'.format(summit_id, min(profile_codes), max(profile_codes))
 
     ticket = SummitTicket.objects.get(id=ticket_id)
 
