@@ -101,8 +101,20 @@ function getTransformData(data, isGroup = '1m') {
 		dataPeoples[2][item] = elem.new_count;
 		dataPeoples[3][item] = elem.repentance_count;
 		dataPeoples[4][item] = `${sex.male} / ${sex.female}`;
-		dataPeoples[5][item] = `${congregation.stable} / ${congregation.unstable} / ${congregation.unknown ? congregation.unknown : 0}`;
-		dataPeoples[6][item] = `${convert.stable} / ${convert.unstable} / ${convert.unknown ? convert.unknown : 0}`;
+		dataPeoples[5][item] = {
+			type: 'congregation',
+			stable: congregation.stable,
+			unstable: congregation.unstable,
+			unknown: congregation.unknown ? congregation.unknown : 0
+		};
+		dataPeoples[6][item] = {
+			type: 'convert',
+			stable: convert.stable,
+			unstable: convert.unstable,
+			unknown: convert.unknown ? convert.unknown : 0
+		};
+		// dataPeoples[5][item] = `${congregation.stable} / ${congregation.unstable} / ${congregation.unknown ? congregation.unknown : 0}`;
+		// dataPeoples[6][item] = `${convert.stable} / ${convert.unstable} / ${convert.unknown ? convert.unknown : 0}`;
 		dataFinance[0][item] = money.uah.total_sum;
 		dataFinance[1][item] = money.rur.total_sum;
 		dataFinance[2][item] = money.usd.total_sum;
@@ -133,7 +145,11 @@ function createTable(headers, body, title) {
                 <tbody>
                 	${body.map(item => `<tr>
                                     		<td>${item.title}</td>
-                                    				${headers.map(el => `<td>${beautifyNumber(item[el])}</td>`).join('')}
+                                    				${headers.map(el => (typeof item[el] === 'object') ?
+																						`<td><span>${item[el].stable}</span> / <span>${item[el].unstable}</span> / ${item[el].unknown}</td>`
+																						:
+																						`<td>${beautifyNumber(item[el])}</td>`
+									).join('')}
                                 			</tr>`).join('')}
                 </tbody>
               </table>`;
