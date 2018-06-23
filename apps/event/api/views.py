@@ -1727,9 +1727,9 @@ class UserInfoListView(views.APIView):
     def get_where_stable(self):
         is_stable = self.request.query_params.get('is_stable', '')
         if is_stable.lower() in ('y', 'yes', 't', 'true', '1'):
-            return " AND e.is_stable NOTNULL AND e.is_stable", []
+            return " AND e.is_stable", []
         if is_stable.lower() in ('n', 'no', 'f', 'false', '0'):
-            return " AND e.is_stable NOTNULL AND NOT e.is_stable", []
+            return " AND NOT e.is_stable", []
         return "", []
 
     def get_where_sex(self):
@@ -1748,7 +1748,7 @@ class UserInfoListView(views.APIView):
         church = self.request.query_params.get('church')
         if not church:
             return '', []
-        return " AND (g.church_id = %s OR gc.church_id = %s)", [church, church]
+        return " AND (a.cchurch_id = %s OR homegroup.church_id = %s)", [church, church]
 
     def get_where_home_group(self):
         hg = self.request.query_params.get('hg')
@@ -1792,7 +1792,7 @@ class UserInfoListView(views.APIView):
         where = [self.get_where_week(), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
                  self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
                  self.get_where_convert(), self.get_where_sex(), self.get_where_stable(),
-                 self.get_where_master(),
+                 self.get_where_master(), (' AND e.is_stable NOTNULL', []),
                  self.get_where_master_tree()]
         a = tuple(zip(*where))
         return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
@@ -1804,8 +1804,8 @@ class UserInfoListView(views.APIView):
         """
         where, params = self.get_where_filter()
         count_query = self.SQL.format(
-            distinct='distinct',
-            fields=f'count(e.user_id)',
+            distinct='',
+            fields=f'count(distinct e.user_id)',
             join=self.BASE_JOIN,
             filter=where,
             order_by='',
