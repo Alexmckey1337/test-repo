@@ -9,7 +9,7 @@ import parseUrlQuery from './modules/ParseUrl/index';
 import {makeHomeLiderReportsTable, homeLiderReportsTable} from "./modules/Reports/meetings_summary";
 import {applyFilter, refreshFilter} from "./modules/Filter/index";
 
-('document').ready(function () {
+$('document').ready(function () {
     let $departmentsFilter = $('#department_id_filter'),
         $treeFilter = $('#master_id_filter'),
         $churchFilter = $('#church_id_filter'),
