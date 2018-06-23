@@ -1738,6 +1738,12 @@ class UserInfoListView(views.APIView):
             return '', []
         return " AND a.sex = %s", [sex]
 
+    def get_where_meeting_type(self):
+        meeting_type = self.request.query_params.get('meeting_type')
+        if not meeting_type:
+            return '', []
+        return " AND report.type_id = %s", [meeting_type]
+
     def get_where_department(self):
         department = self.request.query_params.get('department')
         if not department:
@@ -1792,7 +1798,7 @@ class UserInfoListView(views.APIView):
         where = [self.get_where_week(), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
                  self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
                  self.get_where_convert(), self.get_where_sex(), self.get_where_stable(),
-                 self.get_where_master(), (' AND e.is_stable NOTNULL', []),
+                 self.get_where_master(), self.get_where_meeting_type(), (' AND e.is_stable NOTNULL', []),
                  self.get_where_master_tree()]
         a = tuple(zip(*where))
         return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
