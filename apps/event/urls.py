@@ -19,6 +19,7 @@ urlpatterns = [
     path('home/reports/<int:pk>/', views.meeting_report_detail, name='meeting_report_detail'),
     path('home/statistics/', views.meeting_report_statistics, name='meeting_report_statistics'),
     path('home/summary/', views.meetings_summary, name='meetings_summary'),
+    path('home/users/', views.UnstableUserListView.as_view(), name='users'),
     path('church/reports/', views.church_report_list, name='church_report_list'),
     path('church/reports/<int:pk>/', views.church_report_detail, name='church_report_detail'),
     path('church/statistics/', views.church_statistics, name='church_report_statistics'),

@@ -81,18 +81,18 @@ const CHURCH_REPORT = {
 };
 
 const HOME_MEETING = {
-
 	list: (reportId) => `/api/events/home_meetings/`,
 	detail: (reportId) => `/api/events/home_meetings/${reportId}/`,
 	visitors: (reportId) => `/api/events/home_meetings/${reportId}/visitors/`,
 	submit: (reportId) => `/api/events/home_meetings/${reportId}/submit/`,
 	stats: () => `/api/events/home_meetings/statistics/`,
 	statistics: () => `/api/events/meeting_attends/stats/`,
-    meeting_stats: () => `/api/events/meetings/stats/`,
-    meeting_all_stats: () => `/api/events/meetings/all_stats/`,
+	meeting_stats: () => `/api/events/meetings/stats/`,
+	meeting_all_stats: () => `/api/events/meetings/all_stats/`,
 	dashboard_count: () => `/api/events/home_meetings/dashboard_counts/`,
 	summary: () => `/api/events/home_meetings/meetings_summary/`,
 	cleanImg: (id) => `/api/events/home_meetings/${id}/clean_image/`,
+	stable_users: () => `/api/events/meetings/users/`
 };
 
 const EVENT = {

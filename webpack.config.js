@@ -49,6 +49,7 @@ module.exports = {
 		summit_statistics: ['babel-polyfill', './summit_statistics'],
 		search_city: ['babel-polyfill', './search_city'],
 		proposal: ['babel-polyfill', './proposal'],
+		users_stable: ['babel-polyfill', './users_stable'],
 	},
 	output: {
 		path: path.resolve(__dirname, './public/static/js'),

@@ -1,10 +1,15 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render, get_object_or_404
+from django.utils.translation import ugettext_lazy as _
+from django.views import View
+from django.views.generic import TemplateView
 
 from apps.account.models import CustomUser
 from apps.event.models import MeetingType, Meeting, ChurchReport
 from apps.group.models import Church, HomeGroup
-from apps.hierarchy.models import Department
+from apps.hierarchy.models import Department, Hierarchy
 from apps.payment.models import Currency
 
 
@@ -73,6 +78,36 @@ def meetings_summary(request):
     }
 
     return render(request, 'event/meetings_summary.html', context=ctx)
+
+
+class CanSeeUnstableUserListMixin(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+
+class UnstableUserListView(LoginRequiredMixin, CanSeeUnstableUserListMixin, TemplateView):
+    template_name = 'event/users.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        extra_ctx = {
+            'departments': Department.objects.all(),
+            'churches': Church.objects.all(),
+            'hgs': HomeGroup.objects.all(),
+            'sex_options': [
+                {'id': 'male', 'title': _('Мужчина')},
+                {'id': 'female', 'title': _('Женщина')},
+            ],
+            'meeting_type_options': [{'id': m.id, 'title': m.name} for m in MeetingType.objects.all()],
+            'hierarchies_options': [{'id': m.code, 'title': m.title} for m in Hierarchy.objects.all()],
+        }
+        ctx.update(extra_ctx)
+
+        return ctx
 
 
 @login_required(login_url='entry')

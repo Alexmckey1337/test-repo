@@ -64,6 +64,14 @@ $('document').ready(function () {
 		homeStatistics(true);
 	});
 
+	$('#tableHomeStats').on('click', '.link', function () {
+		let
+			path = $(this).attr('data-path'),
+			type = $('#tabs').find('li.active').find('button').attr('data-id');
+		type && (path = `${path}&meeting_type=${type}`);
+		window.location = `/events/home/users/?${path}`;
+	});
+
 	function initFilterAfterParse(set) {
 		if (set.meeting_type) {
 			$('#tabs').find('li').removeClass('active');

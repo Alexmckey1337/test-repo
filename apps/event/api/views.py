@@ -1724,6 +1724,13 @@ class UserInfoListView(views.APIView):
             return " AND NOT h3.code = 'convert'", []
         return "", []
 
+    def get_where_hierarchy(self):
+        h = self.request.query_params.get('hierarchy', '')
+        if not h:
+            return "", []
+
+        return " AND h3.code = %s", [h]
+
     def get_where_stable(self):
         is_stable = self.request.query_params.get('is_stable', '')
         if is_stable.lower() in ('y', 'yes', 't', 'true', '1'):
@@ -1797,7 +1804,7 @@ class UserInfoListView(views.APIView):
     def get_where_filter(self):
         where = [self.get_where_week(), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
                  self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
-                 self.get_where_convert(), self.get_where_sex(), self.get_where_stable(),
+                 self.get_where_convert(), self.get_where_sex(), self.get_where_stable(), self.get_where_hierarchy(),
                  self.get_where_master(), self.get_where_meeting_type(), (' AND e.is_stable NOTNULL', []),
                  self.get_where_master_tree()]
         a = tuple(zip(*where))
