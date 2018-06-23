@@ -3,7 +3,7 @@ import json
 import logging
 from collections import defaultdict, OrderedDict
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 from functools import reduce
 from itertools import chain
@@ -44,6 +44,7 @@ from apps.event.api.serializers import (
     ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,
     MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
+from apps.navigation.table_columns import get_table
 from apps.payment.api.views_mixins import CreatePaymentMixin, ListPaymentMixin
 from apps.payment.models import Payment, Currency
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
@@ -98,6 +99,22 @@ class MeetingAttendReport(NamedTuple):
     congregation: List[int]
     convert: List[int]
     age: List[int]
+
+
+class User(NamedTuple):
+    user_id: int
+    phone_number: str
+    group_name: str
+    country_name: str
+    city_name: str
+    church_name: str
+    repentance_date: date
+    last_name: str
+    first_name: str
+    middle_name: str
+    is_stable_week: bool
+    is_stable_now: bool
+    full_name: str
 
 
 def by_currencies(func):
@@ -1652,3 +1669,205 @@ def all_stats(request, *args, **kwargs):
     data = merge_data(r1.data, r2.data)
 
     return Response(data=data)
+
+
+class UserInfoListView(views.APIView):
+    page_size = 30
+
+    FIELDS = """
+          e.user_id,
+          a.phone_number,
+          homegroup.title group_name,
+          country.name country_name,
+          city.name city_name,
+          coalesce(gc.title,  g.title) church_name,
+          a.repentance_date,
+          u.last_name,
+          u.first_name,
+          a.middle_name,
+          e.is_stable estable,
+          a.is_stable astable,
+          trim(u.last_name || ' ' || u.first_name || ' ' || a.middle_name) full_name
+    """
+    BASE_JOIN = """
+          join account_customuser a on e.user_id = a.user_ptr_id
+          join auth_user u on a.user_ptr_id = u.id
+          join hierarchy_hierarchy h3 on a.hierarchy_id = h3.id
+
+          join account_customuser_departments ud on a.user_ptr_id = ud.customuser_id
+          join hierarchy_department d on ud.department_id = d.id
+
+          join event_meeting report on e.meeting_id = report.id
+          left join group_homegroup homegroup on a.hhome_group_id = homegroup.id
+          left join group_church g on a.cchurch_id = g.id
+          left join group_church gc on homegroup.church_id = gc.id
+          left join geo_city city on a.locality_id = city.id
+          left join geo_country country on city.country_id = country.id
+    """
+    ORDER_BY = "order by u.last_name, u.first_name, a.middle_name, e.user_id"
+    DISTINCT = " distinct on (u.last_name, u.first_name, a.middle_name, e.user_id)"
+    SQL = """
+        select {distinct}
+          {fields}
+        from event_meetingattend e
+          {join}
+        {filter}
+        {order_by}
+        {pagination};
+    """
+
+    def get_where_convert(self):
+        convert = self.request.query_params.get('convert', '')
+        if convert.lower() in ('y', 'yes', 't', 'true', '1'):
+            return " AND h3.code = 'convert'", []
+        if convert.lower() in ('n', 'no', 'f', 'false', '0'):
+            return " AND NOT h3.code = 'convert'", []
+        return "", []
+
+    def get_where_stable(self):
+        is_stable = self.request.query_params.get('is_stable', '')
+        if is_stable.lower() in ('y', 'yes', 't', 'true', '1'):
+            return " AND e.is_stable NOTNULL AND e.is_stable", []
+        if is_stable.lower() in ('n', 'no', 'f', 'false', '0'):
+            return " AND e.is_stable NOTNULL AND NOT e.is_stable", []
+        return "", []
+
+    def get_where_sex(self):
+        sex = self.request.query_params.get('sex')
+        if not sex:
+            return '', []
+        return " AND a.sex = %s", [sex]
+
+    def get_where_department(self):
+        department = self.request.query_params.get('department')
+        if not department:
+            return '', []
+        return " AND ud.department_id = %s", [department]
+
+    def get_where_church(self):
+        church = self.request.query_params.get('church')
+        if not church:
+            return '', []
+        return " AND (g.church_id = %s OR gc.church_id = %s)", [church, church]
+
+    def get_where_home_group(self):
+        hg = self.request.query_params.get('hg')
+        if not hg:
+            return '', []
+        return " AND a.hhome_group_id = %s", [hg]
+
+    def get_where_week(self):
+        week = self.request.query_params.get('week')
+        return "(date_part('year', report.date) = %s AND date_part('week', report.date) = %s)", [week[:4], week[4:]]
+
+    def get_where_master(self):
+        master = self.request.query_params.get('master')
+        if not master:
+            return '', []
+        return " AND a.master_id = %s", [master]
+
+    def get_where_master_tree(self):
+        master_tree = self.request.query_params.get('master_tree')
+        if not master_tree:
+            return '', []
+        try:
+            master = CustomUser.objects.get(pk=master_tree)
+        except CustomUser.DoesNotExist:
+            return ' AND FALSE', []
+        return " AND a.path like %s AND a.depth >= %s", [f'{master.path}%', master.depth]
+
+    def get_page(self, max_page):
+        page = self.request.query_params.get('page', '1')
+        if not page.isdigit() or int(page) < 1:
+            page = 1
+        return min(int(page), max_page)
+
+    def get_pagination(self, max_page):
+        page = self.get_page(max_page)
+        limit = f' limit {self.page_size}'
+        offset = '' if page == 1 else f' offset {self.page_size*(page-1)}'
+        return f'{offset}{limit}'
+
+    def get_where_filter(self):
+        where = [self.get_where_week(), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
+                 self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
+                 self.get_where_convert(), self.get_where_sex(), self.get_where_stable(),
+                 self.get_where_master(),
+                 self.get_where_master_tree()]
+        a = tuple(zip(*where))
+        return ('WHERE ' + ' '.join(a[0]), list(chain(*a[1]))) if where else ('', [])
+
+    def get_data(self) -> (List[User], int):
+        """
+        :param week: YYYYWW
+        :return:
+        """
+        where, params = self.get_where_filter()
+        count_query = self.SQL.format(
+            distinct='distinct',
+            fields=f'count(e.user_id)',
+            join=self.BASE_JOIN,
+            filter=where,
+            order_by='',
+            pagination='',
+        )
+        logger.info(count_query)
+        logger.info(params)
+        try:
+            with connection.cursor() as connect:
+                connect.execute(count_query, params)
+                count = connect.fetchone()[0]
+        except DataError:
+            raise exceptions.ValidationError({'detail': _('Invalid filter params')})
+        max_page = count // self.page_size
+        max_page = max_page or 1 if count % self.page_size == 0 else max_page + 1
+        pagination = self.get_pagination(max_page)
+        query = self.SQL.format(
+            distinct=self.DISTINCT,
+            fields=self.FIELDS,
+            join=self.BASE_JOIN,
+            filter=where,
+            order_by=self.ORDER_BY,
+            pagination=pagination,
+        )
+        logger.info(query)
+        logger.info(params)
+        try:
+            with connection.cursor() as connect:
+                connect.execute(query, params)
+                users = connect.fetchall()
+                result = [User(*u) for u in users]
+        except DataError:
+            raise exceptions.ValidationError({'detail': _('Invalid filter params')})
+        # logger.warning(result)
+        return result, count
+
+    def get(self, request, *args, **kwargs):
+        week = request.query_params.get('week')
+        if not week:
+            raise exceptions.ValidationError(_("Query parameter 'week' is required."))
+
+        result, count = self.get_data()
+
+        return Response(data={
+            'count': count,
+            'results': [
+                {
+                    'user_id': a[0],
+                    'phone_number': a[1],
+                    'group_name': a[2],
+                    'country_name': a[3],
+                    'city_name': a[4],
+                    'church_name': a[5],
+                    'repentance_date': a[6],
+                    'last_name': a[7],
+                    'first_name': a[8],
+                    'middle_name': a[9],
+                    'is_stable_week': a[10],
+                    'is_stable_now': a[11],
+                    'full_name': a[12],
+                }
+                for a in result
+            ],
+            'table_columns': get_table('unstable_user', self.request.user.id),
+        })

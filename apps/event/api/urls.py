@@ -13,6 +13,7 @@ custom_urls = [
     path('meetings/stats/', views.MeetingStatsView.as_view(), name="meeting-stats"),
     path('meeting_attends/stats/', views.MeetingAttendStatsView.as_view(), name="meeting_attends-stats"),
     path('meetings/all_stats/', views.all_stats, name="meeting_attends-stats"),
+    path('meetings/users/', views.UserInfoListView.as_view(), name="meeting_attends-users"),
 ]
 
 urlpatterns = [

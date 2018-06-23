@@ -289,6 +289,16 @@ summit_stats_columns = Table('summit_stats', [
     Column('responsible', 'Ответственный', 'responsible'),
 ]).to_dict()
 
+unstable_user_columns = Table('summit_stats', [
+    Column('full_name', 'ФИО', editable=False),
+    Column('phone_number', 'Номер телефона'),
+    Column('group_name', 'Домашняя группа'),
+    Column('country_name', 'Страна'),
+    Column('city_name', 'Город'),
+    Column('church_name', 'Церковь'),
+    Column('repentance_date', 'Дата покаяния'),
+]).to_dict()
+
 TABLES = {
     'home_group': home_group_columns,
     'deal': deal_columns,
@@ -309,6 +319,7 @@ TABLES = {
     'church_report': church_report_columns,
     'group_user': group_user_columns,
     'summit_stats': summit_stats_columns,
+    'unstable_user': unstable_user_columns,
 }
 
 
