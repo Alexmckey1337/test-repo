@@ -51,8 +51,8 @@ function ready() {
 		filterChange();
 	} else {
 		let filterParam = parseUrlQuery();
+		console.log('Filter params -->', filterParam);
 		filterInit(filterParam);
-		filterChange();
 	}
 
 	$('.selectdb').select2();

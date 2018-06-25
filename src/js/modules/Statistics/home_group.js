@@ -149,7 +149,7 @@ function createTable(headers, body, title) {
                 	${body.map(item => `<tr>
                                     		<td>${item.title}</td>
                                     				${headers.map(el => (typeof item[el] === 'object') ?
-		`<td><span class="link" data-path="is_stable=True&week=${el.slice(8,-3)}${el.slice(0,2)}&hierarchy=${item[el].type}">${item[el].stable}</span> / <span class="link" data-path="is_stable=False&week=${el.slice(8,-3)}${el.slice(0,2)}&hierarchy=${item[el].type}">${item[el].unstable}</span> / ${item[el].unknown}</td>`
+		`<td><span class="link" data-path="is_stable=True&week=${el.slice(8, -3)}${el.slice(0, 2)}&hierarchy=${item[el].type}&">${item[el].stable}</span> / <span class="link" data-path="is_stable=False&week=${el.slice(8, -3)}${el.slice(0, 2)}&hierarchy=${item[el].type}&">${item[el].unstable}</span> / ${item[el].unknown}</td>`
 		:
 		`<td>${beautifyNumber(item[el])}</td>`
 	).join('')}

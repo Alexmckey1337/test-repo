@@ -8,7 +8,7 @@ import 'moment/locale/ru';
 import URLS from './modules/Urls';
 import getData from './modules/Ajax';
 import {getPastorsByDepartment, getHGLeaders} from "./modules/GetList";
-import {applyFilter, refreshFilter} from "./modules/Filter";
+import {getFilterParam, applyFilter, refreshFilter, getCountFilter} from "./modules/Filter";
 import {homeStatistics} from "./modules/Statistics/home_group";
 import parseUrlQuery from './modules/ParseUrl';
 import {regLegendPlagin} from './modules/Chart/config';
@@ -66,10 +66,14 @@ $('document').ready(function () {
 
 	$('#tableHomeStats').on('click', '.link', function () {
 		let
-			path = $(this).attr('data-path'),
-			type = $('#tabs').find('li.active').find('button').attr('data-id');
-		type && (path = `${path}&meeting_type=${type}`);
-		window.location = `/events/home/users/?${path}`;
+			path = `/events/home/users/?${$(this).attr('data-path')}`,
+			type = $('#tabs').find('li.active').find('button').attr('data-id'),
+			filters = getFilterParam();
+
+		type && (path = `${path}meeting_type=${type}&`);
+		Object.keys(filters).forEach(item => path += item + '=' + filters[item] + "&");
+
+		window.location = path;
 	});
 
 	function initFilterAfterParse(set) {
@@ -91,6 +95,8 @@ $('document').ready(function () {
 
 			$('#calendar_range').attr('data-interval', set.interval).val(date);
 		}
+
+		set.attended && $('#attended_filter').val(set.attended).trigger('change');
 
 		$departmentsFilter.val(set.department).trigger('change');
 		(async () => {
@@ -200,6 +206,7 @@ $('document').ready(function () {
 			(set.hg) && $homeGroupFilter.val(set.hg).trigger('change');
 			// $('.apply-filter').trigger('click');
 			homeStatistics();
+			$('#filter_button').attr('data-count', getCountFilter());
 			filterChange();
 		})();
 	}

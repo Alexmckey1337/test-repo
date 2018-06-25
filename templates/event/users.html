@@ -102,9 +102,13 @@
     {% include "partials/filter/select.html" with label="Ветка" options='' name="master_tree" %}
     {% trans "Церковь" as church %}
     {% include "partials/filter/select.html" with label=church options='' name="church" %}
+    {% trans "Лидер домашней группы" as leader %}
+    {% include "partials/filter/select.html" with label=leader options='' name="leader" %}
     {% trans "Домашняя группа" as hg %}
     {% include "partials/filter/select.html" with label=hg options='' name="hg" %}
     {% include "partials/filter/select.html" with label="Ответственный" options='' name="master" %}
+    {% trans "Присутствовали" as attended %}
+    {% include "partials/filter/select.html" with label=attended options=true_false_options name="attended" %}
     {% trans "Новообращенный" as convert %}
     {% include "partials/filter/select.html" with label=convert options=true_false_options name="convert" %}
     {% trans "Стабильный" as stable %}

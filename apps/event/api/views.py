@@ -1757,9 +1757,9 @@ class UserInfoListView(views.APIView):
     def get_where_attended(self):
         attended = self.request.query_params.get('attended', '')
         if attended.lower() in ('y', 'yes', 't', 'true', '1'):
-            return " AND a.attended", []
+            return " AND e.attended", []
         if attended.lower() in ('n', 'no', 'f', 'false', '0'):
-            return " AND NOT a.attended", []
+            return " AND NOT e.attended", []
         return "", []
 
     def get_where_leader(self):

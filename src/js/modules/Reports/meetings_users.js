@@ -26,10 +26,12 @@ const
 	departmentsFilter = document.querySelector('#department_filter'),
 	treeFilter = document.querySelector('#master_tree_filter'),
 	churchFilter = document.querySelector('#church_filter'),
+	liderFilter = document.querySelector('#leader_filter'),
 	homeGroupFilter = document.querySelector('#hg_filter'),
 	masterFilter = document.querySelector('#master_filter'),
 	urlPastors = URLS.church.available_pastors(),
 	urlChurches = URLS.church.for_select(),
+	urlHGleaders = URLS.home_group.leaders(),
 	urlHG = URLS.home_group.for_select(),
 	urlUserShort = URLS.user.short();
 
@@ -81,6 +83,21 @@ function getPreFilterParam() {
 	return data;
 }
 
+function appendOptions(node, options) {
+	while (node.firstChild) {
+		node.removeChild(node.firstChild);
+	}
+	node.insertAdjacentHTML('beforeEnd', '<option>ВСЕ</option>');
+	node.insertAdjacentHTML('beforeEnd', options);
+}
+
+function createSelect(data, filterSelector, name = 'fullname') {
+	const options = data.map(option => `<option value="${option.id}">${option[name]}</option>`).join(',');
+	appendOptions(filterSelector, options);
+
+	return options;
+}
+
 function initFilterAfterParse(set) {
 	[...tabs.querySelectorAll('li')].forEach(tab => tab.classList.remove('active'));
 	if (set.meeting_type) {
@@ -92,15 +109,79 @@ function initFilterAfterParse(set) {
 	if (set.week) {
 		let week = set.week;
 		calendar.dataset.week = week;
-
-		calendar.value = `${week.slice(-2)} нед. ${week.slice(0,4)}`;
+		calendar.value = `${week.slice(-2)} нед. ${week.slice(0, 4)}`;
 	}
 
-	(set.is_stable) && $('#is_stable_filter').val(set.is_stable).trigger('change');
-	(set.hierarchy) && $('#hierarchy_filter').val(set.hierarchy).trigger('change');
+	(set.attended) && setSelectValue('attended_filter', set.attended);
+	(set.convert) && setSelectValue('convert_filter', set.convert);
+	(set.is_stable) && setSelectValue('is_stable_filter', set.is_stable);
+	(set.sex) && setSelectValue('sex_filter', set.sex);
+	(set.hierarchy) && setSelectValue('hierarchy_filter', set.hierarchy);
+	(set.department) && setSelectValue('department_filter', set.department);
 
-	usersStableTable();
-	filterBtn.dataset.count = getCountFilter();
+	(async () => {
+		if (set.department) {
+			let
+				config = {
+					department: set.department
+				},
+				config2 = {
+					department_id: set.department
+				};
+			await getData(urlPastors, config2).then(data => createSelect(data, treeFilter));
+			await getData(urlChurches, config2).then(data => createSelect(data, churchFilter, 'get_title'));
+			await getData(urlHG, config2).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+			await getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
+			await getData(urlUserShort, config).then(data => createSelect(data, masterFilter));
+		} else {
+			await getData(urlPastors, {master_tree: USER_ID}).then(data => createSelect(data, treeFilter));
+			await getData(urlChurches).then(data => createSelect(data, churchFilter, 'get_title'));
+			await getData(urlHG).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+			await getData(urlUserShort).then(data => createSelect(data, masterFilter));
+			await getData(urlHGleaders).then(data => createSelect(data, liderFilter));
+		}
+
+		if (set.master_tree || set.leader_tree) {
+			setSelectValue('master_tree_filter', set.master_tree || set.leader_tree);
+			let config = {
+				master_tree: set.master_tree || set.leader_tree
+			};
+			await getData(urlChurches, config).then(data => createSelect(data, churchFilter, 'get_title'));
+			await getData(urlHG, config).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+			await getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
+			await getData(urlUserShort, config).then(data => createSelect(data, masterFilter));
+		}
+		if (set.church) {
+			setSelectValue('church_filter', set.church);
+			let
+				config = {
+					church: set.church
+				},
+				config2 = {
+					church_id: set.church
+				};
+			await getData(urlHG, config2).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+			await getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
+			await getData(urlUserShort, config).then(data => createSelect(data, masterFilter));
+		}
+		if (set.leader) {
+			setSelectValue('leader_filter', set.leader);
+			let
+				config = {
+				leader_id: set.leader
+			};
+			await getData(urlHG, config).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+		}
+		(set.hg) && setSelectValue('hg_filter', set.hg);
+		(set.master) && setSelectValue('master_filter', set.master);
+		usersStableTable();
+		filterBtn.dataset.count = getCountFilter();
+		filterChange();
+	})();
+}
+
+function setSelectValue(selector, value) {
+	$(`#${selector}`).val(value).trigger('change');
 }
 
 export function filterInit(set = null) {
@@ -108,36 +189,15 @@ export function filterInit(set = null) {
 		if (set != null) {
 			initFilterAfterParse(set);
 		} else {
-			let config = {
-				master_tree: USER_ID
-			};
-			getData(urlPastors, config).then(res => {
-				const leaders = res.map(leader => `<option value="${leader.id}">${leader.fullname}</option>`).join(',');
-				appendOptions(treeFilter, leaders);
-			});
-			getData(urlChurches).then(res => {
-				const churches = res.map(church => `<option value="${church.id}">${church.get_title}</option>`).join(',');
-				appendOptions(churchFilter, churches);
-			});
-			getData(urlHG).then(res => {
-				const groups = res.map(group => `<option value="${group.id}">${group.get_title}</option>`).join(',');
-				appendOptions(homeGroupFilter, groups);
-			});
-			getData(urlUserShort).then(data => {
-				const users = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
-				appendOptions(masterFilter, users);
-			});
+			getData(urlPastors, {master_tree: USER_ID}).then(data => createSelect(data, treeFilter));
+			getData(urlChurches).then(data => createSelect(data, churchFilter, 'get_title'));
+			getData(urlHG).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+			getData(urlUserShort).then(data => createSelect(data, masterFilter));
+			getData(urlHGleaders).then(data => createSelect(data, liderFilter));
+			filterChange();
 		}
 		init = true;
 	}
-}
-
-function appendOptions(node, options) {
-	while (node.firstChild) {
-		node.removeChild(node.firstChild);
-	}
-	node.insertAdjacentHTML('beforeEnd', '<option>ВСЕ</option>');
-	node.insertAdjacentHTML('beforeEnd', options);
 }
 
 export function filterChange() {
@@ -152,22 +212,11 @@ export function filterChange() {
 			config.department = departamentID;
 			config2.department_id = departamentID;
 		}
-		getPastorsByDepartment(config2).then(function (data) {
-			const options = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
-			appendOptions(treeFilter, options);
-		});
-		getData(urlChurches, config2).then(res => {
-			let options = res.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-			appendOptions(churchFilter, options);
-		});
-		getData(urlHG, config2).then(res => {
-			let options = res.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-			appendOptions(homeGroupFilter, options);
-		});
-		getData(urlUserShort, config).then(data => {
-			const options = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
-			appendOptions(masterFilter, options);
-		});
+		getPastorsByDepartment(config2).then(data => createSelect(data, treeFilter));
+		getData(urlChurches, config2).then(data => createSelect(data, churchFilter, 'get_title'));
+		getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
+		getData(urlHG, config2).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+		getData(urlUserShort, config).then(data => createSelect(data, masterFilter));
 	});
 
 	$('#master_tree_filter').on('change', function () {
@@ -184,32 +233,32 @@ export function filterChange() {
 			config.master_tree = this.value;
 			config2.master_tree = this.value;
 		}
-		getData(urlChurches, config2).then(res => {
-			const options = res.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-			appendOptions(churchFilter, options);
-		});
-		getData(urlHG, config2).then(res => {
-			const options = res.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-			appendOptions(homeGroupFilter, options);
-		});
-		getData(urlUserShort, config).then(data => {
-			const options = data.map(option => `<option value="${option.id}">${option.fullname}</option>`);
-			appendOptions(masterFilter, options);
-		});
-
+		getData(urlChurches, config2).then(data => createSelect(data, churchFilter, 'get_title'));
+		getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
+		getData(urlHG, config2).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+		getData(urlUserShort, config).then(data => createSelect(data, masterFilter));
 	});
 
 	$('#church_filter').on('change', function () {
-		let config = {},
+		let
+			config = {},
+			config2 = {},
 			value = this.value;
 		if ((value != "ВСЕ") && (value != "") && (value != null)) {
 			config.church = value;
+			config2.church_id = value;
 		}
-		getData(urlHG, config).then(res => {
-			const options = res.map(option => `<option value="${option.id}">${option.get_title}</option>`);
-			appendOptions(homeGroupFilter, options);
-		});
-
+		getData(urlHG, config2).then(data => createSelect(data, homeGroupFilter, 'get_title'));
+		getData(urlHGleaders, config).then(data => createSelect(data, liderFilter));
 	});
 
+	$('#leader_filter').on('change', function () {
+		let
+			config = {},
+			value = this.value;
+		if ((value != "ВСЕ") && (value != "") && (value != null)) {
+			config.leader_id = value;
+		}
+		getData(urlHG, config).then(data => createSelect(data, liderFilter, 'get_title'));
+	});
 }
