@@ -76,7 +76,7 @@ deploy-stage:
     - master
 
 deploy-prod:
-  stage: deploy
+  stage: test
   image: python:3.6
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
