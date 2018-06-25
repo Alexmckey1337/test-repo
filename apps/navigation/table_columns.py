@@ -292,6 +292,10 @@ summit_stats_columns = Table('summit_stats', [
 unstable_user_columns = Table('summit_stats', [
     Column('full_name', 'ФИО', editable=False),
     Column('phone_number', 'Номер телефона'),
+    Column('master_name', 'Ответственный'),
+    Column('sex', 'Пол'),
+    Column('hierarchy', 'Иерархия'),
+    Column('departments', 'Отделы'),
     Column('group_name', 'Домашняя группа'),
     Column('country_name', 'Страна'),
     Column('city_name', 'Город'),

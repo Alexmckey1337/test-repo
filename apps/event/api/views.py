@@ -112,6 +112,11 @@ class User(NamedTuple):
     last_name: str
     first_name: str
     middle_name: str
+    sex: str
+    master_id: int
+    master_name: str
+    hierarchy: str
+    departments: list
     is_stable_week: bool
     is_stable_now: bool
     full_name: str
@@ -1685,6 +1690,13 @@ class UserInfoListView(views.APIView):
           u.last_name,
           u.first_name,
           a.middle_name,
+          a.sex,
+          a.master_id,
+          trim(mu.last_name || ' ' || mu.first_name || ' ' || ma.middle_name) master_name,
+          h3.title,
+          array(select dd.title from hierarchy_department dd where dd.id in (
+            select dep.department_id from account_customuser_departments dep where dep.customuser_id = u.id)
+          ) departments,
           e.is_stable estable,
           a.is_stable astable,
           trim(u.last_name || ' ' || u.first_name || ' ' || a.middle_name) full_name
@@ -1696,6 +1708,9 @@ class UserInfoListView(views.APIView):
 
           join account_customuser_departments ud on a.user_ptr_id = ud.customuser_id
           join hierarchy_department d on ud.department_id = d.id
+
+          left join account_customuser ma on a.master_id = ma.user_ptr_id
+          left join auth_user mu on a.master_id = mu.id
 
           join event_meeting report on e.meeting_id = report.id
           left join group_homegroup homegroup on a.hhome_group_id = homegroup.id
@@ -1738,6 +1753,20 @@ class UserInfoListView(views.APIView):
         if is_stable.lower() in ('n', 'no', 'f', 'false', '0'):
             return " AND NOT e.is_stable", []
         return "", []
+
+    def get_where_attended(self):
+        attended = self.request.query_params.get('attended', '')
+        if attended.lower() in ('y', 'yes', 't', 'true', '1'):
+            return " AND a.attended", []
+        if attended.lower() in ('n', 'no', 'f', 'false', '0'):
+            return " AND NOT a.attended", []
+        return "", []
+
+    def get_where_leader(self):
+        leader = self.request.query_params.get('leader')
+        if not leader:
+            return '', []
+        return " AND report.owner_id = %s", [leader]
 
     def get_where_sex(self):
         sex = self.request.query_params.get('sex')
@@ -1804,6 +1833,7 @@ class UserInfoListView(views.APIView):
     def get_where_filter(self):
         where = [self.get_where_week(), (' AND report.status = %s ', [str(Meeting.SUBMITTED)]),
                  self.get_where_home_group(), self.get_where_church(), self.get_where_department(),
+                 self.get_where_attended(), self.get_where_leader(),
                  self.get_where_convert(), self.get_where_sex(), self.get_where_stable(), self.get_where_hierarchy(),
                  self.get_where_master(), self.get_where_meeting_type(), (' AND e.is_stable NOTNULL', []),
                  self.get_where_master_tree()]
@@ -1824,8 +1854,8 @@ class UserInfoListView(views.APIView):
             order_by='',
             pagination='',
         )
-        logger.info(count_query)
-        logger.info(params)
+        # logger.info(count_query)
+        # logger.info(params)
         try:
             with connection.cursor() as connect:
                 connect.execute(count_query, params)
@@ -1843,8 +1873,8 @@ class UserInfoListView(views.APIView):
             order_by=self.ORDER_BY,
             pagination=pagination,
         )
-        logger.info(query)
-        logger.info(params)
+        # logger.info(query)
+        # logger.info(params)
         try:
             with connection.cursor() as connect:
                 connect.execute(query, params)
@@ -1876,9 +1906,14 @@ class UserInfoListView(views.APIView):
                     'last_name': a[7],
                     'first_name': a[8],
                     'middle_name': a[9],
-                    'is_stable_week': a[10],
-                    'is_stable_now': a[11],
-                    'full_name': a[12],
+                    'sex': dict(CustomUser.SEX).get(a[10], 'unknown'),
+                    'master_id': a[11],
+                    'master_name': a[12],
+                    'hierarchy': a[13],
+                    'departments': a[14],
+                    'is_stable_week': a[15],
+                    'is_stable_now': a[16],
+                    'full_name': a[17],
                 }
                 for a in result
             ],
