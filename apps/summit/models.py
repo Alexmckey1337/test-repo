@@ -82,6 +82,8 @@ class Summit(models.Model):
     )
     status = models.CharField(_('Status'), choices=STATUSES, default=OPEN, max_length=20)
 
+    one_entry = models.BooleanField(_('Only one entry'), default=False)
+
     objects = SummitManager()
 
     class Meta:
