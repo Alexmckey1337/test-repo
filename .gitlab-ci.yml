@@ -44,23 +44,6 @@ test-stage:
   only:
     - master
 
-test-prod:
-  stage: test
-  services:
-  - name: docker:dind
-  - name: postgres:10
-    alias: db
-  - name: redis:latest
-    alias: redis
-  script:
-    - docker pull reg.sobsam.com/vocrm:$CI_COMMIT_TAG
-    - docker run -d --name db reg.sobsam.com/postgres:10
-    - docker run -d --name redis redis:latest
-    - docker ps && sleep 10
-    - docker run --rm -e POSTGRES_USER='postgres' -e POSTGRES_PASSWORD='' -e POSTGRES_DB='test_crm_db' -e DJANGO_SETTINGS_MODULE='edem.settings.test' -e POSTGRES_HOST='db' --name pytest --link db --link redis reg.sobsam.com/vocrm:$CI_COMMIT_TAG python manage.py test
-  only:
-    - tags
-
 deploy-stage:
   stage: deploy
   image: python:3.6
