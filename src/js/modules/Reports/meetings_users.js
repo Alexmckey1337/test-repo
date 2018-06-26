@@ -187,6 +187,7 @@ function setSelectValue(selector, value) {
 export function filterInit(set = null) {
 	if (!init) {
 		if (set != null) {
+			preloader.style.display = 'block';
 			initFilterAfterParse(set);
 		} else {
 			getData(urlPastors, {master_tree: USER_ID}).then(data => createSelect(data, treeFilter));

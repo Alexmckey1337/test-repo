@@ -50,9 +50,7 @@ function ready() {
 		usersStableTable();
 		filterChange();
 	} else {
-		let filterParam = parseUrlQuery();
-		console.log('Filter params -->', filterParam);
-		filterInit(filterParam);
+		filterInit(parseUrlQuery());
 	}
 
 	$('.selectdb').select2();
@@ -84,8 +82,6 @@ function ready() {
 	filterApplyBtn.addEventListener('click', function () {
 		applyFilter(this, usersStableTable);
 	});
-
-
 
 }
 
