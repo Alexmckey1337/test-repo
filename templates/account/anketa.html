@@ -626,6 +626,11 @@
                             <button class="send_email_with_code"
                                     data-url="{% url "send_code" profile_id=profile.id %}?method=email">Send to email
                             </button>
+                            {% if request.user.has_summit_entry_perm %}
+                                <button class="reset_entry"
+                                        data-url="{% url "reset_entry" code=profile.code %}">Сбросить вход
+                                </button>
+                            {% endif %}
                         </h1>
                     {% if request.user.is_superuser and profile.device_id %}
                         <h1>DEVICE ID: {{ profile.device_id }} <button data-id="{{ profile.id }}" class="reset_device_id">Reset</button></h1>

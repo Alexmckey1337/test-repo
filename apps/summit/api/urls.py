@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from apps.summit.api import views, views_app
+from apps.summit.api import views, views_app, views_entry
 
 router_v1_0 = routers.DefaultRouter()
 router_v1_0.register('summit_profiles', views.SummitProfileViewSet, base_name='summit_profiles')
@@ -61,10 +61,21 @@ custom_app = [
          name='summit-app-profile-list-master'),
 ]
 
+summit_entries_urls = [
+    path('reset_entry/<str:code>/', views_entry.ResetEntryView.as_view(), name='reset_entry'),
+    path('block/<str:code>/', views_entry.BlockUserView.as_view(), name='block_user_entry'),
+    path('unblock/<str:code>/', views_entry.UnblockUserView.as_view(), name='unblock_user_entry'),
+    path('reset/codes/', views_entry.ResetAllCodesView.as_view(), name='reset_codes_entry'),
+    path('reset/entries/', views_entry.ResetAllEntriesView.as_view(), name='reset_entries_entry'),
+    path('multi/', views_entry.FinishLessonView.as_view(), name='multi_entry'),
+    path('one/', views_entry.StartLessonView.as_view(), name='one_entry'),
+]
+
 urlpatterns = [
     path('', include(router_v1_0.urls)),
     path('', include(custom_urls)),
 
     path('app/', include(router_app.urls)),
     path('app/', include(custom_app)),
+    path('summit_entries/', include(summit_entries_urls)),
 ]

@@ -2,11 +2,11 @@ from django.conf import settings
 from django.db import models
 
 from apps.summit.models import SummitType, Summit
-from apps.summit.api.permissions import can_see_summit, can_see_summit_type, can_see_any_summit,\
-    can_see_any_summit_type, can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket,\
+from apps.summit.api.permissions import can_see_summit, can_see_summit_type, can_see_any_summit, \
+    can_see_any_summit_type, can_edit_summit_block, can_see_summit_block, can_see_any_summit_ticket, \
     can_see_summit_ticket, \
     can_see_summit_profiles, can_add_user_to_summit, can_download_summit_participant_report, \
-    can_see_report_by_bishop_or_high, can_see_summit_history_stats
+    can_see_report_by_bishop_or_high, can_see_summit_history_stats, has_summit_entry_perm
 
 
 class SummitUserPermission(models.Model):
@@ -71,6 +71,9 @@ class SummitUserPermission(models.Model):
         with id = ``summit_id``
         """
         return can_see_summit_history_stats(self, summit)
+
+    def has_summit_entry_perm(self):
+        return has_summit_entry_perm(self)
 
     def available_summit_types(self):
         return SummitType.objects.filter(

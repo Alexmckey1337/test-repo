@@ -85,6 +85,19 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
         return ctx
 
 
+class SummitInfoView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
+    model = Summit
+    context_object_name = 'summit'
+    template_name = 'summit/info.html'
+    login_url = 'entry'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        extra_context = {}
+        ctx.update(extra_context)
+        return ctx
+
+
 class SummitStatisticsView(SummitDetailView):
     template_name = 'summit/stats.html'
 

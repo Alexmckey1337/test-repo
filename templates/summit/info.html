@@ -1,0 +1,69 @@
+{% extends "layout_main.html" %}
+{% load i18n %}
+{% load static %}
+{% load summit_tags %}
+{% load payment_tags %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title" data-summit-id="{{ summit.id }}">
+        САММИТЫ |
+        {{ summit.type }} |
+        <span>{{ summit }}</span>
+    </h1>
+{% endblock %}
+
+{% block header.buttons %}
+    <div class="top-panel">
+        <div class="tabs">
+            <ul class="nav tabs_link">
+                <li><a href="{{ summit.get_absolute_url }}">Участники</a></li>
+                <li><a href="{% url 'summit:stats' pk=summit.id %}">Посещаемость</a></li>
+                <li><a href="{% url 'summit:report' pk=summit.id %}">По ответственному</a></li>
+                <li><a href="{% url 'summit:history-stats' pk=summit.id %}">Статистика</a></li>
+                <li><a class="active" href="{% url 'summit:info' pk=summit.id %}">Про саммит</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block main.content %}
+    <div class="clearfix" style="margin-top: 130px;margin-left:30px;">
+        <h1>{{ summit }}</h1>
+        {% if request.user.has_summit_entry_perm %}
+            <h2>
+                Вход возможен только один раз:
+                <span style="font-weight:bold;color:{% if summit.one_entry %}darkred{% else %}darkgreen{% endif %}">{% if summit.one_entry %}Да{% else %}Нет{% endif %}</span>
+            </h2>
+            <hr>
+            {% if summit.one_entry %}
+                <button id="toggle_one_entry">Разрешить вход несколько раз</button>
+                Входы всех посетителей будут сброшены, и они смогут снова заходить неограниченое количество раз.
+            {% else %}
+                <button id="toggle_one_entry">Запретить вход несколько раз</button>
+                Посетители смогут заходить только один раз.
+            {% endif %}
+            <hr>
+            <button id="reset_entries">Сбросить входы</button>
+            Входы всех посетителей будут сброшены, и они смогут снова заходить.
+            <hr>
+            <button id="reset_codes">Сбросить коды</button>
+            Удалить все данные по посетителям саммита и загрузить их заново из crm
+            <hr>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block popup %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        {% if summit.one_entry %}
+            var toggle_entry_url = "/api/summit_entries/multi/";
+        {% else %}
+            var toggle_entry_url = "/api/summit_entries/one/";
+        {% endif %}
+        var reset_entries_url = "/api/summit_entries/reset/"
+        // after click reload page
+    </script>
+{% endblock %}
