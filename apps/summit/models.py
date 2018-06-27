@@ -413,6 +413,8 @@ class SummitTicket(models.Model):
 
     owner = models.ForeignKey('account.CustomUser', on_delete=models.SET_NULL, related_name='created_tickets',
                               verbose_name=_('User'), null=True)
+    author = models.ForeignKey('account.CustomUser', related_name='author_tickets',
+                               null=True, blank=True, verbose_name=_('Author'), on_delete=models.SET_NULL)
     created_at = models.DateTimeField(_('Date created'), auto_now_add=True)
 
     IN_PROGRESS, COMPLETE, ERROR = 'progress', 'complete', 'error'

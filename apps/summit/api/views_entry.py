@@ -27,12 +27,12 @@ def response_to_entry_service(url):
     except Exception as e:
         print(e)
         raise ServiceUnavailable(
-            {'detail': 'Service temporarily unavailable, try again later'})
+            {'detail': 'Service temporarily unavailable, try again later, %s' % str(e)})
     if response.status_code == 200:
         return response.json()
     else:
         raise ServiceUnavailable(
-            {'detail': 'Service temporarily unavailable, try again later'})
+            {'detail': 'Service temporarily unavailable, try again later, status code: %s' % response.status_code})
 
 
 class EntryMixin(APIView):
@@ -46,10 +46,6 @@ class EntryMixin(APIView):
 
 class ResetEntryView(EntryMixin):
     url = '/user/{code}/reset_entry'
-    # def post(self, request, *args, **kwargs):
-    #     code = kwargs.get('code')
-    #     result = response_to_entry_service(f'/user/{code}/reset_entry')
-    #     return Response(result)
 
 
 class ResetAllEntriesView(EntryMixin):
@@ -58,6 +54,10 @@ class ResetAllEntriesView(EntryMixin):
 
 class ResetAllCodesView(EntryMixin):
     url = '/reset'
+
+
+class LoadNewCodesView(EntryMixin):
+    url = '/load'
 
 
 class FinishLessonView(EntryMixin):

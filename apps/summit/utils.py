@@ -1,15 +1,15 @@
 from datetime import datetime
-from typing import List, NamedTuple
+from functools import wraps
+from io import BytesIO
+from typing import List, NamedTuple, Tuple
 
 import pytz
 import requests
 from PIL import Image, ImageDraw
 from django.core.files.storage import default_storage
 from django.db import connection
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from io import BytesIO
 from reportlab.graphics import renderPDF
 from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
@@ -27,9 +27,6 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 from rest_framework import exceptions
 
 from apps.summit.models import SummitAnket
-
-EXTRA_PEOPLE = (22730, 22058, 8716, 28418, 6437, 2568, 3276, 1128, 7367,
-                2378, 2457, 2139, 4535, 12335, 5372, 12029, 3205, 6588, 6250)
 
 
 class Bishop(NamedTuple):
@@ -49,6 +46,54 @@ class Profile(NamedTuple):
     level: int
     tree: List[int]
     user_id: int
+
+
+def page_style(font: Tuple = None, color: object = None):
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            prev_font, prev_color = dict(), dict()
+            if font is not None:
+                prev_font = {
+                    '_fontname': self.canvas._fontname,
+                    '_fontsize': self.canvas._fontsize,
+                    '_leading': self.canvas._leading,
+                    '_code': self.canvas._code[:],
+                }
+                self.canvas.setFont(*font)
+            if color is not None:
+                prev_color = {
+                    '_fillColorObj': self.canvas._fillColorObj,
+                    '_code': self.canvas._code[:],
+                }
+                self.canvas.setFillColor(color)
+
+            # print(prev_color, prev_font)
+            # prev_font = {
+            #     '_fontname': self.canvas._fontname,
+            #     '_fontsize': self.canvas._fontsize,
+            #     '_leading': self.canvas._leading,
+            #     '_code': self.canvas._code[:],
+            # }
+            # prev_color = {
+            #     '_fillColorObj': self.canvas._fillColorObj,
+            #     '_code': self.canvas._code[:],
+            # }
+            # print(prev_color, prev_font)
+            #
+            # print(method, args, kwargs)
+            method(self, *args, **kwargs)
+            #
+            # if font is not None:
+            #     for k, v in prev_font.items():
+            #         setattr(self.canvas, k, v)
+            # if color is not None:
+            #     for k, v in prev_color.items():
+            #         setattr(self.canvas, k, v)
+
+        return wrapper
+
+    return decorator
 
 
 def get_report_by_bishop_or_high(
@@ -468,87 +513,7 @@ class FullSummitParticipantReport(object):
         return self.build()
 
 
-def get_background(user, extra=False):
-    background_name = 'byellow.png'
-
-    if user.hierarchy_id in (5, 10):
-        background_name = 'bbishop.png'
-    elif user.hierarchy_id == 3:
-        background_name = 'bresp.png'
-    elif user.hierarchy_id == 2:
-        background_name = 'bleader.png'
-    elif user.hierarchy_id == 1:
-        background_name = 'bhelper.png'
-    elif user.hierarchy_id == 4:
-        background_name = 'bpastor.png'
-    if extra and user.user_id in EXTRA_PEOPLE:
-        background_name = 'byellow.png'
-
-    return background_name
-
-
-def get_status(user, extra=False):
-    background_name = 'Служитель'
-
-    if user.hierarchy_id in (5, 10):
-        background_name = 'Епископ'
-    elif user.hierarchy_id == 3:
-        background_name = 'Ответственный'
-    elif user.hierarchy_id == 2:
-        background_name = 'Лидер'
-    elif user.hierarchy_id == 1:
-        background_name = 'Помощник'
-    elif user.hierarchy_id == 4:
-        background_name = 'Пастор'
-    if extra and user.user_id in EXTRA_PEOPLE:
-        background_name = 'Служитель'
-
-    return background_name
-
-
-def generate_ticket(code, force_yellow=False):
-    anket = get_object_or_404(SummitAnket, code=code)
-    user = anket.user
-
-    background_name = get_background(anket)
-    if force_yellow:
-        background_name = 'byellow.png'
-    try:
-        bg = default_storage.path(background_name)
-    except NotImplementedError:
-        bg = default_storage.url(background_name)
-
-    buffer = BytesIO()
-
-    w = 58 * mm
-    h = 90 * mm
-    w += 6 * mm
-    h += 6 * mm
-    c = canvas.Canvas(buffer, pagesize=(w, h))
-    pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
-    pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
-    pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
-
-    uu = {
-        'name': ' '.join([user.last_name, user.first_name]).strip(),
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'author_name': ' '.join([anket.author.last_name, anket.author.first_name]).strip() if anket.author else '',
-        'author_first_name': anket.author.first_name if anket.author else '',
-        'author_last_name': anket.author.last_name if anket.author else '',
-        'image': user.image.name if user.image else '',
-        'code': anket.code,
-    }
-
-    create_ticket_page(c, bg, w, h, uu, status='Служитель' if force_yellow else get_status(anket))
-    c.save()
-    pdf = buffer.getvalue()
-    buffer.close()
-
-    return pdf
-
-
-def generate_ticket_by_summit(ankets):
+def generate_ticket_by_summit(profile_ids):
     buffer = BytesIO()
 
     w = 58 * mm
@@ -561,23 +526,21 @@ def generate_ticket_by_summit(ankets):
     pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
 
     raw = """
-    SELECT a.id, a.code, u1.image, concat(uu1.last_name, ' ', uu1.first_name) AS user_name,
-      concat(author.last_name, ' ', author.first_name) AS author_name
-    FROM summit_summitanket a
-      INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
-      INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
-      JOIN auth_user author ON a.author_id = author.id
-      WHERE a.id IN ({})
-      ORDER BY a.id;
-    """.format(','.join([str(a[0]) for a in ankets]))
-    users = SummitAnket.objects.raw(raw)
-    uu = dict()
-    for u in users:
-        add_user(u, uu)
-        if u.user_id in EXTRA_PEOPLE:
-            add_user(u, uu, extra=True)
-    for u in uu.values():
-        create_ticket_page(c, u['bg'], w, h, u, status=u['status'])
+        SELECT a.id, a.code, u1.image, concat(uu1.last_name, ' ', uu1.first_name) AS user_name,
+          concat(author.last_name, ' ', author.first_name) AS author_name
+        FROM summit_summitanket a
+          INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
+          INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
+          JOIN auth_user author ON a.author_id = author.id
+          WHERE a.id IN ({})
+          ORDER BY a.id;
+    """.format(','.join([str(p) for p in profile_ids]))
+    profiles = SummitAnket.objects.raw(raw)
+    output_data = dict()
+    for profile in profiles:
+        add_profile_to_output_data(output_data, profile)
+    for data in output_data.values():
+        create_ticket_page(c, data)
     c.save()
     pdf = buffer.getvalue()
     buffer.close()
@@ -585,27 +548,25 @@ def generate_ticket_by_summit(ankets):
     return pdf
 
 
-def add_user(u, uu, extra=False):
-    background_name = get_background(u, extra=extra)
+def add_profile_to_output_data(output_data, profile):
+    background_name = 'backgroup_ticket_by_summit_11.png'
     try:
         bg = default_storage.path(background_name)
     except NotImplementedError:
         bg = default_storage.url(background_name)
-    uid = u.id + 1_000_000 if extra else u.id
-    if uid not in uu.keys():
-        name = u.user_name.split(maxsplit=1)
-        author_name = u.author_name.split(maxsplit=1)
-        uu[uid] = {
-            'name': u.user_name,
+    if profile.id not in output_data:
+        name = profile.user_name.split(maxsplit=1)
+        author_name = profile.author_name.split(maxsplit=1)
+        output_data[profile.id] = {
+            'name': profile.user_name,
             'first_name': name[1] if len(name) > 1 else '',
             'last_name': name[0],
-            'author_name': u.author_name,
+            'author_name': profile.author_name,
             'author_first_name': author_name[1] if len(author_name) > 1 else '',
             'author_last_name': author_name[0],
-            'code': u.code,
-            'image': u.image,
+            'code': profile.code,
+            'image': profile.image,
             'bg': bg,
-            'status': get_status(u, extra=extra),
         }
 
 
@@ -617,17 +578,17 @@ def to_circle(im):
     return im
 
 
-def create_ticket_page(c, logo, w, h, u, status='Ответственный'):
+def create_ticket_page(c, data):
     try:
-        c.drawImage(logo, 3 * mm, 3 * mm, width=w - 6 * mm, height=h - 6 * mm, mask='auto')
+        c.drawImage(data['bg'], 3 * mm, 3 * mm, width=c._pagesize[0], height=c._pagesize[1], mask='auto')
     except OSError:
         pass
     try:
-        if u['image']:
+        if data['image']:
             try:
-                src = default_storage.path(u['image'])
+                src = default_storage.path(data['image'])
             except NotImplementedError:
-                src = default_storage.url(u['image'])
+                src = default_storage.url(data['image'])
                 try:
                     src = BytesIO(requests.get(src).content)
                 except Exception:
@@ -636,27 +597,23 @@ def create_ticket_page(c, logo, w, h, u, status='Ответственный'):
             im = to_circle(im)
             ir = ImageReader(im)
             c.drawImage(ir, 15 * mm, 43 * mm, width=28 * mm, height=28 * mm, mask='auto')
-    except ValueError:
+    except (ValueError, OSError):
         pass
-    except OSError:
-        pass
-    c.setFillColor(HexColor('0xffffff'))
+    c.setFillColor(HexColor('0x000000'))
     c.setFont('FreeSans', 6 * mm)
     c.drawString(14 * mm, 86 * mm, 'Лидерская')
     c.drawString(10 * mm, 80 * mm, 'конференция')
-    c.setFont('FreeSans', 3 * mm)
-    c.drawString(14 * mm, 37 * mm, status)
     left_margin = 14 * mm
     bottom_last_name_margin = 24 * mm
     bottom_first_name_margin = bottom_last_name_margin + 5 * mm
     c.setFont('FreeSansBold', 4 * mm)
-    c.drawString(left_margin, bottom_last_name_margin, u['last_name'])
+    c.drawString(left_margin, bottom_last_name_margin, data['last_name'])
     c.setFont('FreeSansBold', 3.6 * mm)
-    c.drawString(left_margin, bottom_first_name_margin, u['first_name'])
+    c.drawString(left_margin, bottom_first_name_margin, data['first_name'])
 
     c.setFillColorRGB(1, 1, 1)
     barcode_font_size = 4 * mm
-    barcode = createBarcodeDrawing('Code128', value=u['code'], lquiet=0,
+    barcode = createBarcodeDrawing('Code128', value=data['code'], lquiet=0,
                                    barWidth=1.35, barHeight=7 * mm,
                                    humanReadable=True,
                                    fontSize=barcode_font_size, fontName='FreeSans')
@@ -672,14 +629,179 @@ def create_ticket_page(c, logo, w, h, u, status='Ответственный'):
     drawing_rotated.add(drawing, name='drawing')
     renderPDF.draw(drawing_rotated, c, 7 * mm, 18 * mm)
 
-    # c.setFillColorRGB(0, 0, 0)
-    # c.line(3 * mm, 3 * mm, 3 * mm, h - 3 * mm)
-    # c.line(3 * mm, h - 3 * mm, w - 3 * mm, h - 3 * mm)
-    # c.line(w - 3 * mm, h - 3 * mm, w - 3 * mm, 3 * mm)
-    # c.line(w - 3 * mm, 3 * mm, 3 * mm, 3 * mm)
-    c.setFillColorRGB(1, 1, 1)
+    c.setFillColorRGB(0, 0, 0)
 
     c.setFont('FreeSansBold', 3.4 * mm)
     c.rotate(90)
-    c.drawString(23 * mm, 7.2 * mm - w, u['author_name'])
+    c.drawString(23 * mm, 7.2 * mm - c._pagesize[0], data['author_name'])
     c.showPage()
+
+
+class SummitTicketPDF:
+    def __init__(self, profile_ids, unit=None):
+        self.profile_ids = profile_ids
+
+        self._data = None
+
+        self.default_background_name = 'background.png'
+        self._default_background = None
+
+        self.unit = unit or mm
+        self._width = 210 # 210
+        self._height = 90 # 90
+
+        self._init_styles()
+        self.buffer = BytesIO()
+        self.canvas = canvas.Canvas(self.buffer, pagesize=(self.width, self.height))
+
+    def build(self):
+        self.canvas.save()
+        pdf = self.buffer.getvalue()
+        self.buffer.close()
+
+        return pdf
+
+    def generate_pdf(self):
+        for data in self.data.values():
+            self.create_ticket_page(data)
+
+        return self.build()
+
+    @property
+    def width(self):
+        return self._width * self.unit
+
+    @property
+    def height(self):
+        return self._height * self.unit
+
+    def _get_default_background(self):
+        try:
+            return default_storage.path(self.default_background_name)
+        except NotImplementedError:
+            return default_storage.url(self.default_background_name)
+
+    @property
+    def default_background(self):
+        if self._default_background is None:
+            self._default_background = self._get_default_background()
+        return self._default_background
+
+    @property
+    def data(self):
+        if self._data is None:
+            self.recalculate_data()
+        return self._data
+
+    def _init_styles(self):
+        pdfmetrics.registerFont(TTFont('FreeSans', 'FreeSans.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansBold', 'FreeSansBold.ttf'))
+        pdfmetrics.registerFont(TTFont('FreeSansIt', 'FreeSansOblique.ttf'))
+
+    def recalculate_data(self):
+        raw = """
+            SELECT a.id, a.code, u1.image, concat(uu1.last_name, ' ', uu1.first_name) AS user_name,
+              concat(author.last_name, ' ', author.first_name) AS author_name
+            FROM summit_summitanket a
+              INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
+              INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
+              JOIN auth_user author ON a.author_id = author.id
+              WHERE a.id IN ({})
+              ORDER BY a.id;
+        """.format(','.join([str(p) for p in self.profile_ids]))
+        profiles = SummitAnket.objects.raw(raw)
+        self._data = dict()
+        for profile in profiles:
+            self.add_profile(profile)
+
+    def add_profile(self, profile):
+        if profile.id not in self._data:
+            name = profile.user_name.split(maxsplit=1)
+            author_name = profile.author_name.split(maxsplit=1)
+            self._data[profile.id] = {
+                'name': profile.user_name,
+                'first_name': name[1] if len(name) > 1 else '',
+                'last_name': name[0],
+                'author_name': profile.author_name,
+                'author_first_name': author_name[1] if len(author_name) > 1 else '',
+                'author_last_name': author_name[0],
+                'code': profile.code,
+                'image': profile.image,
+            }
+
+    def create_ticket_page(self, data):
+        self.set_bg_page(data.get('bg', self.default_background))
+        # self.set_user_photo_page(data['image'])
+        # self.set_summit_name_page()
+        self.set_user_full_name_page(data)
+        self.set_barcode_page(data['code'])
+        # self.set_author_full_name_page(data['author_name'])
+
+        self.canvas.showPage()
+
+    def set_bg_page(self, bg):
+        try:
+            self.canvas.drawImage(bg, 3 * mm, 3 * mm, width=self.width, height=self.height, mask='auto')
+        except OSError:
+            pass
+
+    def set_user_photo_page(self, photo):
+        if not photo:
+            return
+        try:
+            src = self.get_user_photo(photo)
+            im = Image.open(src)
+            im = to_circle(im)
+            ir = ImageReader(im)
+            self.canvas.drawImage(ir, 15 * mm, 43 * mm, width=28 * mm, height=28 * mm, mask='auto')
+        except (ValueError, OSError):
+            pass
+
+    def get_user_photo(self, photo):
+        try:
+            src = default_storage.path(photo)
+        except NotImplementedError:
+            src = default_storage.url(photo)
+            try:
+                src = BytesIO(requests.get(src).content)
+            except Exception:
+                src = ''
+        return src
+
+    def set_barcode_page(self, code):
+        self.canvas.setFillColorRGB(1, 1, 1)
+        barcode_font_size = 8 * mm
+        barcode = createBarcodeDrawing('Code128', value=code, lquiet=0,
+                                       barWidth=2.15, barHeight=15 * mm,
+                                       humanReadable=True,
+                                       fontSize=barcode_font_size, fontName='FreeSans')
+        drawing_width = 76 * mm
+        barcode_scale = drawing_width / barcode.width
+        drawing_height = barcode.height * barcode_scale
+        drawing = Drawing(drawing_width, drawing_height)
+        drawing.scale(barcode_scale, barcode_scale)
+        drawing.add(barcode, name='barcode')
+        drawing_rotated = Drawing(drawing_height, drawing_width)
+        drawing_rotated.rotate(90)
+        drawing_rotated.translate(0, -drawing_height)
+        drawing_rotated.add(drawing, name='drawing')
+        renderPDF.draw(drawing_rotated, self.canvas, self.width - 25 * mm, 18 * mm)
+
+    @page_style(font=('FreeSans', 3.4 * mm), color=HexColor('0x000000'))
+    def set_author_full_name_page(self, author):
+        self.canvas.rotate(90)
+        self.canvas.drawString(23 * mm, 7.2 * mm - self.width, author)
+        self.canvas.rotate(270)
+
+    @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
+    def set_user_full_name_page(self, data):
+        bottom_margin = 17 * mm
+        left_last_name_margin = 12 * mm
+        left_first_name_margin = left_last_name_margin + 85 * mm
+        self.canvas.drawString(left_last_name_margin, bottom_margin, data['last_name'])
+        self.canvas.drawString(left_first_name_margin, bottom_margin, data['first_name'])
+
+    @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
+    def set_summit_name_page(self):
+        self.canvas.drawString(14 * mm, 86 * mm, 'Лидерская')
+        self.canvas.drawString(10 * mm, 80 * mm, 'конференция')

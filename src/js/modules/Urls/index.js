@@ -218,6 +218,7 @@ const URLS = {
 	users_repentance_days: () => `/api/notifications/repentance/`,
 	update_columns: () => `/api/update_columns/`,
 	generate_summit_tickets: (summitId) => `/api/generate_summit_tickets/${summitId}/`,
+	generate_tickets_by_author: (summitId, authorId) => `/api/generate_tickets/${summitId}/author/${authorId}/`,
 	profile_status: () => `/api/summit_attends/anket_active_status/`,
 	exports: () => `/api/notifications/exports/`,
 	scan_code: () => `/api/summit_attends/accept_mobile_code`,

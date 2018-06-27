@@ -1,0 +1,12 @@
+{% extends "summit/ticket/list.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block header.top.h1 %}
+    <h1 id="summit-title">
+        <a href="{% url "summit:tickets" %}">{% trans "Tickets" %}</a> | {{ author }}
+    </h1>
+{% endblock %}
+
+{% block header.search %}
+{% endblock %}

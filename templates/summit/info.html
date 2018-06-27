@@ -27,12 +27,13 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="clearfix" style="margin-top: 130px;margin-left:30px;">
+    <div class="clearfix" style="margin:30px; padding-top: 20px">
         <h1>{{ summit }}</h1>
         {% if request.user.has_summit_entry_perm %}
             <h2>
                 Вход возможен только один раз:
-                <span style="font-weight:bold;color:{% if summit.one_entry %}darkred{% else %}darkgreen{% endif %}">{% if summit.one_entry %}Да{% else %}Нет{% endif %}</span>
+                <span style="font-weight:bold;color:{% if summit.one_entry %}darkred{% else %}darkgreen{% endif %}">{% if summit.one_entry %}
+                    Да{% else %}Нет{% endif %}</span>
             </h2>
             <hr>
             {% if summit.one_entry %}
@@ -51,6 +52,31 @@
             <hr>
         {% endif %}
     </div>
+    <div class="clearfix">
+        <table>
+            <tr>
+                <th>{% trans "Author" %}</th>
+                <th>{% trans "Regs" %}</th>
+                <th>{% trans "Printed regs" %}</th>
+                <th>{% trans "Action" %}</th>
+                <th>{% trans "Tickets" %}</th>
+            </tr>
+            {% for author in authors %}
+                <tr>
+                    <td>{{ author }}</td>
+                    <td>{{ author.count_regs }}</td>
+                    <td>{{ author.print_regs }}</td>
+                    <td>
+                        {% if author.count_regs > author.print_regs %}
+                            <button class="create_pdf" data-author-id="{{ author.pk }}">Сгенерировать PDF</button>
+                        {% endif %}
+                    </td>
+                    <td><a href="{% url "summit:tickets-author" author_id=author.pk %}">Билеты</a></td>
+                </tr>
+            {% endfor %}
+            <tr></tr>
+        </table>
+    </div>
 {% endblock %}
 
 {% block popup %}
@@ -58,12 +84,15 @@
 
 {% block extra_scripts %}
     <script>
-        {% if summit.one_entry %}
-            var toggle_entry_url = "/api/summit_entries/multi/";
-        {% else %}
-            var toggle_entry_url = "/api/summit_entries/one/";
-        {% endif %}
-        var reset_entries_url = "/api/summit_entries/reset/"
-        // after click reload page
+		{% if summit.one_entry %}
+			var toggle_entry_url = "/api/summit_entries/multi/";
+		{% else %}
+			var toggle_entry_url = "/api/summit_entries/one/";
+		{% endif %}
+		var reset_entries_url = "/api/summit_entries/reset/entries/";
+		var reset_codes_url = "/api/summit_entries/reset/codes/";
+		// after click reload page
+        var SUMMIT_ID = {{ summit.id }};
     </script>
+    <script src="{% static "js/summit_info.bundle.js" %}"></script>
 {% endblock %}
