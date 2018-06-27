@@ -1,49 +1,63 @@
 'use strict';
-import 'select2';
-import 'select2/dist/css/select2.css';
-import 'air-datepicker';
-import 'air-datepicker/dist/css/datepicker.css';
-import 'jquery-form-validator/form-validator/jquery.form-validator.min.js';
-import 'jquery-form-validator/form-validator/lang/ru.js';
-import 'inputmask/dist/inputmask/dependencyLibs/inputmask.dependencyLib.jquery.js';
-import 'inputmask/dist/inputmask/inputmask.js';
-import 'inputmask/dist/inputmask/jquery.inputmask.js';
-import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
-import 'inputmask/dist/inputmask/phone-codes/phone.js';
-import URLS from './modules/Urls/index';
-import getData, {deleteData, postData} from "./modules/Ajax/index";
-import ajaxRequest from './modules/Ajax/ajaxRequest';
-import {applyFilter, refreshFilter} from "./modules/Filter/index";
-import updateSettings from './modules/UpdateSettings/index';
-import exportTableData from './modules/Export/index';
-import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
-import reverseDate from './modules/Date';
-import {convertNum} from "./modules/ConvertNum/index";
-import {
-	createSummitUsersTable,
-	updateSummitUsersTable,
-	unsubscribeOfSummit,
-	updateSummitParticipant,
-	registerUser,
-	makePotencialSammitUsersList,
-	addUserToSummit,
-} from "./modules/Summit/index";
-import {closePopup} from "./modules/Popup/popup";
-import {initAddNewUser, createNewUser} from "./modules/User/addUser";
-import {makePastorListNew, makePastorListWithMasterTree} from "./modules/MakeList/index";
+import URLS from './modules/Urls';
+import getData, {postData} from './modules/Ajax';
 import errHandling from './modules/Error';
-import validateEmail from './modules/validateEmail';
+import {showAlert} from './modules/ShowNotifications';
 
 $(document).ready(function () {
 
+	let errMsg = 'При выполнении операции произошла ошибка. Попробуйте еще раз';
 
-	$('.create_pdf').on('click', function () {
-		let authorID = $(this).data('author-id');
-		ajaxRequest(URLS.generate_tickets_by_author(SUMMIT_ID, authorID), null, function (data) {
-			console.log(data);
-		}, 'GET', true, {
-			'Content-Type': 'application/json'
-		});
+	$('table').on('click', '.create_pdf', function () {
+		const
+			authorID = $(this).data('author-id'),
+			url = URLS.generate_tickets_by_author(SUMMIT_ID, authorID);
+
+		getData(url).then(data => console.log(data)).catch(err => errHandling(err));
+	});
+
+	$('#toggle_one_entry').on('click', function () {
+		$(this).attr('disabled', true);
+		postData(toggle_entry_url)
+			.then(data => {
+				if (data.code == '0') {
+					location.reload();
+					showAlert('Возможность входов изменена');
+				} else {
+					showAlert(errMsg);
+				}
+				$(this).attr('disabled', false);
+			})
+			.catch(err => {
+				$(this).attr('disabled', false);
+				errHandling(err);
+			})
+	});
+
+	$('#reset_entries').on('click', function () {
+		$(this).attr('disabled', true);
+		postData('/api/summit_entries/reset/entries/')
+			.then(data => {
+				showAlert((data.code == '0') ? 'Входы успешно сброшены' : errMsg);
+				$(this).attr('disabled', false);
+			})
+			.catch(err => {
+				$(this).attr('disabled', false);
+				errHandling(err);
+			})
+	});
+
+	$('#reset_codes').on('click', function () {
+		$(this).attr('disabled', true);
+		postData('/api/summit_entries/reset/codes/')
+			.then(data => {
+				showAlert((data.code == '0') ? 'Коды успешно сброшены' : errMsg);
+				$(this).attr('disabled', false);
+			})
+			.catch(err => {
+				$(this).attr('disabled', false);
+				errHandling(err);
+			})
 	});
 
 });

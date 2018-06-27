@@ -26,8 +26,8 @@ class HasSummitEntryPerm(BasePermission):
 
 
 def has_summit_entry_perm(user):
-    # return user.is_staff
-    return True
+    return user.is_staff
+    # return True
 
 
 def can_see_summit(user, summit_id):

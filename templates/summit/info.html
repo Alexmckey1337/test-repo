@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="clearfix" style="margin-top: 130px;margin-left:30px;">
+    <div class="clearfix" style="margin:30px; padding-top: 20px">
         <h1>{{ summit }}</h1>
         {% if request.user.has_summit_entry_perm %}
             <h2>
@@ -52,7 +52,7 @@
             <hr>
         {% endif %}
     </div>
-    <div class="clearfix" style="margin-top: 130px;margin-left:30px;">
+    <div class="clearfix">
         <table>
             <tr>
                 <th>{% trans "Author" %}</th>
@@ -89,7 +89,8 @@
 		{% else %}
 			var toggle_entry_url = "/api/summit_entries/one/";
 		{% endif %}
-		var reset_entries_url = "/api/summit_entries/reset/";
+		var reset_entries_url = "/api/summit_entries/reset/entries/";
+		var reset_codes_url = "/api/summit_entries/reset/codes/";
 		// after click reload page
         var SUMMIT_ID = {{ summit.id }};
     </script>
