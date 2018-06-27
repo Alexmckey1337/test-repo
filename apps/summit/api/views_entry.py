@@ -27,12 +27,12 @@ def response_to_entry_service(url):
     except Exception as e:
         print(e)
         raise ServiceUnavailable(
-            {'detail': 'Service temporarily unavailable, try again later'})
+            {'detail': 'Service temporarily unavailable, try again later, %s' % str(e)})
     if response.status_code == 200:
         return response.json()
     else:
         raise ServiceUnavailable(
-            {'detail': 'Service temporarily unavailable, try again later'})
+            {'detail': 'Service temporarily unavailable, try again later, status code: %s' % response.status_code})
 
 
 class EntryMixin(APIView):

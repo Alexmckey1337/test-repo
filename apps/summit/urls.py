@@ -28,6 +28,7 @@ urlpatterns = [
     path('emails/<int:pk>/text/', views.SummitProfileEmailTextView.as_view(), name='profile-email-text'),
     path('tickets/', views.SummitTicketListView.as_view(), name='tickets'),
     path('tickets/<int:pk>/', views.SummitTicketDetailView.as_view(), name='ticket-detail'),
+    path('tickets/author/<int:author_id>/', views.SummitTicketByAuthorListView.as_view(), name='tickets-author'),
 
     path('<int:pk>/history/statistics/', views.SummitHistoryStatisticsView.as_view(), name='history-stats'),
 ]

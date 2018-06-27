@@ -4,13 +4,15 @@ from celery.result import AsyncResult
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Case, When, BooleanField, Value
+from django.db import models
+from django.db.models import Case, When, BooleanField, Value, Count, OuterRef, Subquery
 from django.db.models.functions import Concat
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 
+from apps.account.models import CustomUser
 from apps.hierarchy.models import Department, Hierarchy
 from apps.notification.backend import RedisBackend
 from apps.summit.models import Summit, SummitTicket, SummitAnket, AnketEmail
@@ -59,11 +61,15 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(SummitDetailView, self).get_context_data(**kwargs)
-        authors = SummitAnket.objects.filter(
-            summit=self.object).annotate_full_name().order_by('last_name', 'first_name', 'middle_name')
+        authors = CustomUser.objects.filter(pk__in=set(self.object.ankets.values_list('author_id', flat=True)))
+        authors = authors.annotate(
+            **{'full_name': Concat(
+                'last_name', Value(' '),
+                'first_name', Value(' '),
+                'middle_name')}).order_by('last_name', 'first_name', 'middle_name')
         extra_context = {
             'departments': Department.objects.all(),
-            'authors': [{'id': author.user_id, 'title': author.full_name} for author in authors],
+            'authors': [{'id': author.pk, 'title': author.full_name} for author in authors],
             'hierarchies': Hierarchy.objects.order_by('level'),
             'payment_status_options': [
                 {'id': '0', 'title': 'Hе оплачена'},
@@ -85,6 +91,33 @@ class SummitDetailView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
         return ctx
 
 
+class SQCount(Subquery):
+    """
+    https://stackoverflow.com/questions/42543978/django-1-11-annotating-a-subquery-aggregate
+    """
+    template = "(SELECT count(*) FROM (%(subquery)s) _count)"
+    output_field = models.IntegerField()
+
+
+class EmptyAuthor:
+    def __init__(self, count_regs, print_regs):
+        self.pk = 0
+        self.id = 0
+        self.count_regs = count_regs
+        self.print_regs = print_regs
+
+    def __str__(self):
+        return self.full_name
+
+    @property
+    def fullname(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
+        return 'Без автора'
+
+
 class SummitInfoView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
     model = Summit
     context_object_name = 'summit'
@@ -93,7 +126,25 @@ class SummitInfoView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        extra_context = {}
+        authors = CustomUser.objects.filter(
+            pk__in=set(self.object.ankets.values_list('author_id', flat=True)) - {None})
+        regs = SummitAnket.objects.filter(summit=self.object, author=OuterRef('pk'))
+        printed_regs = SummitAnket.objects.filter(summit=self.object, author=OuterRef('pk'), tickets__summit_id=self.object.pk, tickets__author=OuterRef('pk'))
+        authors = authors.annotate(
+            count_regs=SQCount(regs),
+            print_regs=SQCount(printed_regs)
+        ).order_by('last_name', 'first_name', 'middle_name')
+        empty_author = EmptyAuthor(
+            count_regs=SummitAnket.objects.filter(summit=self.object, author__isnull=True).count(),
+            print_regs=SummitAnket.objects.filter(
+                summit=self.object, author__isnull=True,
+                tickets__summit_id=self.object.pk,
+                tickets__author__isnull=True
+            ).count(),
+        )
+        extra_context = {
+            'authors': [empty_author] + [a for a in authors],
+        }
         ctx.update(extra_context)
         return ctx
 
@@ -171,6 +222,50 @@ class SummitTicketListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView
         if code:
             return qs.filter(users__code=code).distinct()
         return qs
+
+
+class SummitTicketByAuthorListView(LoginRequiredMixin, CanSeeSummitTicketMixin, ListView):
+    model = SummitTicket
+    context_object_name = 'tickets'
+    template_name = 'summit/ticket/author_list.html'
+    login_url = 'entry'
+    author = None
+
+    def dispatch(self, request, *args, **kwargs):
+        author_id = kwargs.get('author_id', 0)
+        self.author = get_object_or_404(CustomUser, pk=author_id) if author_id > 0 else None
+        response = super().dispatch(request, *args, **kwargs)
+        try:
+            r = RedisBackend()
+            r.srem('summit:ticket:{}'.format(request.user.id), *list(
+                self.get_queryset().values_list('id', flat=True)))
+        except Exception as err:
+            print(err)
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['author'] = self.author if self.author is not None else 'Без автора'
+        return ctx
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        try:
+            r = RedisBackend()
+            ticket_ids = r.smembers('summit:ticket:{}'.format(self.request.user.id))
+        except Exception as err:
+            ticket_ids = None
+            print(err)
+        if ticket_ids:
+            qs = qs.annotate(
+                is_new=Case(
+                    When(id__in=ticket_ids, then=True),
+                    default=False,
+                    output_field=BooleanField(),
+                ),
+            )
+        return qs.filter(author=self.author)
 
 
 class SummitTicketDetailView(LoginRequiredMixin, CanSeeSummitTicketMixin, DetailView):

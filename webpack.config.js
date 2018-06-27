@@ -44,6 +44,7 @@ module.exports = {
 		manager_summary: ['babel-polyfill', './manager_summary'],
 		payments: ['babel-polyfill', './payments'],
 		summit_detail: ['babel-polyfill', './summit_detail'],
+		summit_info: ['babel-polyfill', './summit_info'],
 		summit_stats: ['babel-polyfill', './summit_stats'],
 		summit_bishop: ['babel-polyfill', './summit_bishop'],
 		summit_statistics: ['babel-polyfill', './summit_statistics'],

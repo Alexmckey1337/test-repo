@@ -28,6 +28,7 @@ custom_urls = [
     path('summit/<int:summit_id>/report_by_bishops/',
          views.summit_report_by_bishops, name='summit-report-bishops'),
     path('generate_summit_tickets/<int:summit_id>/', views.generate_summit_tickets, name='generate_code'),
+    path('generate_tickets/<int:summit_id>/author/<int:author_id>/', views.generate_tickets_by_author, name='generate_code_by_author'),
     path('summit/profile/<int:profile_id>/send_code/', views.send_code, name='send_code'),
     path('summit/<int:summit_id>/send_unsent_codes/', views.send_unsent_codes, name='send_unsent_codes'),
     path('summit/<int:summit_id>/send_unsent_schedules/',

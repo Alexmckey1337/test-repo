@@ -716,8 +716,55 @@ def summit_report_by_bishops(request, summit_id):
 
 
 @api_view(['GET'])
+def generate_tickets_by_author(request, summit_id, author_id):
+    max_limit = 100
+    limit = min(int(request.query_params.get('limit', max_limit)), max_limit)
+
+    filter_kw = {
+        'summit_id': summit_id,
+        'tickets__isnull': True
+    }
+    if author_id == 0:
+        filter_kw['author__isnull'] = True
+    else:
+        filter_kw['author_id'] = author_id
+
+    profiles = list(SummitAnket.objects.order_by('id').filter(**filter_kw)[:limit].values_list('id', 'code'))
+    if len(profiles) == 0:
+        return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
+
+    profile_ids, profile_codes = list(), list()
+    for p in profiles:
+        profile_ids.append(p[0])
+        profile_codes.append(p[1])
+    create_kw = {
+        'summit_id': summit_id,
+        'owner': request.user,
+        'title': '{}-{}'.format(min(profile_codes), max(profile_codes))
+    }
+    if author_id == 0:
+        create_kw['author'] = None
+    else:
+        create_kw['author_id'] = author_id
+
+    ticket = SummitTicket.objects.create(
+        **create_kw,
+    )
+    logger.info('New ticket: {}'.format(ticket.id))
+    ticket.users.set(profile_ids)
+
+    result = generate_tickets.apply_async(args=[summit_id, profile_ids, profile_codes, ticket.id])
+    logger.info('generate_ticket: {}'.format(result))
+
+    downloaded_profiles = SummitAnket.objects.filter(id__in=profile_ids).update(ticket_status=SummitAnket.DOWNLOADED)
+    logger.info('Update profiles ticket_status: {}'.format(downloaded_profiles))
+
+    return Response(data={'ticket_id': ticket.id})
+
+
+@api_view(['GET'])
 def generate_summit_tickets(request, summit_id):
-    max_limit = 20
+    max_limit = 2000
     limit = min(int(request.query_params.get('limit', max_limit)), max_limit)
 
     profiles = list(SummitAnket.objects.order_by('id').filter(
