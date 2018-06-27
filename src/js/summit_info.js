@@ -22,7 +22,6 @@ $(document).ready(function () {
 			.then(data => {
 				if (data.code == '0') {
 					location.reload();
-					showAlert('Возможность входов изменена');
 				} else {
 					showAlert(errMsg);
 				}
@@ -39,6 +38,19 @@ $(document).ready(function () {
 		postData('/api/summit_entries/reset/entries/')
 			.then(data => {
 				showAlert((data.code == '0') ? 'Входы успешно сброшены' : errMsg);
+				$(this).attr('disabled', false);
+			})
+			.catch(err => {
+				$(this).attr('disabled', false);
+				errHandling(err);
+			})
+	});
+
+	$('#load_codes').on('click', function () {
+		$(this).attr('disabled', true);
+		postData('/api/summit_entries/load/codes/')
+			.then(data => {
+				showAlert((data.code == '0') ? 'Коды успешно добавлены' : errMsg);
 				$(this).attr('disabled', false);
 			})
 			.catch(err => {
