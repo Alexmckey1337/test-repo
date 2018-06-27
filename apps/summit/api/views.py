@@ -199,7 +199,7 @@ class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
     )
 
     field_search_fields = {
-        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name'),
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name', 'code'),
         'search_email': ('user__email',),
         'search_phone_number': ('user__phone_number',),
         'search_country': ('country',),

@@ -17,6 +17,19 @@ class CanSeeSummitProfiles(BasePermission):
         return can_see_summit_profiles(request.user, summit)
 
 
+class HasSummitEntryPerm(BasePermission):
+    def has_permission(self, request, view):
+        return has_summit_entry_perm(request.user)
+
+    def has_object_permission(self, request, view, obj):
+        return has_summit_entry_perm(request.user)
+
+
+def has_summit_entry_perm(user):
+    # return user.is_staff
+    return True
+
+
 def can_see_summit(user, summit_id):
     """
     Checking that the ``user`` has the right to see  summit with id = ``summit_id``

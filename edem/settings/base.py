@@ -546,3 +546,5 @@ CANCEL_CLOSE_TIME = 60 * 60  # 1 hour
 
 VO_ORG_UA_TOKEN_NAME = 'HTTP_VO_ORG_UA_TOKEN'
 VO_ORG_UA_TOKEN = 'voorguatoken'
+ENTRY_SERVICE_HOST = env('ENTRY_SERVICE_HOST', default='localhost:4422')
+PALACE_TOKEN = env('PALACE_TOKEN', default='palacetoken')

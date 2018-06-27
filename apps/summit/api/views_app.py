@@ -25,6 +25,7 @@ from apps.summit.api.serializers import (
     SummitAcceptMobileCodeSerializer, AnketActiveStatusSerializer, SummitEventTableSerializer,
     SummitAnketDrawForAppSerializer, SummitNameAnketCodeSerializer, OpenSummitsForAppSerializer,
     TelegramPaymentSerializer)
+from apps.summit.api.views_entry import response_to_entry_service
 from apps.summit.models import (
     SummitType, SummitAnket, AnketStatus, Summit, SummitVisitorLocation, SummitAttend, SummitEventTable,
     AnketPasses, TelegramPayment)
@@ -438,9 +439,12 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
 
         if active:
             anket.status.active = True
+            profile_action = 'unblock'
         if not active:
             anket.status.active = False
+            profile_action = 'block'
         anket.status.save()
+        response_to_entry_service(f'/user/{anket.code}/{profile_action}')
 
         return Response({'message': _('Статус анкеты пользователя {%s} успешно изменен.') % anket.fullname,
                          'active': '%s' % anket.status.active}, status=status.HTTP_200_OK)
