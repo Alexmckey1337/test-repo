@@ -67,6 +67,7 @@ summit_entries_urls = [
     path('block/<str:code>/', views_entry.BlockUserView.as_view(), name='block_user_entry'),
     path('unblock/<str:code>/', views_entry.UnblockUserView.as_view(), name='unblock_user_entry'),
     path('reset/codes/', views_entry.ResetAllCodesView.as_view(), name='reset_codes_entry'),
+    path('load/codes/', views_entry.LoadNewCodesView.as_view(), name='load_codes_entry'),
     path('reset/entries/', views_entry.ResetAllEntriesView.as_view(), name='reset_entries_entry'),
     path('multi/', views_entry.FinishLessonView.as_view(), name='multi_entry'),
     path('one/', views_entry.StartLessonView.as_view(), name='one_entry'),

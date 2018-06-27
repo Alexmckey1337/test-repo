@@ -56,6 +56,10 @@ class ResetAllCodesView(EntryMixin):
     url = '/reset'
 
 
+class LoadNewCodesView(EntryMixin):
+    url = '/load'
+
+
 class FinishLessonView(EntryMixin):
     url = '/lesson/finish'
 
