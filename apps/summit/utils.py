@@ -647,8 +647,8 @@ class SummitTicketPDF:
         self._default_background = None
 
         self.unit = unit or mm
-        self._width = 64
-        self._height = 96
+        self._width = 210 # 210
+        self._height = 90 # 90
 
         self._init_styles()
         self.buffer = BytesIO()
@@ -731,11 +731,11 @@ class SummitTicketPDF:
 
     def create_ticket_page(self, data):
         self.set_bg_page(data.get('bg', self.default_background))
-        self.set_user_photo_page(data['image'])
-        self.set_summit_name_page()
+        # self.set_user_photo_page(data['image'])
+        # self.set_summit_name_page()
         self.set_user_full_name_page(data)
         self.set_barcode_page(data['code'])
-        self.set_author_full_name_page(data['author_name'])
+        # self.set_author_full_name_page(data['author_name'])
 
         self.canvas.showPage()
 
@@ -770,22 +770,22 @@ class SummitTicketPDF:
 
     def set_barcode_page(self, code):
         self.canvas.setFillColorRGB(1, 1, 1)
-        barcode_font_size = 4 * mm
+        barcode_font_size = 8 * mm
         barcode = createBarcodeDrawing('Code128', value=code, lquiet=0,
-                                       barWidth=1.35, barHeight=7 * mm,
+                                       barWidth=2.15, barHeight=15 * mm,
                                        humanReadable=True,
                                        fontSize=barcode_font_size, fontName='FreeSans')
-        drawing_width = 56 * mm
+        drawing_width = 76 * mm
         barcode_scale = drawing_width / barcode.width
         drawing_height = barcode.height * barcode_scale
         drawing = Drawing(drawing_width, drawing_height)
         drawing.scale(barcode_scale, barcode_scale)
         drawing.add(barcode, name='barcode')
         drawing_rotated = Drawing(drawing_height, drawing_width)
-        # drawing_rotated.rotate(90)
+        drawing_rotated.rotate(90)
         drawing_rotated.translate(0, -drawing_height)
         drawing_rotated.add(drawing, name='drawing')
-        renderPDF.draw(drawing_rotated, self.canvas, 7 * mm, 18 * mm)
+        renderPDF.draw(drawing_rotated, self.canvas, self.width - 25 * mm, 18 * mm)
 
     @page_style(font=('FreeSans', 3.4 * mm), color=HexColor('0x000000'))
     def set_author_full_name_page(self, author):
@@ -793,13 +793,13 @@ class SummitTicketPDF:
         self.canvas.drawString(23 * mm, 7.2 * mm - self.width, author)
         self.canvas.rotate(270)
 
-    @page_style(font=('FreeSansBold', 4 * mm), color=HexColor('0x000000'))
+    @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
     def set_user_full_name_page(self, data):
-        left_margin = 14 * mm
-        bottom_last_name_margin = 24 * mm
-        bottom_first_name_margin = bottom_last_name_margin + 5 * mm
-        self.canvas.drawString(left_margin, bottom_last_name_margin, data['last_name'])
-        self.canvas.drawString(left_margin, bottom_first_name_margin, data['first_name'])
+        bottom_margin = 17 * mm
+        left_last_name_margin = 12 * mm
+        left_first_name_margin = left_last_name_margin + 85 * mm
+        self.canvas.drawString(left_last_name_margin, bottom_margin, data['last_name'])
+        self.canvas.drawString(left_first_name_margin, bottom_margin, data['first_name'])
 
     @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
     def set_summit_name_page(self):
