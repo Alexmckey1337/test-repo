@@ -18,7 +18,7 @@ from apps.zmail.utils import send_zmail
 from edem.settings.celery import app
 
 
-@app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
+@app.task(max_retries=10, default_retry_delay=10 * 60)
 def create_ticket(profile_id, code, fullname):
     attach = SummitTicketPDF([profile_id]).generate_pdf()
     profile = SummitAnket.objects.get(id=profile_id)
@@ -27,7 +27,7 @@ def create_ticket(profile_id, code, fullname):
     profile.ticket.save(pdf_name, File(BytesIO(attach)))
 
 
-@app.task(ignore_result=True, max_retries=0)
+@app.task(max_retries=0)
 def create_tickets(ankets):
     for anket in ankets:
         create_ticket.delay(anket.get('id'), anket.get('code'), anket.get('fullname'))
@@ -150,7 +150,7 @@ def check_send_email_with_code_state(task_id, profile_id, sender_id):
         send_error(profile_id, sender_id)
 
 
-@app.task(ignore_result=True, max_retries=10, default_retry_delay=10 * 60)
+@app.task(max_retries=10, default_retry_delay=10 * 60)
 def generate_tickets(summit_id, profile_ids, profile_codes, ticket_id):
     pdf = SummitTicketPDF(profile_ids).generate_pdf()
     pdf_name = '{}_{}-{}.pdf'.format(summit_id, min(profile_codes), max(profile_codes))
