@@ -720,16 +720,14 @@ def generate_tickets_by_author(request, summit_id, author_id):
     max_limit = 100
     limit = min(int(request.query_params.get('limit', max_limit)), max_limit)
 
-    filter_kw = {
-        'summit_id': summit_id,
-        'tickets__isnull': True
-    }
+    filter_kw = Q(summit_id=summit_id) & ~(Q(tickets__author_id=author_id) & Q(tickets__summit_id=summit_id))
     if author_id == 0:
-        filter_kw['author__isnull'] = True
+        filter_kw &= Q(author__isnull=True)
     else:
-        filter_kw['author_id'] = author_id
+        filter_kw &= Q(author_id=author_id)
 
-    profiles = list(SummitAnket.objects.order_by('id').filter(**filter_kw)[:limit].values_list('id', 'code'))
+    pp = SummitAnket.objects.order_by('id').filter(filter_kw)[:limit]
+    profiles = list(pp.values_list('id', 'code'))
     if len(profiles) == 0:
         return Response(data={'detail': _('All tickets is already generated.')}, status=status.HTTP_400_BAD_REQUEST)
 
