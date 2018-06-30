@@ -10,6 +10,16 @@ CITIES = ['Tokyo', 'Lisbon', 'Paris', 'Melbourne', 'Santiago']
 COUNTRIES = ['Ukraine', 'Chine', 'Russia', 'Italy', 'India', 'Ghana']
 
 
+class DirectionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Direction
+
+    code = factory.Sequence(lambda n: f'code_{n:0>4d}')
+    title_ru = factory.Sequence(lambda n: f'title_ru_{n:0>4d}')
+    title_en = factory.Sequence(lambda n: f'title_en_{n:0>4d}')
+    title_de = factory.Sequence(lambda n: f'title_de_{n:0>4d}')
+
+
 class ChurchFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Church

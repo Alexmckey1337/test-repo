@@ -185,6 +185,11 @@ class Direction(models.Model):
             'de': self.title_de,
         }
 
+    @classmethod
+    def in_bulk_by_codes(cls, codes):
+        directions = cls.objects.filter(code__in=codes)
+        return {d.code: d for d in directions if d.code in codes}
+
 
 class HomeGroup(LogModel, CommonGroup):
     locality = models.ForeignKey('location.City', on_delete=models.SET_NULL, related_name='home_groups',

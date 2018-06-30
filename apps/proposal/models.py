@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from apps.account.models import CustomUser
+from apps.group.models import Direction
 
 
 class Proposal(models.Model):
@@ -73,7 +74,7 @@ class Proposal(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return ' '.join([self.last_name, self.first_name]).strip()
+        return ' '.join([self.last_name, self.first_name]).strip() or 'No Name'
 
     def get_sex_display(self):
         for k, v in CustomUser.SEX:
@@ -104,6 +105,18 @@ class Proposal(models.Model):
                 self.closed_at and
                 self.closed_at + timedelta(seconds=settings.CANCEL_CLOSE_TIME) < timezone.now()
         )
+
+    def directions_titles(self, lang='ru'):
+        proposal_direction_codes = self.directions or []
+        directions = Direction.in_bulk_by_codes(proposal_direction_codes)
+        titles = dict()
+        for code in proposal_direction_codes:
+            direction = directions.get(code)
+            if direction is not None:
+                titles[code] = getattr(direction, f'title_{lang}', direction.title_ru)
+            else:
+                titles[code] = code
+        return titles
 
 
 class History(models.Model):

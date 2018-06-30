@@ -542,7 +542,7 @@ PROPOSAL_STATUS_PIPELINE = {
 }
 
 # The time during which a status of proposal can be changed from `rejected` or `processed` to `in_progress`
-CANCEL_CLOSE_TIME = 60 * 60  # 1 hour
+CANCEL_CLOSE_TIME = 7 * 24 * 60 * 60  # 7 days
 
 VO_ORG_UA_TOKEN_NAME = 'HTTP_VO_ORG_UA_TOKEN'
 VO_ORG_UA_TOKEN = 'voorguatoken'

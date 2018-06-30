@@ -6,7 +6,6 @@ from rest_framework import status, permissions
 from apps.proposal.api.views import CreateProposalView
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestUserViewSet:
     @pytest.mark.parametrize(
