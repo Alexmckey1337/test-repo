@@ -1,6 +1,6 @@
 import binascii
-
 import os
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -377,6 +377,45 @@ class CustomUser(MP_Node, LogModel, User,
         Checking that the ``self`` user has the right to see CHANGELOG
         """
         return self.can_see_docs()
+
+
+class MessengerType(models.Model):
+    code = models.SlugField(_('Code'), max_length=60, unique=True)
+    title = models.CharField(_('Title'), max_length=60, unique=True)
+
+    icon = models.ImageField(_('Icon'), blank=True, null=True, upload_to='messengers')
+    display_position = models.SmallIntegerField(_('Display Position'), default=0)
+
+    class Meta:
+        db_table = 'account_messenger'
+        ordering = ('display_position',)
+
+        verbose_name = _('Messenger Type')
+        verbose_name_plural = _('Messenger Types')
+
+    def __str__(self):
+        return self.title
+
+
+class UserMessenger(models.Model):
+    user = models.ForeignKey(
+        'account.CustomUser', related_name='messengers',
+        on_delete=models.CASCADE, verbose_name=_("User")
+    )
+    messenger = models.ForeignKey(
+        'account.MessengerType', related_name='+', on_delete=models.PROTECT,
+        verbose_name=_('Messenger')
+    )
+    value = models.CharField(_('Value'), max_length=80)
+    display_position = models.SmallIntegerField(_('Display Position'), default=0)
+
+    class Meta:
+        db_table = 'account_user_messenger'
+        unique_together = ('user', 'messenger')
+        ordering = ('display_position', 'messenger__display_position')
+
+        verbose_name = _('User Messenger')
+        verbose_name_plural = _('User Messengers')
 
 
 class Token(models.Model):
