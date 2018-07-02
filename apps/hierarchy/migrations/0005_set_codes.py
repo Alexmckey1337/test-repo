@@ -3,6 +3,7 @@ from django.db import migrations
 
 
 CODES = {
+    14: 'lead',
     12: 'convert',
     1: 'congregation',
     13: 'trainee',

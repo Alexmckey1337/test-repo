@@ -216,8 +216,12 @@ class CustomUser(MP_Node, LogModel, User,
         return ' '.join(map(lambda name: name.strip(), (self.last_name, self.first_name, self.middle_name)))
 
     @property
-    def is_guest(self):
-        return self.hierarchy is None or self.hierarchy.level == 0
+    def is_lead(self):
+        return self.hierarchy is not None and self.hierarchy.level == -20
+
+    @property
+    def is_convert(self):
+        return self.hierarchy is not None and self.hierarchy.level == -10
 
     @property
     def is_congregation(self):

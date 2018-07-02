@@ -444,7 +444,8 @@ CHANNEL_LAYERS = {
 }
 
 HIERARCHIES = (
-    dict(title='Гость', level=0),
+    dict(title='Лид', level=-20),
+    dict(title='Новообращенный', level=-10),
     dict(title='Прихожанин', level=0),
     dict(title='Лидер', level=1),
     dict(title='Пастор', level=2),
@@ -458,6 +459,7 @@ HIERARCHIES = (
 )
 
 CHANGE_HIERARCHY_LEVELS = {
+    -20: set(),
     -10: set(),
     0: set(),
     1: {0},
