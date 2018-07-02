@@ -73,6 +73,7 @@
     {% include "partials/filter/select.html" with label="Партнер" options=true_false_options name="is_partner" custom_classes="select__custom" empty_value="ВСЕ" %}
     {% include "partials/filter/select.html" with label="Духовный уровень" options=spiritual_levels name="spiritual_level" %}
     {% include "partials/filter/select.html" with label="Стабильный" options=true_false_options name="is_stable" %}
+    {% include "partials/filter/select.html" with label="Язык" options=people_lang_options name="language" %}
     {% include "partials/filter/select.html" with label="Архив (умер)" options=true_false_options name="is_dead" %}
     <select data-filter="home_group_id" id="home_group_filter" hidden>
         <option value="ВСЕ">ВСЕ</option>

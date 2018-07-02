@@ -101,6 +101,14 @@ class CustomUser(MP_Node, LogModel, User,
     is_stable = models.BooleanField(_('Is Stable'), default=True)
     is_proposal_manager = models.BooleanField(_('Is proposal manager'), default=False)
 
+    RU, EN, DE = 'ru', 'en', 'de'
+    LANGUAGES = (
+        (RU, _('Russian')),
+        (EN, _('English')),
+        (DE, _('Germany')),
+    )
+    language = models.CharField(_('Language'), choices=LANGUAGES, default='RU', max_length=10)
+
     UNKNOWN, MALE, FEMALE = 'unknown', 'male', 'female'
     SEX = (
         (UNKNOWN, _('Unknown')),
@@ -116,7 +124,7 @@ class CustomUser(MP_Node, LogModel, User,
         'country', 'region', 'city', 'district', 'address', 'born_name', 'facebook', 'vkontakte',
         'odnoklassniki', 'description', 'hierarchy', 'master', 'repentance_date',
         'coming_date', 'spiritual_level', 'extra_phone_numbers', 'cchurch', 'hhome_group',
-        'locality', 'is_dead', 'is_stable',
+        'locality', 'is_dead', 'is_stable', 'language',
     )
 
     tracking_reverse_fields = (

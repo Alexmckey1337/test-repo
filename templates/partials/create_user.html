@@ -42,6 +42,15 @@
                                 </select>
                             </label>
                             <label>
+                                <span class="label_block">Язык*</span>
+                                <select id="language" class="must" data-validation="required" tabindex="5" name="language">
+                                    <option value="" selected disabled>Выберите язык</option>
+                                    {% for lang in people_lang_options %}
+                                        <option value="{{ lang.id }}">{{ lang.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                            <label>
                                 <span class="label_block">Телефон*</span>
                                 <div class="phone">
                                     <input id="phone" type="text" tabindex="6">

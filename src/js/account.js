@@ -685,6 +685,8 @@ $('document').ready(function () {
 									}
 								} else if ($val.hasClass('sex')) {
 									$val.val() && formData.append(id, $val.val());
+								} else if ($val.hasClass('language')) {
+									$val.val() && formData.append(id, $val.val());
 								}
 								else {
 									formData.append(id, JSON.stringify($('#' + id).val().trim().split(',').map((item) => item.trim())));

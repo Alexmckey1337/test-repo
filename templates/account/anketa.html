@@ -223,6 +223,15 @@
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
+                                            <span class="label_block">Язык:</span>
+                                            <select type="text" id="language" class="language" readonly disabled>
+                                                <option value="" selected disabled>Выберите язык</option>
+                                                {% for lang in people_lang_options %}
+                                                    <option value="{{ lang.id }}" {% if account.language == lang.id %}selected{% endif %}>{{ lang.title }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                        <label>
                                             <span class="label_block">Пол:</span>
                                             <select type="text" id="sex" class="sex" readonly disabled>
                                                 <option value="" selected disabled>Выберите пол</option>

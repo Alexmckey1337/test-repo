@@ -40,6 +40,7 @@ FIELD_CODES = (
     ('phone_number', 400),
     ('departments', 400),
     ('hierarchy', 400),
+    ('language', 400),
 )
 
 CHANGE_FIELD = (
@@ -65,6 +66,7 @@ CHANGE_FIELD = (
     ('departments', 400),
     ('master', 400),
     ('hierarchy', 400),
+    ('language', 400),
 
     # unique
     ('first_name', 201),
@@ -124,6 +126,7 @@ class TestUserViewSet:
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
         data = {
+            'language': 'en',
             'phone_number': '+380886664422',
             'extra_phone_numbers': ['+380776664422'],
             'email': 'test@email.com',
@@ -459,6 +462,7 @@ class TestUserViewSet:
             'first_name': 'first',
             'last_name': 'last',
             'middle_name': 'middle',
+            'language': 'en',
             'hierarchy': hierarchy_factory(level=100).id,
             'phone_number': '1234567890',
             'departments': (department_factory().id,),
@@ -482,6 +486,7 @@ class TestUserViewSet:
             'first_name': 'first',
             'last_name': 'last',
             'middle_name': 'middle',
+            'language': 'en',
             'hierarchy': hierarchy_factory(level=1).id,
             'master': staff_user.id,
             'phone_number': '1234567890',

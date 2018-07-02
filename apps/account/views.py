@@ -44,7 +44,8 @@ def account(request, user_id=None):
             content_type=ContentType.objects.get_for_model(Partnership)
         ),
         'markers': UserMarker.objects.all(),
-        'partner_groups': PartnerGroup.objects.all()
+        'partner_groups': PartnerGroup.objects.all(),
+        'people_lang_options': [{'id': l[0], 'title': l[1]} for l in CustomUser.LANGUAGES],
     }
     return render(request, 'account/anketa.html', context=ctx)
 

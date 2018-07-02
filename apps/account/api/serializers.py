@@ -43,6 +43,7 @@ BASE_USER_FIELDS = (
     # read_only
     'fullname',
     'is_dead', 'is_stable',
+    'language',
 )
 
 PARTNER_USER_FIELDS = (
@@ -169,6 +170,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
             'hierarchy': {'required': True},
             'departments': {'required': True},
+            'language': {'required': True},
             # 'master': {'required': True},
 
             'divisions': {'required': False},

@@ -170,7 +170,7 @@ function clearAddNewUser() {
 	form.get(0).reset();
 	form.find('#edit-photo').attr('data-source', '').find('img').attr('src', `${BASE_STATIC_PATH}img/no-usr.jpg`);
 	form.find('.anketa-photo').unbind('click');
-	form.find('select:not(#payment_currency, #sex, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
+	form.find('select:not(#payment_currency, #sex, #language, #spir_level, #chooseDepartment, #church_list).select2-hidden-accessible')
 		.select2('destroy').find('option').remove();
 	form.find('#chooseResponsible, #home_groups_list, #spir_level').prop('disabled', true);
 	form.find('input').each(function () {
@@ -289,6 +289,7 @@ export function initAddNewUser(config = {}) {
 	$('#spir_level').select2();
 	$('#church_list').select2();
 	$('#sex').select2();
+	$('#language').select2();
 }
 
 export function addUser2Church(data) {

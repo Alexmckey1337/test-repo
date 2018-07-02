@@ -121,6 +121,7 @@ def user_data():
         'last_name': 'test_last',
         'middle_name': 'test_middle',
         'search_name': 'test_search',
+        'language': 'en',
         'description': 'bla bla bla',
         'facebook': 'http://fb.com/test',
         'vkontakte': 'http://vk.com/test',
