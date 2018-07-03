@@ -10,8 +10,9 @@ from apps.proposal.api.permissions import (
     CanCreateProposal, CanReceiveProposal, CanReopenProposal, CanRejectProposal, CanProcessProposal)
 from apps.proposal.api.serializers import (
     CreateProposalSerializer, UpdateProposalSerializer, ReceiveProposalSerializer,
-    ReopenProposalSerializer, ProposalSerializer)
-from apps.proposal.models import Proposal, History
+    ReopenProposalSerializer, ProposalSerializer, CreateEventProposalSerializer, EventProposalSerializer,
+    UpdateEventProposalSerializer)
+from apps.proposal.models import Proposal, History, EventProposal, EventHistory
 from common.filters import OrderingFilterWithPk, FieldSearchFilter
 
 
@@ -123,6 +124,92 @@ class RejectProposalView(UpdateProposalStatusMixin):
 
 
 class ProcessProposalView(UpdateProposalStatusMixin):
+    new_status = settings.PROPOSAL_PROCESSED
+    permission_classes = (IsAuthenticated, CanProcessProposal)
+
+    def get_data(self, **kwargs):
+        return super().get_data(closed_at=timezone.now())
+
+
+class CreateEventProposalView(generics.CreateAPIView):
+    queryset = EventProposal.objects.all()
+    serializer_class = CreateEventProposalSerializer
+    permission_classes = (CanCreateProposal,)
+
+
+class EventProposalListView(generics.ListAPIView):
+    queryset = EventProposal.objects.order_by('-created_at')
+    serializer_class = EventProposalSerializer
+    permission_classes = (CanCreateProposal,)
+
+
+class UpdateEventProposalStatusMixin(generics.GenericAPIView):
+    queryset = EventProposal.objects.all()
+    new_status = None
+    serializer_class = UpdateEventProposalSerializer
+
+    def post(self, request, *args, **kwargs):
+        proposal = self.get_object()
+
+        data = request.data
+        data.pop('manager', None)
+        data.pop('status', None)
+        data.update(self.get_data())
+
+        serializer = self.serializer_class(proposal, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        self.update_proposal(serializer)
+        self.log_updating(proposal)
+
+        result = serializer.data
+        result['available_next_statuses'] = settings.PROPOSAL_STATUS_PIPELINE.get(self.new_status, [])
+        return Response(data=result, status=status.HTTP_200_OK)
+
+    def get_data(self, **kwargs):
+        kwargs['status'] = self.new_status
+        return kwargs
+
+    def update_proposal(self, proposal):
+        proposal.save()
+
+    def log_updating(self, proposal):
+        EventHistory.log_proposal(proposal, owner=self.request.user)
+
+
+class ReceiveEventProposalView(UpdateEventProposalStatusMixin):
+    new_status = settings.PROPOSAL_IN_PROGRESS
+    permission_classes = (IsAuthenticated, CanReceiveProposal)
+
+    def get_data(self, **kwargs):
+        return super().get_data(
+            manager=self.request.user,
+            closed_at=None,
+            profile=None
+        )
+
+
+class ReopenEventProposalView(UpdateEventProposalStatusMixin):
+    new_status = settings.PROPOSAL_REOPEN
+    permission_classes = (IsAuthenticated, CanReopenProposal)
+
+    def get_data(self, **kwargs):
+        return super().get_data(
+            manager=None,
+            closed_at=None,
+            profile=None
+        )
+
+
+class RejectEventProposalView(UpdateEventProposalStatusMixin):
+    new_status = settings.PROPOSAL_REJECTED
+    permission_classes = (IsAuthenticated, CanRejectProposal)
+
+    def get_data(self, **kwargs):
+        return super().get_data(closed_at=timezone.now())
+
+
+class ProcessEventProposalView(UpdateEventProposalStatusMixin):
     new_status = settings.PROPOSAL_PROCESSED
     permission_classes = (IsAuthenticated, CanProcessProposal)
 

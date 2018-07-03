@@ -9,4 +9,11 @@ urlpatterns = [
     path('proposal/<int:pk>/reject/', views.RejectProposalView.as_view(), name='proposal-reject'),
     path('proposal/<int:pk>/process/', views.ProcessProposalView.as_view(), name='proposal-process'),
     path('proposal/', views.ProposalListView.as_view(), name='proposal-list'),
+
+    path('event_proposal/create/', views.CreateEventProposalView.as_view(), name='event_proposal-create'),
+    path('event_proposal/<int:pk>/receive/', views.ReceiveEventProposalView.as_view(), name='event_proposal-receive'),
+    path('event_proposal/<int:pk>/reopen/', views.ReopenEventProposalView.as_view(), name='event_proposal-reopen'),
+    path('event_proposal/<int:pk>/reject/', views.RejectEventProposalView.as_view(), name='event_proposal-reject'),
+    path('event_proposal/<int:pk>/process/', views.ProcessEventProposalView.as_view(), name='event_proposal-process'),
+    path('event_proposal/', views.EventProposalListView.as_view(), name='event_proposal-list'),
 ]

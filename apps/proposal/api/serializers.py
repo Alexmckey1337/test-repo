@@ -6,7 +6,7 @@ from rest_framework import serializers, exceptions
 
 from apps.account.models import CustomUser
 from apps.group.models import Direction
-from apps.proposal.models import Proposal
+from apps.proposal.models import Proposal, EventProposal
 
 logger = logging.getLogger('vo_org_ua')
 
@@ -64,11 +64,7 @@ class CreateProposalSerializer(serializers.ModelSerializer):
         return codes
 
 
-class UpdateProposalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Proposal
-        fields = ('status', 'user', 'manager', 'note', 'closed_at')
-
+class BaseUpdateProposalSerializer(serializers.ModelSerializer):
     def validate_status(self, new_status):
         current_status = self.instance.status
 
@@ -87,6 +83,12 @@ class UpdateProposalSerializer(serializers.ModelSerializer):
         return new_status
 
 
+class UpdateProposalSerializer(BaseUpdateProposalSerializer):
+    class Meta:
+        model = Proposal
+        fields = ('status', 'user', 'manager', 'note', 'closed_at')
+
+
 class ReceiveProposalSerializer(UpdateProposalSerializer):
     class Meta:
         model = Proposal
@@ -97,3 +99,25 @@ class ReopenProposalSerializer(UpdateProposalSerializer):
     class Meta:
         model = Proposal
         fields = ('status', 'user', 'manager', 'note', 'closed_at')
+
+
+class CreateEventProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventProposal
+        fields = ('user', 'info')
+
+    def save(self, **kwargs):
+        kwargs.update({'raw_data': self.initial_data})
+        return super().save(**kwargs)
+
+
+class EventProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventProposal
+        fields = ('user', 'info', 'raw_data', 'created_at')
+
+
+class UpdateEventProposalSerializer(BaseUpdateProposalSerializer):
+    class Meta:
+        model = EventProposal
+        fields = ('status', 'profile', 'manager', 'note', 'closed_at')
