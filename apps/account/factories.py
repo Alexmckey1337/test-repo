@@ -18,3 +18,20 @@ class UserFactory(factory.DjangoModelFactory):
 
     depth = 1
     path = factory.Sequence(lambda n: '%06d' % n)
+
+
+class UserMessengerFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.UserMessenger
+
+    user = factory.SubFactory('apps.account.factories.UserFactory')
+    messenger = factory.SubFactory('apps.account.factories.MessengerTypeFactory')
+    value = factory.Sequence(lambda n: f'value{n}')
+
+
+class MessengerTypeFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.MessengerType
+
+    title = factory.Sequence(lambda n: f'title{n}')
+    code = factory.Sequence(lambda n: f'code{n}')

@@ -1,4 +1,5 @@
 import binascii
+import json
 import traceback
 
 import os
@@ -7,13 +8,13 @@ from django.contrib.auth import authenticate
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_auth.serializers import LoginSerializer
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import raise_errors_on_nested_writes
 from rest_framework.utils import model_meta
 from rest_framework.validators import UniqueTogetherValidator, qs_exists
 
-from apps.account.models import CustomUser as User, CustomUser
+from apps.account.models import CustomUser as User, CustomUser, UserMessenger, MessengerType
 from apps.group.models import Church, HomeGroup
 from apps.hierarchy.models import Department, Hierarchy
 from apps.location.api.serializers import CityReadSerializer
@@ -27,6 +28,7 @@ BASE_USER_FIELDS = (
     # 'username',
     'email', 'first_name', 'last_name', 'middle_name', 'search_name',
     'facebook', 'vkontakte', 'odnoklassniki', 'skype',
+    'messengers',
     'description', 'spiritual_level', 'sex',
 
     'phone_number', 'extra_phone_numbers',
@@ -156,9 +158,16 @@ class PartnerUserSerializer(serializers.ModelSerializer):
         fields = PARTNER_USER_FIELDS
 
 
+class UserMessengerField(serializers.JSONField):
+    def to_representation(self, value):
+        return [{'code': v['messenger__code'], 'value': v['value']} for v in value.values('messenger__code', 'value')]
+
+
 class BaseUserSerializer(serializers.ModelSerializer):
     partners = PartnershipSerializer(many=True, read_only=True)
     move_to_master = serializers.IntegerField(write_only=True, required=False)
+    # messengers = UserMessengerSerializer(many=True)
+    messengers = UserMessengerField(required=False)
 
     class Meta:
         model = User
@@ -210,6 +219,26 @@ class BaseUserSerializer(serializers.ModelSerializer):
                     {'message': _('The length of the phone number must be at least 10 digits')})
         return value
 
+    def validate_messengers(self, messengers):
+        error_message = _('Format must be: [{"code": "viber", "value": "+380XX111111"}, {...}, ...] ')
+        if not isinstance(messengers, (list, tuple)):
+            raise exceptions.ValidationError({'message': error_message})
+        for m in messengers:
+            if not isinstance(m, dict):
+                raise exceptions.ValidationError({'message': error_message})
+            if not ('code' in m and 'value' in m):
+                raise exceptions.ValidationError({'message': error_message, 'm': json.dumps(messengers)})
+        codes = [m['code'] for m in messengers]
+        if len(codes) != len(set(codes)):
+            raise exceptions.ValidationError({'message': _('Codes of messengers must be unique.')})
+        invalid_codes = set(codes) - set(MessengerType.objects.filter(code__in=codes).values_list('code', flat=True))
+        if len(invalid_codes) > 0:
+            raise exceptions.ValidationError({
+                'message': _('Invalid codes of the messengers [%s]') % ','.join(invalid_codes),
+            })
+
+        return messengers
+
     def validate(self, attrs):
         if 'master' in attrs.keys():
             if 'hierarchy' in attrs.keys():
@@ -239,6 +268,7 @@ class UserUpdateSerializer(BaseUserSerializer):
         markers = validated_data.pop('marker', None)
         master = validated_data.get('master', None)
         move_to_master = validated_data.pop('move_to_master', None)
+        messengers = validated_data.pop('messengers', None)
 
         if move_to_master is not None:
             disciples = user.disciples.all()
@@ -267,6 +297,16 @@ class UserUpdateSerializer(BaseUserSerializer):
             user.divisions.set(divisions)
         if markers is not None:
             user.marker.set(markers)
+        if messengers is not None:
+            for messenger in messengers:
+                messenger_type = MessengerType.objects.get(code=messenger['code'])
+                UserMessenger.objects.update_or_create(messenger=messenger_type, user=user, defaults={
+                    'value': messenger['value'],
+                    'display_position': messenger.get('position', 0),
+                })
+            del_messengers = UserMessenger.objects.filter(user=user)
+            del_messengers = del_messengers.exclude(messenger__code__in=[m['code'] for m in messengers])
+            del_messengers.delete()
 
         for profile in user.summit_profiles.all():
             profile.save()
@@ -329,6 +369,7 @@ class UserCreateSerializer(BaseUserSerializer):
         #     username = generate_key()
         validated_data['username'] = username
         master = validated_data.get('master')
+        messengers = validated_data.pop('messengers', None)
 
         raise_errors_on_nested_writes('create', self, validated_data)
 
@@ -371,6 +412,16 @@ class UserCreateSerializer(BaseUserSerializer):
             for field_name, value in many_to_many.items():
                 field = getattr(instance, field_name)
                 field.set(value)
+        if messengers is not None:
+            for messenger in messengers:
+                messenger_type = MessengerType.objects.get(code=messenger['code'])
+                UserMessenger.objects.update_or_create(messenger=messenger_type, user=instance, defaults={
+                    'value': messenger['value'],
+                    'display_position': messenger.get('position', 0),
+                })
+            del_messengers = UserMessenger.objects.filter(user=instance)
+            del_messengers = del_messengers.exclude(messenger__code__in=[m['code'] for m in messengers])
+            del_messengers.delete()
 
         return instance
 

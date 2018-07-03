@@ -8,7 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 
-from apps.account.models import CustomUser
+from apps.account.models import CustomUser, UserMessenger, MessengerType
 from apps.account.tests.conftest import get_values, change_field
 from apps.hierarchy.models import Hierarchy
 
@@ -32,6 +32,7 @@ FIELD_CODES = (
     ('address', 201),
     ('divisions', 201),
     ('spiritual_level', 201),
+    ('messengers', 201),
 
     # required fields
     ('first_name', 400),
@@ -67,6 +68,7 @@ CHANGE_FIELD = (
     ('master', 400),
     ('hierarchy', 400),
     ('language', 400),
+    ('messengers', 400),
 
     # unique
     ('first_name', 201),
@@ -122,9 +124,11 @@ class TestUserViewSet:
 
         assert user_dict == data
 
-    def test_partial_update_contact_info(self, user, api_login_client, user_factory):
+    def test_partial_update_contact_info(self, user, api_login_client, user_factory, messenger_type_factory):
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
+        messenger_type_factory(title='Telegram', code='telegram')
+        messenger_type_factory(title='Viber', code='viber')
         data = {
             'language': 'en',
             'phone_number': '+380886664422',
@@ -134,15 +138,23 @@ class TestUserViewSet:
             'facebook': 'http://fb.com/test',
             'vkontakte': 'http://vk.com/test',
             'odnoklassniki': 'http://ok.com/test',
+            'messengers': [
+                {'value': '+380777777777', 'code': 'viber'},
+                {'value': '+380999999999', 'code': 'telegram'},
+            ],
         }
         api_login_client.force_login(user=user_factory(is_staff=True))
         response = api_login_client.patch(url, data=data, format='json')
 
+        if response.status_code != 200:
+            assert response.data == ''
         assert response.status_code == status.HTTP_200_OK
 
+        data.pop('messengers', None)
         user_dict = dict(list(CustomUser.objects.filter(username='testuser').values(*data.keys()))[0])
 
         assert user_dict == data
+        assert UserMessenger.objects.filter(user=user, messenger__code__in=('telegram', 'viber')).count() == 2
 
     def test_partial_update_master_hierarchy_department(self, user, api_login_client, user_factory,
                                                         hierarchy_factory, department_factory):
@@ -413,6 +425,55 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 22
 
+    @pytest.mark.hh
+    @pytest.mark.parametrize('value,status_code', (
+            ([{'code': 'viber', 'value': 'viber any'}], 201),
+            ([{'code': 'telegram', 'value': 'telegram any'}], 201),
+            ([{'code': 'other', 'value': 'other any'}], 400),
+    ), ids=['viber', 'telegram', 'incorrect'])
+    def test_create_user_with_messenger(self, request, api_client, staff_user, user_data, value, status_code):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = get_values(user_data, request)
+        user_data['messengers'] = copy.deepcopy(value)
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == status_code
+
+    @pytest.mark.hh
+    def test_create_user_with_messenger_without_value(self, request, api_client, staff_user, user_data):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = get_values(user_data, request)
+        user_data['messengers'] = [{'code': 'viber'}]
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.hh
+    def test_create_user_with_messenger_without_code(self, request, api_client, staff_user, user_data):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = get_values(user_data, request)
+        user_data['messengers'] = [{'value': 'some value'}]
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.hh
+    def test_create_user_with_messenger_non_unique_code(self, request, api_client, staff_user, user_data):
+        url = reverse('users_v1_1-list')
+
+        api_client.force_login(user=staff_user)
+        user_data = get_values(user_data, request)
+        user_data['messengers'] = [{'code': 'viber', 'value': 'value1'}, {'code': 'viber', 'value': 'value2'}]
+        response = api_client.post(url, data=user_data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
     def test_create_user_with_all_fields(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -581,6 +642,7 @@ class TestUserViewSet:
         create_user_data = copy.deepcopy(user_data)
         divisions = create_user_data.pop('divisions')
         departments = create_user_data.pop('departments')
+        messengers = create_user_data.pop('messengers')
 
         create_user_data['hierarchy_id'] = create_user_data.pop('hierarchy')
         create_user_data['master_id'] = create_user_data.pop('master')
@@ -591,6 +653,14 @@ class TestUserViewSet:
         user = user_factory(**create_user_data)
         user.divisions.set(divisions)
         user.departments.set(departments)
+        user_messengers = list()
+        for m in messengers:
+            user_messengers.append(UserMessenger(
+                user=user,
+                messenger=MessengerType.objects.get(code=m['code']),
+                value=m['value'],
+            ))
+        UserMessenger.objects.bulk_create(user_messengers)
 
         url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
 
@@ -598,6 +668,71 @@ class TestUserViewSet:
         response = api_client.put(url, data=user_data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.hh
+    @pytest.mark.parametrize('value,status_code', (
+            ([{'code': 'viber', 'value': 'viber any'}], 200),
+            ([{'code': 'telegram', 'value': 'telegram any'}], 200),
+            ([{'code': 'other', 'value': 'other any'}], 400),
+    ), ids=['viber', 'telegram', 'incorrect'])
+    def test_update_user_with_messenger(
+            self, api_client, staff_user, user_factory, messenger_type_factory, value, status_code):
+        user = user_factory()
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        messenger_type_factory(title='Telegram', code='telegram')
+        messenger_type_factory(title='Viber', code='viber')
+
+        api_client.force_login(user=staff_user)
+        data = {'messengers': copy.deepcopy(value)}
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status_code
+
+    @pytest.mark.hh
+    def test_update_user_with_messenger_without_value(
+            self, api_client, staff_user, user_factory, messenger_type_factory):
+        user = user_factory()
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        messenger_type_factory(title='Telegram', code='telegram')
+        messenger_type_factory(title='Viber', code='viber')
+
+        api_client.force_login(user=staff_user)
+        data = {'messengers': [{'code': 'viber'}]}
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.hh
+    def test_update_user_with_messenger_without_code(
+            self, api_client, staff_user, user_factory, messenger_type_factory):
+        user = user_factory()
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        messenger_type_factory(title='Telegram', code='telegram')
+        messenger_type_factory(title='Viber', code='viber')
+
+        api_client.force_login(user=staff_user)
+        data = {'messengers': [{'value': 'some value'}]}
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    @pytest.mark.hh
+    def test_update_user_with_messenger_non_unique_code(
+            self, api_client, staff_user, user_factory, messenger_type_factory):
+        user = user_factory()
+        url = reverse('users_v1_1-detail', kwargs={'pk': user.id})
+
+        messenger_type_factory(title='Telegram', code='telegram')
+        messenger_type_factory(title='Viber', code='viber')
+
+        api_client.force_login(user=staff_user)
+        data = {'messengers': [{'code': 'viber', 'value': 'value1'}, {'code': 'viber', 'value': 'value2'}]}
+        response = api_client.patch(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     @pytest.mark.parametrize(
         'h1,h2', HIERARCHY_LEVELS_UP, ids=['{}->{}'.format(h[0], h[1]) for h in HIERARCHY_LEVELS_UP])

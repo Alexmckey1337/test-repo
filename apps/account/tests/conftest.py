@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 import pytest
 from pytest_factoryboy import register
 
-from apps.account.factories import UserFactory
+from apps.account.factories import UserFactory, UserMessengerFactory, MessengerTypeFactory
 from apps.account.models import CustomUser
 from apps.hierarchy.factories import HierarchyFactory, DepartmentFactory
 from apps.partnership.factories import PartnerFactory, DealFactory, PartnerRoleFactory
@@ -12,6 +12,8 @@ from apps.status.factories import DivisionFactory
 from apps.summit.factories import SummitFactory, SummitTypeFactory, SummitAnketFactory
 
 register(UserFactory)
+register(MessengerTypeFactory)
+register(UserMessengerFactory)
 register(CurrencyFactory)
 register(HierarchyFactory)
 register(DepartmentFactory)
@@ -114,7 +116,10 @@ def anket(summit_anket_factory, user, summit):
 
 
 @pytest.fixture
-def user_data():
+def user_data(messenger_type_factory):
+    messenger_type_factory(title='Telegram', code='telegram')
+    messenger_type_factory(title='Viber', code='viber')
+
     return {
         'email': 'test@email.com',
         'first_name': 'test_first',
@@ -142,6 +147,10 @@ def user_data():
         'master': Factory('user_factory'),
         'hierarchy': Factory('hierarchy_factory'),
         'divisions': FactoryList('division_factory', 4),
+        'messengers': [
+            {'value': '+380777777777', 'code': 'viber'},
+            {'value': '+380999999999', 'code': 'telegram'},
+        ],
     }
 
 

@@ -417,6 +417,14 @@ class UserMessenger(models.Model):
         verbose_name = _('User Messenger')
         verbose_name_plural = _('User Messengers')
 
+    @property
+    def code(self):
+        return self.messenger.code
+
+    @property
+    def title(self):
+        return self.messenger.title
+
 
 class Token(models.Model):
     """
