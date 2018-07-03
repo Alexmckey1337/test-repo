@@ -86,6 +86,14 @@ class HierarchyTitleSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
 
+class MasterTitleSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='fullname')
+
+    class Meta:
+        model = User
+        fields = ('id', 'title')
+
+
 class MasterNameSerializer(serializers.ModelSerializer):
     # hierarchy = HierarchyTitleSerializer()
 
@@ -595,3 +603,22 @@ class RestAuthLoginSerializer(LoginSerializer):
 
         attrs['user'] = user
         return attrs
+
+
+class VoUserSerializer(serializers.ModelSerializer):
+    locality = CityReadSerializer()
+    church = ChurchNameSerializer(source='get_church',read_only=True)
+    home_group = HomeGroupNameSerializer(source='get_home_group',read_only=True)
+    hierarchy = HierarchyTitleSerializer()
+    master = MasterTitleSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'first_name', 'last_name', 'middle_name',
+            'image',
+            'phone_number', 'extra_phone_numbers', 'email',
+            'locality', 'address',
+            'church', 'home_group',
+            'master', 'repentance_date', 'hierarchy'
+        )

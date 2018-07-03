@@ -238,7 +238,7 @@ class GroupUserPermission(models.Model):
 
     # TODO refactoring
     def get_church(self):
-        return self.cchurch or self.hhome_group.church if self.hhome_group else None
+        return self.cchurch or (self.hhome_group.church if self.hhome_group else None)
 
     # TODO refactoring
     def get_churches(self):

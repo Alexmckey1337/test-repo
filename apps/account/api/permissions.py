@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from common.permissions import BaseUserPermission
+from common.permissions import BaseUserPermission, can_vo_org_ua_key
 
 
 class IsSuperUser(BasePermission):
@@ -106,6 +106,14 @@ class EditUserPermission(BaseUserPermission):
         if not self.user.hierarchy:
             return queryset.none()
         return queryset
+
+
+class VoCanSeeUser(BasePermission):
+    def has_object_permission(self, request, view, custom_user):
+        """
+        Checking that the user can see custom_user
+        """
+        return can_vo_org_ua_key(request)
 
 
 # Account page: ``/account/<user_id>/``

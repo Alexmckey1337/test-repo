@@ -28,10 +28,10 @@ from apps.account.api.filters import (
 from apps.account.api.pagination import DashboardPagination
 from apps.account.api.permissions import (
     CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission,
-    EditUserPermission, ExportUserListPermission, IsSuperUser)
+    EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer, UserForSummitInfoSerializer)
+    HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -107,6 +107,16 @@ class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
         if self.request.query_params.get('without_pagination', None) is not None:
             return None
         return super().paginate_queryset(queryset)
+
+
+class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
+    queryset = User.objects.all()
+
+    serializer_class = VoUserSerializer
+    permission_classes = (VoCanSeeUser,)
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
 
 class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):
