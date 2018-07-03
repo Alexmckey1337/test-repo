@@ -1,4 +1,5 @@
 from datetime import timedelta
+from itertools import chain
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -42,12 +43,15 @@ class ProposalListView(LoginRequiredMixin, CanSeeProposalListMixin, ListView):
         )
         proposal_is_complete = (
                 Q(status__in=(settings.PROPOSAL_REJECTED, settings.PROPOSAL_PROCESSED)) &
-                Q(manager=self.request.user) &
-                Q(closed_at__gte=timezone.now() - timedelta(seconds=settings.CANCEL_CLOSE_TIME))
+                Q(manager=self.request.user)
         )
         qs = super().get_queryset().filter(
             proposal_is_open | proposal_in_progress | proposal_is_complete
         )
+        statuses = self.request.GET.getlist('status')
+        statuses = list(chain(*[s.split(',') for s in statuses]))
+        if all([status in dict(settings.PROPOSAL_STATUSES) for status in statuses]):
+            qs = qs.filter(status__in=statuses)
         return qs
 
 
@@ -61,6 +65,7 @@ class ProposalDetailView(LoginRequiredMixin, CanSeeProposalDetailMixin, DetailVi
         ctx = super().get_context_data(**kwargs)
 
         ctx['sex_options'] = CustomUser.SEX
+        ctx['people_lang_options'] = [{'id': l[0], 'title': l[1]} for l in CustomUser.LANGUAGES]
 
         similar_users = CustomUser.objects.filter(is_active=True)
         similar_users = similar_users.filter(
