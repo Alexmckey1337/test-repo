@@ -116,6 +116,14 @@ class VoCanSeeUser(BasePermission):
         return can_vo_org_ua_key(request)
 
 
+class VoCanSeeMessengers(BasePermission):
+    def has_object_permission(self, request, view, custom_user):
+        """
+        Checking that the user can see messengers
+        """
+        return can_vo_org_ua_key(request)
+
+
 # Account page: ``/account/<user_id>/``
 
 

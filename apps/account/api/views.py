@@ -28,16 +28,16 @@ from apps.account.api.filters import (
 from apps.account.api.pagination import DashboardPagination
 from apps.account.api.permissions import (
     CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission,
-    EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser)
+    EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser, VoCanSeeMessengers)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer)
+    HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer, VoMasterSerializer, VoMessengerSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
     UserCreateSerializer, DashboardSerializer, DuplicatesAvoidedSerializer,
 )
-from apps.account.models import CustomUser as User
+from apps.account.models import CustomUser as User, MessengerType
 from apps.account.resources import UserResource
 from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
@@ -117,6 +117,32 @@ class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+
+class VoMasterDetailView(GenericAPIView):
+    queryset = User.objects.all()
+
+    serializer_class = VoMasterSerializer
+    permission_classes = (VoCanSeeUser,)
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+        master = user.master
+        if master is None:
+            return Response({"detail": "У пользователя нет ответственного."})
+        serializer = self.get_serializer(master)
+        return Response(serializer.data)
+
+
+class VoMessengerListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = MessengerType.objects.order_by('display_position', 'pk')
+
+    serializer_class = VoMessengerSerializer
+    permission_classes = (VoCanSeeMessengers,)
+    pagination_class = None
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class PartnerManagersView(mixins.ListModelMixin, GenericAPIView):

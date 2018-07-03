@@ -31,6 +31,8 @@ custom_v1_1_urls = [
     path('change_asterisk_user/', calls_views.change_asterisk_user, name='change_asterisk_user'),
 
     path('vo/users/<int:pk>/', views.VoUserDetailView.as_view(), name='vo-user-detail'),
+    path('vo/users/<int:pk>/master/', views.VoMasterDetailView.as_view(), name='vo-master-detail'),
+    path('vo/messengers/', views.VoMessengerListView.as_view(), name='vo-messenger-list'),
 ]
 
 urlpatterns = [

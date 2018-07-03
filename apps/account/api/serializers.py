@@ -622,3 +622,27 @@ class VoUserSerializer(serializers.ModelSerializer):
             'church', 'home_group',
             'master', 'repentance_date', 'hierarchy'
         )
+
+
+class VoMasterSerializer(serializers.ModelSerializer):
+    hierarchy = HierarchyTitleSerializer()
+    messengers = UserMessengerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'first_name', 'last_name', 'middle_name',
+            'phone_number', 'extra_phone_numbers', 'email',
+            'hierarchy',
+            'messengers',
+        )
+
+
+class VoMessengerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessengerType
+        fields = (
+            'id',
+            'code', 'title', 'icon',
+        )
