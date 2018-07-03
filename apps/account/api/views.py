@@ -31,7 +31,8 @@ from apps.account.api.permissions import (
     EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser, VoCanSeeMessengers)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
-    HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer, VoMasterSerializer, VoMessengerSerializer)
+    HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer, VoMasterSerializer, VoMessengerSerializer,
+    VoUserUpdateSerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -109,6 +110,19 @@ class UserForSelectView(mixins.ListModelMixin, GenericAPIView):
         return super().paginate_queryset(queryset)
 
 
+class VoUserUpdateView(mixins.UpdateModelMixin, GenericAPIView):
+    queryset = User.objects.all()
+    serializer_class = VoUserUpdateSerializer
+    permission_classes = (VoCanSeeUser,)
+
+    parser_classes = (MultiPartAndJsonParser, JSONParser, FormParser)
+
+    parser_list_fields = ['extra_phone_numbers']
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
 class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
     queryset = User.objects.all()
 
@@ -117,6 +131,9 @@ class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return VoUserUpdateView.as_view()(request._request, *args, **kwargs)
 
 
 class VoMasterDetailView(GenericAPIView):

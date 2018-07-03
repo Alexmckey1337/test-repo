@@ -624,6 +624,34 @@ class VoUserSerializer(serializers.ModelSerializer):
         )
 
 
+class VoUserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'image',
+            'phone_number', 'extra_phone_numbers', 'email',
+        )
+
+    @staticmethod
+    def make_phone_number(phone_number):
+        return '+' + ''.join([x for x in phone_number if x.isdigit()])
+
+    def validate_phone_number(self, value):
+        value = self.make_phone_number(value)
+        if len(value) < 11:
+            raise serializers.ValidationError(
+                {'message': _('The length of the phone number must be at least 10 digits')})
+        return value
+
+    def validate_extra_phone_numbers(self, value):
+        extra_phone_numbers = [self.make_phone_number(number) for number in value]
+        for number in extra_phone_numbers:
+            if len(number) < 11:
+                raise serializers.ValidationError(
+                    {'message': _('The length of the phone number must be at least 10 digits')})
+        return value
+
+
 class VoMasterSerializer(serializers.ModelSerializer):
     hierarchy = HierarchyTitleSerializer()
     messengers = UserMessengerField(read_only=True)
