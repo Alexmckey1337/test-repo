@@ -190,7 +190,19 @@ class EventProposal(AbstractProposal):
     )
 
     def __str__(self):
-        return self.user or 'Unknown user'
+        return str(self.user) or 'Unknown user'
+
+    def info_to_table_data(self):
+        info = self.info
+        result = dict()
+        if isinstance(info, (list, tuple)):
+            for i, v in enumerate(info):
+                result[i+1] = v
+        elif isinstance(info, dict):
+            result = info
+        else:
+            result["info"] = str(info)
+        return result
 
 
 class EventHistory(models.Model):

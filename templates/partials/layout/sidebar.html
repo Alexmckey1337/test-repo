@@ -67,8 +67,12 @@
     {% if user.is_staff %}
         <div class="bottom-sidebar">
             <ul>
-                <li class="menu__item menu__item_proposal">
-                    <a href="{% url "proposal:list" %}"><i class="fa fa-list-alt"></i></a>
+                <li><a data-title="Заявки" href="#" id="proposals__item" class="menu__item"></a>
+                    <ul class="sidebar-submenu">
+                        <li class="menu__item_title">Заявки</li>
+                        <li><a href="{% url "proposal:list" %}">{% trans "Люди" %}</a></li>
+                        <li><a href="{% url "proposal:event-list" %}">{% trans "События" %}</a></li>
+                    </ul>
                 </li>
                 <li class="menu__item">
                     <i class="material-icons">&#xE5C3;</i>

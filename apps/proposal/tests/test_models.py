@@ -1,6 +1,6 @@
 import pytest
 
-from apps.proposal.models import History
+from apps.proposal.models import History, EventHistory
 
 
 @pytest.mark.django_db
@@ -34,9 +34,15 @@ class TestProposal:
         assert got == expected
 
 
-
 @pytest.mark.django_db
 def test_create_history_record_when_created_proposal(proposal_factory):
     proposal = proposal_factory()
 
     assert History.objects.filter(proposal=proposal).exists()
+
+
+@pytest.mark.django_db
+def test_create_event_history_record_when_created_event_proposal(event_proposal_factory):
+    proposal = event_proposal_factory()
+
+    assert EventHistory.objects.filter(proposal=proposal).exists()

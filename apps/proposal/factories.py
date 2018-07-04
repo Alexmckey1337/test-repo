@@ -25,3 +25,20 @@ class HistoryFactory(factory.DjangoModelFactory):
     proposal = factory.SubFactory('apps.proposal.factories.ProposalFactory')
     status = settings.PROPOSAL_OPEN
     reason = models.History.CREATE
+
+
+class EventProposalFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.EventProposal
+
+    user = factory.SubFactory('apps.account.factories.UserFactory')
+    info = factory.Sequence(lambda n: f'info{n:0>6}')
+
+
+class EventHistoryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.EventHistory
+
+    proposal = factory.SubFactory('apps.proposal.factories.EventProposalFactory')
+    status = settings.PROPOSAL_OPEN
+    reason = models.EventHistory.CREATE

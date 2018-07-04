@@ -1,4 +1,3 @@
-from datetime import timedelta
 from itertools import chain
 
 from django.conf import settings
@@ -11,7 +10,7 @@ from django.views.generic import ListView, DetailView
 
 from apps.account.models import CustomUser
 from apps.proposal.api.permissions import can_see_proposal_list, can_see_proposal
-from apps.proposal.models import Proposal
+from apps.proposal.models import Proposal, EventProposal
 
 
 class CanSeeProposalListMixin(View):
@@ -29,11 +28,9 @@ class CanSeeProposalDetailMixin(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ProposalListView(LoginRequiredMixin, CanSeeProposalListMixin, ListView):
-    model = Proposal
+class ProposalListMixin(LoginRequiredMixin, CanSeeProposalListMixin, ListView):
     context_object_name = 'proposals'
     login_url = 'entry'
-    template_name = 'proposal/list.html'
 
     def get_queryset(self):
         proposal_is_open = Q(status__in=(settings.PROPOSAL_OPEN, settings.PROPOSAL_REOPEN))
@@ -48,24 +45,31 @@ class ProposalListView(LoginRequiredMixin, CanSeeProposalListMixin, ListView):
         qs = super().get_queryset().filter(
             proposal_is_open | proposal_in_progress | proposal_is_complete
         )
-        statuses = self.request.GET.getlist('status')
+        statuses = self.request.GET.getlist('status', [])
         statuses = list(chain(*[s.split(',') for s in statuses]))
-        if all([status in dict(settings.PROPOSAL_STATUSES) for status in statuses]):
+        if statuses and all([status in dict(settings.PROPOSAL_STATUSES) for status in statuses]):
             qs = qs.filter(status__in=statuses)
         return qs
 
 
-class ProposalDetailView(LoginRequiredMixin, CanSeeProposalDetailMixin, DetailView):
-    model = Proposal
+class ProposalDetailMixin(LoginRequiredMixin, CanSeeProposalDetailMixin, DetailView):
     context_object_name = 'proposal'
     login_url = 'entry'
+
+
+class ProposalListView(ProposalListMixin):
+    model = Proposal
+    template_name = 'proposal/list.html'
+
+
+class ProposalDetailView(ProposalDetailMixin):
+    model = Proposal
     template_name = 'proposal/detail.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
         ctx['sex_options'] = CustomUser.SEX
-        ctx['people_lang_options'] = [{'id': l[0], 'title': l[1]} for l in CustomUser.LANGUAGES]
 
         similar_users = CustomUser.objects.filter(is_active=True)
         similar_users = similar_users.filter(
@@ -75,3 +79,13 @@ class ProposalDetailView(LoginRequiredMixin, CanSeeProposalDetailMixin, DetailVi
         ctx['similar_users'] = similar_users
 
         return ctx
+
+
+class EventProposalListView(ProposalListMixin):
+    model = EventProposal
+    template_name = 'proposal_event/list.html'
+
+
+class EventProposalDetailView(ProposalDetailMixin):
+    model = EventProposal
+    template_name = 'proposal_event/detail.html'

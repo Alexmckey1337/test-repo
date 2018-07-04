@@ -1,0 +1,98 @@
+{% load i18n %}
+{% load static %}
+
+<div class="container">
+    <div class="proposal">
+        <div class="proposal__wrap">
+            <div class="proposal__info">
+                <h2>{% trans "Status" %}:
+                    {% if proposal.get_status_display == 'В процессе' %}В работе
+                    {% elif proposal.get_status_display == 'Reopen' %}Открыта повторно
+                    {% elif proposal.get_status_display == 'Rejected' %}Отклонена
+                    {% elif proposal.get_status_display == 'Processed' %}Выполнена
+                    {% elif proposal.get_status_display == 'Открыто' %}Открыта
+                    {% else %}{{ proposal.get_status_display }}
+                    {% endif %}
+                </h2>
+                {% if proposal.is_open %}
+                    {% include "proposal_event/partials/proposal_card.html" %}
+                    <button id="proposalStatus" class="add"
+                            data-type="receive"
+                            data-id="{{ proposal.id }}">
+                        {% trans "Взять в работу" %}
+                    </button>
+                {% elif proposal.in_progress %}
+                    {% if request.user == proposal.manager %}
+                        {% include "proposal_event/partials/proposal_card.html" %}
+                        <button id="proposalStatus" class="reload"
+                                data-type="reopen"
+                                data-id="{{ proposal.id }}">
+                            {% trans "Переоткрыть" %}
+                        </button>
+                        <button id="proposalReject" class="close close-popup"
+                                data-id="{{ proposal.id }}">
+                            {% trans "Отклонить" %}
+                        </button>
+                        </div>
+                        <div class="proposal__similar">
+                            {% include "proposal_event/partials/similar_users.html" %}
+                        </div>
+                    {% else %}
+                           <p>Ошибка доступа</p>
+                    {% endif %}
+                {% elif proposal.is_complete %}
+                    {% if proposal.get_status_display == 'Rejected' %}
+                    <p class="comment">{{ proposal.note|default_if_none:" " }}</p>
+                    {% endif %}
+                    {% if request.user == proposal.manager %}
+                        {% include "proposal_event/partials/proposal_card.html" %}
+                        <button id="proposalStatus" class="reply"
+                                data-type="receive"
+                                data-id="{{ proposal.id }}">
+                            {% trans "Вернуть в работу" %}
+                        </button>
+                    {% else %}
+                        <p>Ошибка доступа</p>
+                    {% endif %}
+                {% else %}
+                    <p>Неверный статус</p>
+                {% endif %}
+    </div>
+</div>
+<div class="proposal__log">
+        <table>
+            <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Кто изменял</th>
+                <th>Менеджер</th>
+                <th>Пользователь</th>
+                <th>Статус</th>
+                <th>Комментарии</th>
+                <th>Дата закрытия</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for log in proposal.histories.all %}
+                    <tr>
+                        <td>{{ log.created_at|default:"" }}</td>
+                        <td>{{ log.owner|default:"" }}</td>
+                        <td>{{ log.manager|default:"" }}</td>
+                        <td>{{ log.profile|default:"" }}</td>
+                        <td>{% if log.status  %}
+                                {% if log.status == 'in_progress' %}В работе
+                                {% elif log.status == 'reopen' %}Открыта повторно
+                                {% elif log.status == 'rejected' %}Отклонена
+                                {% elif log.status == 'processed' %}Выполнена
+                                {% elif log.status == 'open' %}Открыта
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>{% if log.note %}{{ log.note }}{% endif %}</td>
+                        <td>{% if log.closed_at %}{{ log.closed_at }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -75,7 +75,6 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
                                   {'id': 'any', 'title': 'ЛЮБАЯ'},
                                   {'id': 'nothing', 'title': 'НЕТ'},
                               ] + [{'id': c.id, 'title': c.get_title} for c in Church.objects.all()],
-            'people_lang_options': [{'id': l[0], 'title': l[1]} for l in CustomUser.LANGUAGES]
         }
         user = self.request.user
         if user.is_staff:

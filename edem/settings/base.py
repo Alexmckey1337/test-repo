@@ -137,7 +137,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'apps.notification.context_processor.notifications',
-                'common.context_processor.true_false_options',
+                'common.context_processor.select_options',
                 'common.context_processor.crm_version',
                 'common.context_processor.currency',
                 'apps.account.context_processor.spiritual_levels',

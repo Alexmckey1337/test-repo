@@ -200,6 +200,13 @@ const PROPOSAL = {
 	process: (id) => `/api/proposal/${id}/process/`,
 };
 
+const EVENT_PROPOSAL = {
+	receive: (id) => `/api/event_proposal/${id}/receive/`,
+	reopen: (id) => `/api/event_proposal/${id}/reopen/`,
+	reject: (id) => `/api/event_proposal/${id}/reject/`,
+	process: (id) => `/api/event_proposal/${id}/process/`,
+};
+
 const URLS = {
 	login: () => `/api/login/`,
 	logout: () => `/api/logout/`,
@@ -238,6 +245,7 @@ const URLS = {
 	phone: PHONE,
 	export: EXPORT,
 	proposal: PROPOSAL,
+	event_proposal: EVENT_PROPOSAL,
 };
 
 export default URLS;

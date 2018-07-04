@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load static %}
+<form id="proposalForm">
+    <div class="proposal__info">
+        <label for="id_user">{% trans "User" %}
+            <input type="text" id="id_user" name="user" value='{{ proposal.user|default_if_none:" "}}'
+                   disabled>
+        </label>
+    </div>
+    <div class="proposal__info">
+        <h2>Info</h2>
+        {% for k, v in proposal.info_to_table_data.items %}
+            <label for="id_{{ k }}">{{ k }}
+                <input type="text" id="id_{{ k }}" name="{{ k }}" value="{{ v|default_if_none:" " }}" disabled>
+            </label>
+        {% endfor %}
+    </div>
+</form>
