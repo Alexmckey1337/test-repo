@@ -117,7 +117,7 @@ class VoCanSeeUser(BasePermission):
 
 
 class VoCanSeeMessengers(BasePermission):
-    def has_object_permission(self, request, view, custom_user):
+    def has_permission(self, request, view):
         """
         Checking that the user can see messengers
         """

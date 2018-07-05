@@ -396,7 +396,7 @@ Create new proposal
 
     .. sourcecode:: http
 
-        POST /api/vo/proposal/create/ HTTP/1.1
+        POST /api/proposal/create/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
         content-type: application/json
@@ -471,7 +471,7 @@ Create new proposal
 
     .. sourcecode:: http
 
-        GET /api/vo/proposal/create/ HTTP/1.1
+        GET /api/proposal/create/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
 
@@ -631,3 +631,439 @@ List of proposals
 
     :statuscode 200: no error
     :statuscode 403: forbidden
+
+
+Users
+-----
+
+
+List of the messengers
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/vo/messengers/
+
+    List of the messengers.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/messengers/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        [
+            {
+                "id": 2,
+                "code": "telegram",
+                "title": "Telegram",
+                "icon": null
+            },
+            {
+                "id": 3,
+                "code": "skype",
+                "title": "Skype",
+                "icon": null
+            },
+            {
+                "id": 1,
+                "code": "viber",
+                "title": "Viber",
+                "icon": null
+            }
+        ]
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/messengers/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden
+
+
+User information
+~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/vo/users/<user_id>/
+
+    User information
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "first_name": "Myname",
+            "last_name": "Yourname",
+            "middle_name": "",
+            "image": "https://s3.eu-central-1.amazonaws.com/bucketname/folders/filename.png",
+            "phone_number": "+380669992233",
+            "extra_phone_numbers": [
+                "380996665544",
+                "156464564846"
+            ],
+            "email": "best@mail.address",
+            "locality": {
+                "id": 4910,
+                "name": "Киев",
+                "country_name": "Украина",
+                "area_name": "Киевская область",
+                "district_name": "місто Київ"
+            },
+            "address": "ул. Blablabla, 42",
+            "church": {
+                "id": 11111,
+                "title": "my church"
+            },
+            "home_group": {
+                "id": 22222,
+                "title": "my home group"
+            },
+            "master": {
+                "id": 66666,
+                "title": "Last First Middle"
+            },
+            "repentance_date": "22.02.2002,
+            "hierarchy": {
+                "id": 8,
+                "title": "Старший епископ",
+                "level": 60
+            }
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    **Example request (not found)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444222/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response (not found)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Не найдено"}
+
+    :>json string first_name: first name of the user, can be empty
+    :>json string last_name: last name of the user, can be empty
+    :>json string middle_name: middle name of the user, can be empty
+    :>json string phone_number: phone number of the user, can be empty
+    :>json list extra_phone_numbers: additional phones of the user, can be empty
+    :>json string email: email of the user, can be empty
+    :>json object locality: city of the user, can be null
+    :>json string address: address of the user, can be empty
+    :>json object church: church of the user, can be null
+    :>json object home_group: home group of the user, can be null
+    :>json object master: master of the user, can be null
+    :>json string repentance_date: repentance date of the user, can be empty, format: ``DD.MM.YYYY``
+    :>json object hierarchy: hierarchy of the user
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden
+    :statuscode 404: page not found
+
+
+
+Master information
+~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/vo/users/<user_id>/master/
+
+    Information about master of the user.
+    If user don't have master (responsible) — it's correct and status_code == 200.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444/master/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "id": 66666,
+            "first_name": "First",
+            "last_name": "Last",
+            "middle_name": "Middle",
+            "phone_number": "+380994446644",
+            "extra_phone_numbers": ["+380446664466", "+380664446644"],
+            "email": "master@mail.address",
+            "hierarchy": {
+                "id": 8,
+                "title": "Старший епископ",
+                "level": 60
+            },
+            "messengers": [
+                {
+                    "code": "telegram",
+                    "value": "+38099telegram"
+                },
+                {
+                    "code": "skype",
+                    "value": "skype.name.microsoft"
+                }
+            ]
+        }
+
+    **Example response (user don't have master)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "У пользователя нет ответственного."
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444/master/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    **Example request (not found)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444222/master/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response (not found)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 404 Not Found
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Не найдено"}
+
+    :>json int id: id of the master
+    :>json string first_name: first name of the master, can be empty
+    :>json string last_name: last name of the master, can be empty
+    :>json string middle_name: middle name of the master, can be empty
+    :>json string phone_number: phone number of the master, can be empty
+    :>json list extra_phone_numbers: additional phones of the master, can be empty
+    :>json string email: email of the master, can be empty
+    :>json object hierarchy: hierarchy of the master
+    :>json list messengers: list of the messengers of the master, can be empty
+    :>json object messengers[n]: messenger of the master
+    :>json string messengers[n].code: code of the messenger, see `List of the messengers`_
+    :>json string messengers[n].value: phone number of the messenger, or nickname, username, etc
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden
+    :statuscode 404: page not found
+
+
+
+
+Update user information
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:patch:: /api/vo/users/<user_id>/
+
+    Update user information
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        PATCH /api/vo/users/444/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+        content-type: multipart/form-data; boundary=X-VOCRM-BOUNDARY
+        content-length: 804
+
+        --X-VOCRM-BOUNDARY
+        Content-Disposition: form-data; name="image"; filename="filename.png"
+        Content-Type: image/png
+        ?PNG
+        .
+        ..
+
+        --X-INSOMNIA-BOUNDARY
+        Content-Disposition: form-data; name="phone_number"
+        38(099)666-44-66
+        --X-INSOMNIA-BOUNDARY
+        Content-Disposition: form-data; name="extra_phone_numbers"
+        ["380996665544","156464564846"]
+        --X-INSOMNIA-BOUNDARY
+        Content-Disposition: form-data; name="email"
+        best@mail.address
+        --X-INSOMNIA-BOUNDARY--
+
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: PATCH, OPTIONS
+        Content-Type: application/json
+
+        {
+            "image": "https://s3.eu-central-1.amazonaws.com/bucket/folders/filename.png",
+            "phone_number": "+380996664466",
+            "extra_phone_numbers": [
+                "380996665544",
+                "156464564846"
+            ],
+            "email": "best@mail.address"
+        }
+
+    **Example request (bad request)**:
+
+    .. sourcecode:: http
+
+        PATCH /api/vo/users/444/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+        content-type: multipart/form-data; boundary=X-VOCRM-BOUNDARY
+        content-length: 104
+
+        --X-INSOMNIA-BOUNDARY
+        Content-Disposition: form-data; name="phone_number"
+        38(099)
+        --X-INSOMNIA-BOUNDARY
+
+    **Example response (invalid phone number)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: PATCH, OPTIONS
+        Content-Type: application/json
+
+        {
+            "phone_number": {
+                "message": "The length of the phone number must be at least 10 digits"
+            }
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/users/444/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form image: user photo, optional
+    :form phone_number: user phone number, optional, must be >= 10 digits
+    :form extra_phone_number: user additional phone numbers, optional, each must be >= 10 digits,
+        format: ``'["firstnumber", "secondnumber", "thirdnumber"]'``
+    :form email: user email, optional, correct email address
+
+    :reqheader Content-Type: ``multipart/form-data``
+
+    :statuscode 200: success update
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
