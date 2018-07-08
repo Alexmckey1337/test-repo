@@ -250,6 +250,80 @@ class SummitProfileListView(TableViewMixin, SummitProfileListMixin):
         return qs.for_user(self.request.user)
 
 
+class SummitTicketsView(GenericAPIView):
+    filter_class = ProfileFilter
+    ordering_fields = (
+        'first_name', 'last_name', 'responsible', 'author__last_name',
+        'spiritual_level', 'divisions_title', 'department', 'user__facebook', 'country', 'city',
+        'code', 'value', 'description',
+        'middle_name', 'user__born_date', 'country',
+        'user__region', 'city', 'user__district',
+        'user__address', 'user__phone_number',
+        'user__email', 'hierarchy__level', 'ticket_status', 'status__reg_code_requested', 'has_email'
+    )
+    filter_backends = (
+        rest_framework.DjangoFilterBackend,
+        OrderingFilterWithPk,
+        FieldSearchFilter,
+        FilterProfileAuthorTree,
+        FilterByClub,
+        HasPhoto,
+        FilterByRegCode,
+        FilterByHasEmail,
+        FilterIsPartner,
+        FilterHasAchievement,
+        FilterBySummitAttend,
+        FilterByElecTicketStatus,
+        FilterByTicketMultipleStatus,
+        ProfileFilterByPaymentStatus,
+    )
+
+    field_search_fields = {
+        'search_fio': ('last_name', 'first_name', 'middle_name', 'search_name', 'code'),
+        'search_email': ('user__email',),
+        'search_phone_number': ('user__phone_number',),
+        'search_country': ('country',),
+        'search_city': ('city',),
+    }
+    summit = None
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        # ``summit`` consultant or high
+        if not CanSeeSummitProfiles().has_object_permission(request, self, self.summit):
+            self.permission_denied(
+                request, message=getattr(CanSeeSummitProfiles, 'message', None)
+            )
+
+    def post(self, request, *args, **kwargs):
+        self.summit = get_object_or_404(Summit, pk=kwargs.get('pk', None))
+        filename = request.query_params.get('file_name', f'Ticket-{timezone.now().strftime("%Y-%m-%dT%H:%M:%S%z")}')
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        profiles = list(queryset.order_by('id').values_list('id', 'code'))
+
+        profile_ids, profile_codes = list(), list()
+        for p in profiles:
+            profile_ids.append(p[0])
+            profile_codes.append(p[1])
+        ticket = SummitTicket.objects.create(
+            summit_id=self.summit.id,
+            owner=request.user,
+            title=filename
+        )
+        logger.info('New ticket: {}'.format(ticket.id))
+        ticket.users.set(profile_ids)
+
+        result = generate_tickets.apply_async(args=[self.summit.id, profile_ids, profile_codes, ticket.id, filename])
+        logger.info('generate_ticket: {}'.format(result))
+
+        return Response(data={'ticket_id': ticket.id})
+
+    def get_queryset(self):
+        return self.summit.ankets.all()
+
+
 class SummitBishopHighMasterListView(SummitProfileListMixin):
     serializer_class = MasterSerializer
     permission_classes = (IsAuthenticated,)

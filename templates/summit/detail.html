@@ -56,6 +56,9 @@
                     <li>
                         <button id="load-tickets"><i class="fa fa-address-card-o" aria-hidden="true"></i></button>
                     </li>
+                    <li>
+                        <button data-tickets-url="{% url "summit-tickets" pk=summit.id %}" id="load_selected_tickets">Создать билеты</button>
+                    </li>
                 {% endif %}
             </ul>
         </div>
@@ -165,37 +168,6 @@
             </div>
         </div>
     </div>
-{#    <div id="popupForNew" class="pop-up-splash">#}
-{#        <div class="flex-wrap">#}
-{#            <div class="splash-screen">#}
-{#                <div class="top-text">#}
-{#                    <h3><span>←</span> Информация об участнике</h3>#}
-{#                </div>#}
-{#                <div class="user-info">#}
-{#                    <div class="left-side">#}
-{#                        <p>Клиент:</p>#}
-{#                        <p>Ответственный:</p>#}
-{#                    </div>#}
-{#                    <div class="right-side">#}
-{#                        <p id="client-nameNew"></p>#}
-{#                        <p id="responsible-nameNew"></p>#}
-{#                    </div>#}
-{#                </div>#}
-{#                <div class="summa-wrap">#}
-{#                    <div class="code">#}
-{#                        <input placeholder="Номер пропуска" onkeypress="return event.charCode >= 48 && event.charCode <= 57"#}
-{#                               type="text" id="code">#}
-{#                        <input id="check" type="checkbox">#}
-{#                    </div>#}
-{#                </div>#}
-{#                <textarea placeholder="Добавить коментарий"></textarea>#}
-{#                <div class="splash-bauttons">#}
-{#                    <button class="close-popup">Отменить</button>#}
-{#                    <button id="completeNew">Завершить</button>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div><!--End Pop-up-splash-->#}
     {% include 'partials/create_user.html' with addToSummit="true" %}
     {% include "payment/partials/create_payment.html" with hideData="true" multiCurrency="true" %}
 

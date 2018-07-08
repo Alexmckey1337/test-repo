@@ -10,13 +10,15 @@ import 'inputmask/dist/inputmask/inputmask.js';
 import 'inputmask/dist/inputmask/jquery.inputmask.js';
 import 'inputmask/dist/inputmask/inputmask.phone.extensions.js';
 import 'inputmask/dist/inputmask/phone-codes/phone.js';
+import moment from 'moment/min/moment.min.js';
 import URLS from './modules/Urls/index';
-import getData, {deleteData, postData} from "./modules/Ajax/index";
+import getData, {deleteData, postData, loadTickets} from "./modules/Ajax/index";
+import getSearch from './modules/Search/index';
 import ajaxRequest from './modules/Ajax/ajaxRequest';
-import {applyFilter, refreshFilter} from "./modules/Filter/index";
+import {applyFilter, refreshFilter, getFilterParam} from "./modules/Filter/index";
 import updateSettings from './modules/UpdateSettings/index';
 import exportTableData from './modules/Export/index';
-import {showAlert, showConfirm} from "./modules/ShowNotifications/index";
+import {showAlert, showConfirm, showPromt} from "./modules/ShowNotifications/index";
 import reverseDate from './modules/Date';
 import {convertNum} from "./modules/ConvertNum/index";
 import {
@@ -64,6 +66,49 @@ $(document).ready(function () {
 
 	$('#export_table').on('click', function () {
 		exportTableData(this);
+	});
+	$('#load_selected_tickets').on('click', function () {
+		console.log('tete');
+		let url, filter, filterKeys, items, count;
+		let el = this;
+		showPromt('Загрузка отфильтрованных билетов', 'Введите имя файла', `Tickets-${moment().format('YYYY-MM-DD_HH:mm:ss')}`, (evt, value) => {
+			let perVal = value.replace(/^\s+|\s+$/g, '');
+			if (!perVal) {
+				showAlert('Имя файла не введено. Повторите попытку');
+				return;
+			}
+			showAlert('Запрос отправлен в обработку. После завершения формирования файла Вы будете оповещены');
+			$('.preloader').css('display', 'none');
+			url = ($(el).attr('data-tickets-url')) ? $(el).attr('data-tickets-url') : '';
+			filter = Object.assign(getFilterParam(), getSearch('search_fio'), {});
+			filterKeys = Object.keys(filter);
+			if (filterKeys && filterKeys.length) {
+				url += '?';
+				items = filterKeys.length;
+				count = 0;
+				filterKeys.forEach(function (key) {
+					count++;
+					if (Array.isArray(filter[key])) {
+						if (filter[key].length < 1) {
+							return
+						}
+						let filterItemValues = Object.values(filter[key]);
+						filterItemValues.forEach(value => {
+							url += `${key}=${value}&`;
+						})
+					} else {
+						url += `${key}=${filter[key]}&`;
+					}
+				})
+			}
+			(Object.keys(filter).length == 0) ? url += `?file_name=${value.trim()}` : url += `file_name=${value.trim()}`;
+			let data = {};
+			loadTickets(url, data).catch(function () {
+				$('.preloader').css('display', 'none');
+				showAlert('Ошибка при загрузке файла');
+			});
+		}, () => {
+		});
 	});
 
 	createSummitUsersTable({summit: SUMMIT_ID});

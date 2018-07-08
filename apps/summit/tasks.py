@@ -151,9 +151,10 @@ def check_send_email_with_code_state(task_id, profile_id, sender_id):
 
 
 @app.task(max_retries=10, default_retry_delay=10 * 60)
-def generate_tickets(summit_id, profile_ids, profile_codes, ticket_id):
+def generate_tickets(summit_id, profile_ids, profile_codes, ticket_id, filename=''):
     pdf = SummitTicketPDF(profile_ids).generate_pdf()
-    pdf_name = '{}_{}-{}.pdf'.format(summit_id, min(profile_codes), max(profile_codes))
+    pdf_name = filename or '{}_{}-{}'.format(summit_id, min(profile_codes), max(profile_codes))
+    pdf_name += '.pdf'
 
     ticket = SummitTicket.objects.get(id=ticket_id)
 
