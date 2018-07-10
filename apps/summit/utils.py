@@ -643,11 +643,11 @@ class SummitTicketPDF:
 
         self._data = None
 
-        self.default_background_name = 'background_summit_11.png'
+        self.default_background_name = 'background_summit_11.jpg'
         self._default_background = None
 
         self.unit = unit or mm
-        self._width = 210 # 210
+        self._width = 58 # 210
         self._height = 90 # 90
 
         self._init_styles()
@@ -716,7 +716,7 @@ class SummitTicketPDF:
 
     def add_profile(self, profile):
         if profile.id not in self._data:
-            name = profile.user_name.split(maxsplit=1)
+            name = profile.user_name.split(maxsplit=2)
             author_name = profile.author_name.split(maxsplit=1)
             self._data[profile.id] = {
                 'name': profile.user_name,
@@ -741,7 +741,7 @@ class SummitTicketPDF:
 
     def set_bg_page(self, bg):
         try:
-            self.canvas.drawImage(bg, 3 * mm, 3 * mm, width=self.width, height=self.height, mask='auto')
+            self.canvas.drawImage(bg, 0, 0, width=self.width, height=self.height, mask='auto')
         except OSError:
             pass
 
@@ -753,7 +753,10 @@ class SummitTicketPDF:
             im = Image.open(src)
             im = to_circle(im)
             ir = ImageReader(im)
-            self.canvas.drawImage(ir, 20 * mm, 17 * mm, width=40 * mm, height=40 * mm, mask='auto')
+            d = 24 * mm
+            w = (self.width - d) / 2
+            h = (self.height - d) / 2
+            self.canvas.drawImage(ir, w, h, width=d, height=d, mask='auto')
         except (ValueError, OSError):
             pass
 
@@ -770,34 +773,37 @@ class SummitTicketPDF:
 
     def set_barcode_page(self, code):
         self.canvas.setFillColorRGB(1, 1, 1)
-        barcode_font_size = 8 * mm
+        barcode_font_size = 7 * mm
         barcode = createBarcodeDrawing('Code128', value=code, lquiet=0,
-                                       barWidth=1.9, barHeight=15 * mm,
+                                       barWidth=1.9, barHeight=18 * mm,
                                        humanReadable=True,
                                        fontSize=barcode_font_size, fontName='FreeSans')
-        drawing_width = 85 * mm
+        drawing_width = 56 * mm
         barcode_scale = drawing_width / barcode.width
         drawing_height = barcode.height * barcode_scale
         drawing = Drawing(drawing_width, drawing_height)
         drawing.scale(barcode_scale, barcode_scale)
         drawing.add(barcode, name='barcode')
         drawing_rotated = Drawing(drawing_height, drawing_width)
-        drawing_rotated.rotate(90)
+        # drawing_rotated.rotate(90)
         drawing_rotated.translate(0, -drawing_height)
         drawing_rotated.add(drawing, name='drawing')
-        renderPDF.draw(drawing_rotated, self.canvas, self.width - 33 * mm, 10 * mm)
+        renderPDF.draw(drawing_rotated, self.canvas, 4 * mm, 25 * mm)
 
-    @page_style(font=('FreeSans', 6 * mm), color=HexColor('0x000000'))
+    @page_style(font=('FreeSans', 3.5 * mm), color=HexColor('0xFFFFFF'))
     def set_author_full_name_page(self, author):
-        self.canvas.drawString(82 * mm, 23 * mm, author[:27])
+        author = author.split(maxsplit=1)
+        author = author[0] + f' {author[1][0]}.' if len(author) > 1 else ''
+        center_x = self.width / 2
+        self.canvas.drawCentredString(center_x, 62 * mm, author[:27])
 
-    @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
+    @page_style(font=('FreeSansBold', 4 * mm), color=HexColor('0xFFFFFF'))
     def set_user_full_name_page(self, data):
-        bottom_last_name_margin = 63 * mm
-        bottom_first_name_margin = bottom_last_name_margin - 14 * mm
-        left_margin = 82 * mm
-        self.canvas.drawString(left_margin, bottom_last_name_margin, data['last_name'][:27])
-        self.canvas.drawString(left_margin, bottom_first_name_margin, data['first_name'][:27])
+        bottom_last_name_margin = 73 * mm
+        bottom_first_name_margin = bottom_last_name_margin - 5 * mm
+        center_x = self.width / 2
+        self.canvas.drawCentredString(center_x, bottom_last_name_margin, data['last_name'][:24].upper())
+        self.canvas.drawCentredString(center_x, bottom_first_name_margin, data['first_name'][:24].upper())
 
     @page_style(font=('FreeSansBold', 6 * mm), color=HexColor('0x000000'))
     def set_summit_name_page(self):
