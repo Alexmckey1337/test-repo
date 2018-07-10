@@ -74,6 +74,7 @@ LOCAL_APPS = (
     'apps.zmail.apps.ZMailConfig',
     'apps.controls.apps.ControlsConfig',
     'apps.help.apps.HelpConfig',
+    'apps.light_auth.apps.LightAuthConfig',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -551,3 +552,7 @@ VO_ORG_UA_TOKEN_NAME = 'HTTP_VO_ORG_UA_TOKEN'
 VO_ORG_UA_TOKEN = 'voorguatoken'
 ENTRY_SERVICE_HOST = env('ENTRY_SERVICE_HOST', default='localhost:4422')
 PALACE_TOKEN = env('PALACE_TOKEN', default='palacetoken')
+
+TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='unset')
+TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='unset')
+TWILIO_FROM = env('TWILIO_FROM', default='unset')

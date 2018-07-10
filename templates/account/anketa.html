@@ -629,6 +629,42 @@
 {#                        </div>#}
 {#                    </div>#}
 {#                {% endif %}#}
+                {% if request.user.has_light_auth_perm %}
+                    <div class="a-block a-light-auth">
+                        <div class="top-s">
+                            <h3>Аккаунт для vochurch.online</h3>
+                        </div>
+                        <div class="accordion-block">
+                            {% if not account.has_light_auth %}
+                                {% if not account.phone_number %}
+                                    У пользователя не указан номер телефона, поэтому не возможно создать аккаунт для vorchurch.online
+                                {% elif account.similar_user %}
+                                    Позьзователь с номером {{ account.phone_number }} уже существует -- {{ account.similar_user }}
+                                {% else %}
+                                    <button id="create_light_auth" data-url="{% url "light_auth:create" pk=account.pk %}">Создать аккаунт</button> Отправить запрос на изменения пароля и подтверждение номера
+                                    <hr>
+                                    Аккаунт будет оформлен на номер {{ account.phone_number }}
+                                {% endif %}
+                            {% elif not account.light_auth_primary_phone %}
+                                Нет основного телефона, существующий телефон: {{ account.phone_number }}
+                                <hr>
+                                {% with account.has_light_auth_password as has_password %}
+                                    <button id="send_light_auth_confirm" data-url="{% url "light_auth:send_confirm" pk=account.pk %}?reset_password={% if has_password %}false{% else %}true{% endif %}">Отправить запрос на подтверждение</button> Последний запрос был отправлен {{ account.last_phone_confirmation.sent|default:"Еще не отправлялся" }}
+                                {% endwith %}
+                            {% elif not account.light_auth_primary_phone.verified %}
+                                Номер телефона: {{ account.light_auth_primary_phone.phone }} -- (не подтвержден)
+                                <hr>
+                                {% with account.has_light_auth_password as has_password %}
+                                    <button id="send_light_auth_confirm" data-url="{% url "light_auth:send_confirm" pk=account.pk %}?reset_password={% if has_password %}false{% else %}true{% endif %}">Отправить запрос на подтверждение</button> Последний запрос был отправлен {{ account.last_phone_confirmation.sent|default:"Еще не отправлялся" }}
+                                {% endwith %}
+                            {% elif account.light_auth_primary_phone.verified %}
+                                Номер телефона: {{ account.light_auth_primary_phone.phone }} -- (подтвержден)
+                                <hr>
+                                <button id="reset_light_auth_password" data-url="{% url "light_auth:send_confirm" pk=account.pk %}?reset_password=true">Сбросить пароль</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="a-block a-mail">
                     {% for profile in account.active_summit_profiles %}
                         <h1>{{ profile.summit }}: {{ profile.reg_code }}

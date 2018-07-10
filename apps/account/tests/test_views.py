@@ -425,7 +425,6 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 22
 
-    @pytest.mark.hh
     @pytest.mark.parametrize('value,status_code', (
             ([{'code': 'viber', 'value': 'viber any'}], 201),
             ([{'code': 'telegram', 'value': 'telegram any'}], 201),
@@ -441,7 +440,6 @@ class TestUserViewSet:
 
         assert response.status_code == status_code
 
-    @pytest.mark.hh
     def test_create_user_with_messenger_without_value(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -452,7 +450,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     def test_create_user_with_messenger_without_code(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -463,7 +460,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     def test_create_user_with_messenger_non_unique_code(self, request, api_client, staff_user, user_data):
         url = reverse('users_v1_1-list')
 
@@ -669,7 +665,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.hh
     @pytest.mark.parametrize('value,status_code', (
             ([{'code': 'viber', 'value': 'viber any'}], 200),
             ([{'code': 'telegram', 'value': 'telegram any'}], 200),
@@ -689,7 +684,6 @@ class TestUserViewSet:
 
         assert response.status_code == status_code
 
-    @pytest.mark.hh
     def test_update_user_with_messenger_without_value(
             self, api_client, staff_user, user_factory, messenger_type_factory):
         user = user_factory()
@@ -704,7 +698,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     def test_update_user_with_messenger_without_code(
             self, api_client, staff_user, user_factory, messenger_type_factory):
         user = user_factory()
@@ -719,7 +712,6 @@ class TestUserViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    @pytest.mark.hh
     def test_update_user_with_messenger_non_unique_code(
             self, api_client, staff_user, user_factory, messenger_type_factory):
         user = user_factory()

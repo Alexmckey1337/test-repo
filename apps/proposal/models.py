@@ -201,7 +201,7 @@ class EventProposal(AbstractProposal):
         elif isinstance(info, dict):
             result = info
         else:
-            result["info"] = str(info)
+            result[1] = str(info)
         return result
 
 

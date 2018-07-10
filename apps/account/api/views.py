@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth import logout as django_logout
 from django.contrib.postgres.search import TrigramSimilarity
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import Value as V, Q
 from django.db.models.functions import Concat
@@ -506,6 +506,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, URCViewSet):
         try:
             with transaction.atomic():
                 self.perform_update(serializer)
+        except ValidationError as err:
+            raise exceptions.ValidationError(err)
         except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)

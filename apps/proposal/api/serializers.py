@@ -105,6 +105,9 @@ class CreateEventProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventProposal
         fields = ('user', 'info')
+        extra_kwargs = {
+            'user': {'required': True},
+        }
 
     def save(self, **kwargs):
         kwargs.update({'raw_data': self.initial_data})

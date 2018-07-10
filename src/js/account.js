@@ -119,6 +119,20 @@ $('document').ready(function () {
 		setCookie('hard_user_id', user, {path: '/'});
 		window.location.reload();
 	});
+	$('#create_light_auth').on('click', function () {
+		let url = $(this).data('url');
+		postData(url, null)
+			.then(() => window.location.reload())
+			.catch(err => errorHandling(err));
+	});
+	function send_confirm() {
+		let url = $(this).data('url');
+		postData(url, null)
+			.then(() => window.location.reload())
+			.catch(err => errorHandling(err));
+	}
+	$('#send_light_auth_confirm').on('click', send_confirm);
+	$('#reset_light_auth_password').on('click', send_confirm);
 
 	$("#tabs1 li").on('click', function () {
 		let id_tab = $(this).attr('data-tab');

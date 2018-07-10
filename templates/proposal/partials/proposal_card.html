@@ -36,15 +36,15 @@
             <input type="text" id="id_phone_number" name="phone" value="{{ proposal.phone_number|default_if_none:" " }}"
                    disabled>
         </label>
+    </div>
+    <div class="proposal__info">
+        <h2>{% trans 'Preference' %}</h2>
         <label for="id_directions">{% trans "Интересы" %}
             {% with proposal.directions_titles as directions %}
                 <input type="text" id="id_directions" name="directions" value="{% for d in directions.values %}{{ d }}{% if not forloop.last %}, {% endif %}{% endfor %}"
                        disabled>
             {% endwith %}
         </label>
-    </div>
-    <div class="proposal__info">
-        <h2>{% trans 'Preference' %}</h2>
         <label for="leader_name">{% trans "Leader" %}
             <input type="text" id="leader_name" name="leader_name" value='{{ proposal.leader_name|default_if_none:" "}}'
                    disabled>

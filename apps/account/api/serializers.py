@@ -620,7 +620,8 @@ class VoUserSerializer(serializers.ModelSerializer):
             'phone_number', 'extra_phone_numbers', 'email',
             'locality', 'address',
             'church', 'home_group',
-            'master', 'repentance_date', 'hierarchy'
+            'master', 'repentance_date', 'hierarchy',
+            'language',
         )
 
 
@@ -629,7 +630,8 @@ class VoUserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'image',
-            'phone_number', 'extra_phone_numbers', 'email',
+            # 'phone_number', 'extra_phone_numbers',
+            'email',
         )
 
     @staticmethod

@@ -399,6 +399,7 @@ Create new proposal
         POST /api/proposal/create/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
+        Vo-Org-Ua-Token: voorguatoken
         content-type: application/json
         content-length: 366
 
@@ -628,6 +629,281 @@ List of proposals
          ``phone_number``, ``email``, ``sex``, ``type``),
          may be multible, e.g. ``?ordering=type,-sex``
 
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden
+
+
+Event proposals
+---------------
+
+
+
+Create new event proposal
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/event_proposal/create/
+
+    Create new event proposal.
+
+    **Format of the info field**
+
+    ``info`` must be one of:
+
+        - simple type (int, float, string, bool)
+        - list of the simple types (int, float, string, bool)
+        - dict with simple key and simple value (int, float, string, bool)
+
+    **String**
+
+    For example:
+
+    .. code-block:: bash
+
+        curl https://vocrm.site/api/event_proposals/create/ -d '{"user": 1, "info": "Just do it"}'
+
+    Then on the site will be:
+
+    +---+------------+
+    | 1 | Just do it |
+    +---+------------+
+
+    **List**
+
+    For example:
+
+    .. code-block:: bash
+
+        curl https://vocrm.site/api/event_proposals/create/ -d '{"user": 1, "info": ["first", 2, "3rd"]}'
+
+    Then on the site will be:
+
+    +---+-------+
+    | 1 | first |
+    +---+-------+
+    | 2 | 2     |
+    +---+-------+
+    | 3 | 3rd   |
+    +---+-------+
+
+    **Dict**
+
+    For example:
+
+    .. code-block:: bash
+
+        curl https://vocrm.site/api/event_proposals/create/ -d '{"user": 1, "info": {"name": "Clark", "age": 26, "is_superman": true}}'
+
+    Then on the site will be:
+
+    +-------------+-------+
+    | name        | Clark |
+    +-------------+-------+
+    | age         | 26    |
+    +-------------+-------+
+    | is_superman | True  |
+    +-------------+-------+
+
+    **But other**
+
+    For example:
+
+    .. code-block:: bash
+
+        curl https://vocrm.site/api/event_proposals/create/ -d '{"user": 1, "info": {"name": "Clark", "skills": ["fly", "super strength", "super speed"]}}'
+
+    Then on the site will be (not cool):
+
+    +-------------+------------------------------------------+
+    | name        | Clark                                    |
+    +-------------+------------------------------------------+
+    | skills      | ['fly', 'super strength', 'super speed'] |
+    +-------------+------------------------------------------+
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/event_proposal/create/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+        Vo-Org-Ua-Token: voorguatoken
+        content-type: application/json
+        content-length: 366
+
+        {
+            "user": 666,
+            "info": {
+                "field1": "valid json",
+                "complex": [
+                    {"a": 1, "b": [2,4,8]},
+                    3
+                ]
+            }
+        }
+
+
+    **Example response (Good request)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "user": 666,
+            "info": {
+                "field1": "valid json",
+                "complex": [
+                    {"a": 1, "b": [2,4,8]},
+                    3
+                ]
+            }
+        }
+
+    **Example request (without user)**:
+
+    .. sourcecode:: http
+
+        POST /api/event_proposal/create/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+        Vo-Org-Ua-Token: voorguatoken
+        content-type: application/json
+        content-length: 366
+
+        {
+            "info": "just information"
+        }
+
+    **Example response (user required)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "user": [
+                "Это поле обязательное"
+            ]
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/event_proposal/create/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form user: id of the user, required
+    :form info: additional information, optional, must be valid json object
+
+    :reqheader Content-Type: ``application/json``
+
+    :statuscode 201: success create
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
+
+
+
+List of proposals
+~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/event_proposal/
+
+    List of the event proposals. Pagination by 30 items. Ordering by date_created.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/event_proposal/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {
+            "count": 8,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "user": 666,
+                    "info": {
+                        "field1": "valid json",
+                        "complex": [
+                            {
+                                "a": 1,
+                                "b": [2, 4, 8]
+                            },
+                            3
+                        ]
+                    },
+                    "raw_data": {
+                        "info": {
+                            "field1": "valid json",
+                            "complex": [
+                                {
+                                    "a": 1,
+                                    "b": [2, 4, 8]
+                                },
+                                3
+                            ]
+                        },
+                        "user": 666
+                    },
+                    "created_at": "2018-07-10T12:51:11.898032Z"
+                },
+                ...
+            ]
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/event_proposal/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :query int page: page number
 
     :statuscode 200: no error
     :statuscode 403: forbidden
@@ -965,6 +1241,7 @@ Update user information
 
         PATCH /api/vo/users/444/ HTTP/1.1
         Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
         Accept: application/json
         content-type: multipart/form-data; boundary=X-VOCRM-BOUNDARY
         content-length: 804
@@ -1013,6 +1290,7 @@ Update user information
 
         PATCH /api/vo/users/444/ HTTP/1.1
         Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
         Accept: application/json
         content-type: multipart/form-data; boundary=X-VOCRM-BOUNDARY
         content-length: 104
@@ -1063,6 +1341,322 @@ Update user information
     :form email: user email, optional, correct email address
 
     :reqheader Content-Type: ``multipart/form-data``
+
+    :statuscode 200: success update
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
+
+
+VoChurch auth
+-------------
+
+
+Verify phone number
+~~~~~~~~~~~~~~~~~~~
+
+.. http:post:: /api/light_auth/verify_phone/
+
+    Verify phone number, and/or change password
+
+    Blacklist of passwords https://github.com/django/django/blob/master/django/contrib/auth/common-passwords.txt.gz
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/verify_phone/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "phone_number": "+37067540817",
+            "key": "8vn45euo",
+            "new_password": "hetet46Ne"
+        }
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "ok"
+        }
+
+    **Example response (invalid phone number or key)**:
+
+    User with ``phone_number`` does not exist, or key is invalid, or key is expired
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Invalid phone number or key"
+        }
+
+    **Example response (invalid password)**:
+
+    User with ``phone_number`` does not exist, or key is invalid, or key is expired
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "new_password": [
+                "['Введённый пароль слишком короткий. Он должен содержать как минимум 8 символов.']"
+            ]
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/verify_phone/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form phone_number: user phone number, required
+    :form key: user email, required
+    :form new_password: new password of the user, optional, must be >= 8 symbols, alphanumeric (at least one non-number)
+
+    :reqheader Content-Type: `application/json``
+
+    :statuscode 200: success update
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
+
+
+Reset password
+~~~~~~~~~~~~~~
+
+.. http:post:: /api/light_auth/reset_password/
+
+    Reset password, and send sms with token on the phone number
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/reset_password/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "phone_number": "+37066666666"
+        }
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Reset password for user Ivanov Ivan sent"
+        }
+
+    **Example response (user not exist)**:
+
+    User with ``phone_number`` does not exist
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "User with phone +370666666666 does not exist"
+        }
+
+    **Example request (invalid phone number)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/reset_password/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "phone_number": "+370"
+        }
+
+    **Example response (invalid phone number)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Phone number invalid"
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/reset_password/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form phone_number: user phone number, required
+
+    :reqheader Content-Type: `application/json``
+
+    :statuscode 200: success update
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
+
+
+Login
+~~~~~
+
+.. http:post:: /api/light_auth/login/
+
+    User login
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/login/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "phone_number": "+37066666666",
+            "password": "verysecretpassword"
+        }
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "key": "randomstringwithalphanumbericSYMBOLS42"
+        }
+
+    **Example response (invalid password)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Password is invalid"
+        }
+
+    **Example request (invalid phone number)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/login/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "phone_number": "+370",
+            "password": "verysecretpassword"
+        }
+
+    **Example response (invalid phone number)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Phone number invalid"
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/reset_password/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form phone_number: user phone number, required
+    :form password: user password, required
+
+    :reqheader Content-Type: `application/json``
 
     :statuscode 200: success update
     :statuscode 403: forbidden

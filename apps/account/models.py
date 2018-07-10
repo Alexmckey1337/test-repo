@@ -15,13 +15,14 @@ from apps.account.api.permissions import (
 from apps.account.managers import CustomUserManager
 from apps.analytics.models import LogModel
 from apps.group.abstract_models import GroupUserPermission
+from apps.light_auth.abstract_models import AbstractProjectUser
 from apps.partnership.abstract_models import PartnerUserPermission
 from apps.partnership.api.permissions import can_edit_partner_block, can_see_partner_block, can_see_deal_block
 from apps.summit.abstract_models import SummitUserPermission
 from apps.summit.models import SummitAnket, Summit
 
 
-class CustomUser(MP_Node, LogModel, User,
+class CustomUser(MP_Node, LogModel, User, AbstractProjectUser,
                  GroupUserPermission, PartnerUserPermission, SummitUserPermission):
     """
     User model
@@ -107,7 +108,7 @@ class CustomUser(MP_Node, LogModel, User,
         (EN, _('English')),
         (DE, _('Germany')),
     )
-    language = models.CharField(_('Language'), choices=LANGUAGES, default='RU', max_length=10)
+    language = models.CharField(_('Language'), choices=LANGUAGES, default=RU, max_length=10)
 
     UNKNOWN, MALE, FEMALE = 'unknown', 'male', 'female'
     SEX = (
