@@ -716,15 +716,15 @@ class SummitTicketPDF:
 
     def add_profile(self, profile):
         if profile.id not in self._data:
-            name = profile.user_name.split(maxsplit=2)
-            author_name = profile.author_name.split(maxsplit=1)
+            name = profile.user_name.strip().split(maxsplit=2)
+            author_name = profile.author_name.strip().split(maxsplit=1)
             self._data[profile.id] = {
                 'name': profile.user_name,
                 'first_name': name[1].strip() if len(name) > 1 else '',
-                'last_name': name[0],
+                'last_name': name[0] if name else '',
                 'author_name': profile.author_name,
                 'author_first_name': author_name[1] if len(author_name) > 1 else '',
-                'author_last_name': author_name[0],
+                'author_last_name': author_name[0] if author_name else '',
                 'code': profile.code,
                 'image': profile.image,
             }
