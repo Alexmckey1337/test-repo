@@ -488,11 +488,12 @@ class TestLightLoginView:
 
         assert response.status_code == status.HTTP_200_OK
         assert 'key' in response.data
+        assert LightToken.objects.filter(key=response.data['key'], user=user)
 
 
 @pytest.mark.hh
 @pytest.mark.django_db
-class TestPingView:
+class TestCheckTokenView:
     def test_invalid_key(self, monkeypatch, api_client):
         monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
         url = reverse('light_auth:check_key')
