@@ -1043,7 +1043,8 @@ User information
                 "id": 8,
                 "title": "Старший епископ",
                 "level": 60
-            }
+            },
+            "language": "ru"
         }
 
     **Example request (forbidden)**:
@@ -1098,6 +1099,7 @@ User information
     :>json object master: master of the user, can be null
     :>json string repentance_date: repentance date of the user, can be empty, format: ``DD.MM.YYYY``
     :>json object hierarchy: hierarchy of the user
+    :>json string language: language of the user
 
     :statuscode 200: no error
     :statuscode 403: forbidden

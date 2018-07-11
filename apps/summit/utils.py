@@ -705,7 +705,7 @@ class SummitTicketPDF:
             FROM summit_summitanket a
               INNER JOIN account_customuser u1 ON a.user_id = u1.user_ptr_id
               INNER JOIN auth_user uu1 ON u1.user_ptr_id = uu1.id
-              JOIN auth_user author ON a.author_id = author.id
+              LEFT JOIN auth_user author ON a.author_id = author.id
               WHERE a.id IN ({})
               ORDER BY a.id;
         """.format(','.join([str(p) for p in self.profile_ids]))
