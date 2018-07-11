@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from apps.light_auth.api.permissions import has_light_auth_perm
-from apps.light_auth.models import PhoneNumber, PhoneConfirmation, LightAuthUser
+from apps.light_auth.models import PhoneNumber, PhoneConfirmation, LightAuthUser, LightToken
 from apps.light_auth.utils import make_phone_number
 
 
@@ -25,6 +25,7 @@ class AbstractProjectUser(models.Model):
                 # primary_phone.set_as_primary()
             elif primary_phone.phone != new_phone:
                 primary_phone.change(None, new_phone)
+                LightToken.objects.filter(user=light_auth).delete()
         except LightAuthUser.DoesNotExist:
             pass
         super().save(*args, **kwargs)

@@ -87,6 +87,14 @@ class CanLightLogin(BasePermission):
         return can_vo_org_ua_key(request)
 
 
+class CanLightPing(BasePermission):
+    def has_permission(self, request, view):
+        return can_vo_org_ua_key(request)
+
+    def has_object_permission(self, request, view, obj):
+        return can_vo_org_ua_key(request)
+
+
 def has_light_auth_perm(user, to_user=None):
     if to_user is None:
         return user.is_staff

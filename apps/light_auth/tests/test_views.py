@@ -7,8 +7,8 @@ from rest_framework import status, permissions
 
 from apps.light_auth import app_settings
 from apps.light_auth.api.views import LightAuthCreateView, LightAuthConfirmPhoneNumberView, VerifyPhoneView, \
-    ResetPasswordView, LightLoginView
-from apps.light_auth.models import PhoneNumber, PhoneConfirmation
+    ResetPasswordView, LightLoginView, CheckLightTokenView
+from apps.light_auth.models import PhoneNumber, PhoneConfirmation, LightToken
 import apps.light_auth.utils
 
 
@@ -488,3 +488,52 @@ class TestLightLoginView:
 
         assert response.status_code == status.HTTP_200_OK
         assert 'key' in response.data
+
+
+@pytest.mark.hh
+@pytest.mark.django_db
+class TestPingView:
+    def test_invalid_key(self, monkeypatch, api_client):
+        monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('light_auth:check_key')
+        key = 'invalidkey'
+
+        data = {
+            'key': key
+        }
+
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data.get('code') == 'invalid_key'
+
+    def test_successful_with_phone(self, monkeypatch, api_client, phone_number_factory):
+        monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('light_auth:check_key')
+        phone = '+380994442244'
+        phone_number = phone_number_factory(phone=phone, verified=True, primary=True)
+        token = LightToken.objects.create(user=phone_number.auth_user)
+
+        data = {
+            'key': token.key
+        }
+
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get('phone_number') == phone
+
+    def test_successful_without_phone(self, monkeypatch, api_client, light_auth_user_factory):
+        monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('light_auth:check_key')
+        auth_user = light_auth_user_factory()
+        token = LightToken.objects.create(user=auth_user)
+
+        data = {
+            'key': token.key
+        }
+
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get('phone_number') == ''

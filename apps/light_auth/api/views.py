@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from apps.light_auth.api.permissions import CanCreateLightAuth, \
     CanConfirmPhoneNumberLightAuth, CanChangeLightAuthPassword, CanVerifyPhoneLightAuth, CanResetPasswordLightAuth, \
-    CanLightLogin
+    CanLightLogin, CanLightPing
 from apps.light_auth.api.serializers import LightAuthSerializer, VerifyPhoneSerializer, PasswordChangeSerializer, \
     ResetPhoneSerializer, LightTokenSerializer, LightLoginSerializer
 from apps.light_auth.models import PhoneNumber, LightAuthUser, PhoneConfirmation, LightToken
@@ -168,3 +168,23 @@ class LightLoginView(generics.GenericAPIView):
         self.login()
         serializer = LightTokenSerializer(instance=self.token, context={'request': self.request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CheckLightTokenView(generics.GenericAPIView):
+    permission_classes = (CanLightPing,)
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            token = LightToken.objects.get(key=request.data['key'])
+        except LightToken.DoesNotExist:
+            raise exceptions.ValidationError({
+                'detail': _('Key invalid'),
+                'code': 'invalid_key'
+            })
+        user = token.user
+        phone_number = PhoneNumber.objects.get_primary(auth_user=user)
+
+        return Response({
+            'phone_number': phone_number.phone if phone_number else ''
+        }, status=status.HTTP_200_OK)

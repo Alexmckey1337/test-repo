@@ -1254,12 +1254,6 @@ Update user information
         ..
 
         --X-INSOMNIA-BOUNDARY
-        Content-Disposition: form-data; name="phone_number"
-        38(099)666-44-66
-        --X-INSOMNIA-BOUNDARY
-        Content-Disposition: form-data; name="extra_phone_numbers"
-        ["380996665544","156464564846"]
-        --X-INSOMNIA-BOUNDARY
         Content-Disposition: form-data; name="email"
         best@mail.address
         --X-INSOMNIA-BOUNDARY--
@@ -1276,11 +1270,6 @@ Update user information
 
         {
             "image": "https://s3.eu-central-1.amazonaws.com/bucket/folders/filename.png",
-            "phone_number": "+380996664466",
-            "extra_phone_numbers": [
-                "380996665544",
-                "156464564846"
-            ],
             "email": "best@mail.address"
         }
 
@@ -1296,8 +1285,8 @@ Update user information
         content-length: 104
 
         --X-INSOMNIA-BOUNDARY
-        Content-Disposition: form-data; name="phone_number"
-        38(099)
+        Content-Disposition: form-data; name="email"
+        email
         --X-INSOMNIA-BOUNDARY
 
     **Example response (invalid phone number)**:
@@ -1310,8 +1299,8 @@ Update user information
         Content-Type: application/json
 
         {
-            "phone_number": {
-                "message": "The length of the phone number must be at least 10 digits"
+            "email": {
+                "message": "invalid email"
             }
         }
 
@@ -1335,9 +1324,6 @@ Update user information
         {"detail": "Учетные данные не были предоставлены."}
 
     :form image: user photo, optional
-    :form phone_number: user phone number, optional, must be >= 10 digits
-    :form extra_phone_number: user additional phone numbers, optional, each must be >= 10 digits,
-        format: ``'["firstnumber", "secondnumber", "thirdnumber"]'``
     :form email: user email, optional, correct email address
 
     :reqheader Content-Type: ``multipart/form-data``
@@ -1638,7 +1624,7 @@ Login
 
     .. sourcecode:: http
 
-        POST /api/light_auth/reset_password/ HTTP/1.1
+        POST /api/light_auth/login/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
 
@@ -1655,6 +1641,83 @@ Login
 
     :form phone_number: user phone number, required
     :form password: user password, required
+
+    :reqheader Content-Type: `application/json``
+
+    :statuscode 200: success update
+    :statuscode 403: forbidden
+    :statuscode 400: bad request
+
+
+Check key
+~~~~~~~~~
+
+.. http:post:: /api/light_auth/check_key/
+
+    Checking key received at login `Login`_
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/check_key/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+        content-type: application/json
+
+        {
+            "key": "randomstringwithalphanumbericSYMBOLS42"
+        }
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "phone_number": "+37066666666"
+        }
+
+    **Example response (invalid key)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 400 Bad Request
+        Vary: Accept, Cookie
+        Allow: POST, OPTIONS
+        Content-Type: application/json
+
+        {
+            "detail": "Key invalid",
+            "code": "invalid_key"
+        }
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        POST /api/light_auth/check_key/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :form key: user key, required, `Login`_
 
     :reqheader Content-Type: `application/json``
 
