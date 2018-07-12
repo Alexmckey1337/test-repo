@@ -3,10 +3,16 @@ Changelog
 =========
 
 
+1.17.8 - 2018-07-12
+-------------------
+
+* добалено /api/vo/hierarchies/ для разработчиков vochurch.online
+
+
 1.17.7 - 2018-07-12
 -------------------
 
-* довалено post метод для /api/proposal/ и /api/event_proposal/
+* добалено post метод для /api/proposal/ и /api/event_proposal/
 
 
 1.17.6 - 2018-07-12

@@ -124,6 +124,14 @@ class VoCanSeeMessengers(BasePermission):
         return can_vo_org_ua_key(request)
 
 
+class VoCanSeeHierarchies(BasePermission):
+    def has_permission(self, request, view):
+        """
+        Checking that the user can see hierarchies
+        """
+        return can_vo_org_ua_key(request)
+
+
 # Account page: ``/account/<user_id>/``
 
 

@@ -1,8 +1,8 @@
 import binascii
 import json
+import os
 import traceback
 
-import os
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.urls import reverse
@@ -607,8 +607,8 @@ class RestAuthLoginSerializer(LoginSerializer):
 
 class VoUserSerializer(serializers.ModelSerializer):
     locality = CityReadSerializer()
-    church = ChurchNameSerializer(source='get_church',read_only=True)
-    home_group = HomeGroupNameSerializer(source='get_home_group',read_only=True)
+    church = ChurchNameSerializer(source='get_church', read_only=True)
+    home_group = HomeGroupNameSerializer(source='get_home_group', read_only=True)
     hierarchy = HierarchyTitleSerializer()
     master = MasterTitleSerializer(read_only=True)
 
@@ -677,3 +677,10 @@ class VoMessengerSerializer(serializers.ModelSerializer):
             'id',
             'code', 'title', 'icon',
         )
+
+
+class VoHierarchySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hierarchy
+        fields = ('id', 'title', 'level', 'code')
+        read_only_fields = ('id', 'title', 'level', 'code')

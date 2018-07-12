@@ -28,11 +28,11 @@ from apps.account.api.filters import (
 from apps.account.api.pagination import DashboardPagination
 from apps.account.api.permissions import (
     CanSeeUserList, CanCreateUser, CanExportUserList, SeeUserListPermission,
-    EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser, VoCanSeeMessengers)
+    EditUserPermission, ExportUserListPermission, IsSuperUser, VoCanSeeUser, VoCanSeeMessengers, VoCanSeeHierarchies)
 from apps.account.api.serializers import (
     HierarchyError, UserForMoveSerializer, UserUpdateSerializer, ChurchIdSerializer,
     HomeGroupIdSerializer, UserForSummitInfoSerializer, VoUserSerializer, VoMasterSerializer, VoMessengerSerializer,
-    VoUserUpdateSerializer)
+    VoUserUpdateSerializer, VoHierarchySerializer)
 from apps.account.api.serializers import UserForSelectSerializer
 from apps.account.api.serializers import (
     UserShortSerializer, UserTableSerializer, UserSingleSerializer, ExistUserSerializer,
@@ -44,6 +44,7 @@ from apps.analytics.decorators import log_perform_update, log_perform_create
 from apps.analytics.mixins import LogAndCreateUpdateDestroyMixin
 from apps.group.models import HomeGroup, Church
 from apps.hierarchy.api.serializers import DepartmentSerializer
+from apps.hierarchy.models import Hierarchy
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.pagination import ForSelectPagination
 from common.parsers import MultiPartAndJsonParser
@@ -156,6 +157,17 @@ class VoMessengerListView(mixins.ListModelMixin, GenericAPIView):
 
     serializer_class = VoMessengerSerializer
     permission_classes = (VoCanSeeMessengers,)
+    pagination_class = None
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class VoHierarchyListView(mixins.ListModelMixin, GenericAPIView):
+    queryset = Hierarchy.objects.order_by('level')
+
+    serializer_class = VoHierarchySerializer
+    permission_classes = (VoCanSeeHierarchies,)
     pagination_class = None
 
     def get(self, request, *args, **kwargs):

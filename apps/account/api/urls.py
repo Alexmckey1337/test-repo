@@ -33,6 +33,7 @@ custom_v1_1_urls = [
     path('vo/users/<int:pk>/', views.VoUserDetailView.as_view(), name='vo-user-detail'),
     path('vo/users/<int:pk>/master/', views.VoMasterDetailView.as_view(), name='vo-master-detail'),
     path('vo/messengers/', views.VoMessengerListView.as_view(), name='vo-messenger-list'),
+    path('vo/hierarchies/', views.VoHierarchyListView.as_view(), name='vo-hierarchy-list'),
 ]
 
 urlpatterns = [

@@ -982,6 +982,76 @@ List of the messengers
     :statuscode 403: forbidden
 
 
+List of the hierarchies
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. http:get:: /api/vo/hierarchies/
+
+    List of the hierarchies.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/hierarchies/ HTTP/1.1
+        Host: vocrm.net
+        Vo-Org-Ua-Token: voorguatoken
+        Accept: application/json
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        [
+            {
+                "id": 14,
+                "title": "Лид",
+                "level": -20,
+                "code": "lead"
+            },
+            {
+                "id": 12,
+                "title": "Новообращенный",
+                "level": -10,
+                "code": "convert"
+            },
+            ...
+        ]
+
+    **Example request (forbidden)**:
+
+    .. sourcecode:: http
+
+        GET /api/vo/hierarchies/ HTTP/1.1
+        Host: vocrm.net
+        Accept: application/json
+
+    **Example response (forbidden)**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 403 Forbidden
+        Vary: Accept, Cookie
+        Allow: GET,HEAD,OPTIONS
+        Content-Type: application/json
+
+        {"detail": "Учетные данные не были предоставлены."}
+
+    :>json int id: id of the hierarchy
+    :>json string code: code of the hierarchy, code for computer,
+        was conceived as a replacement for the id, but in practice it is not used anywhere
+    :>json string title: title of the hierarchy, human-readable name
+    :>json int level: level of the hierarchy, level of access, the higher the more rights
+
+    :statuscode 200: no error
+    :statuscode 403: forbidden
+
+
 User information
 ~~~~~~~~~~~~~~~~
 
