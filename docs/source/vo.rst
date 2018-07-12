@@ -1578,6 +1578,44 @@ Login
         Content-Type: application/json
 
         {
+            "id": 42,
+            "first_name": "Myname",
+            "last_name": "Yourname",
+            "middle_name": "",
+            "image": "https://s3.eu-central-1.amazonaws.com/bucketname/folders/filename.png",
+            "phone_number": "+380669992233",
+            "extra_phone_numbers": [
+                "380996665544",
+                "156464564846"
+            ],
+            "email": "best@mail.address",
+            "locality": {
+                "id": 4910,
+                "name": "Киев",
+                "country_name": "Украина",
+                "area_name": "Киевская область",
+                "district_name": "місто Київ"
+            },
+            "address": "ул. Blablabla, 42",
+            "church": {
+                "id": 11111,
+                "title": "my church"
+            },
+            "home_group": {
+                "id": 22222,
+                "title": "my home group"
+            },
+            "master": {
+                "id": 66666,
+                "title": "Last First Middle"
+            },
+            "repentance_date": "22.02.2002,
+            "hierarchy": {
+                "id": 8,
+                "title": "Старший епископ",
+                "level": 60
+            },
+            "language": "ru",
             "key": "randomstringwithalphanumbericSYMBOLS42"
         }
 
@@ -1643,6 +1681,23 @@ Login
 
     :form phone_number: user phone number, required
     :form password: user password, required
+
+    :>json int id: id of the user, can be empty
+    :>json string first_name: first name of the user, can be empty
+    :>json string last_name: last name of the user, can be empty
+    :>json string middle_name: middle name of the user, can be empty
+    :>json string phone_number: phone number of the user, can be empty
+    :>json list extra_phone_numbers: additional phones of the user, can be empty
+    :>json string email: email of the user, can be empty
+    :>json object locality: city of the user, can be null
+    :>json string address: address of the user, can be empty
+    :>json object church: church of the user, can be null
+    :>json object home_group: home group of the user, can be null
+    :>json object master: master of the user, can be null
+    :>json string repentance_date: repentance date of the user, can be empty, format: ``DD.MM.YYYY``
+    :>json object hierarchy: hierarchy of the user
+    :>json string language: language of the user
+    :>json string key: auth key
 
     :reqheader Content-Type: `application/json``
 
