@@ -388,7 +388,7 @@ Proposals
 Create new proposal
 ~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/proposal/create/
+.. http:post:: /api/proposal/
 
     Create new proposal. All fields are optional.
 
@@ -396,7 +396,7 @@ Create new proposal
 
     .. sourcecode:: http
 
-        POST /api/proposal/create/ HTTP/1.1
+        POST /api/proposal/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
         Vo-Org-Ua-Token: voorguatoken
@@ -472,7 +472,7 @@ Create new proposal
 
     .. sourcecode:: http
 
-        GET /api/proposal/create/ HTTP/1.1
+        GET /api/proposal/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
 
@@ -642,7 +642,7 @@ Event proposals
 Create new event proposal
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /api/event_proposal/create/
+.. http:post:: /api/event_proposal/
 
     Create new event proposal.
 
@@ -724,7 +724,7 @@ Create new event proposal
 
     .. sourcecode:: http
 
-        POST /api/event_proposal/create/ HTTP/1.1
+        POST /api/event_proposal/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
         Vo-Org-Ua-Token: voorguatoken
@@ -767,7 +767,7 @@ Create new event proposal
 
     .. sourcecode:: http
 
-        POST /api/event_proposal/create/ HTTP/1.1
+        POST /api/event_proposal/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
         Vo-Org-Ua-Token: voorguatoken
@@ -797,7 +797,7 @@ Create new event proposal
 
     .. sourcecode:: http
 
-        GET /api/event_proposal/create/ HTTP/1.1
+        GET /api/event_proposal/ HTTP/1.1
         Host: vocrm.net
         Accept: application/json
 

@@ -54,6 +54,9 @@ class ProposalListView(generics.ListAPIView):
     }
     filter_class = ProposalFilter
 
+    def post(self, request, *args, **kwargs):
+        return CreateProposalView.as_view()(request._request, *args, **kwargs)
+
 
 class UpdateProposalStatusMixin(generics.GenericAPIView):
     queryset = Proposal.objects.all()
@@ -141,6 +144,9 @@ class EventProposalListView(generics.ListAPIView):
     queryset = EventProposal.objects.order_by('-created_at')
     serializer_class = EventProposalSerializer
     permission_classes = (CanCreateProposal,)
+
+    def post(self, request, *args, **kwargs):
+        return CreateEventProposalView.as_view()(request._request, *args, **kwargs)
 
 
 class UpdateEventProposalStatusMixin(generics.GenericAPIView):

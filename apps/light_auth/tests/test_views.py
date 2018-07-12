@@ -12,7 +12,6 @@ from apps.light_auth.models import PhoneNumber, PhoneConfirmation, LightToken
 import apps.light_auth.utils
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestLightAuthCreateView:
     url_pattern = 'light_auth:create'
@@ -85,7 +84,6 @@ class TestLightAuthCreateView:
         assert confirmation.sent is not None
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestLightAuthConfirmPhoneNumberView:
     url_pattern = 'light_auth:send_confirm'
@@ -162,7 +160,6 @@ class TestLightAuthConfirmPhoneNumberView:
         assert response.status_code == status.HTTP_200_OK
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestVerifyPhoneView:
     url_pattern = 'light_auth:verify_phone'
@@ -329,7 +326,6 @@ class TestVerifyPhoneView:
         assert light_user.check_password(new_password)
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestResetPasswordView:
     url_pattern = 'light_auth:reset_password'
@@ -416,7 +412,6 @@ class TestResetPasswordView:
         assert response.status_code == status.HTTP_200_OK
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestLightLoginView:
     url_pattern = 'light_auth:login'
@@ -568,7 +563,6 @@ class TestLightLoginView:
         assert LightToken.objects.filter(key=response.data['key'], user=user)
 
 
-@pytest.mark.hh
 @pytest.mark.django_db
 class TestCheckTokenView:
     url_pattern = 'light_auth:check_key'

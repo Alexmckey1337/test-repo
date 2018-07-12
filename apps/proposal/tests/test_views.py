@@ -3,9 +3,10 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import status, permissions
 
-from apps.proposal.api.views import CreateProposalView
+from apps.proposal.api.views import CreateProposalView, ProposalListView
 
 
+@pytest.mark.hh
 @pytest.mark.django_db
 class TestUserViewSet:
     @pytest.mark.parametrize(
@@ -14,7 +15,8 @@ class TestUserViewSet:
     )
     def test_create_proposal_without_one_field(self, monkeypatch, api_client, city_factory, del_field):
         monkeypatch.setattr(CreateProposalView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('proposal-create')
+        monkeypatch.setattr(ProposalListView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('proposal-list')
 
         data = {
             'first_name': 'test_first',
@@ -33,7 +35,8 @@ class TestUserViewSet:
 
     def test_create_proposal_without_fields(self, monkeypatch, api_client):
         monkeypatch.setattr(CreateProposalView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('proposal-create')
+        monkeypatch.setattr(ProposalListView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('proposal-list')
 
         data = {}
         response = api_client.post(url, data=data, format='json')
@@ -41,7 +44,7 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_201_CREATED
 
     def test_create_proposal_without_token_access(self, api_client):
-        url = reverse('proposal-create')
+        url = reverse('proposal-list')
 
         data = {}
         response = api_client.post(url, data=data, format='json')
@@ -49,7 +52,7 @@ class TestUserViewSet:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_create_proposal_with_token_access(self, api_client):
-        url = reverse('proposal-create')
+        url = reverse('proposal-list')
 
         data = {}
         response = api_client.post(url, data=data, format='json', **{
@@ -72,7 +75,8 @@ class TestUserViewSet:
     )
     def test_create_proposal_with_different_sex_values(self, monkeypatch, api_client, in_value, db_value):
         monkeypatch.setattr(CreateProposalView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('proposal-create')
+        monkeypatch.setattr(ProposalListView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('proposal-list')
 
         data = {'sex': in_value}
         response = api_client.post(url, data=data, format='json')
@@ -95,7 +99,8 @@ class TestUserViewSet:
     )
     def test_create_proposal_with_different_type_values(self, monkeypatch, api_client, in_value, db_value):
         monkeypatch.setattr(CreateProposalView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('proposal-create')
+        monkeypatch.setattr(ProposalListView, 'permission_classes', (permissions.AllowAny,))
+        url = reverse('proposal-list')
 
         data = {'type': in_value}
         response = api_client.post(url, data=data, format='json')
