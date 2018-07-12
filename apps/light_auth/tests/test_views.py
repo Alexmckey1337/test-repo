@@ -15,9 +15,11 @@ import apps.light_auth.utils
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestLightAuthCreateView:
+    url_pattern = 'light_auth:create'
+
     def test_user_does_not_exist(self, monkeypatch, api_client):
         monkeypatch.setattr(LightAuthCreateView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:create', kwargs={'pk': 22222222})
+        url = reverse(self.url_pattern, kwargs={'pk': 22222222})
 
         data = {}
 
@@ -28,7 +30,7 @@ class TestLightAuthCreateView:
     def test_user_has_light_auth_account(self, monkeypatch, api_client, light_auth_user_factory):
         monkeypatch.setattr(LightAuthCreateView, 'permission_classes', (permissions.AllowAny,))
         light_user = light_auth_user_factory()
-        url = reverse('light_auth:create', kwargs={'pk': light_user.user.pk})
+        url = reverse(self.url_pattern, kwargs={'pk': light_user.user.pk})
 
         data = {}
 
@@ -39,7 +41,7 @@ class TestLightAuthCreateView:
     def test_user_dont_have_phone(self, monkeypatch, api_client, user_factory):
         monkeypatch.setattr(LightAuthCreateView, 'permission_classes', (permissions.AllowAny,))
         user = user_factory(phone_number='')
-        url = reverse('light_auth:create', kwargs={'pk': user.pk})
+        url = reverse(self.url_pattern, kwargs={'pk': user.pk})
 
         data = {}
 
@@ -52,7 +54,7 @@ class TestLightAuthCreateView:
         phone = '+380668886644'
         phone_number_factory(phone=phone)
         user = user_factory(phone_number=phone)
-        url = reverse('light_auth:create', kwargs={'pk': user.pk})
+        url = reverse(self.url_pattern, kwargs={'pk': user.pk})
 
         data = {}
 
@@ -65,7 +67,7 @@ class TestLightAuthCreateView:
         monkeypatch.setattr(apps.light_auth.utils, 'send_sms', lambda t,p,c: 0)
         phone = '+380996664466'
         user = user_factory(phone_number=phone)
-        url = reverse('light_auth:create', kwargs={'pk': user.pk})
+        url = reverse(self.url_pattern, kwargs={'pk': user.pk})
 
         data = {}
 
@@ -86,9 +88,11 @@ class TestLightAuthCreateView:
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestLightAuthConfirmPhoneNumberView:
+    url_pattern = 'light_auth:send_confirm'
+
     def test_user_does_not_exist(self, monkeypatch, api_client):
         monkeypatch.setattr(LightAuthConfirmPhoneNumberView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:send_confirm', kwargs={'pk': 22222222})
+        url = reverse(self.url_pattern, kwargs={'pk': 22222222})
 
         data = {}
 
@@ -99,7 +103,7 @@ class TestLightAuthConfirmPhoneNumberView:
     def test_light_user_does_not_exist(self, monkeypatch, api_client, user_factory):
         monkeypatch.setattr(LightAuthConfirmPhoneNumberView, 'permission_classes', (permissions.AllowAny,))
         user = user_factory()
-        url = reverse('light_auth:send_confirm', kwargs={'pk': user.pk})
+        url = reverse(self.url_pattern, kwargs={'pk': user.pk})
 
         data = {}
 
@@ -110,7 +114,7 @@ class TestLightAuthConfirmPhoneNumberView:
     def test_user_dont_have_phone_number(self, monkeypatch, api_client, light_auth_user_factory):
         monkeypatch.setattr(LightAuthConfirmPhoneNumberView, 'permission_classes', (permissions.AllowAny,))
         light_user = light_auth_user_factory(user__phone_number='')
-        url = reverse('light_auth:send_confirm', kwargs={'pk': light_user.user_id})
+        url = reverse(self.url_pattern, kwargs={'pk': light_user.user_id})
 
         data = {}
 
@@ -124,7 +128,7 @@ class TestLightAuthConfirmPhoneNumberView:
         phone = '+380667775533'
         phone_number_factory(phone=phone)
         light_user = light_auth_user_factory(user__phone_number=phone)
-        url = reverse('light_auth:send_confirm', kwargs={'pk': light_user.user_id})
+        url = reverse(self.url_pattern, kwargs={'pk': light_user.user_id})
 
         data = {}
 
@@ -137,7 +141,7 @@ class TestLightAuthConfirmPhoneNumberView:
         monkeypatch.setattr(apps.light_auth.utils, 'send_sms', lambda t,p,c: 0)
         phone = '+380667775533'
         light_user = light_auth_user_factory(user__phone_number=phone)
-        url = reverse('light_auth:send_confirm', kwargs={'pk': light_user.user_id})
+        url = reverse(self.url_pattern, kwargs={'pk': light_user.user_id})
 
         data = {}
 
@@ -149,7 +153,7 @@ class TestLightAuthConfirmPhoneNumberView:
         monkeypatch.setattr(LightAuthConfirmPhoneNumberView, 'permission_classes', (permissions.AllowAny,))
         phone = '+380667775533'
         light_user = phone_number_factory(auth_user__user__phone_number=phone, phone=phone).auth_user
-        url = reverse('light_auth:send_confirm', kwargs={'pk': light_user.user_id})
+        url = reverse(self.url_pattern, kwargs={'pk': light_user.user_id})
 
         data = {}
 
@@ -161,9 +165,29 @@ class TestLightAuthConfirmPhoneNumberView:
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestVerifyPhoneView:
+    url_pattern = 'light_auth:verify_phone'
+
+    def test_have_perm(self, settings, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json', **{
+            settings.VO_ORG_UA_TOKEN_NAME: settings.VO_ORG_UA_TOKEN
+        })
+
+        assert response.status_code != status.HTTP_403_FORBIDDEN
+
+    def test_dont_have_perm(self, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     def test_invalid_phone(self, monkeypatch, api_client):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
 
         data = {'phone_number': "+38099", 'key': '12345678'}
 
@@ -173,7 +197,7 @@ class TestVerifyPhoneView:
 
     def test_invalid_password(self, monkeypatch, api_client):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
 
         data = {'phone_number': "+380990004422", 'key': '12345678', 'new_password': '111'}
 
@@ -184,7 +208,7 @@ class TestVerifyPhoneView:
     @pytest.mark.parametrize('field', ['phone_number', 'key'])
     def test_without_required_data(self, monkeypatch, api_client, field):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
 
         data = {'phone_number': "+380990004422", 'key': '12345678'}
         data.pop(field, None)
@@ -195,7 +219,7 @@ class TestVerifyPhoneView:
 
     def test_key_does_not_exist(self, monkeypatch, api_client, phone_confirmation_factory):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
         phone = "+380990004422"
         key = '12345678'
         sent = timezone.now()
@@ -212,7 +236,7 @@ class TestVerifyPhoneView:
 
     def test_phone_does_not_exist(self, monkeypatch, api_client, phone_confirmation_factory):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
         phone = "+380990004422"
         key = '12345678'
         sent = timezone.now()
@@ -229,7 +253,7 @@ class TestVerifyPhoneView:
 
     def test_exprired_key(self, monkeypatch, api_client, phone_confirmation_factory):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
         phone = "+380990004422"
         key = '12345678'
         sent = timezone.now() - timedelta(days=app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS + 1)
@@ -246,7 +270,7 @@ class TestVerifyPhoneView:
 
     def test_successful(self, monkeypatch, api_client, phone_confirmation_factory):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
         phone = "+380990004422"
         key = '12345678'
         sent = timezone.now()
@@ -271,7 +295,7 @@ class TestVerifyPhoneView:
 
     def test_successful_charge_password(self, monkeypatch, api_client, phone_confirmation_factory):
         monkeypatch.setattr(VerifyPhoneView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:verify_phone')
+        url = reverse(self.url_pattern)
         phone = "+380990004422"
         key = '12345678'
         old_password = 'myo1dpaSSworD'
@@ -308,9 +332,29 @@ class TestVerifyPhoneView:
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestResetPasswordView:
+    url_pattern = 'light_auth:reset_password'
+
+    def test_have_perm(self, settings, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json', **{
+            settings.VO_ORG_UA_TOKEN_NAME: settings.VO_ORG_UA_TOKEN
+        })
+
+        assert response.status_code != status.HTTP_403_FORBIDDEN
+
+    def test_dont_have_perm(self, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     def test_invalid_phone(self, monkeypatch, api_client):
         monkeypatch.setattr(ResetPasswordView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:reset_password')
+        url = reverse(self.url_pattern)
 
         data = {'phone_number': "+38099"}
 
@@ -320,7 +364,7 @@ class TestResetPasswordView:
 
     def test_phone_not_primary(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(ResetPasswordView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:reset_password')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         phone_number_factory(phone=phone_number, primary=False, verified=True)
@@ -333,7 +377,7 @@ class TestResetPasswordView:
 
     def test_phone_not_verified(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(ResetPasswordView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:reset_password')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         phone_number_factory(phone=phone_number, primary=True, verified=False)
@@ -346,7 +390,7 @@ class TestResetPasswordView:
 
     def test_phone_not_exist(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(ResetPasswordView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:reset_password')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         phone_number_factory(phone=phone_number + '4', primary=True, verified=True)
@@ -360,7 +404,7 @@ class TestResetPasswordView:
     def test_successful(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(ResetPasswordView, 'permission_classes', (permissions.AllowAny,))
         monkeypatch.setattr(apps.light_auth.utils, 'send_sms', lambda t,p,c: 0)
-        url = reverse('light_auth:reset_password')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         phone_number_factory(phone=phone_number, primary=True, verified=True)
@@ -375,9 +419,29 @@ class TestResetPasswordView:
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestLightLoginView:
+    url_pattern = 'light_auth:login'
+
+    def test_have_perm(self, settings, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json', **{
+            settings.VO_ORG_UA_TOKEN_NAME: settings.VO_ORG_UA_TOKEN
+        })
+
+        assert response.status_code != status.HTTP_403_FORBIDDEN
+
+    def test_dont_have_perm(self, api_client):
+        url = reverse(self.url_pattern)
+
+        data = {}
+        response = api_client.post(url, data=data, format='json')
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     def test_invalid_phone(self, monkeypatch, api_client):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         data = {'phone_number': "+38099", "password": "VerYhaRd"}
 
@@ -387,7 +451,7 @@ class TestLightLoginView:
 
     def test_phone_not_primary(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -404,7 +468,7 @@ class TestLightLoginView:
 
     def test_phone_not_verified(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -421,7 +485,7 @@ class TestLightLoginView:
 
     def test_phone_not_exist(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -438,7 +502,7 @@ class TestLightLoginView:
 
     def test_user_not_active(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -456,7 +520,7 @@ class TestLightLoginView:
 
     def test_password_invalid(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -473,7 +537,19 @@ class TestLightLoginView:
 
     def test_successful(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(LightLoginView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:login')
+        url = reverse(self.url_pattern)
+
+        fields = (
+            'key',
+            'id',
+            'first_name', 'last_name', 'middle_name',
+            'image',
+            'phone_number', 'extra_phone_numbers', 'email',
+            'locality', 'address',
+            'church', 'home_group',
+            'master', 'repentance_date', 'hierarchy',
+            'language',
+        )
 
         phone_number = '+380996664466'
         password = 'VerYhaRd'
@@ -487,16 +563,19 @@ class TestLightLoginView:
         response = api_client.post(url, data=data, format='json')
 
         assert response.status_code == status.HTTP_200_OK
-        assert 'key' in response.data
+        for f in fields:
+            assert f in response.data
         assert LightToken.objects.filter(key=response.data['key'], user=user)
 
 
 @pytest.mark.hh
 @pytest.mark.django_db
 class TestCheckTokenView:
+    url_pattern = 'light_auth:check_key'
+
     def test_invalid_key(self, monkeypatch, api_client):
         monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:check_key')
+        url = reverse(self.url_pattern)
         key = 'invalidkey'
 
         data = {
@@ -510,7 +589,7 @@ class TestCheckTokenView:
 
     def test_successful_with_phone(self, monkeypatch, api_client, phone_number_factory):
         monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:check_key')
+        url = reverse(self.url_pattern)
         phone = '+380994442244'
         phone_number = phone_number_factory(phone=phone, verified=True, primary=True)
         token = LightToken.objects.create(user=phone_number.auth_user)
@@ -526,7 +605,7 @@ class TestCheckTokenView:
 
     def test_successful_without_phone(self, monkeypatch, api_client, light_auth_user_factory):
         monkeypatch.setattr(CheckLightTokenView, 'permission_classes', (permissions.AllowAny,))
-        url = reverse('light_auth:check_key')
+        url = reverse(self.url_pattern)
         auth_user = light_auth_user_factory()
         token = LightToken.objects.create(user=auth_user)
 

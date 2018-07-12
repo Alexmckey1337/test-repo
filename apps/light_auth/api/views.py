@@ -4,6 +4,7 @@ from rest_framework import status, exceptions, views
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from apps.account.api.serializers import VoUserSerializer
 from apps.light_auth.api.permissions import CanCreateLightAuth, \
     CanConfirmPhoneNumberLightAuth, CanChangeLightAuthPassword, CanVerifyPhoneLightAuth, CanResetPasswordLightAuth, \
     CanLightLogin, CanLightPing
@@ -156,8 +157,8 @@ class LightLoginView(generics.GenericAPIView):
     permission_classes = (CanLightLogin,)
 
     def login(self):
-        self.user = self.serializer.validated_data['user']
-        self.token, _ = LightToken.objects.get_or_create(user=self.user)
+        self.light_user = self.serializer.validated_data['user']
+        self.token, _ = LightToken.objects.get_or_create(user=self.light_user)
 
     def post(self, request, *args, **kwargs):
         self.request = request
@@ -167,7 +168,9 @@ class LightLoginView(generics.GenericAPIView):
 
         self.login()
         serializer = LightTokenSerializer(instance=self.token, context={'request': self.request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = VoUserSerializer(self.light_user.user).data
+        data.update(serializer.data)
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 class CheckLightTokenView(generics.GenericAPIView):
