@@ -18,6 +18,7 @@ django-treebeard==4.2.0
 -e git+https://github.com/amirrpp/django-video-encoding.git@master#egg=django-video-encoding
 djangorestframework<4.0
 djangorestframework-filters==0.10.2
+django-filter==1.1.0
 elasticsearch>=6.0.0,<7.0.0
 elasticsearch-dsl>=6.0.0,<7.0.0
 filetype
