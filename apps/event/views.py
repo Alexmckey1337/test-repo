@@ -15,7 +15,7 @@ from apps.payment.models import Currency
 
 @login_required(login_url='entry')
 def meeting_report_list(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
@@ -37,7 +37,7 @@ def meeting_report_list(request):
 
 @login_required(login_url='entry')
 def meeting_report_detail(request, pk):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     ctx = {
@@ -49,7 +49,7 @@ def meeting_report_detail(request, pk):
 
 @login_required(login_url='entry')
 def meeting_report_statistics(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
 
     owners = CustomUser.objects.filter(home_group__leader__isnull=False).distinct()
@@ -71,7 +71,7 @@ def meeting_report_statistics(request):
 
 @login_required(login_url='entry')
 def meetings_summary(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 1):
         return redirect('/')
     ctx = {
         'departments': Department.objects.all()
@@ -82,7 +82,7 @@ def meetings_summary(request):
 
 class CanSeeUnstableUserListMixin(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 1):
+        if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 1):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
@@ -112,7 +112,7 @@ class UnstableUserListView(LoginRequiredMixin, CanSeeUnstableUserListMixin, Temp
 
 @login_required(login_url='entry')
 def church_report_list(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
 
     ctx = {
@@ -154,7 +154,7 @@ def church_statistics(request):
 
 @login_required(login_url='entry')
 def reports_summary(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
     ctx = {
         'departments': Department.objects.all()
@@ -165,7 +165,7 @@ def reports_summary(request):
 
 @login_required(login_url='entry')
 def report_payments(request):
-    if not request.user.is_staff and (not request.user.hierarchy or request.user.hierarchy.level < 2):
+    if not (request.user.is_staff or request.user.has_operator_perm) and (not request.user.hierarchy or request.user.hierarchy.level < 2):
         return redirect('/')
     ctx = {
         'currencies': Currency.objects.all(),

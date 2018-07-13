@@ -59,7 +59,7 @@ def calls(request):
 
 @login_required(login_url='entry')
 def structure(request, pk=None):
-    if not request.user.is_staff:
+    if not (request.user.is_staff or request.user.has_operator_perm):
         raise PermissionDenied
     only_active = request.GET.get('only_active', None) is not None
     user = None
@@ -79,7 +79,7 @@ def structure(request, pk=None):
 
 @login_required(login_url='entry')
 def structure_to_pdf(request, pk=None, name=''):
-    if not request.user.is_staff:
+    if not (request.user.is_staff or request.user.has_operator_perm):
         raise PermissionDenied
     only_active = request.GET.get('only_active', None) is not None
     user = None

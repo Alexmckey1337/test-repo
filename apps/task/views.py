@@ -8,7 +8,7 @@ from apps.task.models import TaskType
 
 @login_required(login_url='entry')
 def task_list(request):
-    if not request.user.is_staff and not request.user.hierarchy:
+    if not (request.user.is_staff or request.user.has_operator_perm or request.user.hierarchy):
         return redirect('/')
 
     ctx = {

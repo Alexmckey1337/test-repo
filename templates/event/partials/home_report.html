@@ -68,7 +68,7 @@
             </div>
         </div>
         <div class="container">
-            {% if user.is_staff %}
+            {% if user.is_staff or user.has_operator_perm %}
                 <button id="delete_report"></button>
             {% endif %}
             <button class="close-popup">Отменить</button>

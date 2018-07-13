@@ -77,7 +77,7 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
                               ] + [{'id': c.id, 'title': c.get_title} for c in Church.objects.all()],
         }
         user = self.request.user
-        if user.is_staff:
+        if user.is_staff or user.has_operator_perm:
             extra_ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
         elif not user.hierarchy:
             extra_ctx['masters'] = list()

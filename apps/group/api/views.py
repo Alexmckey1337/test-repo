@@ -142,7 +142,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, Chu
 
         master = self._get_master(request.user, master_tree_id)
 
-        if (request.user.is_staff and not master_tree_id) or request.user.is_staff:
+        if ((request.user.is_staff or request.user.has_operator_perm) and not master_tree_id) or request.user.is_staff or request.user.has_operator_perm:
             pastors = CustomUser.objects.filter(hierarchy__level__gte=2)
         else:
             pastors = master.__class__.get_tree(master).filter(hierarchy__level__gte=2)
@@ -261,7 +261,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, Chu
         if not master_tree_id:
             return master
         try:
-            if self.request.user.is_staff:
+            if self.request.user.is_staff or self.request.user.has_operator_perm:
                 return CustomUser.objects.filter(hierarchy__level__gte=2).get(pk=master_tree_id)
             return master.__class__.get_tree(master).filter(hierarchy__level__gte=2).get(pk=master_tree_id)
         except ValueError:
@@ -289,7 +289,7 @@ class ChurchViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet, Chu
 
     def filter_potential_users_for_church(self, qs):
         user = self.request.user
-        if user.is_staff:
+        if user.is_staff or user.has_operator_perm:
             return qs.annotate(can_add=Case(When(
                 Q(hhome_group__isnull=True) & Q(cchurch__isnull=True),
                 then=True), default=False, output_field=BooleanField()))

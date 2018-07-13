@@ -170,6 +170,10 @@ class CustomUser(MP_Node, LogModel, User, AbstractProjectUser,
         return self.get_absolute_url()
 
     @property
+    def has_operator_perm(self):
+        return self.is_proposal_manager
+
+    @property
     def get_home_group(self):
         return self.hhome_group
 

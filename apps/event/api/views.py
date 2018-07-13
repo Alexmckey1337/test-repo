@@ -1150,7 +1150,7 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
 
     def get_where_pastor_tree(self):
         pastor_tree = self.request.query_params.get('pastor_tree')
-        if not pastor_tree and self.request.user.is_staff:
+        if not pastor_tree and (self.request.user.is_staff or self.request.user.has_operator_perm):
             return '', []
         if not pastor_tree:
             pastor_tree = self.request.user.id
@@ -1329,7 +1329,7 @@ class MeetingStatsView(WeekMixin, views.APIView):
 
     def get_where_leader_tree(self):
         leader_tree = self.request.query_params.get('leader_tree')
-        if not leader_tree and self.request.user.is_staff:
+        if not leader_tree and (self.request.user.is_staff or self.request.user.has_operator_perm):
             return '', []
         if not leader_tree:
             leader_tree = self.request.user.id
@@ -1517,7 +1517,7 @@ class MeetingAttendStatsView(WeekMixin, views.APIView):
         TODO Perhaps wrong, because tree of the leader can change with time, then the old reports will be incorrect
         """
         leader_tree = self.request.query_params.get('leader_tree')
-        if not leader_tree and self.request.user.is_staff:
+        if not leader_tree and (self.request.user.is_staff or self.request.user.has_operator_perm):
             return '', []
         if not leader_tree:
             leader_tree = self.request.user.id

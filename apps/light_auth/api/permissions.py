@@ -97,5 +97,5 @@ class CanLightPing(BasePermission):
 
 def has_light_auth_perm(user, to_user=None):
     if to_user is None:
-        return user.is_staff
-    return user.is_staff
+        return user.is_staff or user.has_operator_perm
+    return user.is_staff or user.has_operator_perm or to_user.is_descendant_of(user)

@@ -16,7 +16,7 @@ class LessonQuerySet(models.query.QuerySet):
     def for_user(self, user, extra_perms=True):
         if not user.is_authenticated:
             return self.none()
-        if extra_perms and user.is_staff:
+        if extra_perms and (user.is_staff or user.has_operator_perm):
             return self
         if not user.hierarchy:
             return self.none()

@@ -27,7 +27,7 @@ class FilterMasterTreeWithSelf(BaseFilterMasterTree):
 
 class FilterDashboardMasterTreeWithSelf(FilterMasterTreeWithSelf):
     def filter_queryset(self, request, queryset, view):
-        if request.user.is_staff:
+        if request.user.is_staff or request.user.has_operator_perm:
             return queryset
         return super(FilterDashboardMasterTreeWithSelf, self).filter_queryset(request, queryset, view)
 

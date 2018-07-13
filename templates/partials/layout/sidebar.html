@@ -64,7 +64,7 @@
             </ul>
         </li>
     </ul>
-    {% if user.is_staff %}
+    {% if user.is_staff or user.has_operator_perm %}
         <div class="bottom-sidebar">
             <ul>
                 <li><a data-title="Заявки" href="#" id="proposals__item" class="menu__item"></a>
@@ -74,14 +74,16 @@
                         <li><a href="{% url "proposal:event-list" %}">{% trans "События" %}</a></li>
                     </ul>
                 </li>
-                <li class="menu__item">
-                    <i class="material-icons">&#xE5C3;</i>
-                    <ul class="sidebar-submenu">
-                        <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
-                        <li><a href="{% url "controls:main" %}">{% trans "Права доступа к базе данных" %}</a></li>
-                        <li><a href="{% url "controls:summit_panel" %}">{% trans "Саммиты" %}</a></li>
-                    </ul>
-                </li>
+                    <li class="menu__item">
+                        <i class="material-icons">&#xE5C3;</i>
+                        <ul class="sidebar-submenu">
+                            <li><a href="{% url "calls" %}">{% trans "Звонки" %}</a></li>
+                            {% if user.is_staff %}
+                                <li><a href="{% url "controls:main" %}">{% trans "Права доступа к базе данных" %}</a></li>
+                                <li><a href="{% url "controls:summit_panel" %}">{% trans "Саммиты" %}</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
             </ul>
         </div>
     {% endif %}

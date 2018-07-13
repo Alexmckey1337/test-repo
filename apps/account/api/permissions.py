@@ -42,7 +42,7 @@ def can_see_account_page(current_user, user):
     Checking that the ``current_user`` has the right to see page ``/account/<user.id>/``
     """
     return (
-        current_user.is_staff or
+        current_user.is_staff or current_user.has_operator_perm or
         current_user.is_partner_supervisor_or_high or
         user == current_user or
         user.is_descendant_of(current_user) or
@@ -56,7 +56,7 @@ class CreateUserPermission(BaseUserPermission):
         Checking that the ``user`` has the right to create a new user
         """
         return (
-             self.user.is_staff or self.user.is_leader_or_high or
+             self.user.is_staff or self.user.has_operator_perm or self.user.is_leader_or_high or
              self.user.is_partner_supervisor_or_high or
              self.user.is_any_summit_supervisor_or_high()
         )
@@ -67,7 +67,7 @@ class SeeUserListPermission(BaseUserPermission):
         """
         Checking that the ``user`` has the right to see list of users
         """
-        return not self.user.is_leaf() or self.user.is_staff
+        return not self.user.is_leaf() or self.user.is_staff or self.user.has_operator_perm
 
     def get_queryset(self):
         """
@@ -83,7 +83,7 @@ class ExportUserListPermission(SeeUserListPermission):
         """
         Checking that the ``user`` has the right to export list of users
         """
-        return self.user.is_staff or self.user.is_pastor_or_high
+        return self.user.is_staff or self.user.has_operator_perm or self.user.is_pastor_or_high
 
 
 class EditUserPermission(BaseUserPermission):
@@ -91,7 +91,7 @@ class EditUserPermission(BaseUserPermission):
         """
         Checking that the ``user`` has the right to edit users
         """
-        return not self.user.is_leaf() or self.user.is_staff
+        return not self.user.is_leaf() or self.user.is_staff or self.user.has_operator_perm
 
     def get_queryset(self):
         """
@@ -101,7 +101,7 @@ class EditUserPermission(BaseUserPermission):
 
         if not self.user.is_authenticated:
             return queryset.none()
-        if self.user.is_staff:
+        if self.user.is_staff or self.user.has_operator_perm:
             return queryset
         if not self.user.hierarchy:
             return queryset.none()

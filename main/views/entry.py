@@ -19,7 +19,7 @@ def index(request):
         'current_user': user
     }
 
-    if user.is_staff:
+    if user.is_staff or user.has_operator_perm:
         ctx['masters'] = CustomUser.objects.filter(is_active=True, hierarchy__level__gte=1)
     elif not user.hierarchy:
         ctx['masters'] = list()

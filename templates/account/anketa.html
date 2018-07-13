@@ -4,6 +4,7 @@
 {% load summit_tags %}
 {% load partner_tags %}
 {% load payment_tags %}
+{% load account_tags %}
 
 {% block extra_styles %}
     <style>
@@ -16,7 +17,7 @@
 
 {% block main.attr %} class="main-wrap anketa"  id="account_view"{% endblock %}
 
-{% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
+{% block header.top.h1 %}<h1>Анкета пользователя{% if user.is_staff or user.has_operator_perm %} <a href="{% url "structure-detail" pk=account.pk %}">Structure</a>{% endif %}</h1>{% endblock %}
 {% block header.search %}{% endblock %}
 
 {% block header.buttons.add %}
@@ -629,7 +630,8 @@
 {#                        </div>#}
 {#                    </div>#}
 {#                {% endif %}#}
-                {% if request.user.has_light_auth_perm %}
+                {% has_light_auth_perm account as has_perm %}
+                {% if has_perm %}
                     <div class="a-block a-light-auth">
                         <div class="top-s">
                             <h3>Аккаунт для vochurch.online</h3>
@@ -639,7 +641,7 @@
                                 {% if not account.phone_number %}
                                     У пользователя не указан номер телефона, поэтому не возможно создать аккаунт для vorchurch.online
                                 {% elif account.similar_user %}
-                                    Позьзователь с номером {{ account.phone_number }} уже существует -- {{ account.similar_user }}
+                                    Позьзователь с номером {{ account.phone_number }} уже существует -- <a href="{{ account.similar_user.get_absolute_url }}">{{ account.similar_user }}</a>
                                 {% else %}
                                     <button id="create_light_auth" data-url="{% url "light_auth:create" pk=account.pk %}">Создать аккаунт</button> Отправить запрос на изменения пароля и подтверждение номера
                                     <hr>

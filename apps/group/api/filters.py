@@ -116,17 +116,17 @@ class FilterHGLeadersByMasterTree(BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         master_tree_id = request.query_params.get(self.query_name)
-        if not master_tree_id and request.user.is_staff:
+        if not master_tree_id and (request.user.is_staff or request.user.has_operator_perm):
             return queryset
         master = self._get_master(request.user, master_tree_id)
         return queryset.intersection(master.__class__.get_tree(master))
 
     @staticmethod
     def _get_master(master, master_tree_id):
-        if not master_tree_id and not master.is_staff:
+        if not master_tree_id and not (master.is_staff or master.has_operator_perm):
             return master
         try:
-            if master.is_staff:
+            if master.is_staff or master.has_operator_perm:
                 return CustomUser.objects.get(pk=master_tree_id)
             return master.__class__.get_tree(master).get(pk=master_tree_id)
         except ValueError:
