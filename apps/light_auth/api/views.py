@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import generics
 from rest_framework import status, exceptions, views
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.account.api.serializers import VoUserSerializer
@@ -12,6 +12,7 @@ from apps.light_auth.api.serializers import LightAuthSerializer, VerifyPhoneSeri
     ResetPhoneSerializer, LightTokenSerializer, LightLoginSerializer
 from apps.light_auth.models import PhoneNumber, LightAuthUser, PhoneConfirmation, LightToken
 from apps.light_auth.utils import get_light_auth_user_model, make_phone_number
+from common.throttling import ScopedRateByUrlPkThrottle
 
 UserModel = get_light_auth_user_model()
 
@@ -46,6 +47,8 @@ class LightAuthCreateView(generics.CreateAPIView):
 class LightAuthConfirmPhoneNumberView(generics.GenericAPIView):
     queryset = UserModel.objects.filter(is_active=True)
     permission_classes = (IsAuthenticated, CanConfirmPhoneNumberLightAuth)
+    throttle_scope = 'send_verify_sms'
+    throttle_classes = (ScopedRateByUrlPkThrottle,)
 
     def get_response_data(self, auth_user, reset_password=False):
         if reset_password:

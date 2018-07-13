@@ -222,6 +222,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_THROTTLE_RATES': {
+        'send_verify_sms': '1/min',
+    },
     'PAGE_SIZE': 30,
     'DATE_FORMAT': '%d.%m.%Y',
     #    'DEFAULT_RENDERER_CLASSES': (
