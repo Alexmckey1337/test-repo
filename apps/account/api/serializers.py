@@ -610,6 +610,7 @@ class VoUserSerializer(serializers.ModelSerializer):
     church = ChurchNameSerializer(source='get_church', read_only=True)
     home_group = HomeGroupNameSerializer(source='get_home_group', read_only=True)
     hierarchy = HierarchyTitleSerializer()
+    departments = DepartmentTitleSerializer(many=True, read_only=True)
     master = MasterTitleSerializer(read_only=True)
 
     class Meta:
@@ -623,6 +624,7 @@ class VoUserSerializer(serializers.ModelSerializer):
             'church', 'home_group',
             'master', 'repentance_date', 'hierarchy',
             'language',
+            'departments',
         )
 
 
