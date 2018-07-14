@@ -124,6 +124,14 @@ class VoUserUpdateView(mixins.UpdateModelMixin, GenericAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
+def vo_user(request, *args, **kwargs):
+    if request.method.lower() == 'get':
+        return VoUserDetailView.as_view()(request, *args, **kwargs)
+    elif request.method.lower() == 'patch':
+        return VoUserUpdateView.as_view()(request, *args, **kwargs)
+    return VoUserDetailView.as_view()(request, *args, **kwargs)
+
+
 class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
     queryset = User.objects.all()
 
@@ -132,9 +140,6 @@ class VoUserDetailView(mixins.RetrieveModelMixin, GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return VoUserUpdateView.as_view()(request._request, *args, **kwargs)
 
 
 class VoMasterDetailView(GenericAPIView):

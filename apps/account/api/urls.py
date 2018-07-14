@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import routers
 
 from apps.account.api import calls as calls_views
@@ -30,7 +31,7 @@ custom_v1_1_urls = [
     path('asterisk_users/', calls_views.asterisk_users, name='asterisk_users'),
     path('change_asterisk_user/', calls_views.change_asterisk_user, name='change_asterisk_user'),
 
-    path('vo/users/<int:pk>/', views.VoUserDetailView.as_view(), name='vo-user-detail'),
+    path('vo/users/<int:pk>/', csrf_exempt(views.vo_user), name='vo-user-detail'),
     path('vo/users/<int:pk>/master/', views.VoMasterDetailView.as_view(), name='vo-master-detail'),
     path('vo/messengers/', views.VoMessengerListView.as_view(), name='vo-messenger-list'),
     path('vo/hierarchies/', views.VoHierarchyListView.as_view(), name='vo-hierarchy-list'),

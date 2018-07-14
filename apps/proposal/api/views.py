@@ -31,6 +31,14 @@ class ProposalFilter(django_filters.FilterSet):
         fields = ['created_from', 'created_to', 'sex', 'type']
 
 
+def proposal(request, *args, **kwargs):
+    if request.method.lower() == 'get':
+        return ProposalListView.as_view()(request, *args, **kwargs)
+    elif request.method.lower() == 'post':
+        return CreateProposalView.as_view()(request, *args, **kwargs)
+    return ProposalListView.as_view()(request, *args, **kwargs)
+
+
 class ProposalListView(generics.ListAPIView):
     queryset = Proposal.objects.order_by('-created_at')
     serializer_class = ProposalSerializer
@@ -53,9 +61,6 @@ class ProposalListView(generics.ListAPIView):
         'search': ('leader_name', 'age_group', 'gender_group', 'geo_location'),
     }
     filter_class = ProposalFilter
-
-    def post(self, request, *args, **kwargs):
-        return CreateProposalView.as_view()(request._request, *args, **kwargs)
 
 
 class UpdateProposalStatusMixin(generics.GenericAPIView):
@@ -140,13 +145,18 @@ class CreateEventProposalView(generics.CreateAPIView):
     permission_classes = (CanCreateProposal,)
 
 
+def event_proposal(request, *args, **kwargs):
+    if request.method.lower() == 'get':
+        return EventProposalListView.as_view()(request, *args, **kwargs)
+    elif request.method.lower() == 'post':
+        return CreateEventProposalView.as_view()(request, *args, **kwargs)
+    return EventProposalListView.as_view()(request, *args, **kwargs)
+
+
 class EventProposalListView(generics.ListAPIView):
     queryset = EventProposal.objects.order_by('-created_at')
     serializer_class = EventProposalSerializer
     permission_classes = (CanCreateProposal,)
-
-    def post(self, request, *args, **kwargs):
-        return CreateEventProposalView.as_view()(request._request, *args, **kwargs)
 
 
 class UpdateEventProposalStatusMixin(generics.GenericAPIView):
