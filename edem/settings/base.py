@@ -140,6 +140,7 @@ TEMPLATES = [
                 'apps.notification.context_processor.notifications',
                 'common.context_processor.select_options',
                 'common.context_processor.crm_version',
+                'common.context_processor.common_info',
                 'common.context_processor.currency',
                 'apps.account.context_processor.spiritual_levels',
                 'apps.partnership.context_processor.partner_levels',

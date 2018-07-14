@@ -601,7 +601,6 @@ $('document').ready(function () {
 
 			return;
 		}
-		console.log('Valid-->', $('#phone_number').inputmask("isComplete"));
 
 		if (($(this).closest('form').attr('name') == 'editContact') && (!$('#phone_number').inputmask("isComplete"))) {
 			showAlert('Введите коректный номер телефона');
@@ -623,6 +622,7 @@ $('document').ready(function () {
 		let deleteManager = $(this).closest('form').find('.delete-manager');
 		let formData = new FormData(form);
 		let hidden = $(this).hasClass('after__hidden');
+		let messengers = [];
 		if (action === 'update-user') {
 			if ($input.is(':checkbox') && !$input.is('#is_dead')) {  // it is partner form
 				let partnershipData = new FormData();
@@ -656,6 +656,13 @@ $('document').ready(function () {
 						}
 					});
 			} else {
+				if (formName === 'editMessengers') {
+					$input.each(function () {
+						if ($(this).val().trim()) {
+							messengers.push({"code": $(this).attr('name'), "value": $(this).val().trim()});
+						}
+					});
+				}
 				if (formName === 'editLocation') {
 					let id = $('#chooseCity').attr('data-id');
 					id && formData.append('locality', id);
@@ -715,6 +722,9 @@ $('document').ready(function () {
 						}
 					}
 				});
+				if (messengers.length > 0) {
+					formData.append('messengers', JSON.stringify(messengers));
+				}
 				updateUser(ID, formData, success).then(function (data) {
 					if (formName === 'editHierarchy') {
 						$('.is-hidden__after-edit').html('');

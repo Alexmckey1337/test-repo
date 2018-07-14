@@ -1,7 +1,7 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 
-from apps.account.models import CustomUser
+from apps.account.models import CustomUser, UserMessenger
 from apps.light_auth.api.permissions import has_light_auth_perm as _has_light_auth_perm
 
 register = template.Library()
@@ -38,3 +38,11 @@ def has_light_auth_perm(context, user_to=None, user_from=None):
         user_from = request.user
 
     return _has_light_auth_perm(user_from, user_to)
+
+
+@register.simple_tag
+def messenger(code, user):
+    try:
+        return UserMessenger.objects.get(user=user, messenger__code=code).value
+    except UserMessenger.DoesNotExist:
+        return ''

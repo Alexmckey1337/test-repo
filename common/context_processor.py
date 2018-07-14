@@ -1,5 +1,5 @@
 import edem
-from apps.account.models import CustomUser
+from apps.account.models import CustomUser, MessengerType
 from apps.payment.models import Currency
 
 
@@ -23,4 +23,10 @@ def currency(request):
     return {
         'currencies': currencies,
         'currency_options': [{'id': c.pk, 'title': c.name} for c in currencies]
+    }
+
+
+def common_info(request):
+    return {
+        'available_messengers': MessengerType.objects.order_by('display_position')
     }

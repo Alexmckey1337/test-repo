@@ -185,6 +185,26 @@
                             </form>
                         </div>
                     </li>
+                    <li id="editMessengers">
+                        <div class="right-info__block">
+                            <h4>Мессенджеры</h4>
+                            <div class="success__block"></div>
+                            <form action="/" id="editMessengersForm" name="editMessengers" data-action="update-user">
+                                <button class="edit" data-edit-block="editMessengers"></button>
+                                <button class="save__info" type="submit"></button>
+                                <div class="popup_body">
+                                    <div class="container">
+                                        {% for m in available_messengers %}
+                                            <label>
+                                                <span class="label_block">{{ m.title }}</span>
+                                                <input type="text" id="messenger_{{ m.code }}" name="{{ m.code }}" value="{% messenger m.code account %}" readonly>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
                     <li id="editSocial">
                         <div class="right-info__block">
                             <h4>Социальные сети</h4>
