@@ -66,7 +66,8 @@ class AbstractProjectUser(models.Model):
 
     @property
     def last_phone_confirmation(self):
-        return PhoneConfirmation.objects.filter(phone_number=self.light_auth_primary_phone).order_by('-sent').first()
+        return PhoneConfirmation.objects.filter(
+            phone_number=self.light_auth_primary_phone, sent__isnull=False).order_by('-sent', '-created').first()
 
     def has_light_auth_perm(self, user=None):
         return has_light_auth_perm(self, user)

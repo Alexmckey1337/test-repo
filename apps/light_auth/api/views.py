@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework import status, exceptions, views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from twilio.base.exceptions import TwilioRestException
 
 from apps.account.api.serializers import VoUserSerializer
 from apps.light_auth.api.permissions import CanCreateLightAuth, \
@@ -55,6 +56,20 @@ class LightAuthConfirmPhoneNumberView(generics.GenericAPIView):
             return {"detail": _("Reset password for user %s sent.") % str(auth_user)}
         return {"detail": _("Verification phone number for user %s sent.") % str(auth_user)}
 
+    def send_confirmation(self, phone, user, auth_user, reset_password):
+        if phone is None:
+            new_phone = make_phone_number(user.phone_number)
+            if not new_phone:
+                raise exceptions.ValidationError(_("User don't have phone number."))
+            if PhoneNumber.objects.filter(phone=new_phone).exclude(auth_user=auth_user).exists():
+                raise exceptions.ValidationError(_("User with phone number %s already exist.") % user.phone_number)
+            phone = PhoneNumber.objects.add_phone(
+                self.request, auth_user, new_phone, confirm=True, reset_password=reset_password)
+            # phone.set_as_primary()
+            # raise exceptions.ValidationError(_('Phone number does not confirmation'))
+        else:
+            phone.send_confirmation(reset_password=reset_password)
+
     def post(self, request, *args, **kwargs):
         reset_password = request.query_params.get('reset_password', 'false')
         reset_password = reset_password.lower() in ('true', 't', '1', 'yes', 'y', 'on')
@@ -64,18 +79,10 @@ class LightAuthConfirmPhoneNumberView(generics.GenericAPIView):
         except LightAuthUser.DoesNotExist:
             raise exceptions.ValidationError(_('LightAuthUser does not exist.'))
         phone = PhoneNumber.objects.get_primary(auth_user)
-        if phone is None:
-            new_phone = make_phone_number(user.phone_number)
-            if not new_phone:
-                raise exceptions.ValidationError(_("User don't have phone number."))
-            if PhoneNumber.objects.filter(phone=new_phone).exclude(auth_user=auth_user).exists():
-                raise exceptions.ValidationError(_("User with phone number %s already exist.") % user.phone_number)
-            phone = PhoneNumber.objects.add_phone(
-                request, auth_user, new_phone, confirm=True, reset_password=reset_password)
-            # phone.set_as_primary()
-            # raise exceptions.ValidationError(_('Phone number does not confirmation'))
-        else:
-            phone.send_confirmation(reset_password=reset_password)
+        try:
+            self.send_confirmation(phone, user, auth_user, reset_password)
+        except TwilioRestException as err:
+            raise exceptions.ValidationError(err.msg)
 
         return Response(self.get_response_data(auth_user, reset_password=reset_password))
 

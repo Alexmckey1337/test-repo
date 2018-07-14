@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
+from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from apps.light_auth import app_settings
@@ -19,13 +20,18 @@ client = Client(account_sid, auth_token)
 def send_sms(template, phone, ctx):
     body = render_to_string(template, ctx)
 
-    message = client.messages.create(
-        body=body,
-        from_=settings.TWILIO_FROM,
-        to=phone
-    )
-    print(message.sid)
-    print(phone, body, sep='\n\n', end='\n\n')
+    # print(phone, body, sep='\n\n', end='\n\n')
+    # print(account_sid, auth_token, settings.TWILIO_FROM)
+    try:
+        message = client.messages.create(
+            body=body,
+            from_=settings.TWILIO_FROM,
+            to=phone
+        )
+    except TwilioRestException as err:
+        raise err
+    else:
+        print(message.sid)
 
 
 def build_absolute_uri(request, location, protocol=None):
