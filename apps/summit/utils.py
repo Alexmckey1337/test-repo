@@ -379,15 +379,17 @@ class FullSummitParticipantReport(object):
             name='Header2', fontName='FreeSans', alignment=TA_LEFT, fontSize=12, spaceAfter=5))
 
     def _append_document_header(self):
+        tz = pytz.timezone('Europe/Kiev')
+        now = timezone.now()
         self.elements.append(Paragraph(
             'Отчет создан: {}'.upper().format(
-                timezone.now().strftime(timezone.now().strftime('%d.%m.%Y %H:%M:%S%z'))), self.styles['date']))
+                now.astimezone(tz=tz).strftime('%d.%m.%Y %H:%M:%S%z')), self.styles['date']))
         self.elements.append(Paragraph(
             'Отчет о посещаемости за {}'.upper().format(self.report_date.strftime('%d.%m.%Y')), self.styles['Header1']))
         self.elements.append(Paragraph(self.master.fullname.upper(), self.styles['Header12']))
 
-    def _append_table_header(self, user: Profile):
-        self.elements.append(Paragraph(user.user_name, self.styles['Header2']))
+    def _append_table_header(self, user: str):
+        self.elements.append(Paragraph(user, self.styles['Header2']))
 
     def _append_tables(self, users: List[Profile]):
         if self.attended and self.attended.upper() in ('TRUE', 'T', 'YES', 'Y', '1'):
@@ -397,9 +399,12 @@ class FullSummitParticipantReport(object):
         else:
             table_users = users
         user = users[0]
-        self._append_user_table(user, table_users)
+        masters = list(set([u.master_name for u in table_users]))
+        masters.sort()
+        for m in masters:
+            self._append_user_table(m, [u for u in table_users if u.master_name == m])
 
-    def _append_user_table(self, u: Profile, users: List[Profile]):
+    def _append_user_table(self, u: str, users: List[Profile]):
         table_data = []
         for user in users:
             table_data.append(
@@ -491,6 +496,7 @@ class FullSummitParticipantReport(object):
             connect.execute(raw, [self.summit_id, self.summit_id])
             for profile in connect.fetchall():
                 profiles.append(Profile(*profile))
+                print(Profile(*profile).tree)
 
         return profiles
 
@@ -647,8 +653,8 @@ class SummitTicketPDF:
         self._default_background = None
 
         self.unit = unit or mm
-        self._width = 58 # 210
-        self._height = 90 # 90
+        self._width = 58  # 210
+        self._height = 90  # 90
 
         self._init_styles()
         self.buffer = BytesIO()
