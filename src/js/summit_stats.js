@@ -46,14 +46,20 @@ $('document').ready(function () {
 
     getTabsFilter();
 
-    $('#filter_button').on('click', function () {
-        $('#filterPopup').addClass('active');
-        $('.bg').addClass('active');
-        $('#filterPopup').classList.add('active').find('.pop_cont').on('click', function (e) {
-            e.preventDefault();
-            return false
-        });
-    });
+	$('#filter_button').on('click', function () {
+		$('#filterPopup').show();
+		$('#filterPopup').addClass('active');
+		$('.bg').addClass('active');
+	});
+    // $('#filter_button').on('click', function () {
+    //     let $fp = $('#filterPopup');
+    //     $fp.addClass('active');
+    //     $('.bg').addClass('active');
+    //     // $fp.addClass('active').find('.pop_cont').on('click', function (e) {
+    //     //     e.preventDefault();
+    //     //     return false
+    //     // });
+    // });
 
     //Filter
     $('.apply-filter').on('click', function (e) {
