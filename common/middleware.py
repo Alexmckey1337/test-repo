@@ -1,6 +1,7 @@
 import logging
 from time import time
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
@@ -91,6 +92,8 @@ class AnalyticsMiddleware(MiddlewareMixin):
         return content
 
     def process_response(self, request, response):
+        if not settings.LOG_TO_ES:
+            return
         try:
             self.content = self.get_content(request, response)
             # t = time()

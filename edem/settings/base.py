@@ -523,6 +523,8 @@ VIDEO_ENCODING_FORMATS = {
     ]
 }
 
+LOG_TO_ES = env.bool('LOG_TO_ES', True)
+
 # Proposal settings
 
 PROPOSAL_OPEN = 'open'
