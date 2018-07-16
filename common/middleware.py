@@ -93,7 +93,7 @@ class AnalyticsMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         if not settings.LOG_TO_ES:
-            return
+            return response
         try:
             self.content = self.get_content(request, response)
             # t = time()
