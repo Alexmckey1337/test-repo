@@ -179,7 +179,7 @@ class EventProposal(AbstractProposal):
     info = JSONField(_('Additional information'), blank=True, default={})
 
     profile = models.ForeignKey(
-        'summit.SummitAnket', on_delete=models.PROTECT,
+        'summit.SummitAnket', on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name='proposals', verbose_name=_('Event profile')
     )
@@ -221,7 +221,7 @@ class EventHistory(models.Model):
         related_name='proposal_event_histories', verbose_name=_('Manager')
     )  # related to EventProposal.manager field
     profile = models.ForeignKey(
-        'summit.SummitAnket', on_delete=models.PROTECT,
+        'summit.SummitAnket', on_delete=models.SET_NULL,
         null=True, blank=True, editable=False,
         related_name='+', verbose_name=_('Event profile')
     )  # related to EventProposal.profile field

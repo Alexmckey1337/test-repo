@@ -1128,7 +1128,9 @@ class ChurchReportStatsView(WeekMixin, views.APIView):
                       "date_part('year', report.date) = {year})")
     YEARS_TEMPLATE = "date_part('year', report.date) IN ({years})"
 
-    payment_content_type = ContentType.objects.get_for_model(ChurchReport)
+    @property
+    def payment_content_type(self):
+        return ContentType.objects.get_for_model(ChurchReport)
 
     def get_where_weeks(self, weeks):
         where_weeks = [
@@ -1620,15 +1622,15 @@ attends_empty = {
     "age": create_empty_dict_by_keys(AGE_FIELDS),
 }
 
-meeting_empty = {c.code: {
-    'total_sum': Decimal('0.00'),
-    'total_guest_count': 0,
-    'total_new_count': 0,
-    'total_repentance_count': 0,
-} for c in Currency.objects.all()}
-
 
 def merge_data(meetings_stats, attends_stats):
+    meeting_empty = {c.code: {
+        'total_sum': Decimal('0.00'),
+        'total_guest_count': 0,
+        'total_new_count': 0,
+        'total_repentance_count': 0,
+    } for c in Currency.objects.all()}
+
     def dict_to_tuple(d):
         return d['year'], d['month'], d['week']
 

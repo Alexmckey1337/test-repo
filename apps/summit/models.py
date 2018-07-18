@@ -590,7 +590,7 @@ class SummitEventTable(models.Model):
 
 
 class SummitAttend(models.Model):
-    anket = models.ForeignKey('summit.SummitAnket', on_delete=models.PROTECT, related_name='attends',
+    anket = models.ForeignKey('summit.SummitAnket', on_delete=models.CASCADE, related_name='attends',
                               verbose_name=_('Anket'))
     date = models.DateField(verbose_name=_('Date'), db_index=True)
     time = models.TimeField(verbose_name=_('Time'), null=True)

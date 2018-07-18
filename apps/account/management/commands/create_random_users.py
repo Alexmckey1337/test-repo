@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 username=f'random{ts:0>14}'
             )
             data['master'] = master
-            if i < 20:
+            if master is None:
                 user = CustomUser.add_root(**data)
                 masters.append(user)
             else:
