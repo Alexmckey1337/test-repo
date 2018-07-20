@@ -423,7 +423,14 @@ class SummitAttendViewSet(ModelWithoutDeleteViewSet):
                                    'reg_code_requested_date': timezone.now()})
 
         if anket.status.active:
-            SummitAttend.objects.get_or_create(anket=anket, date=timezone.now().date())
+            SummitAttend.objects.get_or_create(
+                anket=anket,
+                date=(timezone.now() + timedelta(hours=3)).date(),
+                defaults={
+                    'time': (timezone.now() + timedelta(hours=3)).time(),
+                    'created_at': timezone.now() + timedelta(hours=3),
+                }
+            )
             AnketPasses.objects.create(anket=anket)
 
         anket = self.serializer_class(anket)
