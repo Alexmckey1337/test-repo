@@ -133,7 +133,7 @@ class ProfileAbstract(models.Model):
 
     #: Field for name in the native language of the user
     search_name = models.CharField(_('Field for search by name'), max_length=255, blank=True, db_index=True)
-    first_name = models.CharField(_('Fisrt name'), max_length=255, blank=True, editable=False, db_index=True)
+    first_name = models.CharField(_('First name'), max_length=255, blank=True, editable=False, db_index=True)
     last_name = models.CharField(_('Last name'), max_length=255, blank=True, editable=False, db_index=True)
     middle_name = models.CharField(_('Middle name'), max_length=40, blank=True, db_index=True)
 

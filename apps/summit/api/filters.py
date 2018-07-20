@@ -112,8 +112,8 @@ class FilterByTime(BaseFilterBackend):
         Return a filtered queryset.
         """
         params = request.query_params
-        attend_from = params.get('from_attend', None)
-        attend_to = params.get('to_attend', None)
+        attend_from = params.get('attend_from', None)
+        attend_to = params.get('attend_to', None)
         d = view.filter_date
         if attend_from and attend_to:
             attends = SummitAttend.objects.filter(
