@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers, exceptions
 
-from apps.light_auth.models import LightAuthUser, PhoneNumber, LightToken
+from apps.light_auth.models import LightAuthUser, PhoneNumber, LightToken, PhoneConfirmation
 from apps.light_auth.utils import get_light_auth_user_model, setup_user_phone, make_phone_number
 
 UserModel = get_light_auth_user_model()
@@ -53,7 +53,7 @@ class VerifyPhoneSerializer(serializers.Serializer):
 
     def validate_new_password(self, password):
         try:
-            password_validation.validate_password(password)
+            password_validation.validate_password(password, password_validators=[])
         except ValidationError as err:
             raise exceptions.ValidationError(err)
         return password
@@ -79,7 +79,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
     def validate_new_password1(self, password):
         try:
-            password_validation.validate_password(password)
+            password_validation.validate_password(password, password_validators=[])
         except ValidationError as err:
             raise exceptions.ValidationError(err)
         return password
@@ -138,8 +138,15 @@ class LightLoginSerializer(serializers.Serializer):
 
         user = None
 
+        # TODO
+
+        #########################################################################
+        # START = VERY BAD, DELETE IT
+        #########################################################################
+        confirmation = None
         try:
-            phone = PhoneNumber.objects.get(phone=phone_number, primary=True, verified=True)
+            phone = PhoneNumber.objects.get(phone=phone_number)
+            confirmation = PhoneConfirmation.objects.filter(phone_number=phone).order_by('-created').first()
             user = phone.auth_user
         except PhoneNumber.DoesNotExist:
             pass
@@ -148,11 +155,36 @@ class LightLoginSerializer(serializers.Serializer):
             if not user.is_active:
                 msg = _('User account is disabled.')
                 raise exceptions.ValidationError(msg)
-            if not user.check_password(password):
+            if not confirmation or confirmation.key != password:
                 raise exceptions.ValidationError({'detail': _('Password is invalid')})
         else:
             msg = _('User with phone %s does not exist.') % phone_number
             raise exceptions.ValidationError(msg)
+        #########################################################################
+        # END = VERY BAD, DELETE IT
+        #########################################################################
+
+        #########################################################################
+        # START = GOOD, UNCOMMENT IT
+        #########################################################################
+        # try:
+        #     phone = PhoneNumber.objects.get(phone=phone_number, primary=True, verified=True)
+        #     user = phone.auth_user
+        # except PhoneNumber.DoesNotExist:
+        #     pass
+        #
+        # if user:
+        #     if not user.is_active:
+        #         msg = _('User account is disabled.')
+        #         raise exceptions.ValidationError(msg)
+        #     if not user.check_password(password):
+        #         raise exceptions.ValidationError({'detail': _('Password is invalid')})
+        # else:
+        #     msg = _('User with phone %s does not exist.') % phone_number
+        #     raise exceptions.ValidationError(msg)
+        #########################################################################
+        # END = GOOD, UNCOMMENT IT
+        #########################################################################
 
         attrs['user'] = user
         return attrs

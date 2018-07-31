@@ -35,7 +35,7 @@ class LightAuthUser(models.Model):
         if not hasattr(self, '_password'):
             self._password = None
         elif self._password is not None:
-            password_validation.password_changed(self._password, self)
+            password_validation.password_changed(self._password, self, password_validators=[])
             self._password = None
 
     def set_password(self, raw_password):
