@@ -20,6 +20,7 @@ from rest_framework.parsers import JSONParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from twilio.base.exceptions import TwilioRestException
 
 from apps.account.api.filters import (
     FilterByUserBirthday, UserFilter, ShortUserFilter, FilterMasterTreeWithSelf,
@@ -525,6 +526,8 @@ class UserViewSet(LogAndCreateUpdateDestroyMixin, URCViewSet):
                 self.perform_update(serializer)
         except ValidationError as err:
             raise exceptions.ValidationError(err)
+        except TwilioRestException as err:
+            raise exceptions.ValidationError(err.msg)
         except IntegrityError as err:
             data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
