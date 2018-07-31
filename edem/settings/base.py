@@ -562,3 +562,5 @@ PALACE_TOKEN = env('PALACE_TOKEN', default='palacetoken')
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='unset')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='unset')
 TWILIO_FROM = env('TWILIO_FROM', default='unset')
+
+LIGHT_AUTH_EMAIL_CONFIRMATION_EXPIRE_DAYS = 20
