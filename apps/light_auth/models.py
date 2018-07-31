@@ -1,4 +1,5 @@
 import datetime
+from random import randint
 
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import (
@@ -146,11 +147,12 @@ class PhoneConfirmation(models.Model):
     )
     created = models.DateTimeField(verbose_name=_('created'), default=timezone.now)
     sent = models.DateTimeField(verbose_name=_('sent'), null=True)
-    key = models.CharField(verbose_name=_('key'), max_length=64, unique=True)
+    key = models.CharField(verbose_name=_('key'), max_length=64)
 
     objects = PhoneConfirmationManager()
 
     class Meta:
+        unique_together = ('phone_number', 'key')
         verbose_name = _("phone confirmation")
         verbose_name_plural = _("phone confirmations")
 
@@ -159,10 +161,10 @@ class PhoneConfirmation(models.Model):
 
     @classmethod
     def create(cls, phone_number):
-        key = get_random_string(8).lower()
-        while cls._default_manager.filter(key=key).exists():
-            key = get_random_string(8).lower()
-        return cls._default_manager.create(phone_number=phone_number, key=key)
+        key = randint(100_000, 999_999)
+        while cls._default_manager.filter(key=key, phone_number=phone_number).exists():
+            key = randint(100_000, 999_999)
+        return cls._default_manager.create(phone_number=phone_number, key=str(key))
 
     def key_expired(self):
         expiration_date = self.sent + datetime.timedelta(days=app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS)

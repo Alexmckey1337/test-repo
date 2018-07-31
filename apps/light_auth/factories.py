@@ -24,4 +24,4 @@ class PhoneConfirmationFactory(factory.DjangoModelFactory):
         model = models.PhoneConfirmation
 
     phone_number = factory.SubFactory('apps.light_auth.factories.PhoneNumberFactory')
-    key = factory.Sequence(lambda n: f'key{n:0>5}')
+    key = factory.Sequence(lambda n: f'{n:0>6}')
