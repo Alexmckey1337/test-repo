@@ -33,6 +33,23 @@ $(document).ready(function () {
 			})
 	});
 
+	$('#toggle_block_entry').on('click', function () {
+		$(this).attr('disabled', true);
+		postData(toggle_block_entry_url)
+			.then(data => {
+				if (data.code == '0') {
+					location.reload();
+				} else {
+					showAlert(errMsg);
+				}
+				$(this).attr('disabled', false);
+			})
+			.catch(err => {
+				$(this).attr('disabled', false);
+				errHandling(err);
+			})
+	});
+
 	$('#reset_entries').on('click', function () {
 		$(this).attr('disabled', true);
 		postData('/api/summit_entries/reset/entries/')

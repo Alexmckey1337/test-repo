@@ -53,6 +53,16 @@
             <button id="load_codes">Загрузить новые коды</button>
             Загрузить новые коды из crm
             <hr>
+            {% if block_entries != 'unknown' %}
+                {% if block_entries == 'block' %}
+                    <button id="toggle_block_entry">Разрешить входы</button>
+                    Входы для всех посетителей будут разрешены
+                {% else %}
+                    <button id="toggle_block_entry">Запретить входы</button>
+                    Входы для всех посетителей будут заблокированы
+                {% endif %}
+            {% endif %}
+            <hr>
         {% endif %}
     </div>
     <div class="clearfix">
@@ -92,6 +102,13 @@
 		{% else %}
 			var toggle_entry_url = "/api/summit_entries/one/";
 		{% endif %}
+        {% if block_entries == 'block' %}
+            var toggle_block_entry_url = "/api/summit_entries/unblock/";
+		{% elif block_entries == 'unknown' %}
+			var toggle_block_entry_url = "";
+        {% else %}
+            var toggle_block_entry_url = "/api/summit_entries/block/";
+        {% endif %}
 		var reset_entries_url = "/api/summit_entries/reset/entries/";
 		var reset_codes_url = "/api/summit_entries/reset/codes/";
 		// after click reload page

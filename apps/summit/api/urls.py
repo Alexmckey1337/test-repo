@@ -72,6 +72,9 @@ summit_entries_urls = [
     path('reset/entries/', views_entry.ResetAllEntriesView.as_view(), name='reset_entries_entry'),
     path('multi/', views_entry.FinishLessonView.as_view(), name='multi_entry'),
     path('one/', views_entry.StartLessonView.as_view(), name='one_entry'),
+
+    path('block/', views_entry.BlockAllView.as_view(), name='block_all_entry'),
+    path('unblock/', views_entry.UnblockAllView.as_view(), name='unblock_all_entry'),
 ]
 
 urlpatterns = [

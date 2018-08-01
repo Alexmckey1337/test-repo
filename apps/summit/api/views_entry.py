@@ -76,6 +76,14 @@ class UnblockUserView(EntryMixin):
     url = '/user/{code}/unblock'
 
 
+class BlockAllView(EntryMixin):
+    url = '/entries/block'
+
+
+class UnblockAllView(EntryMixin):
+    url = '/entries/unblock'
+
+
 
 @permission_classes(perm_classes)
 @api_view(['POST'])

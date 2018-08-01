@@ -15,6 +15,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from apps.account.models import CustomUser
 from apps.hierarchy.models import Department, Hierarchy
 from apps.notification.backend import RedisBackend
+from apps.summit.api.views_entry import response_to_entry_service
 from apps.summit.models import Summit, SummitTicket, SummitAnket, AnketEmail
 
 
@@ -142,8 +143,14 @@ class SummitInfoView(LoginRequiredMixin, CanSeeSummitMixin, DetailView):
                 tickets__author__isnull=True
             ).count(),
         )
+        try:
+            block_entries = response_to_entry_service('/entries/status')['detail']
+        except Exception as err:
+            print(err)
+            block_entries = 'unknown'
         extra_context = {
             'authors': [empty_author] + [a for a in authors],
+            'block_entries': block_entries,
         }
         ctx.update(extra_context)
         return ctx
