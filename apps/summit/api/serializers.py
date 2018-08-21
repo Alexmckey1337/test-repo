@@ -72,6 +72,17 @@ class SummitAnketSerializer(serializers.HyperlinkedModelSerializer):
                   )
 
 
+class SummitUserDeviceSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.IntegerField(source='user.user_ptr_id')
+    email = serializers.CharField(source='user.email')
+    phone_number = serializers.CharField(source='user.phone_number')
+    device_id = serializers.CharField()
+
+    class Meta:
+        model = SummitAnket
+        fields = ('id', 'user_id', 'phone_number', 'email', 'device_id')
+
+
 class ProfileTableSerializer(serializers.HyperlinkedModelSerializer):
     user_id = serializers.IntegerField(source='user.user_ptr_id')
     emails = AnketEmailSerializer(many=True, read_only=True)

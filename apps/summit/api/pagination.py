@@ -69,5 +69,20 @@ class SummitTicketPagination(PageNumberPagination):
         })
 
 
+class SummitUserDevicePagination(PageNumberPagination):
+    page_size = 30
+    page_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
+
 class SummitSearchPagination(PageNumberPagination):
     page_size = 5
