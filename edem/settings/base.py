@@ -287,11 +287,14 @@ CELERYBEAT_SCHEDULE = {
         'task': 'apps.partnership.managers_summary',
         'schedule': 60 * 60
     },
-    # Executes every monday evening at 00:00 A.M
-    'processing_home_meetings': {
-        'task': 'processing_home_meetings',
-        'schedule': crontab(hour=5, minute=0, day_of_week='mon')
-    },
+
+    # TODO: UNCOMMENT AFTER FRIDAY (25.08.18)
+    # # Executes every friday evening at 00:00 A.M
+    # 'processing_home_meetings': {
+    #     'task': 'processing_home_meetings',
+    #     'schedule': crontab(hour=5, minute=0, day_of_week=6)
+    # },
+
     # Executes every monday evening at 20:00 A.M
     'processing_church_reports': {
         'task': 'processing_church_reports',
