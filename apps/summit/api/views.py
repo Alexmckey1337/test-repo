@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django_filters import rest_framework
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import action, api_view
-from rest_framework.generics import get_object_or_404, GenericAPIView
+from rest_framework.generics import get_object_or_404, GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -38,7 +38,7 @@ from apps.summit.api.filters import (
     FilterByMasterTree, FilterByHasEmail, FilterIsPartner, FilterHasAchievement, FilterProfileAuthorTree, AuthorFilter,
     FilterByTicketMultipleStatus, ProfileFilterByPaymentStatus, FilterByRegCode)
 from apps.summit.api.pagination import (
-    SummitPagination, SummitTicketPagination, SummitStatisticsPagination, SummitSearchPagination)
+    SummitPagination, SummitTicketPagination, SummitStatisticsPagination, SummitSearchPagination, SummitUserDevicePagination)
 from apps.summit.api.permissions import HasAPIAccess, CanSeeSummitProfiles, can_download_summit_participant_report, \
     can_see_report_by_bishop_or_high
 from apps.summit.api.serializers import (
@@ -48,7 +48,8 @@ from apps.summit.api.serializers import (
     SummitShortSerializer, SummitAnketShortSerializer, SummitLessonShortSerializer, SummitTicketSerializer,
     SummitAnketForTicketSerializer, SummitAnketCodeSerializer,
     SummitAnketStatisticsSerializer,
-    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer, ProfileTableSerializer)
+    MasterSerializer, SummitProfileUpdateSerializer, SummitProfileCreateSerializer, ProfileTableSerializer,
+    SummitUserDeviceSerializer)
 from apps.summit.models import (
     Summit, SummitAnket, SummitLesson, SummitUserConsultant, SummitTicket, SummitAttend, AnketEmail)
 from apps.summit.resources import SummitAnketResource, SummitStatisticsResource
@@ -346,6 +347,21 @@ class SummitProfileListExportView(SummitProfileListView, ExportViewSetMixin):
     def get_queryset(self):
         return super().get_queryset().exclude(status__active=False)
         # return super().get_queryset().annotate_full_name().exclude(status__active=False)
+
+
+class SummitUserDeviceView(ListAPIView):
+    serializer_class = SummitUserDeviceSerializer
+    permission_classes = (HasAPIAccess,)
+    pagination_class = SummitUserDevicePagination
+
+    def list(self, request, pk):
+        queryset = self.get_queryset(pk=pk)
+        serializer = SummitUserDeviceSerializer(queryset, many=True)
+        page = self.paginate_queryset(serializer.data)
+        return self.get_paginated_response(page)
+
+    def get_queryset(self, *args, **kwargs):
+        return SummitAnket.objects.filter(summit__id=kwargs.get('pk'))
 
 
 class ToChar(Func):
