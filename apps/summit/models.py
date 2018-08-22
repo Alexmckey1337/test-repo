@@ -399,7 +399,10 @@ class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
     @cached_property
     def device_id(self):
         r = RedisBackend()
-        return r.get(self.reg_code)
+        try:
+            return r.get(self.reg_code).decode('utf-8')
+        except:
+            return
 
     @property
     def get_passes_count(self):
