@@ -11,9 +11,12 @@ from django.db import transaction, IntegrityError
 @app.task(name='processing_home_meetings', ignore_result=True,
           max_retries=10, default_retry_delay=1000)
 def processing_home_meetings():
+    """
+    Report for home meeting type "home"
+    """
     current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
-    meeting_types = MeetingType.objects.exclude(code='night')
+    meeting_type = MeetingType.objects.get(code='home')
 
     try:
         with transaction.atomic():
@@ -21,11 +24,34 @@ def processing_home_meetings():
             expired_reports.update(status=Meeting.EXPIRED)
 
             for home_group in active_home_groups:
-                for meeting_type in meeting_types:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type)
+                Meeting.objects.get_or_create(home_group=home_group,
+                                              owner=home_group.leader,
+                                              date=current_date,
+                                              type=meeting_type)
+    except IntegrityError as e:
+        print(e)
+
+
+@app.task(name='processing_home_service_meetings', ignore_result=True,
+          max_retries=10, default_retry_delay=1000)
+def processing_home_service_meetings():
+    """
+    Report for home meeting type "service"
+    """
+    current_date = timezone.now().date()
+    active_home_groups = HomeGroup.objects.filter(active=True)
+    meeting_type = MeetingType.objects.get(code='service')
+
+    try:
+        with transaction.atomic():
+            expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
+            expired_reports.update(status=Meeting.EXPIRED)
+
+            for home_group in active_home_groups:
+                Meeting.objects.get_or_create(home_group=home_group,
+                                              owner=home_group.leader,
+                                              date=current_date,
+                                              type=meeting_type)
     except IntegrityError as e:
         print(e)
 
