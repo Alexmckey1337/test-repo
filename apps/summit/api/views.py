@@ -356,9 +356,13 @@ class SummitUserDeviceView(ListAPIView):
 
     def list(self, request, pk):
         queryset = self.get_queryset(pk=pk)
-        serializer = SummitUserDeviceSerializer(queryset, many=True)
-        page = self.paginate_queryset(serializer.data)
-        return self.get_paginated_response(page)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def get_queryset(self, *args, **kwargs):
         return SummitAnket.objects.filter(summit__id=kwargs.get('pk'))
