@@ -288,11 +288,16 @@ CELERYBEAT_SCHEDULE = {
         'schedule': 60 * 60
     },
 
-    # TODO: UNCOMMENT AFTER FRIDAY (25.08.18)
-    # # Executes every friday evening at 00:00 A.M
-    # 'processing_home_meetings': {
-    #     'task': 'processing_home_meetings',
-    #     'schedule': crontab(hour=5, minute=0, day_of_week=6)
+    # Executes every monday evening at 00:00 A.M
+    'processing_home_meetings': {
+        'task': 'processing_home_meetings',
+        'schedule': crontab(hour=5, minute=0, day_of_week='mon')
+    },
+    # TODO uncomment after Friday 24.08.18
+    # # Executes every friday morning at 7 am
+    # 'processing_home_service_meetings': {
+    #     'task': 'processing_home_service_meetings',
+    #     'schedule': crontab(hour=7, minute=0, day_of_week='fri')
     # },
 
     # Executes every monday evening at 20:00 A.M
