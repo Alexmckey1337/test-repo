@@ -59,8 +59,9 @@ class ChurchReportAdmin(admin.ModelAdmin):
 
 @admin.register(Meeting)
 class MeetingAdmin(admin.ModelAdmin):
-    list_display = ('home_group', 'owner', 'status', 'date')
+    list_display = ('home_group', 'owner', 'status', 'type', 'date')
     search_fields = ('home_group__title',)
+    list_filter = ('type', 'date')
 
 
 admin.site.register(Participation, ParticipationAdmin)
