@@ -19,6 +19,7 @@
 !gulpfile.js
 !webpack.config.js
 !package.json
+!package-lock.json
 !src
 !.babelrc
 !compose/
