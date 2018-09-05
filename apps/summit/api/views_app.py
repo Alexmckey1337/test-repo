@@ -92,6 +92,8 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         if not exist_device_id:
             r.set(reg_code, device_id)
             r.expire(reg_code, settings.APP_DEVICE_ID_EXPIRE)
+            visitor.device_code = device_id
+            visitor.save()
         elif device_id != exist_device_id.decode('utf8'):
             return Response(data={
                 'detail': _('Этот регистрационный код уже был использован на другом устройстве.'),
@@ -138,6 +140,8 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         profile = self.get_object()
         r = RedisBackend()
         r.delete(profile.reg_code)
+        profile.device_code = ''
+        profile.save()
         return Response(data={'detail': profile.reg_code})
 
     @action(detail=False, methods=['GET'])
