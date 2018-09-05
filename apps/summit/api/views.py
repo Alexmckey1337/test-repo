@@ -381,8 +381,9 @@ class SummitSearchUserDeviceView(GenericAPIView):
 
     def get_queryset(self, *args, **kwargs):
         queryset = SummitAnket.objects.filter(summit__id=kwargs.get('pk'))
-        filtered_queryset = [q for q in queryset if q.device_id == kwargs.get('device_id')]
-        return filtered_queryset
+        for q in queryset:
+            if q.device_id == kwargs.get('device_id'):
+                return [q, ]
 
 
 class ToChar(Func):
