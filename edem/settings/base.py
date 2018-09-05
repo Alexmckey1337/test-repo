@@ -302,7 +302,7 @@ CELERYBEAT_SCHEDULE = {
     'processing_home_night_meetings': {
         'task': 'processing_home_night_meetings',
         # 'schedule': crontab(hour=17, minute=0, day_of_week=4)
-        'schedule': crontab(hour=13, minute=0, day_of_week=3)
+        'schedule': crontab(hour=18, minute=20, day_of_week=3)
     },
 
     # Executes every monday evening at 20:00 A.M
