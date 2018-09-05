@@ -140,7 +140,7 @@ class SummitProfileForAppViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         profile = self.get_object()
         r = RedisBackend()
         r.delete(profile.reg_code)
-        profile.device_code = None
+        profile.device_code = ''
         profile.save()
         return Response(data={'detail': profile.reg_code})
 
