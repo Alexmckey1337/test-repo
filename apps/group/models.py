@@ -198,7 +198,7 @@ class HomeGroup(LogModel, CommonGroup):
     leader = models.ForeignKey('account.CustomUser', related_name='home_group',
                                on_delete=models.PROTECT, verbose_name=_('Leader'))
     church = models.ForeignKey('Church', related_name='home_group',
-                               on_delete=models.PROTECT, verbose_name=_('Church'))
+                               on_delete=models.PROTECT, verbose_name=_('Church'), blank=True, null=True)
     active = models.BooleanField(default=True)
 
     image = models.ImageField(_('Home Group Image'), upload_to='home_groups/', blank=True, null=True)
