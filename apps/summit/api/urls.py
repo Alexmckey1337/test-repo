@@ -40,6 +40,8 @@ custom_urls = [
     path('summit/<int:summit_id>/stats/master/<int:master_id>/disciples/',
          views.HistorySummitStatByMasterDisciplesView.as_view(), name='master-disciples-stats'),
 
+    path('summits/<int:pk>/devices/<int:device_id>/', views.SummitSearchUserDeviceView.as_view(),
+         name='summit-device-detail'),
     path('summits/<int:pk>/devices/', views.SummitUserDeviceView.as_view(), name='summit-device-list'),
     path('summits/<int:pk>/users/', views.SummitProfileListView.as_view(), name='summit-profile-list'),
     path('summits/<int:pk>/tickets/', views.SummitTicketsView.as_view(), name='summit-tickets'),

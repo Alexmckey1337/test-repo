@@ -19,7 +19,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django_filters import rest_framework
 from rest_framework import exceptions, viewsets, filters, status, mixins
 from rest_framework.decorators import action, api_view
-from rest_framework.generics import get_object_or_404, GenericAPIView, ListAPIView
+from rest_framework.generics import get_object_or_404, GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -366,6 +366,23 @@ class SummitUserDeviceView(ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         return SummitAnket.objects.filter(summit__id=kwargs.get('pk'))
+
+
+class SummitSearchUserDeviceView(GenericAPIView):
+    serializer_class = SummitUserDeviceSerializer
+    permission_classes = (HasAPIAccess,)
+
+    def get(self, request, pk, device_id):
+        queryset = self.get_queryset(pk=pk, device_id=device_id)
+        if not queryset:
+            return Response({'message': 'Device id was not found!'}, status=404)
+        serializer = self.get_serializer(queryset)
+        return Response(serializer.data)
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = SummitAnket.objects.filter(summit__id=kwargs.get('pk'))
+        filtered_queryset = [q for q in queryset if q.device_id == kwargs.get('device_id')]
+        return filtered_queryset
 
 
 class ToChar(Func):

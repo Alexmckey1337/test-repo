@@ -70,7 +70,7 @@ class SummitTicketPagination(PageNumberPagination):
 
 
 class SummitUserDevicePagination(PageNumberPagination):
-    page_size = 100
+    page_size = 500
     page_query_param = 'page_size'
 
     def get_paginated_response(self, data):

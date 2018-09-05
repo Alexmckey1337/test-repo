@@ -52,7 +52,7 @@ class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
 class HomeGroupSerializer(serializers.ModelSerializer):
     leader = HomeGroupLeaderRelatedField(queryset=CustomUser.objects.filter(
         hierarchy__level__gt=0))
-    department = serializers.CharField(source='church.department.id', read_only=True)
+    department = serializers.CharField(source='church.department.id', read_only=True, allow_null=True)
     count_users = serializers.IntegerField(read_only=True)
 
     class Meta:

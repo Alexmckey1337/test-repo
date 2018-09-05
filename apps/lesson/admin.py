@@ -17,7 +17,6 @@ class ImageInline(admin.StackedInline):
     model = TextLessonImage
     fields = ('display_order', 'url')
     extra = 1
-    max_num = 5
 
 
 class LessonAdmin(admin.ModelAdmin):
