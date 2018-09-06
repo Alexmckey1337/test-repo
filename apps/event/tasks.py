@@ -56,7 +56,7 @@ def processing_home_service_meetings():
         print(e)
 
 
-@app.task(name='processing_home_service_meetings', ignore_result=True,
+@app.task(name='processing_home_night_meetings', ignore_result=True,
           max_retries=10, default_retry_delay=1000)
 def processing_home_night_meetings():
     """
