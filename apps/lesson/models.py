@@ -102,7 +102,13 @@ class TextLesson(AbstractLesson):
     likes = models.ManyToManyField(
         'account.CustomUser', through='TextLessonLike', through_fields=('lesson', 'user'),
         related_name='like_text_lessons',
-        verbose_name=_('Views')
+        verbose_name=_('Likes')
+    )
+
+    video_files = models.ManyToManyField(
+        'VideoFile', through='TextLessonVideoFile', through_fields=('lesson', 'file'),
+        related_name='videos_text_lessons',
+        verbose_name=_('Videos')
     )
 
     class Meta:
@@ -211,6 +217,15 @@ class AbstractVideoLessonUserRelation(models.Model):
         abstract = True
 
 
+class AbstractTextLessonVideoRelation(models.Model):
+    lesson = models.ForeignKey('TextLesson', on_delete=models.CASCADE, related_name='+')
+    file = models.ForeignKey('VideoFile', on_delete=models.CASCADE, related_name='+')
+    created_at = models.DateTimeField(_('Date'), auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
 class TextLessonView(AbstractTextLessonUserRelation):
     class Meta:
         app_label = 'lesson'
@@ -221,6 +236,12 @@ class TextLessonLike(AbstractTextLessonUserRelation):
     class Meta:
         app_label = 'lesson'
         db_table = 'lesson_text_like'
+
+
+class TextLessonVideoFile(AbstractTextLessonVideoRelation):
+    class Meta:
+        app_label = 'lesson'
+        db_table = 'lesson_text_video'
 
 
 class VideoLessonView(AbstractVideoLessonUserRelation):

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.account.models import CustomUser
-from apps.lesson.models import TextLesson, VideoLesson, AbstractLesson, TextLessonImage
+from apps.lesson.models import TextLesson, VideoLesson, AbstractLesson, TextLessonImage, VideoFile
 from common.fields import ReadOnlyChoiceWithKeyField
 
 LESSON_LIST_FIELDS = (
@@ -61,12 +61,19 @@ class BaseLessonDetailSerializer(serializers.ModelSerializer):
     access_level = ReadOnlyChoiceWithKeyField(choices=AbstractLesson.ACCESS_LEVELS, read_only=True)
 
 
+class VideoFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoFile
+        fields = ("title", "description", "width", "height", "duration", "file")
+
+
 class TextLessonDetailSerializer(BaseLessonDetailSerializer):
     images = TextLessonImageSerializer(many=True)
+    video_files = VideoFileSerializer(read_only=True, many=True)
 
     class Meta:
         model = TextLesson
-        fields = LESSON_LIST_FIELDS + ('content', 'image', 'images')
+        fields = LESSON_LIST_FIELDS + ('content', 'image', 'images', 'video_files')
 
 
 class VideoLessonDetailSerializer(BaseLessonDetailSerializer):

@@ -19,6 +19,10 @@ class ImageInline(admin.StackedInline):
     extra = 1
 
 
+class VideoInline(admin.TabularInline):
+    model = TextLesson.video_files.through
+
+
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'status', 'published_date', 'creator', 'access_level')
     list_display_links = ('title',)
@@ -34,7 +38,7 @@ class LessonAdmin(admin.ModelAdmin):
 class TextLessonAdmin(LessonAdmin):
     list_display = ('title', 'status', 'published_date', 'creator', 'access_level', 'image')
     readonly_fields = ('image',)
-    inlines = (ImageInline,)
+    inlines = (ImageInline, VideoInline)
 
 
 @admin.register(VideoLesson)
