@@ -114,6 +114,8 @@ class MeetingListSerializer(MeetingSerializer):
     home_group = HomeGroupNameSerializer()
     owner = OwnerRelatedField(read_only=True)
     status = serializers.JSONField(source='get_status_display')
+    repentance_count = serializers.SerializerMethodField(method_name='calculate_repentance_count')
+    total_sum = serializers.SerializerMethodField(method_name='calculate_total_sum')
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + (
@@ -123,6 +125,18 @@ class MeetingListSerializer(MeetingSerializer):
             'link',)
         read_only_fields = ['__all__']
 
+    def calculate_repentance_count(self, instance):
+        if instance.type.id == 3:
+            return ''
+        else:
+            return str(instance.repentance_count)
+
+    def calculate_total_sum(self, instance):
+        if instance.type.id == 3:
+            return ''
+        else:
+            return str(instance.total_sum)
+
 
 class MeetingDetailSerializer(MeetingSerializer):
     attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
@@ -130,7 +144,6 @@ class MeetingDetailSerializer(MeetingSerializer):
     type = MeetingTypeSerializer(read_only=True, required=False)
     owner = UserNameSerializer(read_only=True, required=False)
     status = serializers.ReadOnlyField(read_only=True, required=False)
-
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     class Meta(MeetingSerializer.Meta):
