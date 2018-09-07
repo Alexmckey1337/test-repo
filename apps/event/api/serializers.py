@@ -126,16 +126,16 @@ class MeetingListSerializer(MeetingSerializer):
         read_only_fields = ['__all__']
 
     def calculate_repentance_count(self, instance):
-        if instance.type.id:
+        if instance.type.id == 3:
             return ''
         else:
-            return instance.repentance_count
+            return str(instance.repentance_count)
 
     def calculate_total_sum(self, instance):
-        if instance.type.id:
+        if instance.type.id == 3:
             return ''
         else:
-            return instance.total_sum
+            return str(instance.total_sum)
 
 
 class MeetingDetailSerializer(MeetingSerializer):
