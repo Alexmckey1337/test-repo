@@ -212,7 +212,7 @@ class SummitAnket(ProfileAbstract, AbstractPaymentPurpose):
                                 default=Decimal('0'), editable=False)
     code = models.CharField(max_length=8, blank=True, db_index=True)
 
-    device_code = models.CharField(max_length=16, blank=True, null=True, db_index=True)
+    device_code = models.CharField(max_length=64, blank=True, null=True, db_index=True)
 
     ticket = models.FileField(_('Ticket'), upload_to='tickets', null=True, blank=True)
 
