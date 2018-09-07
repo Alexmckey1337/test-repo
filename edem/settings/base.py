@@ -303,7 +303,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'processing_home_night_meetings',
         'schedule': crontab(hour=17, minute=0, day_of_week=4)
     },
-
+    'make_home_night_meetings_expired': {
+        'task': 'make_home_night_meetings_expired',
+        'schedule': crontab(hour=4, minute=0, day_of_week=6)
+    },
     # Executes every monday evening at 20:00 A.M
     'processing_church_reports': {
         'task': 'processing_church_reports',
