@@ -20,7 +20,10 @@ def processing_home_meetings():
 
     try:
         with transaction.atomic():
-            expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
+            expired_reports = Meeting.objects.filter(
+                status=Meeting.IN_PROGRESS,
+                type=meeting_type
+            )
             expired_reports.update(status=Meeting.EXPIRED)
 
             for home_group in active_home_groups:
@@ -44,7 +47,10 @@ def processing_home_service_meetings():
 
     try:
         with transaction.atomic():
-            expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
+            expired_reports = Meeting.objects.filter(
+                status=Meeting.IN_PROGRESS,
+                type=meeting_type
+            )
             expired_reports.update(status=Meeting.EXPIRED)
 
             for home_group in active_home_groups:
@@ -68,14 +74,30 @@ def processing_home_night_meetings():
 
     try:
         with transaction.atomic():
-            expired_reports = Meeting.objects.filter(status=Meeting.IN_PROGRESS)
-            expired_reports.update(status=Meeting.EXPIRED)
-
             for home_group in active_home_groups:
                 Meeting.objects.get_or_create(home_group=home_group,
                                               owner=home_group.leader,
                                               date=current_date,
                                               type=meeting_type)
+    except IntegrityError as e:
+        print(e)
+
+
+@app.task(name='make_home_night_meetings_expired', ignore_result=True,
+          max_retries=10, default_retry_delay=1000)
+def make_home_night_meetings_expired():
+    """
+    Make home meetings type 'night' expired
+    """
+    try:
+        with transaction.atomic():
+            meeting_type = MeetingType.objects.get(code='night')
+            expired_reports = Meeting.objects.filter(
+                status=Meeting.IN_PROGRESS,
+                type=meeting_type
+            )
+            expired_reports.update(status=Meeting.EXPIRED)
+
     except IntegrityError as e:
         print(e)
 
