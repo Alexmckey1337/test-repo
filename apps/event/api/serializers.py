@@ -126,15 +126,13 @@ class MeetingListSerializer(MeetingSerializer):
         read_only_fields = ['__all__']
 
     def calculate_repentance_count(self, instance):
-        request = self.context.get('request')
-        if request.GET.get('type') == '3':
+        if instance.type.id:
             return ''
         else:
             return instance.repentance_count
 
     def calculate_total_sum(self, instance):
-        request = self.context.get('request')
-        if request.GET.get('type') == '3':
+        if instance.type.id:
             return ''
         else:
             return instance.total_sum
