@@ -376,7 +376,7 @@ class SummitSearchUserDeviceView(GenericAPIView):
         queryset = self.get_queryset(pk=pk, device_id=device_id)
         if not queryset:
             return Response({'message': 'Device id was not found!'}, status=404)
-        serializer = self.get_serializer(queryset)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def get_queryset(self, *args, **kwargs):
