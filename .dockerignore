@@ -26,3 +26,4 @@
 !conftest.py
 !pytest.ini
 !setup.cfg
+!change_meeting_status_to_in_progress
