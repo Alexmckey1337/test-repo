@@ -1,8 +1,13 @@
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+
 from apps.lesson.api.mixins import MonthListMixin, LessonDetailMixin, LessonLikeMixin, LessonListMixin
+from apps.lesson.api.permissions import CanSeeLessons
 from apps.lesson.api.serializers import (
     TextLessonListSerializer, TextLessonDetailSerializer,
-    VideoLessonListSerializer, VideoLessonDetailSerializer, EmptyTextLessonSerializer, EmptyVideoLessonSerializer)
-from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike
+    VideoLessonListSerializer, VideoLessonDetailSerializer, EmptyTextLessonSerializer, EmptyVideoLessonSerializer,
+    TextLessonViewSerializer)
+from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike, TextLessonView
 
 
 # Text lessons
@@ -53,6 +58,25 @@ class TextLessonLikeView(LessonLikeMixin):
         """
         return super().post(request, *args, **kwargs)
 
+
+class TextLessonViewView(ListAPIView):
+    model = TextLessonView
+    serializer_class = TextLessonViewSerializer
+    permission_classes = (IsAuthenticated, CanSeeLessons)
+
+    def get_queryset(self):
+        lesson = self.kwargs['slug']
+        user_level = self.request.user.hierarchy.level
+        queryset = self.model.objects\
+            .filter(lesson__slug=lesson, user__hierarchy__level__lt=user_level)\
+            .distinct('user_id')
+
+        user_id = self.request.user.id
+        user = self.model.objects\
+            .filter(lesson__slug=lesson, user=user_id)\
+            .distinct('user_id')
+
+        return queryset | user
 
 # Video lessons
 
