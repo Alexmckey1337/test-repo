@@ -116,13 +116,20 @@ class MeetingListSerializer(MeetingSerializer):
     status = serializers.JSONField(source='get_status_display')
     repentance_count = serializers.SerializerMethodField(method_name='calculate_repentance_count')
     total_sum = serializers.SerializerMethodField(method_name='calculate_total_sum')
+    currency = serializers.SerializerMethodField(method_name='calculate_currency')
+    donation = serializers.SerializerMethodField(method_name='calculate_donation')
+    tithe = serializers.SerializerMethodField(method_name='calculate_tithe')
 
     class Meta(MeetingSerializer.Meta):
         fields = MeetingSerializer.Meta.fields + (
             'phone_number',
             'visitors_attended',
             'visitors_absent',
-            'link',)
+            'link',
+            'currency',
+            'donation',
+            'tithe'
+        )
         read_only_fields = ['__all__']
 
     def calculate_repentance_count(self, instance):
@@ -137,6 +144,27 @@ class MeetingListSerializer(MeetingSerializer):
         else:
             return str(instance.total_sum)
 
+    def calculate_currency(self, instance):
+        if instance.home_group.church:
+            return
+        else:
+            try:
+                return instance.currency.code
+            except:
+                return
+
+    def calculate_donation(self, instance):
+        if instance.home_group.church:
+            return
+        else:
+            return instance.donation
+
+    def calculate_tithe(self, instance):
+        if instance.home_group.church:
+            return
+        else:
+            return instance.tithe
+
 
 class MeetingDetailSerializer(MeetingSerializer):
     attends = MeetingAttendSerializer(many=True, required=False, read_only=True)
@@ -146,8 +174,12 @@ class MeetingDetailSerializer(MeetingSerializer):
     status = serializers.ReadOnlyField(read_only=True, required=False)
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
+    currency = serializers.IntegerField(source='currency.id')
+    donation = serializers.FloatField()
+    tithe = serializers.FloatField()
+
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns',)
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns', 'currency', 'donation', 'tithe')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
