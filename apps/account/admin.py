@@ -27,6 +27,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'can_login', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
+        (_('Home group'), {'fields': ('hhome_group', )})
     )
     readonly_fields = ('master',)
     autocomplete_fields = ('locality',)

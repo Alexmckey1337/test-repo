@@ -22,6 +22,7 @@ def meeting_report_list(request):
     churches = Church.objects.all()
     hg = HomeGroup.objects.all()
     ctx = {
+        'currency': Currency.objects.all(),
         'departments': Department.objects.all(),
         'churches': churches,
         'church_options': [{'id': c.pk, 'title': c.get_title} for c in churches],
