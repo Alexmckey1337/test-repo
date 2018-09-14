@@ -60,7 +60,7 @@ class BaseLessonDetailSerializer(serializers.ModelSerializer):
     is_liked = serializers.BooleanField()
     authors = UserSerializer(many=True)
     access_level = ReadOnlyChoiceWithKeyField(choices=AbstractLesson.ACCESS_LEVELS, read_only=True)
-    access_level_code = serializers.IntegerField(source='access_level')
+    access_level_code = serializers.IntegerField(source='access_level', read_only=True)
 
 
 class VideoFileSerializer(serializers.ModelSerializer):
