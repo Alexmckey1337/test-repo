@@ -121,7 +121,7 @@ class Meeting(AbstractStatusModel):
     currency = models.ForeignKey('payment.Currency', verbose_name=_('Donation currency'), on_delete=models.SET_NULL,
                                  null=True, blank=True)
     donation = models.FloatField(validators=[MinValueValidator(0), ], verbose_name=_('Donation'), blank=True, null=True)
-    tithe = models.FloatField(validators=[MinValueValidator(0), ], verbose_name=_('Donation'), blank=True, null=True)
+    tithe = models.FloatField(validators=[MinValueValidator(0), ], verbose_name=_('Tithe'), blank=True, null=True)
 
     objects = MeetingManager()
 

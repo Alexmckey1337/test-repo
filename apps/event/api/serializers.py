@@ -12,6 +12,7 @@ from apps.payment.api.serializers import CurrencySerializer
 from common.fields import DecimalWithCurrencyField
 from common.fields import ReadOnlyChoiceField
 from common.week_range import week_range
+from apps.payment.models import Currency
 
 
 class ValidateReportBeforeUpdateMixin(object):
@@ -174,7 +175,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     status = serializers.ReadOnlyField(read_only=True, required=False)
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
-    currency = serializers.IntegerField(source='currency.id')
+    currency = serializers.SlugRelatedField(slug_field='id', queryset=Currency.objects.all(), required=False)
     donation = serializers.FloatField()
     tithe = serializers.FloatField()
 
@@ -184,6 +185,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(
             instance, validated_data, self.not_editable_fields)
+
         if instance.type.code == 'home' and (
                 validated_data.get('total_sum', None) == 0 or
                 ('total_sum' not in validated_data.keys() and instance.total_sum == 0)):

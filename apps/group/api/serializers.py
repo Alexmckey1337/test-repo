@@ -37,7 +37,7 @@ class HomeGroupNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HomeGroup
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'church')
 
 
 class HomeGroupLeaderRelatedField(serializers.PrimaryKeyRelatedField):
