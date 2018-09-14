@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
@@ -116,6 +117,11 @@ class Meeting(AbstractStatusModel):
     guest_count = models.PositiveSmallIntegerField(_('Guest count'), default=0)
     new_count = models.PositiveSmallIntegerField(_('New count'), default=0)
     repentance_count = models.PositiveSmallIntegerField(_('Repentance count'), default=0)
+
+    currency = models.ForeignKey('payment.Currency', verbose_name=_('Donation currency'), on_delete=models.SET_NULL,
+                                 null=True, blank=True)
+    donation = models.FloatField(validators=[MinValueValidator(0), ], verbose_name=_('Donation'), blank=True, null=True)
+    tithe = models.FloatField(validators=[MinValueValidator(0), ], verbose_name=_('Tithe'), blank=True, null=True)
 
     objects = MeetingManager()
 

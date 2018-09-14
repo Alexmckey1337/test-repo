@@ -169,6 +169,9 @@ meeting_columns = Table('meeting', [
     Column('new_count', 'Новых', 'new_count'),
     Column('repentance_count', 'Покаяний', 'repentance_count'),
     Column('total_sum', 'Сумма пожертвований', 'total_sum'),
+    Column('currency', 'Валюта', 'currency'),
+    Column('donation', 'Пожертвования', 'donation'),
+    Column('tithe', 'Десятины', 'tithe'),
     Column('date', 'Дата создания', 'date'),
 ]).to_dict()
 

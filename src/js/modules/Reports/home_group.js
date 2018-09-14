@@ -178,6 +178,11 @@ function reportData() {
     if ($('#reportImage').closest('label').is(":visible") && ($('#reportImage')[0].files.length > 0)) {
         data.append('image', $('#reportImage')[0].files[0]);
     }
+    if ($('#extra_fields').css('display') != 'none') {
+		data.append('currency', $('#HomeReportCurrency').val());
+		data.append('donation', convertNum($('#HomeReportDonation').val(), '.'));
+		data.append('tithe', convertNum($('#HomeReportTithe').val(), '.'));
+	}
     $items.each(function () {
         let elem = $(this),
             user_id = parseInt(elem.attr('data-user_id')),
@@ -188,7 +193,7 @@ function reportData() {
         attends.push(data);
     });
     data.append('attends', JSON.stringify(attends));
-
+    console.log(data);
     return data;
 }
 
@@ -226,6 +231,10 @@ function completeFields(data) {
     $('#hg_attds').attr('src', data.image ? data.image : '');
     $('#clear_img').attr('data-clean', data.image ? 'yes' : 'no');
     $('#send_report').text((data.status === 2) ? 'Сохранить' : 'Подать');
+    $('#HomeReportCurrency').val((data.currency !== null) ? data.currency : '0');
+    $('#HomeReportDonation').val((data.donation !== null) ? data.donation : '0');
+    $('#HomeReportTithe').val((data.tithe !==null) ? data.tithe : '0');
+
     (data.status === 2) ?
         title = `Редактирование отчета ${dist[data.type.code]}`
         :
@@ -238,7 +247,6 @@ function completeFields(data) {
     } else if (data.type.id === 3) {
         dateTitle = 'марафона';
     }
-    $('#date_title').text(dateTitle);
     if (data.type.id === 2) {
         $('#reportDonations')
             .attr('type', 'text')
@@ -267,6 +275,13 @@ function completeFields(data) {
 			.closest('label')
 			.css('display', 'none');
 	}
+	if (data.home_group.church !== null){
+        $('#extra_fields')
+			.css('display', 'none');
+    } else {
+	    $('#extra_fields')
+			.css('display', 'block');
+    }
     if (!data.can_submit) {
         showAlert(data.cant_submit_cause);
         $('#send_report').attr({disabled: true});
