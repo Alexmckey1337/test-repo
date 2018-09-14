@@ -15,10 +15,7 @@ def processing_home_meetings():
     Report for home meeting type "home"
     """
     current_date = timezone.now().date()
-    active_home_groups = HomeGroup.objects.filter(
-        active=True,
-        church__isnull=False
-    )
+    active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='home')
 
     try:
@@ -45,10 +42,7 @@ def processing_home_service_meetings():
     Report for home meeting type "service"
     """
     current_date = timezone.now().date()
-    active_home_groups = HomeGroup.objects.filter(
-        active=True,
-        church__isnull=False
-    )
+    active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='service')
 
     try:
@@ -75,10 +69,7 @@ def processing_home_night_meetings():
     Report for home meeting type "night"
     """
     current_date = timezone.now().date()
-    active_home_groups = HomeGroup.objects.filter(
-        active=True,
-        church__isnull=False
-    )
+    active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='night')
 
     try:
