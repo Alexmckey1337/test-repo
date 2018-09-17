@@ -1,4 +1,4 @@
-import json
+import logging
 from django.db import transaction, IntegrityError
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField)
@@ -33,6 +33,8 @@ from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.parsers import MultiPartAndJsonParser
 
+
+logger = logging.getLogger(__name__)
 
 MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_submitted',
                                     'meetings_expired', 'meetings_in_progress')
@@ -210,24 +212,18 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         meeting = self.get_serializer(meeting, data=request.data, partial=True)
         meeting.is_valid(raise_exception=True)
 
-        if not request.data.get('attends'):
-            self.perform_update(meeting)
-            return Response(meeting.data)
-
         data = request.data
         if isinstance(data, QueryDict):
             data._mutable = True
 
-        attends = json.loads(data.pop('attends')[0])
+        attends = data.get('attends')
 
         try:
             with transaction.atomic():
                 self.perform_update(meeting)
-                for attend in attends:
-                    MeetingAttend.objects.filter(id=attend.get('id')).update(
-                        attended=attend.get('attended', False),
-                        note=attend.get('note', '')
-                    )
+                MeetingAttend.objects.filter(user__id__in=attends).update(attended=True)
+                MeetingAttend.objects.exclude(user__id__in=attends).update(attended=False)
+
         except IntegrityError as err:
             data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
