@@ -1,5 +1,6 @@
 from django.utils import timezone
 
+from apps.payment.models import Currency
 from edem.settings.celery import app
 from apps.event.models import Meeting, MeetingType, ChurchReport
 from apps.group.models import HomeGroup, Church
@@ -17,6 +18,7 @@ def processing_home_meetings():
     current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='home')
+    currency = Currency.objects.get(code='uah')
 
     try:
         with transaction.atomic():
@@ -27,10 +29,19 @@ def processing_home_meetings():
             expired_reports.update(status=Meeting.EXPIRED)
 
             for home_group in active_home_groups:
-                Meeting.objects.get_or_create(home_group=home_group,
-                                              owner=home_group.leader,
-                                              date=current_date,
-                                              type=meeting_type)
+                if home_group.church:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type)
+                else:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type,
+                                                  tithe=0.00,
+                                                  donation=0.00,
+                                                  currency=currency)
     except IntegrityError as e:
         print(e)
 
@@ -44,6 +55,7 @@ def processing_home_service_meetings():
     current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='service')
+    currency = Currency.objects.get(code='uah')
 
     try:
         with transaction.atomic():
@@ -54,10 +66,19 @@ def processing_home_service_meetings():
             expired_reports.update(status=Meeting.EXPIRED)
 
             for home_group in active_home_groups:
-                Meeting.objects.get_or_create(home_group=home_group,
-                                              owner=home_group.leader,
-                                              date=current_date,
-                                              type=meeting_type)
+                if home_group.church:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type)
+                else:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type,
+                                                  tithe=0.00,
+                                                  donation=0.00,
+                                                  currency=currency)
     except IntegrityError as e:
         print(e)
 
@@ -71,14 +92,24 @@ def processing_home_night_meetings():
     current_date = timezone.now().date()
     active_home_groups = HomeGroup.objects.filter(active=True)
     meeting_type = MeetingType.objects.get(code='night')
+    currency = Currency.objects.get(code='uah')
 
     try:
         with transaction.atomic():
             for home_group in active_home_groups:
-                Meeting.objects.get_or_create(home_group=home_group,
-                                              owner=home_group.leader,
-                                              date=current_date,
-                                              type=meeting_type)
+                if home_group.church:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type)
+                else:
+                    Meeting.objects.get_or_create(home_group=home_group,
+                                                  owner=home_group.leader,
+                                                  date=current_date,
+                                                  type=meeting_type,
+                                                  tithe=0.00,
+                                                  donation=0.00,
+                                                  currency=currency)
     except IntegrityError as e:
         print(e)
 
