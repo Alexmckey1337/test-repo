@@ -78,6 +78,8 @@ urlpatterns = [
     path('api/', include('edem.api_urls')),
     path('api/v1.0/', include('edem.api_urls')),
     path('api/v1.1/', include('edem.api_urls')),
+    path('api/v2/', include('edem.api_v2_urls')),
+
     path('', include('main.urls')),
     path('', include('django.contrib.auth.urls')),
 ]
