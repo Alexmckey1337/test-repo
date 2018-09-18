@@ -304,6 +304,9 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
             quseyset = self.queryset.for_user(self.request.user)
 
+            if self.request.query_params and self.request.query_params['type'] == '4':
+                quseyset = quseyset.filter(home_group__church__isnull=True)
+
             return quseyset.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
