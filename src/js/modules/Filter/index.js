@@ -43,7 +43,11 @@ export function getTabsFilterParam() {
         dataRange = {},
         type = $('#tabs').find('li.active').find('button').attr('data-id');
     if (type > "0") {
-        dataTabs.type = type;
+        if (type === "4") {
+            dataTabs.without_church=true;
+        } else {
+            dataTabs.type = type;
+        }
         Object.assign(data, dataTabs);
     }
     let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
