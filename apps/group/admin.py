@@ -14,7 +14,7 @@ class ChurchAdmin(admin.ModelAdmin):
 class HomeGroupAdmin(admin.ModelAdmin):
     search_fields = ('locality', 'leader')
     autocomplete_fields = ('locality', 'leader', 'church')
-    list_display = ('title', 'leader', 'city', 'address', 'locality')
+    list_display = ('title', 'leader', 'city', 'address', 'locality', 'church')
     readonly_fields = (
         # 'leader',
         # 'church',
