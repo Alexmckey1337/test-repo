@@ -304,10 +304,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
             quseyset = self.queryset.for_user(self.request.user)
 
-            if self.request.query_params and self.request.query_params['type'] == '4':
-                quseyset = quseyset.filter(home_group__church__isnull=True)
-
-            return quseyset.prefetch_related('attends').annotate_owner_name().annotate(
+            quseyset = quseyset.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
                     When(attends__attended=True, then=1),
                     output_field=IntegerField(), default=0)),
@@ -319,6 +316,11 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                 can_submit=Case(
                     When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
+
+            if self.request.query_params.get('type', '') and self.request.query_params['type'] == '4':
+                quseyset = quseyset.filter(home_group__church__isnull=True)
+
+            return quseyset
 
         return self.queryset.for_user(self.request.user)
 
