@@ -2,6 +2,7 @@ from django.urls import include, path
 
 
 urlpatterns = [
+    path('', include('apps.account.api.urls_v2')),
     path('', include('apps.account.api.urls')),
     path('events/', include('apps.event.api.urls_v2')),
     path('', include('apps.task.api.urls')),

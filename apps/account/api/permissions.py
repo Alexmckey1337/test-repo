@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
-
 from common.permissions import BaseUserPermission, can_vo_org_ua_key
+from apps.account import models as token_models
 
 
 class IsSuperUser(BasePermission):
@@ -162,3 +162,11 @@ def can_edit_description_block(current_user, user):
         current_user.is_any_summit_supervisor_or_high() or
         user.is_descendant_of(current_user)
     )
+
+
+class HasUserTokenPermission(BasePermission):
+    def has_permission(self, request, view):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        if not token:
+            return False
+        return token_models.Token.objects.filter(key=token).exists()
