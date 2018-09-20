@@ -67,8 +67,13 @@ class TextLessonViewView(ListAPIView):
     def get_queryset(self):
         lesson = self.kwargs['slug']
         user_level = self.request.user.hierarchy.level
+        user_departments = self.request.user.departments.all()
+
         queryset = self.model.objects\
-            .filter(lesson__slug=lesson, user__hierarchy__level__lt=user_level)\
+            .filter(
+                lesson__slug=lesson,
+                user__hierarchy__level__lt=user_level,
+                user__departments__in=user_departments)\
             .distinct('user_id')
 
         user_id = self.request.user.id

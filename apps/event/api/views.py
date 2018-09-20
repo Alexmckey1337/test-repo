@@ -317,9 +317,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
 
-            if self.request.query_params.get('type', '') and self.request.query_params['type'] == '4':
+            if self.request.query_params.get('without_church', ''):
                 quseyset = quseyset.filter(home_group__church__isnull=True)
-
             return quseyset
 
         return self.queryset.for_user(self.request.user)
