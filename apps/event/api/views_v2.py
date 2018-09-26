@@ -220,7 +220,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
         try:
             with transaction.atomic():
-                self.perform_update(meeting)
+                self.perform_update(meeting_serializer)
                 attends = data.getlist('attends')
                 if attends:
                     MeetingAttend.objects.filter(user__id__in=attends, meeting=meeting).update(attended=True)
