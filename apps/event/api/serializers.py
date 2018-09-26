@@ -70,6 +70,14 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateReportBeforeUpdateM
     date = serializers.DateField(default=timezone.now().date())
     can_submit = serializers.BooleanField(read_only=True)
     cant_submit_cause = serializers.CharField(read_only=True)
+    image = serializers.ImageField(required=True)
+
+    def validate(self, data):
+        print('Data: ', data)
+        print('Image: ', self.instance.image)
+        if not data.get('image') and not self.instance.image:
+            raise serializers.ValidationError({'detail': _("Image is required field!")})
+        return data
 
     class Meta:
         model = Meeting
