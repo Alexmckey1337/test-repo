@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from apps.account.models import CustomUser, UserMarker, MessengerType, UserMessenger
+from apps.account.models import CustomUser, UserMarker, MessengerType, UserMessenger, Token
 from apps.account.resources import UserResource
 
 
@@ -43,6 +43,11 @@ class UserMessengerAdmin(admin.ModelAdmin):
     autocomplete_fields = ('user',)
 
 
+class UserTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'key', 'created')
+    # readonly_fields = ('user',)
+
+
 class MessengerTypeAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'title', 'code', 'display_position')
     list_editable = ('title', 'code', 'display_position')
@@ -53,3 +58,4 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(UserMarker)
 admin.site.register(UserMessenger, UserMessengerAdmin)
 admin.site.register(MessengerType, MessengerTypeAdmin)
+admin.site.register(Token, UserTokenAdmin)
