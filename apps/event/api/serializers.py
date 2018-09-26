@@ -23,7 +23,6 @@ class ValidateReportBeforeUpdateMixin(object):
                 'detail': _('Невозможно обновить методом UPDATE. Отчет - {%s} еще небыл подан.'
                             % instance)
             })
-
         if week_range(instance.date) != week_range(validated_data.get('date')):
             raise exceptions.ValidationError({
                 'detail': _('Невозможно подать отчет, переданная дата - %s. '

@@ -216,13 +216,17 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
         if isinstance(data, QueryDict):
             data._mutable = True
 
-        attends = data.get('attends')
+
 
         try:
             with transaction.atomic():
                 self.perform_update(meeting)
-                MeetingAttend.objects.filter(user__id__in=attends).update(attended=True)
-                MeetingAttend.objects.exclude(user__id__in=attends).update(attended=False)
+                attends = data.getlist('attends')
+                if attends:
+                    MeetingAttend.objects.filter(user__id__in=attends, meeting=meeting).update(attended=True)
+                    MeetingAttend.objects.exclude(user__id__in=attends, meeting=meeting).update(attended=False)
+                else:
+                    MeetingAttend.objects.filter(meeting=meeting).update(attended=False)
 
         except IntegrityError as err:
             data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
