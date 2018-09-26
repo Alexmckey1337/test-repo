@@ -209,27 +209,31 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
 
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()
-        meeting = self.get_serializer(meeting, data=request.data, partial=True)
-        meeting.is_valid(raise_exception=True)
+        meeting_serializer = self.get_serializer(meeting, data=request.data, partial=True)
+        meeting_serializer.is_valid(raise_exception=True)
 
         data = request.data
         if isinstance(data, QueryDict):
             data._mutable = True
 
-        attends = data.get('attends')
+
 
         try:
             with transaction.atomic():
                 self.perform_update(meeting)
-                MeetingAttend.objects.filter(user__id__in=attends).update(attended=True)
-                MeetingAttend.objects.exclude(user__id__in=attends).update(attended=False)
+                attends = data.getlist('attends')
+                if attends:
+                    MeetingAttend.objects.filter(user__id__in=attends, meeting=meeting).update(attended=True)
+                    MeetingAttend.objects.exclude(user__id__in=attends, meeting=meeting).update(attended=False)
+                else:
+                    MeetingAttend.objects.filter(meeting=meeting).update(attended=False)
 
         except IntegrityError as err:
             data = {'detail': _('При обновлении возникла ошибка. Попробуйте еще раз.')}
             logger.error(err)
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        headers = self.get_success_headers(meeting.data)
+        headers = self.get_success_headers(meeting_serializer.data)
         return Response({'message': _('Отчет Домашней Группы успешно изменен.')},
                         status=status.HTTP_200_OK, headers=headers)
 
