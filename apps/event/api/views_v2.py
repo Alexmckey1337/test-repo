@@ -195,9 +195,15 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                             'уже был подан ранее.') % meeting
             })
 
-        attends = data.pop('attends')
+        attends = data.getlist('attends')
         valid_visitors = list(meeting.home_group.uusers.values_list('id', flat=True))
-        valid_attends = [user_id for user_id in attends if user_id in valid_visitors]
+        try:
+            valid_attends = [user_id for user_id in attends if int(user_id) in valid_visitors]
+        except Exception as e:
+            print(e)
+            raise exceptions.ValidationError({
+                'detail': _('Список должен состоять из идентификаторов пользователей, например "13885" ')
+            })
         missed = [user_id for user_id in valid_visitors if user_id not in valid_attends]
 
         if not valid_attends:
