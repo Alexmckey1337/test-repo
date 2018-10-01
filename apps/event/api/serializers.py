@@ -73,9 +73,7 @@ class MeetingSerializer(serializers.ModelSerializer, ValidateReportBeforeUpdateM
     image = serializers.ImageField(required=True)
 
     def validate(self, data):
-        print('Data: ', data)
-        print('Image: ', self.instance.image)
-        if not data.get('image') and not self.instance.image:
+        if self.instance.type.id == 2 and (not data.get('image') and not self.instance.image):
             raise serializers.ValidationError({'detail': _("Image is required field!")})
         return data
 
