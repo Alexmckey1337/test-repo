@@ -6,8 +6,8 @@ from apps.lesson.api.permissions import CanSeeLessons
 from apps.lesson.api.serializers import (
     TextLessonListSerializer, TextLessonDetailSerializer,
     VideoLessonListSerializer, VideoLessonDetailSerializer, EmptyTextLessonSerializer, EmptyVideoLessonSerializer,
-    TextLessonViewSerializer)
-from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike, TextLessonView
+    TextLessonViewSerializer, VideoLessonViewSerializer)
+from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike, TextLessonView, VideoLessonView
 
 
 # Text lessons
@@ -83,7 +83,30 @@ class TextLessonViewView(ListAPIView):
 
         return queryset | user
 
-# Video lessons
+
+class VideoLessonViewView(ListAPIView):
+    model = VideoLessonView
+    serializer_class = VideoLessonViewSerializer
+    permission_classes = (IsAuthenticated, CanSeeLessons)
+
+    def get_queryset(self):
+        lesson = self.kwargs['slug']
+        user_level = self.request.user.hierarchy.level
+        user_departments = self.request.user.departments.all()
+
+        queryset = self.model.objects\
+            .filter(
+                lesson__slug=lesson,
+                user__hierarchy__level__lt=user_level,
+                user__departments__in=user_departments)\
+            .distinct('user_id')
+
+        user_id = self.request.user.id
+        user = self.model.objects\
+            .filter(lesson__slug=lesson, user=user_id)\
+            .distinct('user_id')
+
+        return queryset | user
 
 
 class VideoLessonMonthListView(MonthListMixin):
