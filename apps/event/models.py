@@ -12,6 +12,7 @@ from apps.analytics.decorators import log_change_payment
 from apps.event.managers import MeetingManager, ChurchReportManager
 from apps.navigation.table_columns import get_table
 from apps.payment.models import AbstractPaymentPurpose, get_default_currency
+from apps.tab_column.models import Table
 from common import date_utils
 
 
@@ -19,6 +20,7 @@ class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
     code = models.SlugField(_('Code'), max_length=255, unique=True)
     image = models.ImageField(_('Image'), upload_to='images', blank=True)
+    columns = models.ForeignKey(Table, on_delete=models.CASCADE, verbose_name=_('Колонки'), null=True, blank=True)
 
     class Meta:
         verbose_name = _('Meeting type')
