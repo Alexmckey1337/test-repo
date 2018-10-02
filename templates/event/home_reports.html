@@ -54,34 +54,38 @@
 
 {% block main.content %}
     <div class="container-full">
-        <div class="tab-status tab-home-stats">
-            <a class="stats_lider" href="{% url 'events:meetings_summary' %}">По лидеру</a>
-            <ul id="tabs">
-                <li class="active">
-                    <button class="type" data-id="0">Все</button>
-                </li>
-                <li>
-                    <button class="type" data-id="4">Все (без церкви)</button>
-                </li>
-                <li>
-                    <button class="type" data-id="2">Домашняя</button>
-                </li>
-                <li>
-                    <button class="type" data-id="3">Марафон</button>
-                </li>
-                <li>
-                    <button class="type" data-id="1">Служение</button>
-                </li>
-            </ul>
-            <button class="week week_all active">Все</button>
-            <button class="week week_now">Текущая неделя</button>
-            <button class="week week_prev">Прошедшая неделя</button>
-            <div class="set-date">
-                <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
-                <div class="cal-icon"></div>
-            </div>
+    <div class="tab-status tab-home-stats">
+        <a class="stats_lider" href="{% url 'events:meetings_summary' %}">По лидеру</a>
+        <ul id="tabs">
+            <li class="active">
+                <button class="type" data-id="0">Все</button>
+            </li>
+            <li>
+                <button class="type" data-id="2">Домашняя</button>
+            </li>
+            <li>
+                <button class="type" data-id="3">Марафон</button>
+            </li>
+            <li>
+                <button class="type" data-id="1">Служение</button>
+            </li>
+        </ul>
+        <button class="week week_all active">Все</button>
+        <button class="week week_now">Текущая неделя</button>
+        <button class="week week_prev">Прошедшая неделя</button>
+        <div class="set-date">
+            <input type="text" placeholder="Диапазон дат" id="date_range" class="select_date_filter">
+            <div class="cal-icon"></div>
         </div>
     </div>
+
+    <div class="tab-status tab-home-stats">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" id="isWithoutChurch">
+            <label class="checkboxtext" for="isWithoutChurch">&nbsp;Отчеты домашних групп не привязанных к церквям</label>
+        </div>
+    </div>
+
     {% block pagination_top %}
         <div class="top-pag">
             <div class="tab-status">
@@ -144,59 +148,60 @@
             </thead>
             <tbody>
             <% for( var index in results) { %>
-            <tr <% if (results[index].status === 'expired') { %>
-                    class="tr_red"
+            <tr
+            <% if (results[index].status === 'expired') { %>
+            class="tr_red"
             <% } %>
             >
-                <% for( var key in table_columns) { %>
-                <% if(table_columns[key].active) { %>
-                <% if(key == 'id') { %>
-                <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
-                    <%= results[index][key] %>
-                    <% if (results[index].image != null) { %>
-                    <button class="view_img" data-img="<%= results[index].image %>"></button>
-                    <% } %>
-                </td>
-                <% } else if (key == 'home_group') { %>
-                <% if (results[index][key] != null) { %>
-                <td>
-                    <a href="/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
-                </td>
-                <% } else { %>
-                <td></td>
+            <% for( var key in table_columns) { %>
+            <% if(table_columns[key].active) { %>
+            <% if(key == 'id') { %>
+            <td class="edit" data-id="<%= results[index][key] %>" id="reportId">
+                <%= results[index][key] %>
+                <% if (results[index].image != null) { %>
+                <button class="view_img" data-img="<%= results[index].image %>"></button>
                 <% } %>
-                <% } else if(key == 'owner') { %>
-                <% if (results[index][key] != null) { %>
-                <td>
-                    <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
-                </td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'type') { %>
-                <% if (results[index][key] != null) { %>
-                <td><%= results[index][key].name %></td>
-                <% } else { %>
-                <td></td>
-                <% } %>
-                <% } else if (key == 'total_sum') { %>
-                <td>
+            </td>
+            <% } else if (key == 'home_group') { %>
+            <% if (results[index][key] != null) { %>
+            <td>
+                <a href="/home_groups/<%= results[index][key].id %>"><%= results[index][key].title %></a>
+            </td>
+            <% } else { %>
+            <td></td>
+            <% } %>
+            <% } else if(key == 'owner') { %>
+            <% if (results[index][key] != null) { %>
+            <td>
+                <a href="/account/<%= results[index][key].id %>"><%= results[index][key].fullname %></a>
+            </td>
+            <% } else { %>
+            <td></td>
+            <% } %>
+            <% } else if (key == 'type') { %>
+            <% if (results[index][key] != null) { %>
+            <td><%= results[index][key].name %></td>
+            <% } else { %>
+            <td></td>
+            <% } %>
+            <% } else if (key == 'total_sum') { %>
+            <td>
                 <% if (results[index][key] != null) { %>
                 <%= String(results[index][key].replace('.', ',')).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ') %>
                 <% } %>
-                </td>
-                <% } else { %>
-                <td><% if (results[index][key] === true ) { %>
-                    <p class="text__center">✔</p>
-                    <% } else if (results[index][key] === false){ %>
+            </td>
+            <% } else { %>
+            <td><% if (results[index][key] === true ) { %>
+                <p class="text__center">✔</p>
+                <% } else if (results[index][key] === false){ %>
 
-                    <% } else { %>
-                    <%= results[index][key] %>
-                    <% } %>
-                </td>
+                <% } else { %>
+                <%= results[index][key] %>
                 <% } %>
-                <% } %>
-                <% } %>
+            </td>
+            <% } %>
+            <% } %>
+            <% } %>
             </tr>
             <% } %>
             </tbody>

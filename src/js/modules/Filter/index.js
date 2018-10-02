@@ -42,14 +42,12 @@ export function getTabsFilterParam() {
         dataTabs = {},
         dataRange = {},
         type = $('#tabs').find('li.active').find('button').attr('data-id');
+
     if (type > "0") {
-        if (type === "4") {
-            dataTabs.without_church=true;
-        } else {
-            dataTabs.type = type;
-        }
+        dataTabs.type = type;
         Object.assign(data, dataTabs);
     }
+
     let rangeDate = $('.tab-home-stats').find('.set-date').find('input').val();
     if (rangeDate) {
         let dateArr = rangeDate.split('-');
@@ -57,6 +55,14 @@ export function getTabsFilterParam() {
         dataRange.to_date = dateArr[1].split('.').reverse().join('-');
         Object.assign(data, dataRange);
     }
+    return data
+}
+
+export function getHasChurchFilterParam() {
+    let data = {},
+        churchData = {};
+    churchData.without_church= $('#isWithoutChurch').prop('checked');
+    Object.assign(data, churchData);
     return data
 }
 
