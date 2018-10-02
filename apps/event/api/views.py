@@ -318,7 +318,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     output_field=BooleanField(), default=True))
 
             quseyset = quseyset.filter(
-                home_group__church__isnull=self.request.query_params.get('without_church', False)
+                home_group__church__isnull=(self.request.query_params.get('without_church', 'false') == 'true')
             )
             return quseyset
 
