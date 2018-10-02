@@ -37,6 +37,7 @@ $('document').ready(function () {
         $churchFilter = $('#church_filter'),
         $homeGroupFilter = $('#home_group_filter'),
         $liderFilter = $('#owner_filter'),
+        $hasChurchFilter = $('#isWithoutChurch'),
         init = false,
         path = window.location.href.split('?')[1];
 
@@ -59,6 +60,9 @@ $('document').ready(function () {
         if (set.is_submitted) {
             $('#statusTabs').find('li').removeClass('current');
             $('#statusTabs').find(`button[data-is_submitted='${set.is_submitted}']`).parent().addClass('current');
+        }
+        if (set.without_church) {
+             $hasChurchFilter.prop('checked', true);
         }
         $departmentsFilter.val(set.department).trigger('change');
         (async () => {
@@ -270,6 +274,10 @@ $('document').ready(function () {
     $('.tab-home-stats').find('.type').on('click', function () {
         $(this).closest('#tabs').find('li').removeClass('active');
         $(this).parent().addClass('active');
+        homeReportsTable();
+    });
+
+    $hasChurchFilter.on('click', function () {
         homeReportsTable();
     });
 

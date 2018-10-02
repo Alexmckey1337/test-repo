@@ -154,3 +154,23 @@ span{
     }
   }
 }
+input[type=checkbox] {
+	-ms-transform: scale(2);
+	-moz-transform: scale(2);
+	-webkit-transform: scale(2);
+	-o-transform: scale(2);
+	padding: 10px;
+}
+
+.checkboxtext::before{
+  display: none !important;
+}
+
+.checkboxtext {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+	font-size: 16px;
+	display: inline;
+    color: #3caeda;
+}

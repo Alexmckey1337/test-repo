@@ -8,7 +8,7 @@ import getData, {deleteData, postData, postFormData} from "../Ajax/index";
 import newAjaxRequest from  '../Ajax/newAjaxRequest';
 import ajaxSendFormData from '../Ajax/ajaxSendFormData';
 import getSearch from '../Search/index';
-import {getFilterParam, getTabsFilterParam} from "../Filter/index";
+import {getFilterParam, getTabsFilterParam, getHasChurchFilterParam} from "../Filter/index";
 import makeSortForm from '../Sort/index';
 import makePagination from '../Pagination/index';
 import fixedTableHead from '../FixedHeadTable/index';
@@ -28,7 +28,7 @@ export function HomeReportsTable(config = {}, pagination = true) {
 }
 
 export function homeReportsTable(config = {}, pagination = true) {
-    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData());
+    Object.assign(config, getSearch('search_title'), getFilterParam(), getTabsFilterParam(), getTypeTabsFilterParam(), getOrderingData(), getHasChurchFilterParam());
     (pagination) && updateHistoryUrl(config);
     getData(URLS.event.home_meeting.list(), config).then(data => {
         makeHomeReportsTable(data, config, pagination);
