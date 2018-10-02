@@ -13,4 +13,5 @@ urlpatterns = [
     path('lessons/video/months/', views.VideoLessonMonthListView.as_view(), name='lessons-video-months'),
     path('lessons/video/<str:slug>/', views.VideoLessonDetailView.as_view(), name='lessons-video-detail'),
     path('lessons/video/<str:slug>/like/', views.VideoLessonLikeView.as_view(), name='lessons-video-like'),
+    path('lessons/video/<str:slug>/view/', views.VideoLessonViewView.as_view(), name='lessons-video-view')
 ]
