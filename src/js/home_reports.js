@@ -61,7 +61,7 @@ $('document').ready(function () {
             $('#statusTabs').find('li').removeClass('current');
             $('#statusTabs').find(`button[data-is_submitted='${set.is_submitted}']`).parent().addClass('current');
         }
-        if (set.is_without_church) {
+        if (set.without_church) {
              $hasChurchFilter.prop('checked', true);
         }
         $departmentsFilter.val(set.department).trigger('change');
