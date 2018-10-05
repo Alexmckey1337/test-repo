@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from apps.navigation.table_columns import TABLES
 from apps.tab_column.models import Table, Column
+from apps.event.models import MeetingType
 
 
 class Command(BaseCommand):
@@ -35,3 +36,15 @@ class Command(BaseCommand):
                     continue
 
         self.stdout.write(self.style.SUCCESS('Successfully populated database (with %d errors)' % errors))
+
+        errors = 0
+
+        for meeting in MeetingType.objects.all():
+            try:
+                meeting.columns = Table.objects.get(title='type_%d' % meeting.id)
+                meeting.save()
+            except Exception as e:
+                errors += 1
+                self.stdout.write(self.style.ERROR(str(e)))
+
+        self.stdout.write(self.style.SUCCESS('Successfully appended tables to MeetingTypes (with %d errors)' % errors))
