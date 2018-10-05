@@ -12,7 +12,7 @@ class ChurchAdmin(admin.ModelAdmin):
 
 
 class HomeGroupAdmin(admin.ModelAdmin):
-    search_fields = ('locality', 'leader')
+    search_fields = ('locality__name', 'leader__first_name', 'leader__middle_name', 'leader__last_name')
     autocomplete_fields = ('locality', 'leader', 'church')
     list_display = ('title', 'leader', 'city', 'address', 'locality', 'church')
     readonly_fields = (

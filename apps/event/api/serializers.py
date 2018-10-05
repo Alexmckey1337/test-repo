@@ -13,6 +13,8 @@ from common.fields import DecimalWithCurrencyField
 from common.fields import ReadOnlyChoiceField
 from common.week_range import week_range
 from apps.payment.models import Currency
+from apps.tab_column.api.serializers import TableSerializer
+from apps.tab_column.models import Table
 
 
 class ValidateReportBeforeUpdateMixin(object):
@@ -184,8 +186,22 @@ class MeetingDetailSerializer(MeetingSerializer):
     donation = serializers.FloatField()
     tithe = serializers.FloatField()
 
+    columns = serializers.SerializerMethodField('get_tab_columns')
+
+    def get_tab_columns(self, obj):
+        if obj.home_group.church and obj.type.columns_with_church:
+            return TableSerializer(obj.type.columns_with_church).data.get('columns')
+        elif not obj.home_group.church and obj.type.columns_without_church:
+            return TableSerializer(obj.type.columns_without_church).data.get('columns')
+        else:
+            try:
+                default_columns = Table.objects.get(title='type_%d' % obj.type.id)
+                return TableSerializer(default_columns).data.get('columns')
+            except:
+                return {}
+
     class Meta(MeetingSerializer.Meta):
-        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns', 'currency', 'donation', 'tithe')
+        fields = MeetingSerializer.Meta.fields + ('attends', 'table_columns', 'currency', 'donation', 'tithe', 'columns')
 
     def update(self, instance, validated_data):
         instance, validated_data = self.validate_before_serializer_update(

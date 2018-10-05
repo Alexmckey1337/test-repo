@@ -175,6 +175,60 @@ meeting_columns = Table('meeting', [
     Column('date', 'Дата создания', 'date'),
 ]).to_dict()
 
+type_1 = Table('type_1', [
+    Column('id', '№', 'id', editable=False),
+    Column('home_group', 'Домашняя группа', 'home_group__title'),
+    Column('owner', 'Лидер домашней группы', 'owner__last_name'),
+    Column('phone_number', 'Телефонный номер', 'home_group__phone_number'),
+    Column('type', 'Тип отчета', 'type__code'),
+    Column('visitors_attended', 'Присутствовали', 'visitors_attended'),
+    Column('visitors_absent', 'Отсутствовали', 'visitors_absent'),
+    Column('guest_count', 'Гостей', 'guest_count'),
+    Column('new_count', 'Новых', 'new_count'),
+    Column('repentance_count', 'Покаяний', 'repentance_count'),
+    Column('total_sum', 'Сумма пожертвований', 'total_sum'),
+    Column('currency', 'Валюта', 'currency'),
+    Column('donation', 'Пожертвования', 'donation'),
+    Column('tithe', 'Десятины', 'tithe'),
+    Column('date', 'Дата создания', 'date'),
+]).to_dict()
+
+type_2 = Table('type_2', [
+    Column('id', '№', 'id', editable=False),
+    Column('home_group', 'Домашняя группа', 'home_group__title'),
+    Column('owner', 'Лидер домашней группы', 'owner__last_name'),
+    Column('phone_number', 'Телефонный номер', 'home_group__phone_number'),
+    Column('type', 'Тип отчета', 'type__code'),
+    Column('visitors_attended', 'Присутствовали', 'visitors_attended'),
+    Column('visitors_absent', 'Отсутствовали', 'visitors_absent'),
+    Column('guest_count', 'Гостей', 'guest_count'),
+    Column('new_count', 'Новых', 'new_count'),
+    Column('repentance_count', 'Покаяний', 'repentance_count'),
+    Column('total_sum', 'Сумма пожертвований', 'total_sum'),
+    Column('currency', 'Валюта', 'currency'),
+    Column('donation', 'Пожертвования', 'donation'),
+    Column('tithe', 'Десятины', 'tithe'),
+    Column('date', 'Дата создания', 'date'),
+]).to_dict()
+
+type_3 = Table('type_3', [
+    Column('id', '№', 'id', editable=False),
+    Column('home_group', 'Домашняя группа', 'home_group__title'),
+    Column('owner', 'Лидер домашней группы', 'owner__last_name'),
+    Column('phone_number', 'Телефонный номер', 'home_group__phone_number'),
+    Column('type', 'Тип отчета', 'type__code'),
+    Column('visitors_attended', 'Присутствовали', 'visitors_attended'),
+    Column('visitors_absent', 'Отсутствовали', 'visitors_absent'),
+    Column('guest_count', 'Гостей', 'guest_count'),
+    Column('new_count', 'Новых', 'new_count'),
+    Column('repentance_count', 'Покаяний', 'repentance_count'),
+    Column('total_sum', 'Сумма пожертвований', 'total_sum'),
+    Column('currency', 'Валюта', 'currency'),
+    Column('donation', 'Пожертвования', 'donation'),
+    Column('tithe', 'Десятины', 'tithe'),
+    Column('date', 'Дата создания', 'date'),
+]).to_dict()
+
 attend_columns = Table('attend', [
     Column('attended', 'Присутствие', 'attended'),
     Column('user', 'ФИО', 'user__last_name', editable=False),
@@ -311,6 +365,9 @@ TABLES = {
     'deal': deal_columns,
     'deal_payment': deal_payment_columns,
     'meeting': meeting_columns,
+    'type_1': type_1,
+    'type_2': type_2,
+    'type_3': type_3,
     'meeting_summary': meeting_summary_columns,
     'report_summary': report_summary_columns,
     'report_payment': report_payment_columns,

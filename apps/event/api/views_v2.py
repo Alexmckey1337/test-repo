@@ -20,7 +20,7 @@ from apps.event.api.filters import (
     ChurchReportStatusFilter, CommonGroupsLast5Filter, MeetingsTypeMultipleFilter)
 from apps.event.api.mixins import EventUserTreeMixin
 from apps.event.api.pagination import (
-    MeetingPagination, MeetingVisitorsPagination, ChurchReportPagination,
+    MeetingWithoutColumnPagination, MeetingVisitorsPagination, ChurchReportPagination,
     MeetingSummaryPagination, ReportsSummaryPagination)
 from apps.event.api.serializers import (
     MeetingVisitorsSerializer, MeetingSerializer, MeetingDetailSerializer,
@@ -49,7 +49,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     serializer_list_class = MeetingListSerializer
 
     permission_classes = (IsAuthenticated,)
-    pagination_class = MeetingPagination
+    pagination_class = MeetingWithoutColumnPagination
 
     filter_backends = (rest_framework.DjangoFilterBackend,
                        MeetingCustomFilter,

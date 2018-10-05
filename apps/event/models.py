@@ -13,12 +13,25 @@ from apps.event.managers import MeetingManager, ChurchReportManager
 from apps.navigation.table_columns import get_table
 from apps.payment.models import AbstractPaymentPurpose, get_default_currency
 from common import date_utils
+from apps.tab_column.models import Table
 
 
 class MeetingType(models.Model):
     name = models.CharField(_('Name'), max_length=255)
     code = models.SlugField(_('Code'), max_length=255, unique=True)
     image = models.ImageField(_('Image'), upload_to='images', blank=True)
+
+    columns_with_church = models.ForeignKey('tab_column.Table',
+                                            null=True,
+                                            on_delete=models.PROTECT,
+                                            verbose_name=_('Колонки с привязкой'),
+                                            related_name='types_with_church')
+
+    columns_without_church = models.ForeignKey('tab_column.Table',
+                                               null=True,
+                                               on_delete=models.PROTECT,
+                                               verbose_name=_('Колонки без привязки'),
+                                               related_name='types_without_church')
 
     class Meta:
         verbose_name = _('Meeting type')
