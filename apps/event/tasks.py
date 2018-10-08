@@ -9,6 +9,28 @@ from django.db import transaction, IntegrityError
 
 # HOME MEETING TASKS
 
+def make_reports_expired(meeting_type):
+    expired_reports = Meeting.objects.filter(
+        status=Meeting.IN_PROGRESS,
+        type=meeting_type
+    )
+    expired_reports.update(status=Meeting.EXPIRED)
+
+
+def create_meeting_with_church(home_group, current_date, meeting_type):
+    Meeting.objects.get_or_create(
+        home_group=home_group, owner=home_group.leader,
+        date=current_date, type=meeting_type
+    )
+
+
+def create_meeting_without_church(home_group, current_date, meeting_type, currency):
+    Meeting.objects.get_or_create(
+        home_group=home_group, owner=home_group.leader, date=current_date,
+        type=meeting_type, tithe=0.00, donation=0.00, currency=currency
+    )
+
+
 @app.task(name='processing_home_meetings', ignore_result=True,
           max_retries=10, default_retry_delay=1000)
 def processing_home_meetings():
@@ -22,26 +44,14 @@ def processing_home_meetings():
 
     try:
         with transaction.atomic():
-            expired_reports = Meeting.objects.filter(
-                status=Meeting.IN_PROGRESS,
-                type=meeting_type
-            )
-            expired_reports.update(status=Meeting.EXPIRED)
+            make_reports_expired(meeting_type)
 
             for home_group in active_home_groups:
                 if home_group.church:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type)
+                    create_meeting_with_church(home_group, current_date, meeting_type)
                 else:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type,
-                                                  tithe=0.00,
-                                                  donation=0.00,
-                                                  currency=currency)
+                    create_meeting_without_church(home_group, current_date, meeting_type, currency)
+
     except IntegrityError as e:
         print(e)
 
@@ -59,26 +69,14 @@ def processing_home_service_meetings():
 
     try:
         with transaction.atomic():
-            expired_reports = Meeting.objects.filter(
-                status=Meeting.IN_PROGRESS,
-                type=meeting_type
-            )
-            expired_reports.update(status=Meeting.EXPIRED)
+            make_reports_expired(meeting_type)
 
             for home_group in active_home_groups:
                 if home_group.church:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type)
+                    create_meeting_with_church(home_group, current_date, meeting_type)
                 else:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type,
-                                                  tithe=0.00,
-                                                  donation=0.00,
-                                                  currency=currency)
+                    create_meeting_without_church(home_group, current_date, meeting_type, currency)
+
     except IntegrityError as e:
         print(e)
 
@@ -98,18 +96,10 @@ def processing_home_night_meetings():
         with transaction.atomic():
             for home_group in active_home_groups:
                 if home_group.church:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type)
+                    create_meeting_with_church(home_group, current_date, meeting_type)
                 else:
-                    Meeting.objects.get_or_create(home_group=home_group,
-                                                  owner=home_group.leader,
-                                                  date=current_date,
-                                                  type=meeting_type,
-                                                  tithe=0.00,
-                                                  donation=0.00,
-                                                  currency=currency)
+                    create_meeting_without_church(home_group, current_date, meeting_type, currency)
+
     except IntegrityError as e:
         print(e)
 
@@ -123,11 +113,8 @@ def make_home_night_meetings_expired():
     try:
         with transaction.atomic():
             meeting_type = MeetingType.objects.get(code='night')
-            expired_reports = Meeting.objects.filter(
-                status=Meeting.IN_PROGRESS,
-                type=meeting_type
-            )
-            expired_reports.update(status=Meeting.EXPIRED)
+
+            make_reports_expired(meeting_type)
 
     except IntegrityError as e:
         print(e)
