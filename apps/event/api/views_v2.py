@@ -233,7 +233,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                 attends = data.getlist('attends')
                 if attends:
                     MeetingAttend.objects.filter(user__id__in=attends, meeting=meeting).update(attended=True)
-                    MeetingAttend.objects.exclude(user__id__in=attends, meeting=meeting).update(attended=False)
+                    MeetingAttend.objects.filter(meeting=meeting).exclude(user__id__in=attends).update(attended=False)
                 else:
                     MeetingAttend.objects.filter(meeting=meeting).update(attended=False)
 
