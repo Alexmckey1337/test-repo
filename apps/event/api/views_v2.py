@@ -2,7 +2,7 @@ import logging
 from django.db import transaction, IntegrityError
 from django.db.models import (IntegerField, Sum, When, Case, Count, OuterRef, Exists, Q,
                               BooleanField)
-from django.http import QueryDict
+from django.http import QueryDict, Http404
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework
 from rest_framework import status, exceptions
@@ -212,6 +212,9 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             })
         attends = {'attended': valid_attends, 'missed':missed}
         return attends
+
+    def post(self, request, pk, *args, **kwargs):
+        return self.submit(request, pk, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         meeting = self.get_object()

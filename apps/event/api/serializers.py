@@ -179,7 +179,7 @@ class MeetingDetailSerializer(MeetingSerializer):
     home_group = HomeGroupNameSerializer(read_only=True, required=False)
     type = MeetingTypeSerializer(read_only=True, required=False)
     owner = UserNameSerializer(read_only=True, required=False)
-    status = serializers.ReadOnlyField(read_only=True, required=False)
+    status = serializers.IntegerField(read_only=True, required=False)
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
 
     currency = serializers.SlugRelatedField(slug_field='id', queryset=Currency.objects.all(), required=False)
