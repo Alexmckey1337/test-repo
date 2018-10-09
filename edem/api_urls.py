@@ -20,6 +20,7 @@ urlpatterns = [
     path('', include('apps.status.api.urls')),
     path('', include('apps.summit.api.urls')),
     path('', include('apps.help.api.urls')),
+    path('testing/', include('apps.testing.api.urls')),
     path('controls/', include('apps.controls.api.urls')),
     path('light_auth/', include('apps.light_auth.api.urls', namespace='light_auth')),
 ]
