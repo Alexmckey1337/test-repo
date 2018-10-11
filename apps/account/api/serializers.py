@@ -471,7 +471,7 @@ class UserForSelectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'image')
 
 
 class UserForSummitInfoSerializer(serializers.ModelSerializer):
