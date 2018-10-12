@@ -8,11 +8,11 @@ from apps.event.models import Meeting, MeetingAttend, MeetingType, ChurchReport,
 from apps.group.api.serializers import (
     UserNameSerializer, ChurchNameSerializer, HomeGroupNameSerializer, UserNameWithLinkSerializer)
 from apps.group.models import Church
-from apps.payment.api.serializers import CurrencySerializer
 from common.fields import DecimalWithCurrencyField
 from common.fields import ReadOnlyChoiceField
 from common.week_range import week_range
 from apps.payment.models import Currency
+from apps.payment.api.serializers import CurrencySerializer
 from apps.tab_column.api.serializers import TableSerializer
 from apps.tab_column.models import Table
 
@@ -183,11 +183,9 @@ class MeetingDetailSerializer(MeetingSerializer):
     owner = UserNameSerializer(read_only=True, required=False)
     status = serializers.IntegerField(read_only=True, required=False)
     not_editable_fields = ['home_group', 'owner', 'type', 'status']
-
     currency = serializers.SlugRelatedField(slug_field='id', queryset=Currency.objects.all(), required=False)
     donation = serializers.FloatField()
     tithe = serializers.FloatField()
-
     columns = serializers.SerializerMethodField('get_tab_columns')
 
     def get_tab_columns(self, obj):
@@ -217,6 +215,16 @@ class MeetingDetailSerializer(MeetingSerializer):
             })
 
         return super(MeetingDetailSerializer, self).update(instance, validated_data)
+
+
+class MeetingDetailWithCurrencySerializer(MeetingDetailSerializer):
+    currency = serializers.SerializerMethodField(source='get_currency', read_only=True)
+
+    def get_currency(self, obj):
+        if not obj.home_group.church:
+            return CurrencySerializer(obj.currency, read_only=True).data
+        else:
+            return CurrencySerializer(Currency.objects.get(pk=obj.church.report_currency), read_only=True).data
 
 
 class MeetingStatisticSerializer(serializers.Serializer):
