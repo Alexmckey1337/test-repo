@@ -212,7 +212,7 @@ class HomeGroup(LogModel, CommonGroup):
     )
     language = models.CharField(_('Language'), choices=LANGUAGES, blank=True, max_length=10)
 
-    directions = models.ManyToManyField(Direction, related_name='home_groups')
+    directions = models.ManyToManyField(Direction, related_name='home_groups', blank=True)
 
     objects = HomeGroupManager()
 
