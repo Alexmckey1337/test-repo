@@ -22,7 +22,10 @@
                     {% endif %}
                     <li><a{% if active_tab == 'people' %} class="active"{% endif %}
                             href="{% url 'db:people' %}">Люди</a></li>
-                    <li><a href="#">Менеджеры</a></li>
+
+                    <li><a{% if active_tab == 'managers' %} class="active"{% endif %}
+                            href="{% url 'db:managers' %}">Mенеджер</a></li>
+
                 </ul>
             </div>
         {% endblock %}

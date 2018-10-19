@@ -31,6 +31,7 @@ database_patterns = (
         path('people/', views.PeopleListView.as_view(), name='people'),
         path('churches/', views.ChurchListView.as_view(), name='churches'),
         path('home_groups/', views.HomeGroupListView.as_view(), name='home_groups'),
+        path('managers/', views.ManagerListView.as_view(), name='managers')
     ], 'db')
 
 map_patterns = (

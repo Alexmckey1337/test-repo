@@ -16,7 +16,7 @@ from apps.event.models import MeetingType
 
 __all__ = [
     'PeopleListView', 'ChurchListView', 'ChurchDetailView', 'ChurchMapView',
-    'HomeGroupListView', 'HomeGroupDetailView', 'HomeGroupMapView',
+    'HomeGroupListView', 'HomeGroupDetailView', 'HomeGroupMapView', 'ManagerListView'
 ]
 
 
@@ -89,6 +89,16 @@ class PeopleListView(LoginRequiredMixin, TabsMixin, CanSeeUserListMixin, Templat
         extra_ctx['master_options'] = [{'id': u.pk, 'title': u.fullname} for u in extra_ctx['masters']]
         ctx.update(extra_ctx)
 
+        return ctx
+
+
+class ManagerListView(LoginRequiredMixin, TabsMixin, TemplateView):
+    template_name = 'database/manager.html'
+    login_url = 'entry'
+    active_tab = 'managers'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ManagerListView, self).get_context_data(**kwargs)
         return ctx
 
 

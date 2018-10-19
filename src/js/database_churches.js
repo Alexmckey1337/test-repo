@@ -24,7 +24,7 @@ $('document').ready(function () {
 		$pastorFilter = $('#pastor_filter'),
 		init = false,
 		pastorUrl = URLS.church.available_pastors();
-	const USER_ID = $('body').data('user'),
+		const USER_ID = $('body').data('user'),
 		PATH = window.location.href.split('?')[1];
 
 	function initFilterAfterParse(set) {
