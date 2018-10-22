@@ -76,7 +76,8 @@ LOCAL_APPS = (
     'apps.help.apps.HelpConfig',
     'apps.light_auth.apps.LightAuthConfig',
     'apps.tab_column.apps.TabColumnConfig',
-    'apps.testing'
+    'apps.testing',
+    'apps.manager'
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
