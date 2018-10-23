@@ -320,9 +320,9 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             quseyset = quseyset.filter(
                 home_group__church__isnull=(self.request.query_params.get('without_church', 'false') == 'true')
             )
-            return quseyset
+            return quseyset.order_by('-status')
 
-        return self.queryset.for_user(self.request.user)
+        return self.queryset.for_user(self.request.user).order_by('-status')
 
     @action(detail=True, methods=['POST'])
     def clean_image(self, request, pk):
@@ -614,7 +614,7 @@ class ChurchReportViewSet(ModelViewSet, CreatePaymentMixin,
                 When(Q(total_payments__lt=F('value')) & Q(total_payments__gt=0), then=1),
                 When(total_payments__gte=F('value'), then=2),
                 default=0, output_field=IntegerField())
-        )
+        ).order_by('-status')
 
     def get_serializer_class(self):
         if self.action == 'list':
