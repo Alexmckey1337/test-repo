@@ -90,7 +90,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     def get_queryset(self):
         if self.action == 'list':
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
-            quseyset = self.queryset.for_user(self.request.user)
+            quseyset = self.queryset.for_user(self.request.user).order_by('-status')
 
             return quseyset.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
@@ -105,7 +105,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
 
-        return self.queryset.for_user(self.request.user)
+        return self.queryset.for_user(self.request.user).order_by('-status')
 
     @action(detail=True, methods=['POST'])
     def clean_image(self, request, pk):
