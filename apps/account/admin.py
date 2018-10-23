@@ -16,8 +16,10 @@ class GroupManagerInlineForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(GroupManagerInlineForm, self).__init__(*args, **kwargs)
         if not self.instance.id:
-            self.fields['group'].queryset = HomeGroup.objects.exclude(
-                pk__in=GroupsManager.objects.filter(person__isnull=False).values('group__pk'))
+            self.fields['group'].queryset = \
+                HomeGroup.objects.exclude(pk__in=GroupsManager.objects.filter(person__isnull=False).values('group__pk'))
+
+        self.fields['group'].queryset = self.fields['group'].queryset.order_by('title')
 
 
 class HomeGroupInline(admin.TabularInline):
