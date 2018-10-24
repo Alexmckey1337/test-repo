@@ -1,5 +1,6 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView, RetrieveUpdateAPIView, \
 	get_object_or_404
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from apps.manager.models import GroupsManager
@@ -10,7 +11,7 @@ from apps.account.api.permissions import HasUserTokenPermission
 
 class GroupManagerListView(ListCreateAPIView):
     model = GroupsManager
-    permission_classes = (HasUserTokenPermission,)    # TODO: ADD PERMISSIONS FOR THIS ACTIONS
+    permission_classes = (HasUserTokenPermission, IsAdminUser)
     serializer_class = GroupManagerListSerializer
     queryset = GroupsManager.objects.all()
     pagination_class = StandardPagination
@@ -25,7 +26,7 @@ class GroupManagerListView(ListCreateAPIView):
 
 class GroupManagerDetailView(RetrieveUpdateAPIView):
     model = GroupsManager
-    permission_classes = (HasUserTokenPermission,)  # TODO: ADD PERMISSIONS FOR THIS ACTIONS
+    permission_classes = (HasUserTokenPermission, IsAdminUser)
     serializer_class = GroupManagerDetailSerializer
     queryset = GroupsManager.objects.all()
 
