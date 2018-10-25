@@ -247,7 +247,7 @@ function completeFields(data) {
     } else if (data.type.id === 3) {
         dateTitle = 'марафона';
     }
-    if (data.type.id === 2) {
+    if (data.type.id === 2 || data.type.id === 3){
         $('#reportDonations')
             .attr('type', 'text')
             .val((data.status === 2) ? convertNum(data.total_sum, ',') : '')
