@@ -271,9 +271,27 @@ export function getHGLeaders(config = {}) {
     });
 }
 
+export function getHGChurches(config = {}) {
+    let data = {
+        url: URLS.home_group.churches(),
+        data: config
+    };
+    return new Promise(function (resolve, reject) {
+        let codes = {
+            200: function (data) {
+                resolve(data);
+            },
+            400: function (data) {
+                reject(data);
+            }
+        };
+        newAjaxRequest(data, codes, resolve);
+    });
+}
+
 export function getPotentialLeadersForHG(config) {
     return new Promise(function (resolve, reject) {
-        let url = URLS.home_group.potential_leaders();
+            let url = URLS.home_group.potential_leaders();
         ajaxRequest(url, config, function (data) {
             if (data) {
                 resolve(data);
@@ -289,6 +307,20 @@ export function updateLeaderSelect() {
     getPotentialLeadersForHG(config).then(function (data) {
         const pastors = data.map((pastor) => `<option value="${pastor.id}">${pastor.fullname}</option>`);
         $('#added_home_group_pastor').html(pastors).prop('disabled', false).select2();
+    });
+}
+
+export function updateHGLeaderSelect() {
+    const churchId = $('#homeGroupChurch option:selected').attr('data-select2-id')
+    let config = {
+        church: churchId,
+    };
+    getPotentialLeadersForHG(config).then(function (res) {
+        return res.map(function (leader) {
+            return`<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
+        });
+    }).then(function (data) {
+        $('#homeGroupLeader').html(data).prop('disabled', false).select2();
     });
 }
 

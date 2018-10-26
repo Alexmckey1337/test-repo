@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block main.content %}
-    <div class="content content_anketa accordion" id="editHomeGroupForm" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}">
+    <div class="content content_anketa accordion" id="editHomeGroupForm" data-id="{{ home_group.id }}" data-departament_id="{{ home_group.church.department.id }}" >
         <div class="left-contentwrap">
             <div class="left-content">
                 <div class="user-fiowrap">
@@ -135,14 +135,16 @@
                             <h4>Контактные данные</h4>
                             <div class="success__block"></div>
                             <form action="/" id="editChurch" name="editChurch" data-action="update-user">
-                                <button class="edit" data-edit-block="editChurch"></button>
+                                <button class="edit" id="editChurchBtn" data-edit-block="editChurch"></button>
                                 <button class="save__info" type="submit"></button>
                                 <div class="popup_body">
                                     <div class="container">
                                         <label>
                                             <span class="label_block">Церковь:</span>
                                             <div class="input">
-                                                <input type="text" id="church" value="{{ home_group.church }}" data-id="{{ home_group.church.id }}" readonly>
+                                                <select id="homeGroupChurch" data-id="{{ home_group.church.id }}" name="church" readonly="readonly" disabled="disabled">
+                                                    <option value="{{ home_group.church.id }}">{{ home_group.church }}</option>
+                                                </select>
                                                 <a href="/churches/{{ home_group.church.id }}" target="_blank">
                                                     <i class="fa fa-external-link" aria-hidden="true"></i>
                                                 </a>

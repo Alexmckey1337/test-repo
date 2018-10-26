@@ -26,7 +26,8 @@ import {dataURLtoBlob} from './modules/Avatar/index';
 import {showAlert} from "./modules/ShowNotifications/index";
 import {initAddNewUser, createNewUser} from "./modules/User/addUser";
 import accordionInfo from './modules/accordionInfo';
-import {getPotentialLeadersForHG} from "./modules/GetList/index";
+import {getPotentialLeadersForHG, updateHGLeaderSelect} from "./modules/GetList/index";
+import {getHGChurches} from "./modules/GetList/index";
 import pasteLink from './modules/pasteLink';
 import {btnLocationControls} from "./modules/Map/index";
 
@@ -162,6 +163,10 @@ $('document').ready(function () {
         if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
             $(this).closest('form').get(0).reset();
         }
+        if ($(this).data('edit-block') == 'editChurch' && $(this).hasClass('active')) {
+            $(this).closest('form').get(0).reset();
+            $('homeGroupChurch').attr('disabled', true);
+        }
         if ($(this).hasClass('active')) {
             $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
             $input.each(function (i, el) {
@@ -186,7 +191,7 @@ $('document').ready(function () {
             } else {
                 $('.left-contentwrap').find('.search_city_link').css('visibility', '');
                 let leaderId = $('#homeGroupLeader').val(),
-                    churchId = $('#editHomeGroupForm').attr('data-departament_id');
+                    churchId = $('#homeGroupChurch').attr('data-id') || null;
                 $input.each(function () {
                     if (!$(this).hasClass('no__edit')) {
                         if ($(this).attr('disabled')) {
@@ -196,16 +201,19 @@ $('document').ready(function () {
                         if ($(this).is('select') && $(this).is(':not(.no_select)')) {
                             $(this).select2();
                         }
-                        if ($(this).is('#church')) {
-                            $(this).attr('readonly', true);
-                        }else{
-                            $(this).attr('readonly', false);
+                        if ($(this).is('#homeGroupChurch')) {
+                            getHGChurches().then(function (res) {
+                                return res.map(function (church) {
+                                    return `<option value="${church.id}" ${(churchId == church.id) ? 'selected' : ''}> ${church.title} </option>`;
+                                });
+                            }).then(function (data) {
+                                $('#homeGroupChurch').html(data).prop('disabled', false).select2();
+                            });
                         }
                         if ($(this).is('#homeGroupLeader')) {
                             getPotentialLeadersForHG({church: churchId}).then(function (res) {
                                 return res.map(function (leader) {
-                                    return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;
-                                });
+                                    return `<option value="${leader.id}" ${(leaderId == leader.id) ? 'selected' : ''}>${leader.fullname}</option>`;                                });
                             }).then(function (data) {
                                 $('#homeGroupLeader').html(data).prop('disabled', false).select2();
                             });
@@ -332,6 +340,7 @@ $('document').ready(function () {
         $('#address_choose').addClass('address_isHide');
     });
 
+
     $('#editNameBtn').on('click', function () {
         if ($(this).hasClass('active')) {
             $('#editNameBlock').css({
@@ -380,4 +389,9 @@ $('document').ready(function () {
 
     btnLocationControls();
 
+});
+
+// Event to change option in HomeGroupChurch (update potential leaders)
+$('#homeGroupChurch').change(function () {
+    updateHGLeaderSelect();
 });

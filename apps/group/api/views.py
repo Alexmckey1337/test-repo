@@ -37,7 +37,7 @@ from apps.group.api.serializers import (
     HomeGroupListSerializer, ChurchStatsSerializer, UserNameSerializer,
     AllHomeGroupsListSerializer, HomeGroupStatsSerializer, ChurchWithoutPaginationSerializer,
     ChurchDashboardSerializer, ChurchReadSerializer, HomeGroupReadSerializer, ChurchLocationSerializer,
-    HomeGroupLocationSerializer, VoHGSerializer, VoDirectionSerializer)
+    HomeGroupLocationSerializer, VoHGSerializer, VoDirectionSerializer, ChurchNameSerializer)
 from apps.group.api.views_mixins import (ChurchUsersMixin, HomeGroupUsersMixin, ChurchHomeGroupMixin, LocationMixin)
 from apps.group.models import HomeGroup, Church, Direction
 from apps.group.resources import ChurchResource, HomeGroupResource
@@ -514,6 +514,11 @@ class HomeGroupViewSet(LogAndCreateUpdateDestroyMixin, ModelWithoutListViewSet,
         leaders = self.filter_queryset(CustomUser.objects.filter(home_group__leader__isnull=False)).distinct()
 
         return Response(UserNameSerializer(leaders, many=True).data)
+
+    @action(detail=False, methods=['GET'])
+    def churches(self, request):
+        churches = Church.objects.all().order_by('title')
+        return Response(ChurchNameSerializer(churches, many=True).data)
 
     @action(detail=True, methods=["GET"])
     def statistics(self, request, pk):
