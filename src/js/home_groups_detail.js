@@ -160,12 +160,13 @@ $('document').ready(function () {
             }
         });
 
-        if ($(this).data('edit-block') == 'editContact' && $(this).hasClass('active')) {
+        if ($(this).data('edit-block') === 'editContact' && $(this).hasClass('active')) {
             $(this).closest('form').get(0).reset();
         }
-        if ($(this).data('edit-block') == 'editChurch' && $(this).hasClass('active')) {
+        if ($(this).data('edit-block') === 'editChurch' && $(this).hasClass('active')) {
             $(this).closest('form').get(0).reset();
-            $('homeGroupChurch').attr('disabled', true);
+            $('#homeGroupChurch').attr('disabled', true);
+            $('#homeGroupLeader').attr('disabled', true);
         }
         if ($(this).hasClass('active')) {
             $('.left-contentwrap').find('.search_city_link').css('visibility', 'hidden');
@@ -204,7 +205,7 @@ $('document').ready(function () {
                         if ($(this).is('#homeGroupChurch')) {
                             getHGChurches().then(function (res) {
                                 return res.map(function (church) {
-                                    return `<option value="${church.id}" ${(churchId == church.id) ? 'selected' : ''}> ${church.title} </option>`;
+                                    return `<option value="${church.id}" ${(churchId == church.id) ? 'selected' : ''}>${church.title} </option>`;
                                 });
                             }).then(function (data) {
                                 $('#homeGroupChurch').html(data).prop('disabled', false).select2();
