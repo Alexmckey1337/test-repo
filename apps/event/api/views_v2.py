@@ -28,7 +28,8 @@ from apps.event.api.serializers import (
     MeetingStatisticSerializer, ChurchReportSerializer,
     ChurchReportListSerializer, MeetingDashboardSerializer,
     ChurchReportDetailSerializer, ChurchReportsDashboardSerializer,
-    MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer)
+    MeetingSummarySerializer, ChurchReportSummarySerializer, MobileReportsDashboardSerializer,
+    MeetingDetailWithCurrencySerializer)
 from apps.event.models import Meeting, ChurchReport, MeetingAttend
 from common.filters import FieldSearchFilter, OrderingFilterWithPk
 from common.parsers import MultiPartAndJsonParser
@@ -41,11 +42,12 @@ MEETINGS_SUMMARY_ORDERING_FIELDS = ('last_name', 'master__last_name', 'meetings_
 
 EVENT_SUMMARY_SEARCH_FIELDS = {'search_fio': ('last_name', 'first_name', 'middle_name')}
 
+
 class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     queryset = Meeting.objects.select_related('owner', 'type', 'home_group__leader')
 
     serializer_class = MeetingSerializer
-    serializer_retrieve_class = MeetingDetailSerializer
+    serializer_retrieve_class = MeetingDetailWithCurrencySerializer
     serializer_list_class = MeetingListSerializer
 
     permission_classes = (IsAuthenticated,)
@@ -88,7 +90,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
     def get_queryset(self):
         if self.action == 'list':
             subqs = Meeting.objects.filter(owner=OuterRef('owner'), status=Meeting.EXPIRED)
-            quseyset = self.queryset.for_user(self.request.user)
+            quseyset = self.queryset.for_user(self.request.user).order_by('-status')
 
             return quseyset.prefetch_related('attends').annotate_owner_name().annotate(
                 visitors_attended=Sum(Case(
@@ -103,7 +105,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                     When(Q(status=True) & Q(can_s=True), then=True),  # then=True,
                     output_field=BooleanField(), default=True))
 
-        return self.queryset.for_user(self.request.user)
+        return self.queryset.for_user(self.request.user).order_by('-status')
 
     @action(detail=True, methods=['POST'])
     def clean_image(self, request, pk):

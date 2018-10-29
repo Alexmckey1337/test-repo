@@ -180,14 +180,20 @@ class FilterHGLeadersByChurch(BaseFilterBackend):
 class FilterPotentialHGLeadersByChurch(BaseFilterBackend):
     query_name = 'church'
 
-    def filter_queryset(self, request, queryset, view):
-        return queryset
+    # def filter_queryset(self, request, queryset, view):
+    #     return queryset
         # church_id = request.query_params.get(self.query_name)
         #  if not church_id:
         #     return queryset
         # return queryset.filter(
         #     (Q(hhome_group__isnull=True) | Q(hhome_group__church_id=church_id)) &
         #     (Q(cchurch__isnull=True) | Q(cchurch_id=church_id)))
+
+    def filter_queryset(self, request, queryset, view):
+        church_id = request.query_params.get(self.query_name)
+        if not church_id:
+            return queryset
+        return queryset.filter(Q(home_group__church__id=church_id) | Q(home_group__church__isnull=True))
 
     def get_schema_fields(self, view):
         return [

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -9,8 +10,8 @@ from apps.lesson.api.serializers import (
     TextLessonViewSerializer, VideoLessonViewSerializer)
 from apps.lesson.models import TextLesson, VideoLesson, TextLessonLike, VideoLessonLike, TextLessonView, VideoLessonView
 
-
 # Text lessons
+from apps.account.api.permissions import SeeUserListPermission
 
 
 class TextLessonMonthListView(MonthListMixin):
@@ -66,13 +67,13 @@ class TextLessonViewView(ListAPIView):
 
     def get_queryset(self):
         lesson = self.kwargs['slug']
-        user_level = self.request.user.hierarchy.level
         user_departments = self.request.user.departments.all()
+        text_lesson = get_object_or_404(TextLesson, slug=lesson)
 
         queryset = self.model.objects\
             .filter(
                 lesson__slug=lesson,
-                user__hierarchy__level__lt=user_level,
+                user__in=SeeUserListPermission(self.request.user, queryset=text_lesson.views).get_queryset(),
                 user__departments__in=user_departments)\
             .distinct('user_id')
 
@@ -91,13 +92,13 @@ class VideoLessonViewView(ListAPIView):
 
     def get_queryset(self):
         lesson = self.kwargs['slug']
-        user_level = self.request.user.hierarchy.level
+        video_lesson = get_object_or_404(VideoLesson, slug=lesson)
         user_departments = self.request.user.departments.all()
 
         queryset = self.model.objects\
             .filter(
                 lesson__slug=lesson,
-                user__hierarchy__level__lt=user_level,
+                user__in=SeeUserListPermission(self.request.user, queryset=video_lesson.views).get_queryset(),
                 user__departments__in=user_departments)\
             .distinct('user_id')
 

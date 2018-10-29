@@ -1,3 +1,4 @@
+from django.forms import ModelForm
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import AdminPasswordChangeForm
@@ -7,6 +8,26 @@ from import_export.admin import ImportExportModelAdmin
 
 from apps.account.models import CustomUser, UserMarker, MessengerType, UserMessenger, Token
 from apps.account.resources import UserResource
+from apps.manager.models import GroupsManager
+from apps.group.models import HomeGroup
+
+
+class GroupManagerInlineForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(GroupManagerInlineForm, self).__init__(*args, **kwargs)
+        if not self.instance.id:
+            self.fields['group'].queryset = \
+                HomeGroup.objects.exclude(pk__in=GroupsManager.objects.filter(person__isnull=False).values('group__pk'))
+
+        self.fields['group'].queryset = self.fields['group'].queryset.order_by('title')
+
+
+class HomeGroupInline(admin.TabularInline):
+    model = GroupsManager
+    verbose_name = _("Managed group")
+    verbose_name_plural = _("Managed groups")
+    form = GroupManagerInlineForm
+    extra = 1
 
 
 class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
@@ -34,6 +55,7 @@ class CustomUserAdmin(UserAdmin, ImportExportModelAdmin):
     search_fields = ('first_name', 'last_name', 'middle_name')
     change_password_form = AdminPasswordChangeForm
     resource_class = UserResource
+    inlines = (HomeGroupInline, )
 
 
 class UserMessengerAdmin(admin.ModelAdmin):
