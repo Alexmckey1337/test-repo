@@ -52,6 +52,8 @@ module.exports = {
 		proposal: ['babel-polyfill', './proposal'],
 		event_proposal: ['babel-polyfill', './event_proposal'],
 		users_stable: ['babel-polyfill', './users_stable'],
+		//database_managers
+		database_managers: ['babel-polyfill','./database_managers'],
 	},
 	output: {
 		path: path.resolve(__dirname, './public/static/js'),

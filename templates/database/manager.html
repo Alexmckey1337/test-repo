@@ -1,225 +1,57 @@
-{% extends "layout_database.html" %}
-{% load static %}
+{% extends "layout.html" %}
+{% load i18n %}
 
-{% block header.top.h1 %}<h1>База данных / Менеджеры</h1>{% endblock %}
+{% block header.top.h1 %}<h1>{% trans "List of open summits" %}</h1>{% endblock %}
 
-{% block header.buttons.top %}
-    <div class="top-buttons-wrap">
-        <ul class="top-buttons">
-            {% if user.can_create_home_group %}
-                <li>
-                    <button id="add">Добавить группу</button>
-                </li>
-            {% endif %}
-            <li>
-                <button id="filter_button"
-                        class="header__button"
-                        data-count="0"
-                >
-                    Фильтр
-                </button>
-            </li>
-            <li>
-                <button id="map_button" class="header__button">На карте</button>
-            </li>
-            <li>
-                <button id="export_table" data-export-url="{% url "exports-home_group" %}"
-                        class="download header__button">Export
-                </button>
-            </li>
-            <li>
-                <button id="sort-on"><i class="fa fa-cog" aria-hidden="true"></i></button>
-            </li>
-        </ul>
-    </div>
-{% endblock %}
+{% block main.content %}
 
-{% block table %}
-    <div class="table-wrap  clearfix" id="churches"><!--Table -->
-        <div class="table scrollbar-inner" id="tableHomeGroup"></div>
+<script
+src="https://code.jquery.com/jquery-3.3.1.min.js"
+integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+crossorigin="anonymous"></script>
+      
+        
+        <table id="managers">
+            <tr>
+            <th id="manager-title">ФИО</th>
+           
+            </tr>
+            <tr id="manager-row"></tr>
+            
 
-    </div><!--End Table -->
-{% endblock %}
+        </table>
+        <script type="text/javascript"> 
+        $(document).ready(function(){
+            $.ajax({
+                url:"http://127.0.2.1:7000/api/managers"
+            }).then(function(data){
+                var count = data.count;
+                
+                $("<p> Всего "+count+" записей</p>").insertBefore("#managers");
 
-{% block popup.filter.content %}
-    {% include "partials/filter/select.html" with label="Отдел" options=departments name="department_id" %}
-    {% include "partials/filter/select.html" with label="Церковь" options=churches name="church" %}
-    {% include "partials/filter/select.html" with label="Ветка" options=masters name="master_tree" %}
-    {% include "partials/filter/select.html" with label="Лидер" options='' name="leader" %}
-    {% include "partials/filter/input.html" with label="Дата открытия" name="opening_date" custom_data_filter="opening_date" %}
-    {% include "partials/filter/input.html" with label="Город" name="city" custom_data_filter="city" placeholder="город или часть названия" %}
-{% endblock %}
+                for(var i=0;i<count;i++){
 
-{% block popup.other %}
-    <div class="popap popap_slide" id="quickEditCartPopup">
-        <div class="pop_cont">
-            <div class="popup_text">
-                <h2>Карточка Домашней группы</h2>
-            </div>
-            <div class="popup_body">
-            </div>
-            <div class="container">
-                {% if user.can_delete_home_group %}
-                <button id="delete-hg"></button>
-                {% endif %}
-                <button class="close-popup change__text">Отменить</button>
-                <button class="save-group">Сохранить</button>
-            </div>
-        </div>
-    </div>
-    {% if user.can_create_home_group %}
-        <div class="popap popap_slide" id='addHomeGroup'>
-            <div class="pop_cont">
-                <div class="popup_text">
-                    <h2>Добавление домашней группы</h2>
-                </div>
-                <form action="">
-                    <div class="popup_body">
-                        <div class="container container_block">
-                            <label>
-                                <span class="label_block">Дата открытия</span>
-                                <input id="added_home_group_date" required>
-                            </label>
-                            <label>
-                                <span class="label_block">Название</span>
-                                <input type="text" id="added_home_group_title">
-                            </label>
-                            <label>
-                                <span class="label_block">Церковь</span>
-                                <select class="selectdb" id="added_home_group_church_select">
-                                    <option value="">Выберите церковь</option>
-                                    {% for church in churches %}
-                                        <option value="{{ church.id }}">{{ church.title }}</option>
-                                    {% endfor %}
-                                </select>
-                            </label>
-                            <label>
-                                <span class="label_block">Лидер</span>
-                                <select id="added_home_group_pastor" required>
-                                    <option>Выберите пастора</option>
-                                </select>
-                            </label>
-                            <label>
-                                <span class="label_block">Нас.пункт:</span>
-                                <span id="added_home_group_city" data-id="" class="chooseCity select select_small"></span>
-                                <a href="{% url 'search_city' %}" class="search_city_link">Выбрать</a>
-                            </label>
-                            <label>
-                                <span class="label_block">Страна</span>
-                                <span class="select chooseCountry"></span>
-                            </label>
-                            <label>
-                                <span class="label_block">Область</span>
-                                <span class="select chooseRegion"></span>
-                            </label>
-                            <label>
-                                <span class="label_block">Район</span>
-                                <span class="select chooseDistrict"></span>
-                            </label>
-                            <label>
-                                <span class="label_block">Телефон</span>
-                                <input type="tel" id="added_home_group_phone">
-                            </label>
-                            <label>
-                                <span class="label_block">Сайт</span>
-                                <input type="url" id="added_home_group_site">
-                            </label>
-                        </div>
-                    </div>
-                    <div class="container">
-                        <button class="close-popup">Отменить</button>
-                        <button type="submit" class="add-church">Создать</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
-{% block extra_scripts %}
-    <script src="{% static "js/database_home_groups.bundle.js" %}"></script>
-    <script type="text/template" id="quickEditCart">
-        <div class="container bb-1">
-            <div class="header">
-                <div><input type="text" class="title" id="home_groups_title" value="<%=get_title %>"></div>
-                <% if(opening_date) { %>
-                <label>
-                    <span class="label_block">Дата открытия</span>
-                    <input type="text" class="date" id="opening_date"
-                           value="<%= opening_date.split('.').reverse().join('-') %>">
-                </label>
-                <% } else { %>
-                <label>
-                    <span class="label_block">Дата открытия</span>
-                    <input type="text" id="opening_date" class="date" value="">
-                </label>
-                <% } %>
-                <div class="hidden"><input type="text" id="homeGroupsID" value="<%= id %>"></div>
-            </div>
-        </div>
-        <div class="container start">
-            <label>
-                <span class="label_block">Церковь:</span>
-                <input type="text" data-id="<%= church.id %>" value="<%= church.title %>" readonly>
-            </label>
-            <label>
-                <span class="label_block">Лидер:</span>
-                <select name="" id="homeGroupLeader">
-                    <option value="<%= leader %>"><%= leader %></option>
-                </select>
-            </label>
-            <label>
-                <span class="label_block">Нас.пункт:</span>
-                <span id="update_home_group_city" data-id="<% if (locality) { %>
-                                                            <%= locality.id %>
-                                                        <% } %>"
-                      class="chooseCity select select_small">
-                    <% if (locality) { %>
-                        <%= locality.name %>
-                    <% } %>
-                </span>
-                <a href="{% url 'search_city' %}<% if (!locality) { %><%= '?old_city=' + city.replace(' ', '_') %><% } %>"
-                   class="search_city_link">Выбрать</a>
-            </label>
-            <label>
-                <span class="label_block">Страна</span>
-                <span class="select chooseCountry">
-                    <% if (locality) { %>
-                        <%= locality.country_name %>
-                    <% } %>
-                </span>
-            </label>
-            <label>
-                <span class="label_block">Область:</span>
-                <span class="select chooseRegion">
-                    <% if (locality) { %>
-                        <%= locality.area_name %>
-                    <% } %>
-                </span>
-            </label>
-            <label>
-                <span class="label_block">Район</span>
-                <span class="select chooseDistrict">
-                    <% if (locality) { %>
-                        <%= locality.district_name %>
-                    <% } %>
-                </span>
-            </label>
-            <% if (!locality) { %>
-            <label>
-                <span class="label_block">Предположительно</span>
-                <span class="select">
-                    <%= city ? city : '' %>
-                </span>
-            </label>
-            <% } %>
-            <label>
-                <span class="label_block">Телефон:</span>
-                <input type="text" id="phone_number" value="<%=phone_number %>">
-            </label>
-            <label>
-                <span class="label_block">Сайт:</span>
-                <input type="text" id="web_site" value="<%=website %>">
-            </label>
-        </div>
-    </script>
+                $("<tr><td>"+data.result[i].person.fullname+"</td></tr>").insertAfter("#manager-row");
+                
+                }
+                removeDuplicateRows($('table'));
+            })
+        })
+        
+        function removeDuplicateRows($table){
+    function getVisibleRowText($row){
+        return $row.find('td:visible').text().toLowerCase();
+    }
+
+    $table.find('tr').each(function(index, row){
+        var $row = $(row);
+        $row.nextAll('tr').each(function(index, next){
+            var $next = $(next);
+            if(getVisibleRowText($next) == getVisibleRowText($row))
+                $next.remove();
+        })
+    });
+}
+        </script>
+    
 {% endblock %}

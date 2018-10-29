@@ -171,6 +171,10 @@ const HOME_GROUP = {
 	on_map: () => `/api/locations/home_group/`,
 };
 
+const MANAGER =  {
+	table: ()=>`/api/managers/`
+};
+
 const PAYMENT = {
 	deals: () => `/api/payments/deal/`,
 	edit_payment: (id) => `/api/payments/${id}/`,
@@ -246,6 +250,7 @@ const URLS = {
 	export: EXPORT,
 	proposal: PROPOSAL,
 	event_proposal: EVENT_PROPOSAL,
+	manager:MANAGER,
 };
 
 export default URLS;
