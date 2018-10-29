@@ -76,6 +76,7 @@ class MeetingAttend(models.Model):
         ordering = ('meeting__owner', '-meeting__date')
         verbose_name = _('Meeting attend')
         verbose_name_plural = _('Meeting attendees')
+        unique_together = ("user", "meeting")
 
     def __str__(self):
         return '[{}] {} — visitor of {}'.format(
