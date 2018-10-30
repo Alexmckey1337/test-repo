@@ -206,7 +206,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             raise exceptions.ValidationError({
                 'detail': _('Список должен состоять из идентификаторов пользователей, например "13885" ')
             })
-        missed = [user_id for user_id in valid_visitors if user_id not in valid_attends]
+        missed = [user_id for user_id in valid_visitors if int(user_id) not in valid_attends]
 
         if not valid_attends:
             raise exceptions.ValidationError({
