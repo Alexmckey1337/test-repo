@@ -358,6 +358,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                         user=user,
                         attended=attend.get('attended', False),
                         note=attend.get('note', ''),
+                        donate=attend.get('donate'),
 
                         is_stable=user.is_stable,
                         master=user.master,
