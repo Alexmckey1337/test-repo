@@ -1,57 +1,32 @@
 {% extends "layout.html" %}
 {% load i18n %}
-
-{% block header.top.h1 %}<h1>{% trans "List of open summits" %}</h1>{% endblock %}
+{% load static %}
+{% block header.top.h1 %}<h1>Менеджеры</h1>{% endblock %}
 
 {% block main.content %}
 
-<script
-src="https://code.jquery.com/jquery-3.3.1.min.js"
-integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-crossorigin="anonymous"></script>
-      
         
+       
         <table id="managers">
             <tr>
             <th id="manager-title">ФИО</th>
-           
+            
             </tr>
             <tr id="manager-row"></tr>
             
+        
 
         </table>
-        <script type="text/javascript"> 
-        $(document).ready(function(){
-            $.ajax({
-                url:"http://127.0.2.1:7000/api/managers"
-            }).then(function(data){
-                var count = data.count;
-                
-                $("<p> Всего "+count+" записей</p>").insertBefore("#managers");
-
-                for(var i=0;i<count;i++){
-
-                $("<tr><td>"+data.result[i].person.fullname+"</td></tr>").insertAfter("#manager-row");
-                
-                }
-                removeDuplicateRows($('table'));
-            })
-        })
+        <table id="hg-table">
+            <tr id="hg-head">
+                <th>Домашние группы</th>
+            </tr>
+            
+           
+        </table>
         
-        function removeDuplicateRows($table){
-    function getVisibleRowText($row){
-        return $row.find('td:visible').text().toLowerCase();
-    }
-
-    $table.find('tr').each(function(index, row){
-        var $row = $(row);
-        $row.nextAll('tr').each(function(index, next){
-            var $next = $(next);
-            if(getVisibleRowText($next) == getVisibleRowText($row))
-                $next.remove();
-        })
-    });
-}
-        </script>
     
+{% endblock %}
+{% block extra_scripts %}
+        <script src="{% static "js/database_managers.bundle.js" %}"></script>
 {% endblock %}

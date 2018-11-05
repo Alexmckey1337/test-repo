@@ -31,11 +31,13 @@ module.exports = {
 		reports_summary: ['babel-polyfill', './reports_summary'],
 		church_statistics: ['babel-polyfill', './church_statistics'],
 		database_home_groups: ['babel-polyfill', './database_home_groups.js'],
+		database_managers: ['babel-polyfill', './database_managers.js'],
 		map_home_groups: ['babel-polyfill', './map_home_groups'],
 		report_payments: ['babel-polyfill', './report_payments.js'],
 		home_groups_detail: ['babel-polyfill', './home_groups_detail'],
 		home_reports: ['babel-polyfill', './home_reports'],
 		meetings_summary: ['babel-polyfill', './meetings_summary'],
+		
 		// home_reports_detail: ['babel-polyfill', './home_reports_detail'],
 		home_statistics: ['babel-polyfill', './home_statistics'],
 		deals: ['babel-polyfill', './deals'],
@@ -52,8 +54,7 @@ module.exports = {
 		proposal: ['babel-polyfill', './proposal'],
 		event_proposal: ['babel-polyfill', './event_proposal'],
 		users_stable: ['babel-polyfill', './users_stable'],
-		//database_managers
-		database_managers: ['babel-polyfill','./database_managers'],
+		
 	},
 	output: {
 		path: path.resolve(__dirname, './public/static/js'),
