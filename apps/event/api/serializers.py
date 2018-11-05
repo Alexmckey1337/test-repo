@@ -147,10 +147,10 @@ class MeetingListSerializer(MeetingSerializer):
             return str(instance.repentance_count)
 
     def calculate_total_sum(self, instance):
-        if instance.type.id == 3:
-            return ''
-        else:
-            return str(instance.total_sum)
+        # if instance.type.id == 3:
+        #     return ''
+        # else:
+        return str(instance.total_sum)
 
     def calculate_currency(self, instance):
         if instance.home_group.church:

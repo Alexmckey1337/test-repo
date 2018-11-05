@@ -166,6 +166,7 @@ const HOME_GROUP = {
 	add_user: (groupId) => `/api/home_groups/${groupId}/add_user/`,
 	for_select: () => `/api/home_groups/for_select/`,
 	leaders: () => `/api/home_groups/leaders/`,
+	churches: () =>`/api/home_groups/churches/`,
 	potential_leaders: () => `/api/home_groups/potential_leaders/`,
 	create_report: (id) => `/api/home_groups/${id}/create_report/`,
 	on_map: () => `/api/locations/home_group/`,

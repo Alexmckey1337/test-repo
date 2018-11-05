@@ -50,7 +50,7 @@ class MeetingAttend(models.Model):
 
     attended = models.BooleanField(_('Attended'), default=False)
     note = models.TextField(_('Note'), blank=True)
-
+    donate = models.FloatField('10%', validators=[MinValueValidator(0)], default=0, blank=True)
     is_stable = models.NullBooleanField(_('Is Stable'), null=True, blank=True, editable=False)
     master = models.ForeignKey(
         'account.CustomUser', on_delete=models.PROTECT,
@@ -76,6 +76,7 @@ class MeetingAttend(models.Model):
         ordering = ('meeting__owner', '-meeting__date')
         verbose_name = _('Meeting attend')
         verbose_name_plural = _('Meeting attendees')
+        unique_together = ("user", "meeting")
 
     def __str__(self):
         return '[{}] {} — visitor of {}'.format(

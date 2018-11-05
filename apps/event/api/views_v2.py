@@ -164,8 +164,8 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
                         home_group=user.hhome_group,
                     ))
                 MeetingAttend.objects.bulk_create(new_attends)
-        except IntegrityError:
-            data = {'detail': _('При сохранении возникла ошибка. Попробуйте еще раз.')}
+        except IntegrityError as e:
+            data = {'detail': _(str(e))}
             return Response(data, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         headers = self.get_success_headers(meeting_serializer.data)
@@ -206,7 +206,7 @@ class MeetingViewSet(ModelViewSet, EventUserTreeMixin):
             raise exceptions.ValidationError({
                 'detail': _('Список должен состоять из идентификаторов пользователей, например "13885" ')
             })
-        missed = [user_id for user_id in valid_visitors if user_id not in valid_attends]
+        missed = [user_id for user_id in valid_visitors if int(user_id) not in valid_attends]
 
         if not valid_attends:
             raise exceptions.ValidationError({

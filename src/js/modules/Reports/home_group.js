@@ -75,6 +75,22 @@ function makeHomeReportsTable(data, config = {}, pagination = true) {
     btnEditReport();
 }
 
+function updateTithe() {
+    $('#tableUsers input').on('change', function () {
+    let $items = $('#tableUsers').find('input'),
+        sumDonation = 0;
+    $items.each(function () {
+        let elem = $(this),
+            user_id = parseInt(elem.attr('data-user_id')),
+            donate = $('[data-donate-user_id="' + user_id + '"][type="number"]').val();
+        if (donate && !isNaN(donate)) {
+            sumDonation = (sumDonation * 100 + donate * 100) / 100;
+        }
+    });
+    $('#HomeReportTithe').val(sumDonation);
+    });
+}
+
 function btnControls() {
     $('button.view_img').on('click', function (e) {
         e.stopPropagation();
@@ -135,6 +151,7 @@ function btnEditReport() {
                 getReportUserTable(data.id);
             $('#editReport,.bg').addClass('active');
         });
+        // updateTithe();
     });
 }
 
@@ -188,14 +205,18 @@ function reportData() {
             user_id = parseInt(elem.attr('data-user_id')),
             id = parseInt(elem.attr('data-id')),
             attended = elem.prop("checked"),
-            data = {user_id, attended};
+            data = {user_id, attended},
+            donate = $('[data-donate-user_id="' + user_id + '"][type="number"]').val();
+        (donate) && (data.donate = donate) || (data.donate = 0);
         (id) && (data.id = id);
+
         attends.push(data);
     });
     data.append('attends', JSON.stringify(attends));
     console.log(data);
     return data;
 }
+
 
 export function deleteReport(callback, config = {}, pagination = true) {
     let msg = 'Вы действительно хотите удалить данный отчет',
@@ -247,7 +268,7 @@ function completeFields(data) {
     } else if (data.type.id === 3) {
         dateTitle = 'марафона';
     }
-    if (data.type.id === 2) {
+    if (data.type.id === 2 || data.type.id === 3){
         $('#reportDonations')
             .attr('type', 'text')
             .val((data.status === 2) ? convertNum(data.total_sum, ',') : '')
@@ -275,12 +296,18 @@ function completeFields(data) {
 			.closest('label')
 			.css('display', 'none');
 	}
+	// Remove validation from total_sum in report for night type (3 type - марафон).
+	if (data.type.id === 3) {
+	    $('#reportDonations').removeAttr('data-validation data-validation-regexp');
+    }
 	if (data.home_group.church !== null){
         $('#extra_fields')
 			.css('display', 'none');
     } else {
 	    $('#extra_fields')
 			.css('display', 'block');
+	    $('#HomeReportTithe').attr('data-validation-regexp', '^(?:[1-9]\\d*|0)?(?:\\.\\d+)?$');
+	    $('#HomeReportDonation').attr('data-validation-regexp', '^(?:[1-9]\\d*|0)?(?:\\.\\d+)?$');
     }
     if (!data.can_submit) {
         showAlert(data.cant_submit_cause);
@@ -313,14 +340,25 @@ function makeReportUserTable(data) {
                                         data-user_id="${item.user_id}"/>`
                             }
                             <span></span>
+                            <input class="userDonate" name="donate" type="hidden" step=".01" data-donate-user_id=${item.user_id} alt="10%">
                         </label>`
+
+            
             }).join('')}`;
     } else {
         nodeElem = `<label><p class="update-title">Люди</p></label>
                     <label><span>В домашней группе нет людей</span></label>`
     }
     $('#tableUsers').append(nodeElem);
+    updateTithe();
+
+    let $items = $('#tableUsers').find('input');
+    $items.each(function () {
+        let user_id = parseInt($(this).attr('data-user_id'));
+        toggle('[data-user_id="' + user_id + '"]', '[data-donate-user_id="' + user_id + '"]', 'hidden', 'number');
+    })
 }
+
 
 export function makeHomeReportDetailTable(data) {
     let tmpl = $('#databaseHomeReports').html();
@@ -485,4 +523,16 @@ function handleImgFileSelect(e) {
         })();
         reader.readAsDataURL(file);
     }
+}
+
+
+function toggle(el, obj, firstType, secondType) {
+    let $input = $(obj);
+    $(el).on('click', function () {
+        if ($input.attr('type') === firstType) {
+            $input.attr('type', secondType)
+        } else {
+            $input.attr('type', firstType)
+        }
+    });
 }
