@@ -306,6 +306,8 @@ function completeFields(data) {
     } else {
 	    $('#extra_fields')
 			.css('display', 'block');
+	    $('#HomeReportTithe').attr('data-validation-regexp', '^(?:[1-9]\\d*|0)?(?:\\.\\d+)?$');
+	    $('#HomeReportDonation').attr('data-validation-regexp', '^(?:[1-9]\\d*|0)?(?:\\.\\d+)?$');
     }
     if (!data.can_submit) {
         showAlert(data.cant_submit_cause);
