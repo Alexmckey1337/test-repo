@@ -27,7 +27,7 @@ module.exports = {
 		map_churches: ['babel-polyfill', './map_churches'],
 		churches_detail: ['babel-polyfill', './churches_detail'],
 		church_reports: ['babel-polyfill', './church_reports'],
-		// church_report_detail: ['babel-polyfill', './church_report_detail'],
+		// church_report_detail: ['babel-polyfill', './church_report_detail']
 		reports_summary: ['babel-polyfill', './reports_summary'],
 		church_statistics: ['babel-polyfill', './church_statistics'],
 		database_home_groups: ['babel-polyfill', './database_home_groups.js'],

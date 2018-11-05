@@ -42,7 +42,6 @@ for(var i = 0;i<count;i++){
     removeDuplicateRows($('table'));  
     })
 
-
 function removeDuplicateRows($table){
 function getVisibleRowText($row){
 return $row.find('td:visible').text().toLowerCase();
