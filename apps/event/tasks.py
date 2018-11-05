@@ -27,7 +27,7 @@ def create_meeting_with_church(home_group, current_date, meeting_type):
 def create_meeting_without_church(home_group, current_date, meeting_type, currency):
     Meeting.objects.get_or_create(
         home_group=home_group, owner=home_group.leader, date=current_date,
-        type=meeting_type, tithe=0.00, donation=0.00, currency=currency
+        type=meeting_type, tithe=0, donation=0, currency=currency
     )
 
 

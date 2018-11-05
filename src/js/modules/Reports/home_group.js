@@ -296,6 +296,10 @@ function completeFields(data) {
 			.closest('label')
 			.css('display', 'none');
 	}
+	// Remove validation from total_sum in report for night type (3 type - марафон).
+	if (data.type.id === 3) {
+	    $('#reportDonations').removeAttr('data-validation data-validation-regexp');
+    }
 	if (data.home_group.church !== null){
         $('#extra_fields')
 			.css('display', 'none');
